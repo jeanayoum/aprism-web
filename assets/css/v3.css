@@ -913,7 +913,7 @@ body.ver-3.v2-2.v3 .delta3 .delta3-name b {
   font-size: var(--font-size-16);
   line-height: var(--font-line-height-24);
 }
-body.ver-3.v2-2.v3 .delta3:not(.is-open) .delta3-name { padding: 10px var(--space-12) 2px; }
+body.ver-3.v2-2.v3 .delta3:not(.is-open) .delta3-name { padding: 10px var(--space-12) var(--space-2); }
 body.ver-3.v2-2.v3 .delta3.is-open .delta3-name { padding: 10px var(--space-8) 2px var(--space-12); }
 :root[data-theme][data-delta][data-glow] body.ver-3.v2-2.v3.d3-bar .delta3 .delta3-name { padding: 6px var(--space-12); }
 :root[data-theme][data-delta][data-glow] body.ver-3.v2-2.v3.d3-bar .delta3.is-open .delta3-name { padding: 6px var(--space-8) 6px var(--space-12); }

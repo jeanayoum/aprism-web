@@ -441,7 +441,7 @@ a.map-floor {
 /* 평소엔 아이콘 몫(32)만 비우고, 줄에 올라가 "안전진단" 글자가 붙을 때만 그만큼(88) 더 비운다 —
    늘 88 을 비우면 위험 제목("… NG 1건 발견")이 평소에도 잘렸다. */
 /* 10/19 — 알림명이 첫 줄로 올라가 버튼은 맨 아래 줄(위치 · 전체 층 화면은 미션) 오른쪽에 선다. */
-.ah-row .ah-item > :last-child { padding-right: 32px; }
+.ah-row .ah-item > :last-child { padding-right: var(--space-32); }
 .ah-row:hover .ah-item > :last-child,
 .ah-row:focus-within .ah-item > :last-child { padding-right: 88px; }
 
