@@ -329,6 +329,9 @@
        반지름 13.6(굵기 2.4) → 안쪽 가장자리가 배지(12.8)에 0.4 겹쳐 사이 틈 · 실선 없음 */
     .c1 .prg.cdr .bar { stroke-linecap: butt; stroke-dasharray: 1; animation: cdRing 3s linear infinite; }
     @keyframes cdRing { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 1; } }
+    /* 11/17 재측정 로딩 — 카운트다운 링과 같은 꼴, 4초 동안 차오름 */
+    .c1 .prg.cdr.pg .bar { animation: pgFill 4s linear infinite; }
+    @keyframes pgFill { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
     .c1.y .prg .trk { stroke: rgba(0,0,0,.18); } .c1.y .prg .bar { stroke: #111; }
     @keyframes waveFill { 0% { transform: scale(1); opacity: .55; } 100% { transform: scale(1.3); opacity: 0; } }
     /* 1.3배 = 반지름 19.5cqw — 배지 중심(19.6cqw)에서 화면 왼쪽 끝 안 · 글 시작선(41.6cqw) 앞 · 위아래 안에서 끝남 */
@@ -506,7 +509,7 @@ const K3=t=>`<p class="k3">${t}</p>`, K15=t=>`<p class="k15">${t}</p>`;
 const keys=a=>`<div>${a.map(K3).join('')}</div>`;
 const KL=(ko,en)=>keys(L(ko,en));
 const badge=(svg,{ring,anim}={})=>`<span class="ic">${ring?'<i></i><i></i>':''}${anim?`<span class="${anim}">${svg}</span>`:svg}</span>`;
-const prog=svg=>`<span class="ic"><svg class="prg" viewBox="0 0 32 32"><circle class="trk" cx="16" cy="16" r="14"/><circle class="bar" cx="16" cy="16" r="14"/></svg>${svg}</span>`;
+const prog=svg=>`<span class="ic"><svg class="prg cdr pg" viewBox="0 0 32 32"><circle class="bar" pathLength="1" cx="16" cy="16" r="13.6"/></svg>${svg}</span>`;  /* 11/17 카운트다운 링과 같은 꼴(트랙 없음 · 배지에 붙음 · 각진 끝), 4초 동안 차오름 */
 const CD=`<span class="ic cdb"><span class="num"><span class="cd"><span class="n3">3</span><span class="n2">2</span><span class="n1">1</span></span></span></span>`;  /* 11/17 숫자도 배지 안 */
 const CDR=`<span class="ic cdb"><svg class="prg cdr" viewBox="0 0 32 32"><circle class="bar" pathLength="1" cx="16" cy="16" r="13.6"/></svg><span class="num"><span class="cd"><span class="n3">3</span><span class="n2">2</span><span class="n1">1</span></span></span></span>`;  /* 비교용: 1초마다 줄어드는 링 */
 const A=(c,sym,key,sen)=>`<div class="c1 ${c}"><div class="sym">${sym}</div><div class="key">${key}${sen?K15(sen):''}</div></div>`;
@@ -521,7 +524,7 @@ const SCENES=[
   {n:'02',t:['주변감지','Area scan'],src:['주변을 확인하고 있습니다 + 사람 아이콘','Checking the surroundings + person icon'],m:['가로선이 사람을 위→아래로 훑음 + 면 파동, 2.4초','Scan line sweeps the figure + filled ripples, 2.4s'],
    s:()=>A('b',badge(I.person,{ring:1}),KL(['주변','확인 중'],['AREA','CHECK']),L('작업자 1명 감지','WORKER NEAR'))},
   {n:'03',t:['사전 예고','Advance notice'],src:['3초 후 기립합니다 “3” → “2” → “1”','Standing up in 3 seconds “3” → “2” → “1”'],m:['숫자 1초마다 전환, 바닥 1m 원과 같은 박자','Number changes every 1s, in sync with the 1m floor ring'],
-   s:()=>A('y',CD,KL(['곧','기립'],['RISING','SOON']),L('물러나세요','STEP BACK'))},  /* 11/17 '초 후'가 배지 숫자와 갈라져 끊겨 보여, 숫자 없이도 서는 문구로 */
+   s:()=>A('y',CD,K3(L('곧 기립','RISING SOON')),L('물러나세요','STEP BACK'))},  /* 11/17 '초 후'가 배지 숫자와 갈라져 끊겨 보여, 숫자 없이도 서는 문구로 · 한 줄 */
   {n:'04',t:['저속기립','Slow rise'],src:['천천히 일어나는 중입니다','Standing up slowly'],m:['↑ 화살표가 아래에서 위로 그려짐, 1.6초 반복','↑ arrow draws bottom to top, 1.6s loop'],
    s:()=>A('y',badge(I.up,{anim:'bob'}),K3(L('기립 중','RISING')),L('천천히 기립 중','SLOW RISE'))},
   {n:'05',t:['기립완료','Standing'],src:['기립완료·미션 시작 + 체크 아이콘','Standing complete · mission start + check icon'],m:['체크 0.6초 팝, 머무는 동안 3.2초마다 다시 그려짐','Check pops, 0.6s, then redraws every 3.2s'],
