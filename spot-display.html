@@ -283,11 +283,11 @@
     /* ↗ 머리: 밑변(0% 23.08% ~ 76.92% 100%)과 평행한 선이 꼭짓점(100% 0%) 쪽으로 밀려가며 드러남 */
     @keyframes hdNe { 0%, 38% { clip-path: polygon(0% 23.08%, 76.92% 100%, 76.92% 100%, 0% 23.08%); opacity: 1; } 55%, 85% { clip-path: polygon(0% 23.08%, 76.92% 100%, 100% 0%, 100% 0%); opacity: 1; } 100% { clip-path: polygon(0% 23.08%, 76.92% 100%, 100% 0%, 100% 0%); opacity: 0; } }
 
-    /* ===== 11/17 기호 모션 시안 (비교 칸 전용 — .mlab 안에서만) =====
+    /* ===== 11/17 기호 부품 모션 — 시안 비교 뒤 6종 모두 보드에 적용 =====
        문법 셋: 그려짐(선) · 차오름(면) · 움직임(부품이 의미대로). 대부분 시간은 완성된 기호로 머문다 */
     .mlab-sub { color: var(--text-tertiary); font-size: var(--font-size-13); font-weight: 400; }
-    .mlab-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-12); }
-    @media (max-width: 1100px) { .mlab-grid { grid-template-columns: minmax(0, 1fr); } }
+    .mlab-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-12); }
+    @media (max-width: 1100px) { .mlab-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 640px) { .mlab-grid { grid-template-columns: minmax(0, 1fr); } }
     .mlab-card { display: flex; flex-direction: column; gap: var(--space-8); padding: var(--space-12); border: var(--border-width-thin) solid var(--border-divider); border-radius: var(--radius-card); background-color: var(--bg-panel); min-width: 0; }
     .mlab-card h3 { margin: 0; color: var(--text-primary); font-size: var(--font-size-14); }
@@ -296,27 +296,29 @@
     .mlab-pair figcaption { color: var(--text-tertiary); font-size: var(--font-size-12); }
     .mlab-pair figure.new figcaption { color: var(--text-primary); font-weight: 700; }
     .mlab-card > p { margin: 0; color: var(--text-secondary); font-size: var(--font-size-13); line-height: var(--font-line-height-20); word-break: keep-all; }
-    .mlab .pls { animation: none; }
+    .c1 .pls { animation: none; }  /* 11/17 맥동 대신 부품 모션(금지 · 안전모 착용) */
     /* 1 배터리 충전 — 안쪽 칸이 왼→오 차오름 */
     .c1 .bfill { animation: mlFill 2.4s cubic-bezier(.4,0,.2,1) infinite; }  /* 11/17 시나리오 보드에도 적용 */
     @keyframes mlFill { 0% { clip-path: inset(0 100% 0 0); } 55%, 100% { clip-path: inset(0 0 0 0); } }
-    /* 2 금지 — 원은 그대로, 사선이 그어짐 */
-    .mlab .bslash { animation: mlSlash 2.4s cubic-bezier(.5,0,.3,1) infinite; }
-    @keyframes mlSlash { 0% { stroke-dasharray: 1; stroke-dashoffset: 1; } 30%, 100% { stroke-dasharray: 1; stroke-dashoffset: 0; } }
+    /* 2 금지 — 원이 왼쪽 위에서 한 바퀴 그려진 뒤, 같은 점에서 사선이 그어짐 */
+    .c1 .bring { animation: mlRing 2.8s cubic-bezier(.45,0,.3,1) infinite; }
+    .c1 .bslash { animation: mlSlash 2.8s cubic-bezier(.45,0,.3,1) infinite; }
+    @keyframes mlRing { 0% { stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 1; } 35%, 90% { stroke-dasharray: 1; stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dasharray: 1; stroke-dashoffset: 0; opacity: 0; } }
+    @keyframes mlSlash { 0%, 35% { stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 1; } 55%, 90% { stroke-dasharray: 1; stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dasharray: 1; stroke-dashoffset: 0; opacity: 0; } }
     /* 3 안전모 — 챙까지 전체가 위에서 내려와 안착 */
-    .mlab .hdome { animation: mlDon 3.2s cubic-bezier(.3,1.3,.5,1) infinite; }
+    .c1 .pls .hdome { animation: mlDon 3.2s cubic-bezier(.3,1.3,.5,1) infinite; }
     @keyframes mlDon { 0% { transform: translateY(-48px); } 30% { transform: translateY(0); } 88% { transform: translateY(0); } 100% { transform: translateY(-48px); } }
     /* 4 마이크 — 몸통 안 소리 레벨이 오르내림 */
-    .mlab .mlev { animation: mlLev 1.4s ease-in-out infinite; }
+    .c1 .mlev { animation: mlLev 1.4s ease-in-out infinite; }
     @keyframes mlLev { 0%, 100% { clip-path: inset(72% 0 0 0); } 20% { clip-path: inset(28% 0 0 0); } 40% { clip-path: inset(55% 0 0 0); } 60% { clip-path: inset(12% 0 0 0); } 80% { clip-path: inset(45% 0 0 0); } }
     /* 5 사람 감지 — 가로선이 위→아래로 훑음 */
-    .mlab .pscan { animation: mlScan 2.4s ease-in-out infinite; }
+    .c1 .pscan { opacity: 0; animation: mlScan 2.4s ease-in-out infinite; }
     @keyframes mlScan { 0% { transform: translateY(0); opacity: 0; } 8% { opacity: 1; } 60% { transform: translateY(196px); opacity: 1; } 68%, 100% { transform: translateY(196px); opacity: 0; } }
     /* 6 계단 — 계단이 그려진 뒤 점(로봇)이 한 칸씩 오름 */
-    .mlab .stp path { animation-duration: 2.4s; }
-    .mlab .sdot { animation: mlDot 2.4s ease-in-out infinite; }
+    .c1 .stp path { animation-duration: 2.4s; }
+    .c1 .sdot { opacity: 0; animation: mlDot 2.4s ease-in-out infinite; }
     @keyframes mlDot { 0%, 38% { transform: translate(0, 0); opacity: 0; } 42% { transform: translate(0, 0); opacity: 1; } 49% { transform: translate(28px, -64px); } 56% { transform: translate(55px, -50px); } 63% { transform: translate(80px, -114px); } 70%, 90% { transform: translate(105px, -100px); opacity: 1; } 100% { transform: translate(105px, -100px); opacity: 0; } }
-    @media (prefers-reduced-motion: reduce) { .mlab * { animation: none !important; } }
+    @media (prefers-reduced-motion: reduce) { .c1 .pscan, .c1 .sdot { animation: none !important; opacity: 0; } }
     @keyframes waveFill { 0% { transform: scale(1); opacity: .55; } 100% { transform: scale(1.3); opacity: 0; } }
     /* 1.3배 = 반지름 19.5cqw — 배지 중심(19.6cqw)에서 화면 왼쪽 끝 안 · 글 시작선(41.6cqw) 앞 · 위아래 안에서 끝남 */
     .c1 > .sym { overflow: visible; }  /* 바탕 있던 시절의 자르기 — 파동이 기호 칸 오른쪽에서 잘리던 원인 */
@@ -444,7 +446,7 @@
       </section>
 
       <section aria-labelledby="mlab-h">
-        <h2 class="sec-h" id="mlab-h">기호 모션 시안 <small class="mlab-sub">— 지금 / 시안 비교 · 레퍼런스: 기호의 한 부품이 의미대로 움직이는 아이콘 모션 (이 칸에서만 돌고, 아래 시나리오 보드는 지금 모션 그대로)</small></h2>
+        <h2 class="sec-h" id="mlab-h">기호 부품 모션 <small class="mlab-sub">— 기호의 한 부품이 의미대로 움직인다(11/17 시안 비교 뒤 6종 모두 보드에 적용) · 문법: 그려짐 · 차오름 · 움직임</small></h2>
         <div class="mlab-grid" id="mlab"></div>
       </section>
 
@@ -471,18 +473,18 @@ const I={
      11/17 Figma Pictogram(828:2780) 디자이너 수정본 — 240 그리드, 원형 배지 지름 = 240(그림 상자 전체). 배지 원은 CSS(.ic) 가 그린다.
      bat · batLow 는 색이 든 기호라 판 색과 상관없이 흰 배지(.fx) — tablet 은 11/17 단색으로 바뀜 */
   check:`<svg viewBox="0 0 240 240"><path class="ck" pathLength="1" d="M60 120L100 160L180 80" fill="none" stroke="currentColor" stroke-width="30" stroke-miterlimit="10" stroke-linejoin="round"/></svg>`,
-  person:`<svg viewBox="0 0 240 240"><path d="M120 70C133.807 70 145 58.8071 145 45C145 31.1929 133.807 20 120 20C106.193 20 95 31.1929 95 45C95 58.8071 106.193 70 120 70Z" fill="currentColor"/><path d="M80 100C80 88.9543 88.9543 80 100 80H140C151.046 80 160 88.9543 160 100V150H140V210H100V150H80V100Z" fill="currentColor"/></svg>`,
+  person:`<svg viewBox="0 0 240 240"><path d="M120 70C133.807 70 145 58.8071 145 45C145 31.1929 133.807 20 120 20C106.193 20 95 31.1929 95 45C95 58.8071 106.193 70 120 70Z" fill="currentColor"/><path d="M80 100C80 88.9543 88.9543 80 100 80H140C151.046 80 160 88.9543 160 100V150H140V210H100V150H80V100Z" fill="currentColor"/><rect class="pscan" x="40" y="14" width="160" height="8" fill="currentColor"/></svg>`,
   up:`<svg viewBox="0 0 240 240"><g class="wp-up"><path d="M120 30L170 110H135V200H105V110H70Z" fill="currentColor"/></g></svg>`,
   right:`<svg viewBox="0 0 240 240"><g class="wp-rt"><path d="M210 120L130 170V135H40V105H130V70Z" fill="currentColor"/></g></svg>`,
-  ban:`<svg viewBox="0 0 240 240"><circle cx="120" cy="120" r="81" fill="none" stroke="currentColor" stroke-width="30"/><path d="M58 58L182 182" stroke="currentColor" stroke-width="30"/></svg>`,
+  ban:`<svg viewBox="0 0 240 240"><path class="bring" pathLength="1" d="M62.72 62.72A81 81 0 1 1 177.28 177.28A81 81 0 1 1 62.72 62.72" fill="none" stroke="currentColor" stroke-width="30"/><path class="bslash" pathLength="1" d="M62.72 62.72L177.28 177.28" stroke="currentColor" stroke-width="30"/></svg>`,  /* 11/17 원이 왼쪽 위(사선 시작점)에서 그려진 뒤 같은 점에서 사선 */
   detour:`<svg viewBox="0 0 240 240"><path class="drw" pathLength="1" d="M70 190V125C70 102.909 87.9086 85 110 85H145" fill="none" stroke="currentColor" stroke-width="30"/><path class="hd h-rt" d="M210 85.0875L130 135L130 36L210 85.0875Z" fill="currentColor"/></svg>`,
   gauge:`<svg viewBox="0 0 240 240"><path d="M201 120C201 75.2649 164.735 39 120 39C75.2649 39 39 75.2649 39 120" fill="none" stroke="currentColor" stroke-width="30"/><g class="ndl" style="transform-origin:120px 130px"><path fill-rule="evenodd" d="M152.669 86.9102C157.721 83.3754 163.739 89.6954 160.373 95L144.562 125.326C144.848 126.84 145 128.403 145 130C145 143.807 133.807 155 120 155C106.193 155 95.0001 143.807 95 130C95 116.193 106.193 105 120 105C120.789 105 121.569 105.038 122.339 105.109L152.669 86.9102ZM120 120C114.477 120 110 124.477 110 130C110 135.523 114.477 140 120 140C125.523 140 130 135.523 130 130C130 124.477 125.523 120 120 120Z" fill="currentColor"/></g></svg>`,
   wave:`<svg viewBox="0 0 240 240" class="spk"><path d="M30 90H50L120 50V190L50 150H30Z" fill="currentColor"/><path class="w" d="M155.355 84.6447C174.882 104.171 174.882 135.829 155.355 155.355" fill="none" stroke="currentColor" stroke-width="20"/><path class="w w2" d="M177.275 62.7244C208.908 94.3568 208.908 145.643 177.275 177.276" fill="none" stroke="currentColor" stroke-width="20"/></svg>`,
-  helmet:`<svg viewBox="0 0 240 240"><path d="M210 140V160H30V140Z" fill="currentColor"/><path d="M130 40V80H110V40Z" fill="currentColor"/><path fill-rule="evenodd" d="M140 50.709C173.923 55.5613 200 84.7353 200 120V130H40V120C40 84.7353 66.0771 55.5613 100 50.709V80C100 85.5228 104.477 90 110 90H130C135.523 90 140 85.5258 140 80.0029V50.709ZM130 50V70C130 75.5228 125.523 80 120 80C114.477 80 110 75.5228 110 70V50H130Z" fill="currentColor"/></svg>`,
-  mic:`<svg viewBox="0 0 240 240"><path d="M120 160V195" stroke="currentColor" stroke-width="20"/><path d="M80 200H160" stroke="currentColor" stroke-width="20"/><path d="M70 120V130C70 146.569 83.4315 160 100 160H140C156.569 160 170 146.569 170 130V120" fill="none" stroke="currentColor" stroke-width="20" stroke-linejoin="round"/><rect x="90" y="30" width="60" height="110" rx="20" fill="currentColor"/></svg>`,
+  helmet:`<svg viewBox="0 0 240 240"><g class="hdome"><path d="M210 140V160H30V140Z" fill="currentColor"/><path d="M130 40V80H110V40Z" fill="currentColor"/><path fill-rule="evenodd" d="M140 50.709C173.923 55.5613 200 84.7353 200 120V130H40V120C40 84.7353 66.0771 55.5613 100 50.709V80C100 85.5228 104.477 90 110 90H130C135.523 90 140 85.5258 140 80.0029V50.709ZM130 50V70C130 75.5228 125.523 80 120 80C114.477 80 110 75.5228 110 70V50H130Z" fill="currentColor"/></g></svg>`,
+  mic:`<svg viewBox="0 0 240 240"><path d="M120 160V195" stroke="currentColor" stroke-width="20"/><path d="M80 200H160" stroke="currentColor" stroke-width="20"/><path d="M70 120V130C70 146.569 83.4315 160 100 160H140C156.569 160 170 146.569 170 130V120" fill="none" stroke="currentColor" stroke-width="20" stroke-linejoin="round"/><rect x="90" y="30" width="60" height="110" rx="20" fill="currentColor" fill-opacity=".3"/><rect class="mlev" x="90" y="30" width="60" height="110" rx="20" fill="currentColor"/></svg>`,
   pause:`<svg viewBox="0 0 240 240" class="pz"><rect x="70" y="70" width="30" height="100" fill="currentColor"/><rect x="140" y="70" width="30" height="100" fill="currentColor"/></svg>`,
   uturn:`<svg viewBox="0 0 240 240"><path class="drw" pathLength="1" d="M170 190V90C170 67.9086 152.091 50 130 50H120C97.9086 50 80 67.9086 80 90V135" fill="none" stroke="currentColor" stroke-width="30"/><path class="hd h-dn" d="M80 200L130 120H30L80 200Z" fill="currentColor"/></svg>`,
-  stairs:`<svg viewBox="0 0 240 240" class="stp"><path pathLength="40" d="M40 170H100V120H150V70H200" fill="none" stroke="currentColor" stroke-width="30" stroke-linejoin="round"/></svg>`,
+  stairs:`<svg viewBox="0 0 240 240" class="stp"><path pathLength="40" d="M40 170H100V120H150V70H200" fill="none" stroke="currentColor" stroke-width="30" stroke-linejoin="round"/><circle class="sdot" cx="70" cy="142" r="13" fill="currentColor"/></svg>`,
   diag:`<svg viewBox="0 0 240 240"><path class="drw" pathLength="1" d="M60 180.5L141 99.5" stroke="currentColor" stroke-width="30"/><path class="hd h-ne" d="M186.924 53.3553L165.71 145.279L94.9998 74.5685L186.924 53.3553Z" fill="currentColor"/></svg>`,
   tablet:`<svg viewBox="0 0 240 240"><rect x="70" y="50" width="100" height="140" rx="10" fill="none" stroke="currentColor" stroke-width="20"/><path d="M95 120L111.667 136L145 104" fill="none" stroke="currentColor" stroke-width="20" stroke-miterlimit="10" stroke-linejoin="round"/></svg>`,  /* 11/17 초록 화면 뺌 — 단색, 판 규칙대로(노랑 판 = 검은 원 + 노란 기호) */
   bat:`<span class="ic fx"><svg viewBox="0 0 240 240" class="fx"><rect x="30" y="60" width="160" height="120" rx="20" fill="#111"/><rect x="205" y="105" width="10" height="30" rx="5" fill="none" stroke="#111" stroke-width="10"/><rect class="bfill" x="50" y="80" width="60" height="80" rx="10" style="fill:var(--pl)"/><path d="M112.695 86.3656C114.492 84.21 118 85.4803 118 88.2861V112H135.595C138.138 112 139.528 114.967 137.9 116.921L107.305 153.634C105.508 155.79 102 154.52 102 151.714V128H84.4051C81.8616 128 80.4721 125.033 82.1005 123.079L112.695 86.3656Z" fill="#fff"/></svg></span>`,  /* 11/17 Figma 수정본: 볼트 외곽선 뺌 · 둥근 모서리 · 안쪽 칸 rx10 */
@@ -503,7 +505,7 @@ const SCENES=[
  {id:'s1',no:1,lv:['safe',['안전','Safe']],title:['도크에서 사람 감지 후 안전 판단하여 기립','Detect people at the dock, then stand up safely'],file:'SCENARIO 8',steps:[
   {n:'01',t:['대기','Standby'],src:['충전 후 배터리 잔량, 배터리 86%','Battery level after charging, battery 86%'],m:['안쪽 칸이 왼→오 차오름 2.4초, 번개 고정','Fill rises left to right, 2.4s; bolt holds'],
    s:()=>A('g',I.bat,NUM(86),L('충전 중','CHARGING'))},
-  {n:'02',t:['주변감지','Area scan'],src:['주변을 확인하고 있습니다 + 사람 아이콘','Checking the surroundings + person icon'],m:['면 파동 2겹, 1.2초 간격','Two filled ripples, 1.2s apart'],
+  {n:'02',t:['주변감지','Area scan'],src:['주변을 확인하고 있습니다 + 사람 아이콘','Checking the surroundings + person icon'],m:['가로선이 사람을 위→아래로 훑음 + 면 파동, 2.4초','Scan line sweeps the figure + filled ripples, 2.4s'],
    s:()=>A('b',badge(I.person,{ring:1}),KL(['주변','확인 중'],['AREA','CHECK']),L('작업자 1명 감지','WORKER NEAR'))},
   {n:'03',t:['사전 예고','Advance notice'],src:['3초 후 기립합니다 “3” → “2” → “1”','Standing up in 3 seconds “3” → “2” → “1”'],m:['숫자 1초마다 전환, 바닥 1m 원과 같은 박자','Number changes every 1s, in sync with the 1m floor ring'],
    s:()=>A('y',CD,KL(['초 후','기립'],['SEC','TO RISE']),L('물러나세요','STEP BACK'))},
@@ -515,7 +517,7 @@ const SCENES=[
  {id:'s2',no:2,lv:['safe',['안전','Safe']],title:['근로자와 마주쳤을 때 놀라지 않고 안전하게 통행','Passing a worker safely without startling them'],file:'SCENARIO 15',steps:[
   {n:'01',t:['근로자와 만남','Meeting a worker'],src:['지하4층 미션 수행 중 · N₂ 배관 압력계 판독','B4 mission in progress · reading N₂ pipe pressure gauge'],m:['게이지 바늘 1.6초 흔들림, 파동 2겹 (정지 후 측정)','Gauge needle swings, 1.6s, two ripples (stopped to measure)'],
    s:()=>A('b',badge(I.gauge,{ring:1}),L(K3('측정 중'),K3('READING')),L('B4 압력계 판독','B4 N₂ GAUGE'))},
-  {n:'02',t:['전방 근로자 감지','Worker ahead'],src:['전방에 사람이 감지되었습니다 + 사람 아이콘','A person was detected ahead + person icon'],m:['면 파동 2겹, 1.2초 간격','Two filled ripples, 1.2s apart'],
+  {n:'02',t:['전방 근로자 감지','Worker ahead'],src:['전방에 사람이 감지되었습니다 + 사람 아이콘','A person was detected ahead + person icon'],m:['가로선이 사람을 위→아래로 훑음 + 면 파동, 2.4초','Scan line sweeps the figure + filled ripples, 2.4s'],
    s:()=>A('b',badge(I.person,{ring:1}),KL(['사람','감지'],['PERSON','AHEAD']),L('전방 1명','1 DETECTED'))},
   {n:'03',t:['감속 및 접근예고','Slow down & notice'],src:['정지하여 기다리고 있습니다. 지나가 주세요','Stopped and waiting. Please go ahead'],m:['정지 막대 둘이 번갈아 숨쉬기 1.6초, 바닥 초록 화살표 길과 함께','Pause symbol holds, with green floor arrows'],
    s:()=>A('y',badge(I.pause),KL(['먼저','가세요'],['AFTER','YOU']),L('로봇 정지 대기','ROBOT WAITS'))},
@@ -527,7 +529,7 @@ const SCENES=[
  {id:'s3',no:3,lv:['danger',['위험단계','Danger']],title:['배관 이상 감지 — 위험단계','Pipe anomaly detected — danger level'],file:'SCENARIO 11',steps:[
   {n:'01',t:['정지 및 정밀확인','Stop & inspect'],src:['N₂ 배관 압력계 판독 중 · 이상 징후를 확인하고 있습니다','Reading N₂ pipe pressure gauge · checking for signs of a fault'],m:['게이지 바늘 1.6초 흔들림','Gauge needle swings, 1.6s'],
    s:()=>A('b',badge(I.gauge,{ring:1}),KL(['이상','확인 중'],['FAULT','CHECK']),L('N₂ 배관 압력계','N₂ PIPE GAUGE'))},
-  {n:'02',t:['이상 감지 및 판단','Fault confirmed'],src:['배관 압력계 판독 중 이상현상이 감지되었습니다. 🚫접근하지 마세요','A fault was detected while reading the pipe gauge. 🚫Do not approach'],m:['금지 기호 1.2초 맥동','Prohibition symbol pulses, 1.2s'],
+  {n:'02',t:['이상 감지 및 판단','Fault confirmed'],src:['배관 압력계 판독 중 이상현상이 감지되었습니다. 🚫접근하지 마세요','A fault was detected while reading the pipe gauge. 🚫Do not approach'],m:['원이 그려진 뒤 같은 점에서 사선이 그어짐, 2.8초 반복','Ring draws, then the slash from the same point, 2.8s'],
    s:()=>A('r',badge(I.ban,{anim:'pls'}),KL(['접근','금지'],['KEEP','OUT']),L('배관 이상 감지','PIPE FAULT'))},
   {n:'03',t:['작업자 우회 안내','Detour guidance'],src:['위험이 확인되었습니다. 🚫접근하지 마세요','Danger confirmed. 🚫Do not approach'],m:['우회 화살표가 선부터 머리까지 한 획으로 그려짐, 1.6초 반복, 바닥 우회 통로 초록 화살표와 함께','Detour arrow repeats, 1.4s, with green floor detour arrows'],
    s:()=>A('r',badge(I.detour,{anim:'nud'}),KL(['위험','구역'],['DANGER','ZONE']),L('우회하세요','USE DETOUR'))},
@@ -539,11 +541,11 @@ const SCENES=[
  {id:'s4',no:4,lv:['warn',['주의단계 1','Caution 1']],title:['안전모 미착용 근로자 감지 — 주의단계 1','Worker without a helmet — caution level 1'],file:'SCENARIO 20',steps:[
   {n:'01',t:['안전모 미착용 감지','No helmet detected'],src:['안전모 미착용이 감지되었습니다','A worker without a helmet was detected'],m:['면 파동 2겹, 1.2초 간격','Two filled ripples, 1.2s apart'],
    s:()=>A('y',badge(I.helmet,{ring:1}),KL(['안전모','미착용'],['NO','HELMET']),L('감지되었습니다','DETECTED'))},
-  {n:'02',t:['감속·정지 및 착용안내','Stop & ask to wear'],src:['안전모를 착용해주세요 + 안전모 아이콘','Please wear your helmet + helmet icon'],m:['안전모 1.2초 맥동, 바닥 안전모 픽토그램과 같은 박자','Helmet pulses, 1.2s, in sync with the floor pictogram'],
+  {n:'02',t:['감속·정지 및 착용안내','Stop & ask to wear'],src:['안전모를 착용해주세요 + 안전모 아이콘','Please wear your helmet + helmet icon'],m:['챙까지 안전모 전체가 내려와 씌워짐, 3.2초 반복','Helmet pulses, 1.2s, in sync with the floor pictogram'],
    s:()=>A('y',badge(I.helmet,{anim:'pls'}),KL(['안전모','착용'],['WEAR','HELMET']),L('확인 후 출발','THEN WE GO'))},
   {n:'3-1',t:['착용 대기 → 확인','Helmet confirmed'],src:['안전모 착용이 확인되었습니다','Helmet confirmed'],m:['체크 0.6초 팝, 머무는 동안 3.2초마다 다시 그려짐','Check pops, 0.6s, then redraws every 3.2s'],flag:['분기 A','Branch A'],
    s:()=>A('g',badge(I.check,{anim:'pop'}),KL(['착용','확인'],['HELMET','ON']),L('감사합니다','THANK YOU'))},
-  {n:'3-2',t:['미조치 시 관제 연결','Connect to control'],src:['관제실과 음성 연결중입니다 + 마이크 아이콘','Connecting voice to the control room + mic icon'],m:['마이크 파동 2겹, 대화 중 안내음 없음','Mic ripples; no chimes during the call'],flag:['분기 B','Branch B'],
+  {n:'3-2',t:['미조치 시 관제 연결','Connect to control'],src:['관제실과 음성 연결중입니다 + 마이크 아이콘','Connecting voice to the control room + mic icon'],m:['마이크 몸통 안 소리 레벨이 오르내림 + 면 파동, 대화 중 안내음 없음','Mic ripples; no chimes during the call'],flag:['분기 B','Branch B'],
    s:()=>A('b',badge(I.mic,{ring:1}),KL(['관제실','연결 중'],['VOICE','CALL']),L('말씀하세요','CONTROL ROOM'))},
   {n:'04',t:['확인 후 임무재개','Resume mission'],src:['이동을 재개합니다','Resuming movement'],m:['화살표가 꼬리에서 머리 쪽으로 그려짐, 1.6초 반복','Arrow draws tail to head, 1.6s loop'],
    s:()=>A('g',badge(I.right,{anim:'nud'}),KL(['이동','재개'],['MOVING','ON']),L('다음 지점으로','NEXT POINT'))},
@@ -577,7 +579,7 @@ const SCENES=[
    s:()=>A('r',I.batLow,KL(['복귀','불가'],['CAN’T','RETURN']),L('배터리 부족','LOW BATTERY'))},
   {n:'02',t:['통로 가장자리 정지','Stop at aisle edge'],src:['(적색 배터리 아이콘) 자율 복귀 불가, 회수 대기 중','(Red battery icon) Cannot return, waiting for pickup'],m:['배터리 2.4초 숨쉬기','Battery breathes, 2.4s'],
    s:()=>A('r',I.batLow,KL(['회수','대기'],['AWAIT','PICKUP']),L('자율 복귀 불가','CANNOT RETURN'))},
-  {n:'03',t:['접근금지 / 우회 안내','Keep out / detour'],src:['회수 대기중 접근하지 마세요 · [회수 가이드 보기]','Awaiting pickup, do not approach · [View pickup guide]'],m:['금지 기호 1.2초 맥동','Prohibition symbol pulses, 1.2s'],
+  {n:'03',t:['접근금지 / 우회 안내','Keep out / detour'],src:['회수 대기중 접근하지 마세요 · [회수 가이드 보기]','Awaiting pickup, do not approach · [View pickup guide]'],m:['원이 그려진 뒤 같은 점에서 사선이 그어짐, 2.8초 반복','Ring draws, then the slash from the same point, 2.8s'],
    s:()=>A('r',badge(I.ban,{anim:'pls'}),KL(['접근','금지'],['KEEP','OUT']),L('회수 대기 중','AWAIT PICKUP'))},
   {n:'04',t:['회수 담당자 호출','Pickup staff called'],src:['회수 준비 → 전원 종료 → 운반 → 인계 순서로 영상 플레이','Video plays: prepare → power off → carry → hand over'],m:['4단계를 2초씩 자동 순환','Cycles through 4 steps, 2s each'],
    s:()=>A('b',`<div class="num"><div class="sq4"><span>1</span><span>2</span><span>3</span><span>4</span></div></div>`,`<div class="sq4">${L([['회수','준비'],['전원','종료'],['로봇','운반'],['충전소','인계']],[['PREP','PICKUP'],['POWER','OFF'],['CARRY','ROBOT'],['HAND','OVER']]).map(keys).join('')}</div>`,L('회수 순서 안내','PICKUP STEPS'))},
@@ -585,7 +587,7 @@ const SCENES=[
    s:()=>OFF(L('전원 꺼짐<br>완료 처리는 담당자 태블릿','Power off<br>Completed on staff tablet'))},
  ],notes:[['3단계 [회수 가이드 보기] 버튼은 터치 없음 원칙에 따라 뺐습니다. 관제가 담당자 도착을 표시하면 4단계 순서 안내가 자동으로 나옵니다.','The step 3 [View pickup guide] button was removed under the no-touch rule. When control marks the staff as arrived, the step 4 guide plays automatically.'],['4단계 “영상”은 숫자 1–4 + 핵심어로 바꿔 거리 규칙을 지켰습니다. 기호 타일 숫자는 사전예고 3·2·1과 같은 문법입니다.','The step 4 “video” became numbers 1–4 plus a keyword to keep the distance rules. The numbered tile uses the same grammar as the 3·2·1 countdown.']]},
  {id:'s8',no:8,lv:['danger',['위험단계','Danger']],title:['계단 이동','Stair climbing'],file:'SCENARIO 21',steps:[
-  {n:'01',t:['계단 이동 사전안내','Stair notice'],src:['계단 아이콘 + 계단 이동 예정, 잠시 대기해주세요','Stairs icon + about to climb stairs, please wait'],m:['계단 선 1.8초 그려짐','Stair line draws, 1.8s'],
+  {n:'01',t:['계단 이동 사전안내','Stair notice'],src:['계단 아이콘 + 계단 이동 예정, 잠시 대기해주세요','Stairs icon + about to climb stairs, please wait'],m:['계단 선이 그려진 뒤 점(로봇)이 한 칸씩 오름, 2.4초','Stair line draws, 1.8s'],
    s:()=>A('y',badge(I.stairs),KL(['계단','진입'],['STAIRS','AHEAD']),L('잠시 대기','PLEASE WAIT'))},
   {n:'02',t:['로봇 진입','Robot enters'],src:['(↗아이콘) 계단 이동중입니다. 통행을 대기해주세요','(↗ icon) Climbing stairs. Please hold off passing'],m:['↗ 화살표가 대각선으로 그려짐, 1.6초 반복','↗ arrow moves diagonally, 1.4s'],
    s:()=>A('r',badge(I.diag,{anim:'dia'}),KL(['계단','이동 중'],['ON','STAIRS']),L('통행 대기','DO NOT ENTER'))},
@@ -649,36 +651,19 @@ function show(scr,html){
   void scr.offsetWidth;scr.classList.add('in');
 }
 
-/* 11/17 기호 모션 시안 — 같은 장면을 지금 / 시안으로 나란히. 시안 기호는 지금 기호에 부품 클래스만 더한 것 */
-function mlabIcons(){
-  return {
-    bat: I.bat,  // 11/17 차오름 모션은 보드에도 적용됨
-    ban: I.ban.replace('<path d="M58 58L182 182"','<path class="bslash" pathLength="1" d="M58 58L182 182"'),
-    helmet: I.helmet.replace('<svg viewBox="0 0 240 240">','<svg viewBox="0 0 240 240"><g class="hdome">').replace('</svg>','</g></svg>'),  // 챙까지 전체가 내려와 안착
-    mic: I.mic.replace('<rect x="90" y="30" width="60" height="110" rx="20" fill="currentColor"/>','<rect x="90" y="30" width="60" height="110" rx="20" fill="currentColor" fill-opacity=".3"/><rect class="mlev" x="90" y="30" width="60" height="110" rx="20" fill="currentColor"/>'),
-    person: I.person.replace('</svg>','<rect class="pscan" x="40" y="14" width="160" height="8" fill="currentColor"/></svg>'),
-    stairs: I.stairs.replace('</svg>','<circle class="sdot" cx="70" cy="142" r="13" fill="currentColor"/></svg>'),
-  };
-}
+/* 11/17 기호 부품 모션 — 시안 6종 비교 뒤 모두 보드에 적용. 이 칸은 장면별 모션 모아 보기 */
 function mlab(){
-  const L2=mlabIcons();
   const items=[
-    ['bat','s1',0,'1 · 배터리 충전 — 차오름 ✓ 적용됨','안쪽 칸이 왼쪽에서 오른쪽으로 차올라 "충전 중"을 그대로 보여 준다. 11/17 시나리오 보드에 적용(기호도 Figma 수정본 — 볼트 외곽선 뺌 · 둥근 모서리).'],
-    ['ban','s3',1,'2 · 금지 — 사선이 그어짐','지금은 기호 전체가 맥동. 시안은 원은 두고 사선만 그어져 "막는다"가 분명하다.'],
-    ['helmet','s4',1,'3 · 안전모 착용 — 씌워짐','지금은 기호 전체가 맥동. 시안은 챙까지 안전모 전체가 위에서 내려와 안착한다(미착용 감지 장면은 파동 그대로).'],
-    ['mic','s4',3,'4 · 마이크 — 소리 레벨','지금은 파동만. 시안은 마이크 몸통 안이 말소리처럼 오르내린다(파동과 함께).'],
-    ['person','s2',1,'5 · 사람 감지 — 훑는 선','지금은 파동만. 시안은 가로선이 사람을 위에서 아래로 훑어 "감지 중"을 보여 준다.'],
-    ['stairs','s8',0,'6 · 계단 — 오르는 점','지금은 계단 선이 그려짐. 시안은 그린 뒤 점(로봇)이 한 칸씩 올라간다. 기호가 작아 멀리서는 점이 약할 수 있다.'],
+    ['s1',0,'1 · 배터리 충전 — 차오름','안쪽 칸이 왼쪽에서 오른쪽으로 차올라 "충전 중"을 보여 준다. 볼트는 고정.'],
+    ['s3',1,'2 · 금지 — 원 → 사선','원이 왼쪽 위에서 한 바퀴 그려진 뒤, 같은 점에서 사선이 그어진다.'],
+    ['s4',1,'3 · 안전모 착용 — 씌워짐','챙까지 안전모 전체가 위에서 내려와 안착한다. 미착용 감지 장면은 면 파동.'],
+    ['s4',3,'4 · 마이크 — 소리 레벨','마이크 몸통 안이 말소리처럼 오르내린다. 면 파동과 함께.'],
+    ['s2',1,'5 · 사람 감지 — 훑는 선','가로선이 사람을 위에서 아래로 훑어 "감지 중"을 보여 준다. 면 파동과 함께.'],
+    ['s8',0,'6 · 계단 — 오르는 점','계단 선이 그려진 뒤 점(로봇)이 한 칸씩 올라간다.'],
   ];
   const el=document.getElementById('mlab');
-  el.innerHTML=items.map(([k,id,i,t,d])=>`<article class="mlab-card"><h3>${t}</h3><div class="mlab-pair"><figure><div class="bezel"><div class="scr"></div></div><figcaption>지금</figcaption></figure><figure class="new"><div class="bezel"><div class="scr mlab"></div></div><figcaption>시안</figcaption></figure></div><p>${d}</p></article>`).join('');
-  el.querySelectorAll('.mlab-card').forEach((card,n)=>{
-    const [k,id,i]=items[n];const st=SCENES.find(s=>s.id===id).steps[i];
-    const [a,b]=card.querySelectorAll('.scr');
-    show(a,st.s());show(b,st.s());
-    if(k==='bat'){const ic=b.querySelector('.sym > .ic');if(ic)ic.outerHTML=L2.bat;}
-    else{const sv=b.querySelector('.ic svg:not(.prg)');if(sv)sv.outerHTML=L2[k];}
-  });
+  el.innerHTML=items.map(([id,i,t,d])=>`<article class="mlab-card"><h3>${t}</h3><div class="bezel"><div class="scr"></div></div><p>${d}</p></article>`).join('');
+  el.querySelectorAll('.mlab-card').forEach((card,n)=>{const [id,i]=items[n];show(card.querySelector('.scr'),SCENES.find(s=>s.id===id).steps[i].s());});
 }
 function legend(){
   const pick=[['g','s1',4,'초록 · 안전 · 완료'],['b','s2',0,'파랑 · 확인 · 측정'],['y','s4',1,'노랑 · 주의 · 예고'],['r','s3',1,'빨강 · 위험 · 금지']];
