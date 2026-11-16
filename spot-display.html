@@ -523,8 +523,8 @@ const SCENES=[
    s:()=>A('g',I.bat,NUM(86),L('충전 중','CHARGING'))},
   {n:'02',t:['주변감지','Area scan'],src:['주변을 확인하고 있습니다 + 사람 아이콘','Checking the surroundings + person icon'],m:['가로선이 사람을 위→아래로 훑음 + 면 파동, 2.4초','Scan line sweeps the figure + filled ripples, 2.4s'],
    s:()=>A('b',badge(I.person,{ring:1}),KL(['주변','확인 중'],['AREA','CHECK']),L('작업자 1명 감지','WORKER NEAR'))},
-  {n:'03',t:['사전 예고','Advance notice'],src:['3초 후 기립합니다 “3” → “2” → “1”','Standing up in 3 seconds “3” → “2” → “1”'],m:['숫자 1초마다 전환, 바닥 1m 원과 같은 박자','Number changes every 1s, in sync with the 1m floor ring'],
-   s:()=>A('y',CD,K3(L('곧 기립','RISING SOON')),L('물러나세요','STEP BACK'))},  /* 11/17 '초 후'가 배지 숫자와 갈라져 끊겨 보여, 숫자 없이도 서는 문구로 · 한 줄 */
+  {n:'03',t:['사전 예고','Advance notice'],src:['3초 후 기립합니다 “3” → “2” → “1”','Standing up in 3 seconds “3” → “2” → “1”'],m:['숫자 1초마다 전환 + 3초 동안 링이 줄어듦, 바닥 1m 원과 같은 박자','Number changes every 1s + ring drains over 3s, in sync with the 1m floor ring'],
+   s:()=>A('y',CDR,K3(L('곧 기립','RISING SOON')),L('물러나세요','STEP BACK'))},  /* 11/17 '초 후'가 배지 숫자와 갈라져 끊겨 보여, 숫자 없이도 서는 문구로 · 한 줄 */
   {n:'04',t:['저속기립','Slow rise'],src:['천천히 일어나는 중입니다','Standing up slowly'],m:['↑ 화살표가 아래에서 위로 그려짐, 1.6초 반복','↑ arrow draws bottom to top, 1.6s loop'],
    s:()=>A('y',badge(I.up,{anim:'bob'}),K3(L('기립 중','RISING')),L('천천히 기립 중','SLOW RISE'))},
   {n:'05',t:['기립완료','Standing'],src:['기립완료·미션 시작 + 체크 아이콘','Standing complete · mission start + check icon'],m:['체크 0.6초 팝, 머무는 동안 3.2초마다 다시 그려짐','Check pops, 0.6s, then redraws every 3.2s'],
@@ -676,8 +676,7 @@ function mlab(){
     ['s4',3,'4 · 마이크 — 소리 레벨','마이크 몸통 안이 말소리처럼 오르내린다. 면 파동과 함께.'],
     ['s2',1,'5 · 사람 감지 — 훑는 선','가로선이 사람을 위에서 아래로 훑어 "감지 중"을 보여 준다. 면 파동과 함께.'],
     ['s8',0,'6 · 계단 — 오르는 점','계단 선이 그려진 뒤 점(로봇)이 한 칸씩 올라간다.'],
-    ['s1',2,'7 · 카운트다운 — 링 없음 (보드)','3 · 2 · 1 숫자가 배지 안에서 1초마다 바뀐다. 회수 순서(1~4)도 같은 꼴.'],
-    ['s1',2,'8 · 카운트다운 — 링 있음 (비교)','3 · 2 · 1 전체 3초 동안 배지 테두리 링이 한 바퀴 줄어든다(끝은 각지게, 배지와 붙은 한 몸). 고르면 보드에 적용.','ring'],
+    ['s1',2,'7 · 카운트다운 — 숫자 + 링','3 · 2 · 1 숫자가 배지 안에서 1초마다 바뀌고, 3초 동안 배지 테두리 링이 한 바퀴 줄어든다(끝은 각지게, 배지와 붙은 한 몸). 회수 순서(1~4)는 숫자만.'],
   ];
   const el=document.getElementById('mlab');
   el.innerHTML=items.map(([id,i,t,d])=>`<article class="mlab-card"><h3>${t}</h3><div class="bezel"><div class="scr"></div></div><p>${d}</p></article>`).join('');
