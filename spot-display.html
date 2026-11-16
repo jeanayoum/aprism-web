@@ -201,6 +201,16 @@
       .sq4 > :first-child{opacity:1}
     }
     .scr .c1 { border-radius: 6px; }
+    /* 11/16 화살표 — 통째 이동(nud · bob · dia) 대신 화살표 방향대로 그려짐. 1.6초: 0~55% 그림 · 85%까지 유지 · 끝에 사라짐 */
+    .c1 .bob, .c1 .nud, .c1 .dia { animation: none; }
+    .c1 .wp-up { animation: wipeUp 1.6s cubic-bezier(.5,0,.3,1) infinite; }
+    .c1 .wp-rt { animation: wipeRt 1.6s cubic-bezier(.5,0,.3,1) infinite; }
+    .c1 .drw { animation: drawLn 1.6s cubic-bezier(.5,0,.3,1) infinite; }
+    .c1 .hd { transform-box: fill-box; transform-origin: center; animation: headIn 1.6s cubic-bezier(.3,1.6,.5,1) infinite; }
+    @keyframes wipeUp { 0% { clip-path: inset(100% 0 0 0); opacity: 1; } 55%, 85% { clip-path: inset(0 0 0 0); opacity: 1; } 100% { clip-path: inset(0 0 0 0); opacity: 0; } }
+    @keyframes wipeRt { 0% { clip-path: inset(0 100% 0 0); opacity: 1; } 55%, 85% { clip-path: inset(0 0 0 0); opacity: 1; } 100% { clip-path: inset(0 0 0 0); opacity: 0; } }
+    @keyframes drawLn { 0% { stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 1; } 45%, 85% { stroke-dasharray: 1; stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dasharray: 1; stroke-dashoffset: 0; opacity: 0; } }
+    @keyframes headIn { 0%, 40% { opacity: 0; transform: scale(.3); } 55%, 85% { opacity: 1; transform: none; } 100% { opacity: 0; transform: none; } }
     .scr .c1 .bat { width: 24cqw; height: 16cqw; }  /* Figma 가로형 배터리(240×160) */
 
     /* ===== 11/16 글자 모션 — A안 keyIn(통째로 올라옴)을 글자 단위로 바꾼다 =====
@@ -289,7 +299,7 @@
               <li>숫자(배터리 %)는 0부터 세어 올라감 0.9초</li>
               <li>빨강은 핵심어가 내려앉은 뒤 한 번 흔들림</li>
               <li>감지 · 연결은 파동 2겹, 1.2초 간격</li>
-              <li>화살표 1.4초 반복, 방향은 바닥 화살표와 같게</li>
+              <li>화살표는 통째로 움직이지 않고 꼬리 → 머리 방향으로 그려짐, 1.6초 반복 · 방향은 바닥 화살표와 같게</li>
               <li>체크 0.6초 팝, 카운트다운 1초마다</li>
             </ul></section>
             <section><h3>쓰지 않는 것</h3><ul>
@@ -330,12 +340,12 @@ const I={
   bat:`<svg viewBox="0 40 240 160" class="bat"><path d="M190 50C201.046 50 210 58.9543 210 70V170C210 181.046 201.046 190 190 190H30C18.9543 190 10 181.046 10 170V70C10 58.9543 18.9543 50 30 50H190ZM41 70C35.4772 70 31 74.4772 31 80V160C31 165.523 35.4772 170 41 170H150C155.523 170 160 165.523 160 160V80C160 74.4772 155.523 70 150 70H41Z" fill="currentColor"/><path class="chg" d="M114.686 114.286H131.156C131.703 114.285 132.238 114.443 132.697 114.741C133.157 115.039 133.521 115.463 133.747 115.964C133.972 116.464 134.049 117.02 133.969 117.563C133.889 118.107 133.654 118.616 133.293 119.029L97.6363 160L103.32 125.714H86.8494C86.3024 125.716 85.7665 125.558 85.3062 125.261C84.8458 124.964 84.4806 124.54 84.2544 124.039C84.0281 123.538 83.9505 122.982 84.0307 122.438C84.111 121.894 84.3458 121.385 84.7068 120.971L120.369 80L114.686 114.286Z" fill="currentColor"/><rect x="225" y="95" width="10" height="50" rx="5" fill="none" stroke="currentColor" stroke-width="10"/></svg>`,
   batLow:`<svg viewBox="0 40 240 160" class="bat chg"><path d="M190 50C201.046 50 210 58.9543 210 70V170C210 181.046 201.046 190 190 190H30C18.9543 190 10 181.046 10 170V70C10 58.9543 18.9543 50 30 50H190ZM41 70C35.4772 70 31 74.4772 31 80V160C31 165.523 35.4772 170 41 170H70C75.5229 170 80 165.523 80 160V80C80 74.4772 75.5229 70 70 70H41Z" fill="currentColor"/><rect x="225" y="95" width="10" height="50" rx="5" fill="none" stroke="currentColor" stroke-width="10"/></svg>`,
   person:`<svg viewBox="0 0 24 24"><circle cx="12" cy="4.4" r="3.1" fill="currentColor"/><path d="M7 11a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v4.2h-2.3l-.7 7.3h-4l-.7-7.3H7z" fill="currentColor"/></svg>`,
-  up:`<svg viewBox="0 0 24 24"><path d="M12 2.5 3.5 11h5.2v10.5h6.6V11h5.2z" fill="currentColor"/></svg>`,
-  right:`<svg viewBox="0 0 24 24"><path d="M21.5 12 13 3.5v5.2H2.5v6.6H13v5.2z" fill="currentColor"/></svg>`,
-  diag:`<svg viewBox="0 0 24 24"><g transform="rotate(45 12 12)"><path d="M12 2.5 3.5 11h5.2v10.5h6.6V11h5.2z" fill="currentColor"/></g></svg>`,
+  up:`<svg viewBox="0 0 24 24"><path class="wp-up" d="M12 2.5 3.5 11h5.2v10.5h6.6V11h5.2z" fill="currentColor"/></svg>`,
+  right:`<svg viewBox="0 0 24 24"><path class="wp-rt" d="M21.5 12 13 3.5v5.2H2.5v6.6H13v5.2z" fill="currentColor"/></svg>`,
+  diag:`<svg viewBox="0 0 24 24"><g transform="rotate(45 12 12)"><path class="wp-up" d="M12 2.5 3.5 11h5.2v10.5h6.6V11h5.2z" fill="currentColor"/></g></svg>`,
   check:`<svg viewBox="0 0 24 24"><path d="M4.2 12.6l5.1 5L19.8 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10"/></svg>`,
   ban:`<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="3.2"/><path d="M5.8 5.8 18.2 18.2" stroke="currentColor" stroke-width="3.2"/></svg>`,
-  detour:`<svg viewBox="0 0 24 24"><path d="M6.5 22V11.5a4.5 4.5 0 0 1 4.5-4.5h4" fill="none" stroke="currentColor" stroke-width="3.4"/><path d="M14 1.6 21.8 7 14 12.4z" fill="currentColor"/></svg>`,
+  detour:`<svg viewBox="0 0 24 24"><path class="drw" pathLength="1" d="M6.5 22V11.5a4.5 4.5 0 0 1 4.5-4.5h4" fill="none" stroke="currentColor" stroke-width="3.4"/><path class="hd" d="M14 1.6 21.8 7 14 12.4z" fill="currentColor"/></svg>`,
   pause:`<svg viewBox="0 0 24 24"><rect x="5.5" y="4" width="4.6" height="16" rx="1.2" fill="currentColor"/><rect x="13.9" y="4" width="4.6" height="16" rx="1.2" fill="currentColor"/></svg>`,
   /* 11/16 게이지 · 배터리 두 종은 Figma Pictogram(828:2780) 새 그림 — 240 단위 */
   gauge:`<svg viewBox="0 0 240 240"><path d="M120 30C175.228 30 220 77.0101 220 135C220 141.443 215.025 146.667 208.889 146.667C202.752 146.667 197.778 141.443 197.778 135C197.778 89.8967 162.955 53.3333 120 53.3333C77.0445 53.3333 42.2222 89.8967 42.2222 135C42.2222 141.443 37.2476 146.667 31.1111 146.667C24.9746 146.667 20 141.443 20 135C20 77.0101 64.7715 30 120 30Z" fill="currentColor"/><g class="ndl" style="transform-origin:120px 146.667px"><path d="M163.555 92.8451C168.607 89.31 174.625 95.6295 171.259 100.934L142.211 146.655L142.222 146.667C142.222 152.855 139.879 158.788 135.712 163.164C131.544 167.54 125.894 170 120 170C114.106 170 108.456 167.54 104.288 163.164C100.121 158.788 97.7778 152.855 97.7778 146.667C97.7782 140.479 100.121 134.545 104.288 130.169C108.456 125.794 114.107 123.333 120 123.333L163.555 92.8451ZM120 135C113.864 135 108.889 140.224 108.889 146.667C108.889 153.11 113.864 158.333 120 158.333C126.136 158.333 131.111 153.11 131.111 146.667C131.111 140.224 126.136 135 120 135Z" fill="currentColor"/></g></svg>`,
@@ -343,7 +353,7 @@ const I={
   mic:`<svg viewBox="0 0 24 24"><rect x="8.5" y="2" width="7" height="12.5" rx="3.5" fill="currentColor"/><path d="M5.3 11.3a6.7 6.7 0 0 0 13.4 0M12 18.2v3.3M8.6 21.5h6.8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>`,
   wave:`<svg viewBox="0 0 24 24" class="spk"><path d="M2.5 9.2a1.2 1.2 0 0 1 1.2-1.2h3.1l5-4.3a.8.8 0 0 1 1.3.6v15.4a.8.8 0 0 1-1.3.6l-5-4.3H3.7a1.2 1.2 0 0 1-1.2-1.2z" fill="currentColor"/><path class="w" d="M16.2 8.6a4.6 4.6 0 0 1 0 6.8" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/><path class="w w2" d="M18.9 5.6a8.6 8.6 0 0 1 0 12.8" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg>`,
   stairs:`<svg viewBox="0 0 24 24" class="stp"><path d="M2 21.5h5.5v-5h5v-5h5v-5H22" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round"/></svg>`,
-  uturn:`<svg viewBox="0 0 24 24"><path d="M18.5 22V9.5a5.5 5.5 0 0 0-11 0v3.2" fill="none" stroke="currentColor" stroke-width="3.4"/><path d="M1.8 11.6 7.5 19.5l5.7-7.9z" fill="currentColor"/></svg>`,
+  uturn:`<svg viewBox="0 0 24 24"><path class="drw" pathLength="1" d="M18.5 22V9.5a5.5 5.5 0 0 0-11 0v3.2" fill="none" stroke="currentColor" stroke-width="3.4"/><path class="hd" d="M1.8 11.6 7.5 19.5l5.7-7.9z" fill="currentColor"/></svg>`,
   tablet:`<svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="3" fill="currentColor"/><path class="ibs" d="M8 11.8l2.9 2.9 5.1-5.5" fill="none" stroke-width="2.6" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10"/></svg>`,
 };
 const K3=t=>`<p class="k3">${t}</p>`, K15=t=>`<p class="k15">${t}</p>`;
@@ -365,7 +375,7 @@ const SCENES=[
    s:()=>A('b',badge(I.person,{ring:1}),KL(['주변','확인 중'],['AREA','CHECK']),L('작업자 1명 감지','WORKER NEAR'))},
   {n:'03',t:['사전 예고','Advance notice'],src:['3초 후 기립합니다 “3” → “2” → “1”','Standing up in 3 seconds “3” → “2” → “1”'],m:['숫자 1초마다 전환, 바닥 1m 원과 같은 박자','Number changes every 1s, in sync with the 1m floor ring'],
    s:()=>A('y',CD,KL(['초 후','기립'],['SEC','TO RISE']),L('물러나세요','STEP BACK'))},
-  {n:'04',t:['저속기립','Slow rise'],src:['천천히 일어나는 중입니다','Standing up slowly'],m:['화살표 1.4초 위아래 반복','Arrow moves up and down, 1.4s'],
+  {n:'04',t:['저속기립','Slow rise'],src:['천천히 일어나는 중입니다','Standing up slowly'],m:['↑ 화살표가 아래에서 위로 그려짐, 1.6초 반복','↑ arrow draws bottom to top, 1.6s loop'],
    s:()=>A('y',badge(I.up,{anim:'bob'}),K3(L('기립 중','RISING')),L('천천히 기립 중','SLOW RISE'))},
   {n:'05',t:['기립완료','Standing'],src:['기립완료·미션 시작 + 체크 아이콘','Standing complete · mission start + check icon'],m:['체크 0.6초 팝','Check pops, 0.6s'],
    s:()=>A('g',badge(I.check,{anim:'pop'}),KL(['기립','완료'],['READY']),L('미션 시작','MISSION START'))},
@@ -377,9 +387,9 @@ const SCENES=[
    s:()=>A('b',badge(I.person,{ring:1}),KL(['사람','감지'],['PERSON','AHEAD']),L('전방 1명','1 DETECTED'))},
   {n:'03',t:['감속 및 접근예고','Slow down & notice'],src:['정지하여 기다리고 있습니다. 지나가 주세요','Stopped and waiting. Please go ahead'],m:['정지 기호 고정, 바닥 초록 화살표 길과 함께','Pause symbol holds, with green floor arrows'],
    s:()=>A('y',badge(I.pause),KL(['먼저','가세요'],['AFTER','YOU']),L('로봇 정지 대기','ROBOT WAITS'))},
-  {n:'04',t:['정지 후 이동의사','Intent to move'],src:['통행을 확인하고 있습니다 (출발 전 알림음)','Checking that the way is clear (chime before departure)'],m:['화살표 1.4초 좌우 반복, 바닥 화살표 방향과 일치','Arrow moves side to side, 1.4s, matching the floor arrow'],
+  {n:'04',t:['정지 후 이동의사','Intent to move'],src:['통행을 확인하고 있습니다 (출발 전 알림음)','Checking that the way is clear (chime before departure)'],m:['화살표가 꼬리에서 머리 쪽으로 그려짐, 1.6초 반복, 바닥 화살표 방향과 일치','Arrow draws tail to head, 1.6s loop, matching the floor arrow'],
    s:()=>A('y',badge(I.right,{anim:'nud'}),KL(['곧','출발'],['MOVING','SOON']),L('통행 확인 완료','PATH CLEAR'))},
-  {n:'05',t:['임무재개','Resume mission'],src:['지하4층 미션 수행 중 · way-04로 이동 중','B4 mission in progress · moving to way-04'],m:['화살표 1.4초 좌우 반복','Arrow moves side to side, 1.4s'],
+  {n:'05',t:['임무재개','Resume mission'],src:['지하4층 미션 수행 중 · way-04로 이동 중','B4 mission in progress · moving to way-04'],m:['화살표가 꼬리에서 머리 쪽으로 그려짐, 1.6초 반복','Arrow draws tail to head, 1.6s loop'],
    s:()=>A('g',badge(I.right,{anim:'nud'}),K3(L('이동 중','MOVING')),L('WP-04로 이동','TO WP-04'))},
  ],notes:[['3·4단계는 바닥 투사가 황색이므로 화면도 노랑으로 맞췄습니다. 로봇이 양보하는 단계라 금지 기호는 쓰지 않았습니다.','Steps 3–4 use yellow to match the yellow floor projection. The robot is yielding here, so no prohibition symbol is used.']]},
  {id:'s3',no:3,lv:['danger',['위험단계','Danger']],title:['배관 이상 감지 — 위험단계','Pipe anomaly detected — danger level'],file:'SCENARIO 11',steps:[
@@ -387,7 +397,7 @@ const SCENES=[
    s:()=>A('b',badge(I.gauge,{ring:1}),KL(['이상','확인 중'],['FAULT','CHECK']),L('N₂ 배관 압력계','N₂ PIPE GAUGE'))},
   {n:'02',t:['이상 감지 및 판단','Fault confirmed'],src:['배관 압력계 판독 중 이상현상이 감지되었습니다. 🚫접근하지 마세요','A fault was detected while reading the pipe gauge. 🚫Do not approach'],m:['금지 기호 1.2초 맥동','Prohibition symbol pulses, 1.2s'],
    s:()=>A('r',badge(I.ban,{anim:'pls'}),KL(['접근','금지'],['KEEP','OUT']),L('배관 이상 감지','PIPE FAULT'))},
-  {n:'03',t:['작업자 우회 안내','Detour guidance'],src:['위험이 확인되었습니다. 🚫접근하지 마세요','Danger confirmed. 🚫Do not approach'],m:['우회 화살표 1.4초 반복, 바닥 우회 통로 초록 화살표와 함께','Detour arrow repeats, 1.4s, with green floor detour arrows'],
+  {n:'03',t:['작업자 우회 안내','Detour guidance'],src:['위험이 확인되었습니다. 🚫접근하지 마세요','Danger confirmed. 🚫Do not approach'],m:['우회 화살표가 선을 따라 그려지고 머리가 붙음, 1.6초 반복, 바닥 우회 통로 초록 화살표와 함께','Detour arrow repeats, 1.4s, with green floor detour arrows'],
    s:()=>A('r',badge(I.detour,{anim:'nud'}),KL(['위험','구역'],['DANGER','ZONE']),L('우회하세요','USE DETOUR'))},
   {n:'04',t:['현장 조치 및 상태안내','On-site action'],src:['— (관제사가 로봇 정지 / 현장 점검 / 도크 복귀 결정)','— (control decides: stop robot / on-site inspection / return to dock)'],m:['3단계 화면 그대로','Same as step 3'],hold:1,flag:['화면 유지','Hold screen'],
    s:()=>A('r',badge(I.detour,{anim:'nud'}),KL(['위험','구역'],['DANGER','ZONE']),L('우회하세요','USE DETOUR'))},
@@ -403,7 +413,7 @@ const SCENES=[
    s:()=>A('g',badge(I.check,{anim:'pop'}),KL(['착용','확인'],['HELMET','ON']),L('감사합니다','THANK YOU'))},
   {n:'3-2',t:['미조치 시 관제 연결','Connect to control'],src:['관제실과 음성 연결중입니다 + 마이크 아이콘','Connecting voice to the control room + mic icon'],m:['마이크 파동 2겹, 대화 중 안내음 없음','Mic ripples; no chimes during the call'],flag:['분기 B','Branch B'],
    s:()=>A('b',badge(I.mic,{ring:1}),KL(['관제실','연결 중'],['VOICE','CALL']),L('말씀하세요','CONTROL ROOM'))},
-  {n:'04',t:['확인 후 임무재개','Resume mission'],src:['이동을 재개합니다','Resuming movement'],m:['화살표 1.4초 좌우 반복','Arrow moves side to side, 1.4s'],
+  {n:'04',t:['확인 후 임무재개','Resume mission'],src:['이동을 재개합니다','Resuming movement'],m:['화살표가 꼬리에서 머리 쪽으로 그려짐, 1.6초 반복','Arrow draws tail to head, 1.6s loop'],
    s:()=>A('g',badge(I.right,{anim:'nud'}),KL(['이동','재개'],['MOVING','ON']),L('다음 지점으로','NEXT POINT'))},
  ]},
  {id:'s5',no:5,lv:['warn',['주의단계 2','Caution 2']],title:['설비 이상음향 감지 — 주의단계 2','Abnormal equipment sound — caution level 2'],file:'SCENARIO 19',steps:[
@@ -415,7 +425,7 @@ const SCENES=[
    s:()=>A('b',prog(I.wave),KL(['다시','측정 중'],['CHECK','AGAIN']),L('거리 유지','KEEP DISTANCE'))},
   {n:'3-2',t:['현장 점검 요청','On-site inspection'],src:['설비명, 감지시각, 감지위치 · [감지음향 듣기]/[인계 확인] 버튼','Equipment, time, location · [Play sound]/[Confirm handover] buttons'],m:['파동 2겹, 1.2초 간격','Two ripples, 1.2s apart'],flag:['분기 B','Branch B'],
    s:()=>A('y',badge(I.tablet,{ring:1}),KL(['점검','인계'],['HAND','OVER']),L('태블릿 확인','SEE TABLET'))},
-  {n:'04',t:['임무재개','Resume mission'],src:['임무 재개','Mission resumed'],m:['화살표 1.4초 좌우 반복','Arrow moves side to side, 1.4s'],
+  {n:'04',t:['임무재개','Resume mission'],src:['임무 재개','Mission resumed'],m:['화살표가 꼬리에서 머리 쪽으로 그려짐, 1.6초 반복','Arrow draws tail to head, 1.6s loop'],
    s:()=>A('g',badge(I.right,{anim:'nud'}),KL(['이동','재개'],['MOVING','ON']),L('다음 점검 지점','NEXT POINT'))},
  ],notes:[['3-1 프로그레스바는 안내문 줄 대신 기호 배지 둘레의 원형 진행 표시로 옮겼습니다(글자 2단 유지).','The 3-1 progress bar moved from the guide line to a circular progress ring around the badge (keeps two text layers).'],['3-2 버튼 두 개는 터치 없음 원칙에 따라 화면에서 뺐습니다. 감지시각·위치·음향 재생과 [인계 확인]은 담당자 태블릿에서 처리하고, 로봇 화면은 “태블릿 확인”만 안내합니다.','The two 3-2 buttons were removed under the no-touch rule. Time, location, sound playback and [Confirm handover] are handled on the staff tablet; the robot screen only says “See tablet”.']]},
  {id:'s6',no:6,lv:['warn',['배터리 부족','Low battery']],title:['배터리 부족 — 자율 복귀','Low battery — autonomous return'],file:'SCENARIO 17',steps:[
@@ -423,9 +433,9 @@ const SCENES=[
    s:()=>A('y',I.batLow,NUM(20),L('배터리 부족','LOW BATTERY'))},
   {n:'02',t:['복귀 가능성 계산','Return check'],src:['배터리 부족 아이콘 + 충전소 복귀 가능. 복귀 대기 중','Low-battery icon + can return to charger. Waiting to return'],m:['배터리 2.4초 숨쉬기','Battery breathes, 2.4s'],
    s:()=>A('b',I.batLow,KL(['복귀','대기'],['HOLD','RETURN']),L('관제 지시 대기','AWAIT CONTROL'))},
-  {n:'03',t:['복귀 의사 예고','Return notice'],src:['충전소 복귀 예정입니다. 이동경로를 비워주세요','Returning to charger. Please clear the path'],m:['회전 화살표 1.4초 반복, 로봇 회전 방향과 일치','Turn arrow repeats, 1.4s, matching the robot’s turn'],
+  {n:'03',t:['복귀 의사 예고','Return notice'],src:['충전소 복귀 예정입니다. 이동경로를 비워주세요','Returning to charger. Please clear the path'],m:['회전 화살표가 선을 따라 그려지고 머리가 붙음, 1.6초 반복, 로봇 회전 방향과 일치','Turn arrow repeats, 1.4s, matching the robot’s turn'],
    s:()=>A('y',badge(I.uturn,{anim:'nud'}),KL(['복귀','예정'],['RETURN','SOON']),L('길 비켜주세요','CLEAR PATH'))},
-  {n:'04',t:['저속 자율 복귀','Slow return'],src:['배터리 부족 아이콘 + 충전소로 복귀 중','Low-battery icon + returning to charger'],m:['화살표 1.4초 좌우 반복','Arrow moves side to side, 1.4s'],
+  {n:'04',t:['저속 자율 복귀','Slow return'],src:['배터리 부족 아이콘 + 충전소로 복귀 중','Low-battery icon + returning to charger'],m:['화살표가 꼬리에서 머리 쪽으로 그려짐, 1.6초 반복','Arrow draws tail to head, 1.6s loop'],
    s:()=>A('y',badge(I.right,{anim:'nud'}),L(K3('복귀 중'),keys(['GOING','TO DOCK'])),L('충전소로 이동','SLOW RETURN'))},
   {n:'05',t:['충전 시작','Charging'],src:['충전 중 · 배터리 잔량 NN%','Charging · battery NN%'],m:['번개 2.4초 숨쉬기 (시나리오 1 대기와 같은 화면)','Bolt breathes, 2.4s (same screen as scenario 1 standby)'],
    s:()=>A('g',I.bat,NUM(21),L('충전 중','CHARGING'))},
@@ -445,11 +455,11 @@ const SCENES=[
  {id:'s8',no:8,lv:['danger',['위험단계','Danger']],title:['계단 이동','Stair climbing'],file:'SCENARIO 21',steps:[
   {n:'01',t:['계단 이동 사전안내','Stair notice'],src:['계단 아이콘 + 계단 이동 예정, 잠시 대기해주세요','Stairs icon + about to climb stairs, please wait'],m:['계단 선 1.8초 그려짐','Stair line draws, 1.8s'],
    s:()=>A('y',badge(I.stairs),KL(['계단','진입'],['STAIRS','AHEAD']),L('잠시 대기','PLEASE WAIT'))},
-  {n:'02',t:['로봇 진입','Robot enters'],src:['(↗아이콘) 계단 이동중입니다. 통행을 대기해주세요','(↗ icon) Climbing stairs. Please hold off passing'],m:['↗ 화살표 1.4초 대각선 반복','↗ arrow moves diagonally, 1.4s'],
+  {n:'02',t:['로봇 진입','Robot enters'],src:['(↗아이콘) 계단 이동중입니다. 통행을 대기해주세요','(↗ icon) Climbing stairs. Please hold off passing'],m:['↗ 화살표가 대각선으로 그려짐, 1.6초 반복','↗ arrow moves diagonally, 1.4s'],
    s:()=>A('r',badge(I.diag,{anim:'dia'}),KL(['계단','이동 중'],['ON','STAIRS']),L('통행 대기','DO NOT ENTER'))},
   {n:'03',t:['계단 이동','Climbing'],src:['(↗아이콘) 계단 이동중입니다. 통행을 대기해주세요','(↗ icon) Climbing stairs. Please hold off passing'],m:['2단계 화면 그대로','Same as step 2'],hold:1,flag:['화면 유지','Hold screen'],
    s:()=>A('r',badge(I.diag,{anim:'dia'}),KL(['계단','이동 중'],['ON','STAIRS']),L('통행 대기','DO NOT ENTER'))},
-  {n:'04',t:['계단 출구 통과','Leaving stairs'],src:['계단을 벗어나는 중 · 조금만 기다려주세요','Leaving the stairs · please wait a moment'],m:['↗ 화살표 1.4초 대각선 반복','↗ arrow moves diagonally, 1.4s'],
+  {n:'04',t:['계단 출구 통과','Leaving stairs'],src:['계단을 벗어나는 중 · 조금만 기다려주세요','Leaving the stairs · please wait a moment'],m:['↗ 화살표가 대각선으로 그려짐, 1.6초 반복','↗ arrow moves diagonally, 1.4s'],
    s:()=>A('r',badge(I.diag,{anim:'dia'}),KL(['계단','통과 중'],['STAIRS','EXIT']),L('곧 통과합니다','ALMOST DONE'))},
   {n:'05',t:['이동완료 · 근로자 통행','Done · workers pass'],src:['계단 이동 완료','Stair climb complete'],m:['체크 0.6초 팝','Check pops, 0.6s'],
    s:()=>A('g',badge(I.check,{anim:'pop'}),KL(['이동','완료'],['ALL','CLEAR']),L('지나가세요','GO AHEAD'))},
