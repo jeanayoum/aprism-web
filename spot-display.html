@@ -267,6 +267,7 @@
     .c1 .ic svg.prg { left: calc(var(--b) * -.125); top: calc(var(--b) * -.125); width: calc(var(--b) * 1.25); height: calc(var(--b) * 1.25); }
     .c1 .ic > span { display: grid; width: 100%; height: 100%; }  /* 모션 감싸개(nud · pop …)도 배지를 채움 */
     .c1 .ic.fx, .c1 .ic:has(svg.fx) { background: #fff; }      /* 색이 든 기호 — 노랑 판에서도 흰 배지 */
+    .c1.g { --pl: var(--G); } .c1.b { --pl: var(--B); } .c1.y { --pl: var(--Y); } .c1.r { --pl: var(--R); }  /* 11/17 배터리 안 색 = 판 색 */
     .pt .ic svg { width: 100%; height: 100%; }
     .pt .ic:has(svg.fx) { background: #fff; }
     /* 빛 띠 — 바탕이 없으니 배지 안에서만 지나간다 */
@@ -425,8 +426,8 @@ const I={
   stairs:`<svg viewBox="0 0 240 240" class="stp"><path pathLength="40" d="M40 170H100V120H150V70H200" fill="none" stroke="currentColor" stroke-width="30" stroke-linejoin="round"/></svg>`,
   diag:`<svg viewBox="0 0 240 240"><path class="drw" pathLength="1" d="M60 180.5L130.5 110" stroke="currentColor" stroke-width="30"/><path class="hd" d="M186.924 53.3553L165.71 145.279L94.9998 74.5685L186.924 53.3553Z" fill="currentColor"/></svg>`,
   tablet:`<svg viewBox="0 0 240 240" class="fx"><rect x="60" y="40" width="120" height="160" rx="20" fill="#16A145"/><rect x="70" y="50" width="100" height="140" rx="10" fill="none" stroke="#111" stroke-width="20"/><path d="M95 120L111.667 136L145 104" fill="none" stroke="#111" stroke-width="20" stroke-miterlimit="10" stroke-linejoin="round"/></svg>`,
-  bat:`<span class="ic fx"><svg viewBox="0 0 240 240" class="fx"><rect x="30" y="60" width="160" height="120" rx="20" fill="#111"/><rect x="205" y="105" width="10" height="30" rx="5" fill="none" stroke="#111" stroke-width="10"/><path d="M50 90C50 84.4772 54.4772 80 60 80H110V160H60C54.4772 160 50 155.523 50 150V90Z" fill="#16A145"/><path class="chg" d="M121 109H129.729C135.664 109 138.907 115.922 135.107 120.481L107.841 153.201L99 163.811V131H90.2705C84.3356 131 81.0932 124.078 84.8926 119.519L112.159 86.7988L121 76.1895V109Z" fill="#fff" stroke="#111" stroke-width="10"/></svg></span>`,
-  batLow:`<span class="ic fx"><svg viewBox="0 0 240 240" class="fx"><rect x="30" y="60" width="160" height="120" rx="20" fill="#111"/><path class="chg" d="M50 90C50 84.4772 54.4772 80 60 80H80V160H60C54.4772 160 50 155.523 50 150V90Z" fill="#FFCA1D"/><rect x="205" y="105" width="10" height="30" rx="5" fill="none" stroke="#111" stroke-width="10"/></svg></span>`,
+  bat:`<span class="ic fx"><svg viewBox="0 0 240 240" class="fx"><rect x="30" y="60" width="160" height="120" rx="20" fill="#111"/><rect x="205" y="105" width="10" height="30" rx="5" fill="none" stroke="#111" stroke-width="10"/><path d="M50 90C50 84.4772 54.4772 80 60 80H110V160H60C54.4772 160 50 155.523 50 150V90Z" style="fill:var(--pl)"/><path class="chg" d="M121 109H129.729C135.664 109 138.907 115.922 135.107 120.481L107.841 153.201L99 163.811V131H90.2705C84.3356 131 81.0932 124.078 84.8926 119.519L112.159 86.7988L121 76.1895V109Z" fill="#fff" stroke="#111" stroke-width="10"/></svg></span>`,
+  batLow:`<span class="ic fx"><svg viewBox="0 0 240 240" class="fx"><rect x="30" y="60" width="160" height="120" rx="20" fill="#111"/><path class="chg" d="M50 90C50 84.4772 54.4772 80 60 80H80V160H60C54.4772 160 50 155.523 50 150V90Z" style="fill:var(--pl)"/><rect x="205" y="105" width="10" height="30" rx="5" fill="none" stroke="#111" stroke-width="10"/></svg></span>`,
 };
 const K3=t=>`<p class="k3">${t}</p>`, K15=t=>`<p class="k15">${t}</p>`;
 const keys=a=>`<div>${a.map(K3).join('')}</div>`;
