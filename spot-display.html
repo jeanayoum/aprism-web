@@ -303,7 +303,7 @@
     /* 2 금지 — 원은 그대로, 사선이 그어짐 */
     .mlab .bslash { animation: mlSlash 2.4s cubic-bezier(.5,0,.3,1) infinite; }
     @keyframes mlSlash { 0% { stroke-dasharray: 1; stroke-dashoffset: 1; } 30%, 100% { stroke-dasharray: 1; stroke-dashoffset: 0; } }
-    /* 3 안전모 — 위에서 내려와 챙에 안착 */
+    /* 3 안전모 — 챙까지 전체가 위에서 내려와 안착 */
     .mlab .hdome { animation: mlDon 3.2s cubic-bezier(.3,1.3,.5,1) infinite; }
     @keyframes mlDon { 0% { transform: translateY(-48px); } 30% { transform: translateY(0); } 88% { transform: translateY(0); } 100% { transform: translateY(-48px); } }
     /* 4 마이크 — 몸통 안 소리 레벨이 오르내림 */
@@ -654,7 +654,7 @@ function mlabIcons(){
   return {
     bat: I.bat.replace('style="fill:var(--pl)"','class="bfill" style="fill:var(--pl)"'),
     ban: I.ban.replace('<path d="M58 58L182 182"','<path class="bslash" pathLength="1" d="M58 58L182 182"'),
-    helmet: I.helmet.replace('<path d="M130 40V80H110V40Z"','<g class="hdome"><path d="M130 40V80H110V40Z"').replace(/(<path fill-rule="evenodd" d="M140 50.709[^>]*\/>)/,'$1</g>'),
+    helmet: I.helmet.replace('<svg viewBox="0 0 240 240">','<svg viewBox="0 0 240 240"><g class="hdome">').replace('</svg>','</g></svg>'),  // 챙까지 전체가 내려와 안착
     mic: I.mic.replace('<rect x="90" y="30" width="60" height="110" rx="20" fill="currentColor"/>','<rect x="90" y="30" width="60" height="110" rx="20" fill="currentColor" fill-opacity=".3"/><rect class="mlev" x="90" y="30" width="60" height="110" rx="20" fill="currentColor"/>'),
     person: I.person.replace('</svg>','<rect class="pscan" x="40" y="14" width="160" height="8" fill="currentColor"/></svg>'),
     stairs: I.stairs.replace('</svg>','<circle class="sdot" cx="70" cy="142" r="13" fill="currentColor"/></svg>'),
@@ -665,7 +665,7 @@ function mlab(){
   const items=[
     ['bat','s1',0,'1 · 배터리 충전 — 차오름','지금은 움직임 없음. 시안은 안쪽 칸이 왼쪽에서 오른쪽으로 차올라 "충전 중"을 그대로 보여 준다.'],
     ['ban','s3',1,'2 · 금지 — 사선이 그어짐','지금은 기호 전체가 맥동. 시안은 원은 두고 사선만 그어져 "막는다"가 분명하다.'],
-    ['helmet','s4',1,'3 · 안전모 착용 — 씌워짐','지금은 기호 전체가 맥동. 시안은 모자 몸통이 위에서 내려와 챙에 안착한다(미착용 감지 장면은 파동 그대로).'],
+    ['helmet','s4',1,'3 · 안전모 착용 — 씌워짐','지금은 기호 전체가 맥동. 시안은 챙까지 안전모 전체가 위에서 내려와 안착한다(미착용 감지 장면은 파동 그대로).'],
     ['mic','s4',3,'4 · 마이크 — 소리 레벨','지금은 파동만. 시안은 마이크 몸통 안이 말소리처럼 오르내린다(파동과 함께).'],
     ['person','s2',1,'5 · 사람 감지 — 훑는 선','지금은 파동만. 시안은 가로선이 사람을 위에서 아래로 훑어 "감지 중"을 보여 준다.'],
     ['stairs','s8',0,'6 · 계단 — 오르는 점','지금은 계단 선이 그려짐. 시안은 그린 뒤 점(로봇)이 한 칸씩 올라간다. 기호가 작아 멀리서는 점이 약할 수 있다.'],
