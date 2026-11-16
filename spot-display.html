@@ -521,7 +521,7 @@ const SCENES=[
   {n:'02',t:['주변감지','Area scan'],src:['주변을 확인하고 있습니다 + 사람 아이콘','Checking the surroundings + person icon'],m:['가로선이 사람을 위→아래로 훑음 + 면 파동, 2.4초','Scan line sweeps the figure + filled ripples, 2.4s'],
    s:()=>A('b',badge(I.person,{ring:1}),KL(['주변','확인 중'],['AREA','CHECK']),L('작업자 1명 감지','WORKER NEAR'))},
   {n:'03',t:['사전 예고','Advance notice'],src:['3초 후 기립합니다 “3” → “2” → “1”','Standing up in 3 seconds “3” → “2” → “1”'],m:['숫자 1초마다 전환, 바닥 1m 원과 같은 박자','Number changes every 1s, in sync with the 1m floor ring'],
-   s:()=>A('y',CD,KL(['초 후','기립'],['SEC','TO RISE']),L('물러나세요','STEP BACK'))},
+   s:()=>A('y',CD,KL(['곧','기립'],['RISING','SOON']),L('물러나세요','STEP BACK'))},  /* 11/17 '초 후'가 배지 숫자와 갈라져 끊겨 보여, 숫자 없이도 서는 문구로 */
   {n:'04',t:['저속기립','Slow rise'],src:['천천히 일어나는 중입니다','Standing up slowly'],m:['↑ 화살표가 아래에서 위로 그려짐, 1.6초 반복','↑ arrow draws bottom to top, 1.6s loop'],
    s:()=>A('y',badge(I.up,{anim:'bob'}),K3(L('기립 중','RISING')),L('천천히 기립 중','SLOW RISE'))},
   {n:'05',t:['기립완료','Standing'],src:['기립완료·미션 시작 + 체크 아이콘','Standing complete · mission start + check icon'],m:['체크 0.6초 팝, 머무는 동안 3.2초마다 다시 그려짐','Check pops, 0.6s, then redraws every 3.2s'],
