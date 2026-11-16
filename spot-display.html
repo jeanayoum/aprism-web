@@ -20,6 +20,7 @@
       --f-sign:"Noto Sans KR",system-ui,sans-serif;
       --f-num:"Archivo","Noto Sans KR",system-ui,sans-serif;
       --t5:30cqw; --t3:15.5cqw; --t15:8cqw;
+      --u:4.6237cqw;  /* 11/16 그리드 단위 — 화면 높이(55.48cqw) ÷ 12 ≈ 7.2mm */
       --dev:#1A1C1F; --dev-edge:#2E3034;
     }
     html[lang="ko"] [data-l="en"], html[lang="en"] [data-l="ko"] { display: none !important; }
@@ -233,7 +234,28 @@
     .c1 .pz rect { animation: pzB 1.6s ease-in-out infinite; }
     .c1 .pz rect + rect { animation-delay: .8s; }
     @keyframes pzB { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
-    .scr .c1 .bat { width: 24cqw; height: 16cqw; }  /* Figma 가로형 배터리(240×160) */
+    .scr .c1 .bat { width: 25.2cqw; height: 16.8cqw; }  /* Figma 가로형 배터리(240×160) */
+
+    /* ===== 11/16 그리드 — 높이 12칸, 1u = 4.62cqw =====
+       가로: 기호 칸 8u · 배지 5u(좌우 1.5u) · 기호 칸 끝 → 글 1u · 오른쪽 최소 1u(넘으면 폭에 맞춰 줄임)
+       세로: 핵심어(또는 숫자) + 안내문 덩어리 전체를 배지 중심선(6u)에 맞춤. 안내문은 핵심어 아래 1u, 핵심어 줄 사이 0.5u
+       (핵심어만 가운데에 두면 두 줄 + 안내문일 때 아래 여백이 0 이 되어 버림)
+       간격은 모두 글자 먹 기준 — 줄 상자 여분은 --k-pad 로 빼 준다 */
+    .c1 { grid-template-columns: calc(var(--u) * 8) minmax(0, 1fr); }
+    .c1 .ic { width: calc(var(--u) * 5); height: calc(var(--u) * 5); }
+    .c1 .ic svg { width: calc(var(--u) * 3.4); height: calc(var(--u) * 3.4); }
+    .c1 .ic svg.prg { left: calc(var(--u) * -.625); top: calc(var(--u) * -.625); width: calc(var(--u) * 6.25); height: calc(var(--u) * 6.25); }
+    .c1 > .key {
+      align-self: stretch; justify-self: stretch; max-width: none; min-width: 0;
+      display: grid; grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 1fr); gap: 0;
+      padding: 0 var(--u);
+    }
+    .c1 > .key > :first-child { grid-row: 2; justify-self: start; position: relative; top: var(--k-shift, 0); }
+    .c1 > .key > .k15 { grid-row: 3; align-self: start; justify-self: start; margin-top: var(--g-gap); position: relative; top: var(--k-shift, 0); }
+    .scr .c1 .k3 { line-height: 1.033; }  /* 먹 사이 0.5u — 실측 보정 */
+    .scr .c1 .k15 { line-height: 1; }
+    .c1 { --k-shift: -1.1cqw; --g-gap: 3.1cqw; }  /* 실측 보정: 덩어리 먹 중심을 6u 에, 안내문 먹 간격 1u */
+    .c1 .num ~ .k15 { --g-gap: 1.1cqw; }  /* 숫자 줄 상자 여분이 커서 따로 */
 
     /* ===== 11/16 글자 모션 — A안 keyIn(통째로 올라옴)을 글자 단위로 바꾼다 =====
        핵심어: 글자마다 아래에서 솟아오름(줄 안에서 잘림) · 안내문: 왼쪽부터 쓸어 펼침 · 기호: 회전하며 튀어 들어옴 */
@@ -274,7 +296,7 @@
         </div>
       </div>
       <h1>SPOT 디스플레이 화면</h1>
-      <p class="lead">로봇개 등 위 7인치 디스플레이의 A안(안전 사인형) 확정 화면. 시나리오 8개 · 장면 40개를 시나리오마다 재생 화면 하나와 단계 목록으로 본다. 왼쪽 38%는 기호 타일, 오른쪽 62%는 핵심어와 안내문 두 층뿐이다. 리서치는 <a href="./robot-display.html">로봇 디스플레이</a>, 기호 원본은 Figma <a href="https://www.figma.com/design/6jlcnuP9HDFNNHwaAhX5vz/KISTA-2026?node-id=828-2780">06. 디스플레이 · Pictogram</a> · 2026-11-16</p>
+      <p class="lead">로봇개 등 위 7인치 디스플레이의 A안(안전 사인형) 확정 화면. 시나리오 8개 · 장면 40개를 시나리오마다 재생 화면 하나와 단계 목록으로 본다. 왼쪽 기호 칸과 오른쪽 핵심어 · 안내문 두 층뿐이고, 여백은 높이 12칸 그리드(1u ≈ 7.2mm)로 맞춘다. 리서치는 <a href="./robot-display.html">로봇 디스플레이</a>, 기호 원본은 Figma <a href="https://www.figma.com/design/6jlcnuP9HDFNNHwaAhX5vz/KISTA-2026?node-id=828-2780">06. 디스플레이 · Pictogram</a> · 2026-11-16</p>
       <div class="chips">
         <span>155×86mm · 800×480</span>
         <span>A형 장착 · 양쪽 화면 같은 내용</span>
@@ -298,10 +320,11 @@
           </table></div>
           <div class="rgrid">
             <section><h3>판 구성</h3><ul>
-              <li>왼쪽 38% 기호 타일(판 색을 18% 어둡게), 오른쪽 62% 글</li>
-              <li>기호는 지름 22cqw 원형 배지 안 15cqw</li>
+              <li>높이 12칸 그리드, 1u = 화면 높이 ÷ 12 ≈ 4.6cqw(7.2mm)</li>
+              <li>기호 칸 8u(판 색을 18% 어둡게), 배지 5u · 좌우 1.5u, 배지 중심 = 화면 가운데(6u)</li>
+              <li>글은 기호 칸 끝에서 1u, 오른쪽은 최소 1u — 넘치면 폭에 맞춰 줄임</li>
+              <li>핵심어(또는 숫자) + 안내문 덩어리 중심 = 배지 중심선, 안내문은 핵심어 아래 1u, 핵심어 줄 사이 0.5u (모두 글자 먹 기준)</li>
               <li>배터리는 배지 없이 타일에 바로</li>
-              <li>글 블록은 오른쪽 칸 세로 가운데, 왼쪽 정렬</li>
             </ul></section>
             <section><h3>글자 3단</h3><ul>
               <li>숫자 30cqw — 5m</li>
@@ -524,9 +547,20 @@ function countUp(scr){
     t.textContent='0';requestAnimationFrame(tick);
   });
 }
+/* 11/16 오른쪽 최소 여백 1u — 핵심어 · 안내문이 글 칸(오른쪽 1u 안쪽)을 넘으면 그 줄만 폭에 맞춰 줄인다 */
+function fitKey(scr){
+  const c1=scr.querySelector('.c1');if(!c1||!scr.clientWidth)return;
+  const key=c1.querySelector('.key'),cs=getComputedStyle(key);
+  const avail=key.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);
+  const q=scr.clientWidth/100;  // 1cqw(px)
+  key.querySelectorAll('.k3, .k15').forEach(p=>{
+    p.style.fontSize='';const w=p.scrollWidth;
+    if(w>avail+.5){const fs=parseFloat(getComputedStyle(p).fontSize);p.style.fontSize=(fs*avail/w/q).toFixed(2)+'cqw';}
+  });
+}
 function show(scr,html){
   scr.classList.remove('in');scr.innerHTML=html;scr.setAttribute('lang',LANG);
-  splitText(scr);if(!RM)countUp(scr);
+  splitText(scr);fitKey(scr);if(!RM)countUp(scr);
   void scr.offsetWidth;scr.classList.add('in');
 }
 function legend(){
@@ -587,6 +621,8 @@ function setLang(l){
 document.querySelectorAll('.seg button').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.set)));
 let saved='ko';try{saved=localStorage.getItem('spot-display-lang')||'ko'}catch(e){}
 setLang(saved==='en'?'en':'ko');
+// 웹폰트가 늦게 오면 글 폭이 바뀌므로 다시 맞춘다
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>document.querySelectorAll('.scr').forEach(fitKey));
   </script>
   <script src="./assets/js/theme.js?v=c86093d9"></script>
 </body>
