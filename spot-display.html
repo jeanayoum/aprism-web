@@ -221,13 +221,25 @@
     }
     @keyframes sweep { 0% { background-position: 130% 0; } 45%, 100% { background-position: -30% 0; } }
     .scr.in .c1 .k3 .ch {
-      animation-name: chUp, chWave;
-      animation-duration: .62s, 3.2s;
-      animation-timing-function: cubic-bezier(.2,.9,.25,1.25), ease-in-out;
-      animation-delay: calc(.1s + var(--l) * .12s + var(--i) * .045s), calc(1.4s + var(--l) * .12s + var(--i) * .07s);
-      animation-iteration-count: 1, infinite;
-      animation-fill-mode: backwards, none;
+      animation-name: chUp;  /* 11/17 글자 물결(chWave) 뺌 — 글자를 움직이면 흐려질 수 있어 빛 결로 바꿈 */
+      animation-duration: .62s;
+      animation-timing-function: cubic-bezier(.2,.9,.25,1.25);
+      animation-delay: calc(.1s + var(--l) * .12s + var(--i) * .045s);
+      animation-iteration-count: 1;
+      animation-fill-mode: backwards;
     }
+    /* 11/17 핵심어 빛 결 — 글자는 그대로, 글자 안에서만 옅은 띠가 지나감(background-clip:text).
+       흰 글자는 판 색 쪽으로 살짝 어두운 띠, 노랑 판 검정 글자는 살짝 밝은 띠. 배지 빛 띠보다 0.5초 늦게 출발 */
+    .scr .c1 .k3 {
+      --tx: #fff; --band: color-mix(in srgb, #fff 70%, var(--pl));
+      background: linear-gradient(105deg, var(--tx) 38%, var(--band) 50%, var(--tx) 62%) repeat-x;  /* no-repeat 면 띠가 밖에 있을 때 그림이 글자를 다 못 덮어 글자가 빠짐 */
+      background-size: 300% 100%; background-position: 120% 0;
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .scr .c1.y .k3 { --tx: #111; --band: color-mix(in srgb, #111 62%, #fff); }
+    .scr.in .c1 > .key .k3 { animation: kSheen 3.2s cubic-bezier(.45,0,.25,1) 1.5s infinite; }
+    @keyframes kSheen { 0% { background-position: 120% 0; } 45%, 100% { background-position: -20% 0; } }
+    @media (prefers-reduced-motion: reduce) { .scr .c1 .k3 { animation: none !important; } }
     @keyframes chWave { 0%, 22%, 100% { transform: none; } 9% { transform: translateY(-7%); } }
     .c1 .ck { animation: drawCk 3.2s cubic-bezier(.5,0,.3,1) 1.2s infinite; }
     @keyframes drawCk { 0% { stroke-dasharray: 1; stroke-dashoffset: 1; } 20%, 100% { stroke-dasharray: 1; stroke-dashoffset: 0; } }
@@ -390,7 +402,7 @@
               <li>감지 · 연결은 파동 2겹, 1.2초 간격</li>
               <li>화살표는 통째로 움직이지 않고 꼬리 → 머리 방향으로 그려짐, 1.6초 반복 · 방향은 바닥 화살표와 같게</li>
               <li>체크 0.6초 팝, 카운트다운 1초마다</li>
-              <li>한 장면에 머물러도 움직임이 이어짐 — 배지 빛 띠 3.2초, 핵심어 글자 물결 3.2초, 체크 다시 그려짐, 정지 막대 번갈아 숨쉬기</li>
+              <li>한 장면에 머물러도 움직임이 이어짐 — 배지 빛 띠 3.2초, 핵심어 빛 결 3.2초(배지보다 0.5초 늦게), 체크 다시 그려짐, 정지 막대 번갈아 숨쉬기</li>
             </ul></section>
             <section><h3>쓰지 않는 것</h3><ul>
               <li>터치 버튼 — [인계 확인] · [회수 가이드 보기]는 담당자 태블릿 · 관제 지시로</li>
@@ -574,7 +586,7 @@ function splitText(scr){
     let line=0,most=0;
     key.querySelectorAll('.k3, .k15').forEach(p=>{
       const txt=p.textContent,isK=p.classList.contains('k3');
-      p.setAttribute('aria-label',txt);p.textContent='';
+      p.setAttribute('aria-label',txt);p.dataset.t=txt;p.textContent='';
       [...txt].forEach((ch,i)=>{const s=document.createElement('span');s.className='ch';s.setAttribute('aria-hidden','true');
         s.textContent=ch===' '?' ':ch;s.style.setProperty('--i',i);s.style.setProperty('--l',isK?line:0);p.appendChild(s)});
       if(isK){line=(line+1)%2;most=Math.max(most,txt.length)}  // 순서 안내(sq4)는 두 줄씩 되풀이
@@ -606,6 +618,8 @@ function fitKey(scr){
 function show(scr,html){
   scr.classList.remove('in');scr.innerHTML=html;scr.setAttribute('lang',LANG);
   splitText(scr);fitKey(scr);if(!RM)countUp(scr);
+  // 11/17 등장(~0.9초)이 끝나면 핵심어 글자 상자를 풀어 원래 글로 — 쪼갠 상태에선 빛 결(background-clip:text)이 일부 글자를 빠뜨림
+  setTimeout(()=>scr.querySelectorAll('.k3[data-t]').forEach(p=>{if(p.isConnected){p.textContent=p.dataset.t;delete p.dataset.t;}}),1300);
   void scr.offsetWidth;scr.classList.add('in');
 }
 function legend(){
