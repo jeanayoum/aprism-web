@@ -256,6 +256,31 @@
     .scr .c1 .k15 { line-height: 1; }
     .c1 { --k-shift: -1.1cqw; --g-gap: 3.1cqw; }  /* 실측 보정: 덩어리 먹 중심을 6u 에, 안내문 먹 간격 1u */
     .c1 .num ~ .k15 { --g-gap: 1.1cqw; }  /* 숫자 줄 상자 여분이 커서 따로 */
+    /* ===== 11/17 디자이너 수정본 반영 — 기호 칸 바탕 없앰 · 원형 배지 유지 =====
+       배지 지름 = 화면 폭 30% (Figma 800 기준 240) · 기호 칸 왼쪽에서 1u · 배지 중심 = 세로 가운데(6u)
+       그림은 배지 상자 전체(240 그리드)에 그려져 있어 svg 를 배지 크기로 채운다 */
+    .c1 { position: relative; }
+    .c1 > .sym { background: none; justify-items: center; padding-left: var(--u); }
+    .c1 > .sym > .ic { justify-self: start; }
+    .c1 .ic { --b: 30cqw; width: var(--b); height: var(--b); isolation: isolate; }
+    .c1 .ic svg { width: 100%; height: 100%; }
+    .c1 .ic svg.prg { left: calc(var(--b) * -.125); top: calc(var(--b) * -.125); width: calc(var(--b) * 1.25); height: calc(var(--b) * 1.25); }
+    .c1 .ic > span { display: grid; width: 100%; height: 100%; }  /* 모션 감싸개(nud · pop …)도 배지를 채움 */
+    .c1 .ic.fx, .c1 .ic:has(svg.fx) { background: #fff; }      /* 색이 든 기호 — 노랑 판에서도 흰 배지 */
+    .pt .ic svg { width: 100%; height: 100%; }
+    .pt .ic:has(svg.fx) { background: #fff; }
+    /* 빛 띠 — 바탕이 없으니 배지 안에서만 지나간다 */
+    .c1 > .sym::before { display: none; }
+    .c1 .ic::before {
+      content: ""; position: absolute; inset: 0; z-index: 2; border-radius: 50%; pointer-events: none;
+      background: linear-gradient(105deg, transparent 38%, rgba(255,255,255,.35) 50%, transparent 62%) no-repeat;
+      background-size: 260% 100%; background-position: 130% 0;
+      animation: sweep 3.2s cubic-bezier(.45,0,.25,1) 1s infinite;
+    }
+    /* 빨강 깜빡임 — 기호 칸 대신 판 전체가 살짝 어두워짐 */
+    .c1.r > .sym::after { display: none; }
+    .c1.r::after { content: ""; position: absolute; inset: 0; background: #000; opacity: 0; pointer-events: none; animation: alarm 1.2s ease-in-out infinite; }
+    @media (prefers-reduced-motion: reduce) { .c1 .ic::before, .c1.r::after { animation: none !important; opacity: 0; } }
 
     /* ===== 11/16 글자 모션 — A안 keyIn(통째로 올라옴)을 글자 단위로 바꾼다 =====
        핵심어: 글자마다 아래에서 솟아오름(줄 안에서 잘림) · 안내문: 왼쪽부터 쓸어 펼침 · 기호: 회전하며 튀어 들어옴 */
@@ -315,16 +340,16 @@
               <tr><td class="sw"><i style="background:var(--G)"></i>초록</td><td class="hex">#16A145</td><td>안전 · 완료 · 정상 운행</td><td>흰 원 배지 · 흰 글자</td><td>체크, 이동 화살표, 충전 배터리</td></tr>
               <tr><td class="sw"><i style="background:var(--B)"></i>파랑</td><td class="hex">#156DF0</td><td>확인 중 · 측정 · 연결 · 관제 대기</td><td>흰 원 배지 · 흰 글자</td><td>사람, 게이지, 음향, 마이크</td></tr>
               <tr><td class="sw"><i style="background:var(--Y)"></i>노랑</td><td class="hex">#FFCA1D</td><td>주의 · 예고 · 양보 요청</td><td>검정 원 배지 · 검정 글자</td><td>안전모, 정지, 카운트다운, 계단, 회전 화살표, 태블릿</td></tr>
-              <tr><td class="sw"><i style="background:var(--R)"></i>빨강 (추가)</td><td class="hex">#FE2E1F</td><td>위험 · 접근 금지 — 시나리오 3 · 7 · 8 위험단계, 조명 적색과 맞춤</td><td>흰 원 배지 · 흰 글자 · 기호 칸 1.2초 어두워짐</td><td>금지, 우회, ↗ 화살표, 배터리 부족</td></tr>
+              <tr><td class="sw"><i style="background:var(--R)"></i>빨강 (추가)</td><td class="hex">#FE2E1F</td><td>위험 · 접근 금지 — 시나리오 3 · 7 · 8 위험단계, 조명 적색과 맞춤</td><td>흰 원 배지 · 흰 글자 · 판 1.2초 어두워짐</td><td>금지, 우회, ↗ 화살표, 배터리 부족</td></tr>
             </tbody>
           </table></div>
           <div class="rgrid">
             <section><h3>판 구성</h3><ul>
               <li>높이 12칸 그리드, 1u = 화면 높이 ÷ 12 ≈ 4.6cqw(7.2mm)</li>
-              <li>기호 칸 8u(판 색을 18% 어둡게), 배지 5u · 좌우 1.5u, 배지 중심 = 화면 가운데(6u)</li>
+              <li>기호 칸 8u(바탕 없음), 원형 배지 지름 = 화면 폭 30% · 기호 칸 왼쪽에서 1u, 배지 중심 = 화면 가운데(6u)</li>
               <li>글은 기호 칸 끝에서 1u, 오른쪽은 최소 1u — 넘치면 폭에 맞춰 줄임</li>
               <li>핵심어(또는 숫자) + 안내문 덩어리 중심 = 배지 중심선, 안내문은 핵심어 아래 1u, 핵심어 줄 사이 0.5u (모두 글자 먹 기준)</li>
-              <li>배터리는 배지 없이 타일에 바로</li>
+              <li>배터리 · 태블릿은 색이 든 기호라 판 색과 상관없이 흰 배지</li>
             </ul></section>
             <section><h3>글자 3단</h3><ul>
               <li>숫자 30cqw — 5m</li>
@@ -346,7 +371,7 @@
               <li>감지 · 연결은 파동 2겹, 1.2초 간격</li>
               <li>화살표는 통째로 움직이지 않고 꼬리 → 머리 방향으로 그려짐, 1.6초 반복 · 방향은 바닥 화살표와 같게</li>
               <li>체크 0.6초 팝, 카운트다운 1초마다</li>
-              <li>한 장면에 머물러도 움직임이 이어짐 — 기호 칸 빛 띠 3.2초, 핵심어 글자 물결 3.2초, 체크 다시 그려짐, 정지 막대 번갈아 숨쉬기</li>
+              <li>한 장면에 머물러도 움직임이 이어짐 — 배지 빛 띠 3.2초, 핵심어 글자 물결 3.2초, 체크 다시 그려짐, 정지 막대 번갈아 숨쉬기</li>
             </ul></section>
             <section><h3>쓰지 않는 것</h3><ul>
               <li>터치 버튼 — [인계 확인] · [회수 가이드 보기]는 담당자 태블릿 · 관제 지시로</li>
@@ -383,25 +408,25 @@ const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ----- A안 시안 아티팩트의 기호 · 화면 조립 · 장면 데이터 그대로 ----- */
 const I={
-  bat:`<svg viewBox="0 40 240 160" class="bat"><path d="M190 50C201.046 50 210 58.9543 210 70V170C210 181.046 201.046 190 190 190H30C18.9543 190 10 181.046 10 170V70C10 58.9543 18.9543 50 30 50H190ZM41 70C35.4772 70 31 74.4772 31 80V160C31 165.523 35.4772 170 41 170H150C155.523 170 160 165.523 160 160V80C160 74.4772 155.523 70 150 70H41Z" fill="currentColor"/><path class="chg" d="M114.686 114.286H131.156C131.703 114.285 132.238 114.443 132.697 114.741C133.157 115.039 133.521 115.463 133.747 115.964C133.972 116.464 134.049 117.02 133.969 117.563C133.889 118.107 133.654 118.616 133.293 119.029L97.6363 160L103.32 125.714H86.8494C86.3024 125.716 85.7665 125.558 85.3062 125.261C84.8458 124.964 84.4806 124.54 84.2544 124.039C84.0281 123.538 83.9505 122.982 84.0307 122.438C84.111 121.894 84.3458 121.385 84.7068 120.971L120.369 80L114.686 114.286Z" fill="currentColor"/><rect x="225" y="95" width="10" height="50" rx="5" fill="none" stroke="currentColor" stroke-width="10"/></svg>`,
-  batLow:`<svg viewBox="0 40 240 160" class="bat chg"><path d="M190 50C201.046 50 210 58.9543 210 70V170C210 181.046 201.046 190 190 190H30C18.9543 190 10 181.046 10 170V70C10 58.9543 18.9543 50 30 50H190ZM41 70C35.4772 70 31 74.4772 31 80V160C31 165.523 35.4772 170 41 170H70C75.5229 170 80 165.523 80 160V80C80 74.4772 75.5229 70 70 70H41Z" fill="currentColor"/><rect x="225" y="95" width="10" height="50" rx="5" fill="none" stroke="currentColor" stroke-width="10"/></svg>`,
-  person:`<svg viewBox="0 0 24 24"><circle cx="12" cy="4.4" r="3.1" fill="currentColor"/><path d="M7 11a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v4.2h-2.3l-.7 7.3h-4l-.7-7.3H7z" fill="currentColor"/></svg>`,
-  /* 11/16 화살표 다섯 종 한 규격 — 몸통 4 · 머리 폭 12 · 머리 길이 8 · 꼬리 끝 21.5 (24 그리드) */
-  up:`<svg viewBox="0 0 24 24"><path class="wp-up" d="M12 2.5 18 10.5h-4v11h-4v-11H6z" fill="currentColor"/></svg>`,
-  right:`<svg viewBox="0 0 24 24"><path class="wp-rt" d="M21.5 12 13.5 18v-4h-11v-4h11V6z" fill="currentColor"/></svg>`,
-  diag:`<svg viewBox="0 0 24 24"><g transform="rotate(45 12 12)"><path class="wp-up" d="M12 2.5 18 10.5h-4v11h-4v-11H6z" fill="currentColor"/></g></svg>`,
-  check:`<svg viewBox="0 0 24 24"><path class="ck" pathLength="1" d="M4.2 12.6l5.1 5L19.8 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10"/></svg>`,
-  ban:`<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="3.2"/><path d="M5.8 5.8 18.2 18.2" stroke="currentColor" stroke-width="3.2"/></svg>`,
-  detour:`<svg viewBox="0 0 24 24"><path class="drw" pathLength="1" d="M6.5 21.5V11.5a4.5 4.5 0 0 1 4.5-4.5h4" fill="none" stroke="currentColor" stroke-width="4"/><path class="hd" d="M14 1 22 7 14 13z" fill="currentColor"/></svg>`,
-  pause:`<svg viewBox="0 0 24 24" class="pz"><rect x="5.5" y="4" width="4.6" height="16" rx="1.2" fill="currentColor"/><rect x="13.9" y="4" width="4.6" height="16" rx="1.2" fill="currentColor"/></svg>`,
-  /* 11/16 게이지 · 배터리 두 종은 Figma Pictogram(828:2780) 새 그림 — 240 단위 */
-  gauge:`<svg viewBox="0 0 240 240"><path d="M120 30C175.228 30 220 77.0101 220 135C220 141.443 215.025 146.667 208.889 146.667C202.752 146.667 197.778 141.443 197.778 135C197.778 89.8967 162.955 53.3333 120 53.3333C77.0445 53.3333 42.2222 89.8967 42.2222 135C42.2222 141.443 37.2476 146.667 31.1111 146.667C24.9746 146.667 20 141.443 20 135C20 77.0101 64.7715 30 120 30Z" fill="currentColor"/><g class="ndl" style="transform-origin:120px 146.667px"><path d="M163.555 92.8451C168.607 89.31 174.625 95.6295 171.259 100.934L142.211 146.655L142.222 146.667C142.222 152.855 139.879 158.788 135.712 163.164C131.544 167.54 125.894 170 120 170C114.106 170 108.456 167.54 104.288 163.164C100.121 158.788 97.7778 152.855 97.7778 146.667C97.7782 140.479 100.121 134.545 104.288 130.169C108.456 125.794 114.107 123.333 120 123.333L163.555 92.8451ZM120 135C113.864 135 108.889 140.224 108.889 146.667C108.889 153.11 113.864 158.333 120 158.333C126.136 158.333 131.111 153.11 131.111 146.667C131.111 140.224 126.136 135 120 135Z" fill="currentColor"/></g></svg>`,
-  helmet:`<svg viewBox="0 0 24 24" class="hat"><path d="M3.6 16.2A8.4 8.4 0 0 1 12 7.8a8.4 8.4 0 0 1 8.4 8.4z" fill="currentColor"/><rect x="9.6" y="5.2" width="4.8" height="6.4" rx="1.6" fill="currentColor"/><path class="ridge ibs" d="M12 6.8v4.4" stroke-width="1.6" stroke-linecap="round"/><rect x="1.6" y="16.6" width="20.8" height="3.4" rx="1.7" fill="currentColor"/></svg>`,
-  mic:`<svg viewBox="0 0 24 24"><rect x="8.5" y="2" width="7" height="12.5" rx="3.5" fill="currentColor"/><path d="M5.3 11.3a6.7 6.7 0 0 0 13.4 0M12 18.2v3.3M8.6 21.5h6.8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>`,
-  wave:`<svg viewBox="0 0 24 24" class="spk"><path d="M2.5 9.2a1.2 1.2 0 0 1 1.2-1.2h3.1l5-4.3a.8.8 0 0 1 1.3.6v15.4a.8.8 0 0 1-1.3.6l-5-4.3H3.7a1.2 1.2 0 0 1-1.2-1.2z" fill="currentColor"/><path class="w" d="M16.2 8.6a4.6 4.6 0 0 1 0 6.8" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/><path class="w w2" d="M18.9 5.6a8.6 8.6 0 0 1 0 12.8" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg>`,
-  stairs:`<svg viewBox="0 0 24 24" class="stp"><path d="M2 21.5h5.5v-5h5v-5h5v-5H22" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round"/></svg>`,
-  uturn:`<svg viewBox="0 0 24 24"><path class="drw" pathLength="1" d="M18.5 21.5V9.5a5.5 5.5 0 0 0-11 0v3.2" fill="none" stroke="currentColor" stroke-width="4"/><path class="hd" d="M1.5 11.5 7.5 19.5l6-8z" fill="currentColor"/></svg>`,
-  tablet:`<svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="3" fill="currentColor"/><path class="ibs" d="M8 11.8l2.9 2.9 5.1-5.5" fill="none" stroke-width="2.6" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10"/></svg>`,
+  /* 11/17 Figma Pictogram(828:2780) 디자이너 수정본 — 240 그리드, 원형 배지 지름 = 240(그림 상자 전체). 배지 원은 CSS(.ic) 가 그린다.
+     tablet · bat · batLow 는 색이 든 기호라 판 색과 상관없이 흰 배지(.fx) */
+  check:`<svg viewBox="0 0 240 240"><path class="ck" pathLength="1" d="M60 120L100 160L180 80" fill="none" stroke="currentColor" stroke-width="30" stroke-miterlimit="10" stroke-linejoin="round"/></svg>`,
+  person:`<svg viewBox="0 0 240 240"><path d="M120 70C133.807 70 145 58.8071 145 45C145 31.1929 133.807 20 120 20C106.193 20 95 31.1929 95 45C95 58.8071 106.193 70 120 70Z" fill="currentColor"/><path d="M80 100C80 88.9543 88.9543 80 100 80H140C151.046 80 160 88.9543 160 100V150H140V210H100V150H80V100Z" fill="currentColor"/></svg>`,
+  up:`<svg viewBox="0 0 240 240"><g class="wp-up"><path d="M120 30L170 110H70L120 30Z" fill="currentColor"/><rect x="105" y="110" width="30" height="90" fill="currentColor"/></g></svg>`,
+  right:`<svg viewBox="0 0 240 240"><g class="wp-rt"><path d="M210 120L130 170L130 70L210 120Z" fill="currentColor"/><rect x="40" y="105" width="90" height="30" fill="currentColor"/></g></svg>`,
+  ban:`<svg viewBox="0 0 240 240"><circle cx="120" cy="120" r="81" fill="none" stroke="currentColor" stroke-width="30"/><path d="M58 58L182 182" stroke="currentColor" stroke-width="30"/></svg>`,
+  detour:`<svg viewBox="0 0 240 240"><path class="drw" pathLength="1" d="M70 190V125C70 102.909 87.9086 85 110 85H130" fill="none" stroke="currentColor" stroke-width="30"/><path class="hd" d="M210 85.0875L130 135L130 36L210 85.0875Z" fill="currentColor"/></svg>`,
+  gauge:`<svg viewBox="0 0 240 240"><path d="M201 120C201 75.2649 164.735 39 120 39C75.2649 39 39 75.2649 39 120" fill="none" stroke="currentColor" stroke-width="30"/><g class="ndl" style="transform-origin:120px 130px"><path fill-rule="evenodd" d="M152.669 86.9102C157.721 83.3754 163.739 89.6954 160.373 95L144.562 125.326C144.848 126.84 145 128.403 145 130C145 143.807 133.807 155 120 155C106.193 155 95.0001 143.807 95 130C95 116.193 106.193 105 120 105C120.789 105 121.569 105.038 122.339 105.109L152.669 86.9102ZM120 120C114.477 120 110 124.477 110 130C110 135.523 114.477 140 120 140C125.523 140 130 135.523 130 130C130 124.477 125.523 120 120 120Z" fill="currentColor"/></g></svg>`,
+  wave:`<svg viewBox="0 0 240 240" class="spk"><rect x="30" y="90" width="20" height="60" fill="currentColor"/><path d="M50 90L120 50V190L50 150V90Z" fill="currentColor"/><path class="w" d="M155.355 84.6447C174.882 104.171 174.882 135.829 155.355 155.355" fill="none" stroke="currentColor" stroke-width="20"/><path class="w w2" d="M177.275 62.7244C208.908 94.3568 208.908 145.643 177.275 177.276" fill="none" stroke="currentColor" stroke-width="20"/></svg>`,
+  helmet:`<svg viewBox="0 0 240 240"><path d="M210 140V160H30V140Z" fill="currentColor"/><path d="M130 40V80H110V40Z" fill="currentColor"/><path fill-rule="evenodd" d="M140 50.709C173.923 55.5613 200 84.7353 200 120V130H40V120C40 84.7353 66.0771 55.5613 100 50.709V80C100 85.5228 104.477 90 110 90H130C135.523 90 140 85.5258 140 80.0029V50.709ZM130 50V70C130 75.5228 125.523 80 120 80C114.477 80 110 75.5228 110 70V50H130Z" fill="currentColor"/></svg>`,
+  mic:`<svg viewBox="0 0 240 240"><path d="M120 160V195" stroke="currentColor" stroke-width="20"/><path d="M80 200H160" stroke="currentColor" stroke-width="20"/><path d="M70 120V130C70 146.569 83.4315 160 100 160H140C156.569 160 170 146.569 170 130V120" fill="none" stroke="currentColor" stroke-width="20" stroke-linejoin="round"/><rect x="90" y="30" width="60" height="110" rx="20" fill="currentColor"/></svg>`,
+  pause:`<svg viewBox="0 0 240 240" class="pz"><rect x="70" y="70" width="30" height="100" fill="currentColor"/><rect x="140" y="70" width="30" height="100" fill="currentColor"/></svg>`,
+  uturn:`<svg viewBox="0 0 240 240"><path class="drw" pathLength="1" d="M170 190V90C170 67.9086 152.091 50 130 50H120C97.9086 50 80 67.9086 80 90V120" fill="none" stroke="currentColor" stroke-width="30"/><path class="hd" d="M80 200L130 120H30L80 200Z" fill="currentColor"/></svg>`,
+  stairs:`<svg viewBox="0 0 240 240" class="stp"><path pathLength="40" d="M40 170H100V120H150V70H200" fill="none" stroke="currentColor" stroke-width="30" stroke-linejoin="round"/></svg>`,
+  diag:`<svg viewBox="0 0 240 240"><path class="drw" pathLength="1" d="M60 180.5L130.5 110" stroke="currentColor" stroke-width="30"/><path class="hd" d="M186.924 53.3553L165.71 145.279L94.9998 74.5685L186.924 53.3553Z" fill="currentColor"/></svg>`,
+  tablet:`<svg viewBox="0 0 240 240" class="fx"><rect x="60" y="40" width="120" height="160" rx="20" fill="#16A145"/><rect x="70" y="50" width="100" height="140" rx="10" fill="none" stroke="#111" stroke-width="20"/><path d="M95 120L111.667 136L145 104" fill="none" stroke="#111" stroke-width="20" stroke-miterlimit="10" stroke-linejoin="round"/></svg>`,
+  bat:`<span class="ic fx"><svg viewBox="0 0 240 240" class="fx"><rect x="30" y="60" width="160" height="120" rx="20" fill="#111"/><rect x="205" y="105" width="10" height="30" rx="5" fill="none" stroke="#111" stroke-width="10"/><path d="M50 90C50 84.4772 54.4772 80 60 80H110V160H60C54.4772 160 50 155.523 50 150V90Z" fill="#16A145"/><path class="chg" d="M121 109H129.729C135.664 109 138.907 115.922 135.107 120.481L107.841 153.201L99 163.811V131H90.2705C84.3356 131 81.0932 124.078 84.8926 119.519L112.159 86.7988L121 76.1895V109Z" fill="#fff" stroke="#111" stroke-width="10"/></svg></span>`,
+  batLow:`<span class="ic fx"><svg viewBox="0 0 240 240" class="fx"><rect x="30" y="60" width="160" height="120" rx="20" fill="#111"/><path class="chg" d="M50 90C50 84.4772 54.4772 80 60 80H80V160H60C54.4772 160 50 155.523 50 150V90Z" fill="#FFCA1D"/><rect x="205" y="105" width="10" height="30" rx="5" fill="none" stroke="#111" stroke-width="10"/></svg></span>`,
 };
 const K3=t=>`<p class="k3">${t}</p>`, K15=t=>`<p class="k15">${t}</p>`;
 const keys=a=>`<div>${a.map(K3).join('')}</div>`;
