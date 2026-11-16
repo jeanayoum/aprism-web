@@ -319,6 +319,15 @@
     .c1 .sdot { opacity: 0; animation: mlDot 2.4s ease-in-out infinite; }
     @keyframes mlDot { 0%, 38% { transform: translate(0, 0); opacity: 0; } 42% { transform: translate(0, 0); opacity: 1; } 49% { transform: translate(28px, -64px); } 56% { transform: translate(55px, -50px); } 63% { transform: translate(80px, -114px); } 70%, 90% { transform: translate(105px, -100px); opacity: 1; } 100% { transform: translate(105px, -100px); opacity: 0; } }
     @media (prefers-reduced-motion: reduce) { .c1 .pscan, .c1 .sdot { animation: none !important; opacity: 0; } }
+
+    /* 11/17 숫자 배지 — 3·2·1 · 회수 순서 숫자도 원 안. 숫자 먹 높이 ≈ 배지 58%, 먹 기준 가운데 */
+    .c1 .cdb .num { display: grid; place-items: center; width: 100%; height: 100%; font-size: 24cqw; line-height: 1; letter-spacing: 0; }
+    .c1 .cdb .num > span { position: relative; top: var(--cd-dy, 0); }
+    .c1 .cdb .cd > *, .c1 .cdb .sq4 > * { text-align: center; }
+    /* 비교용 링 — 1초마다 원 테두리를 따라 줄어듦(3초 = 3 · 2 · 1) */
+    .c1 .prg.cdr .bar { animation: cdRing 1s linear infinite; }
+    @keyframes cdRing { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 88; } }
+    .c1.y .prg .trk { stroke: rgba(0,0,0,.18); } .c1.y .prg .bar { stroke: #111; }
     @keyframes waveFill { 0% { transform: scale(1); opacity: .55; } 100% { transform: scale(1.3); opacity: 0; } }
     /* 1.3배 = 반지름 19.5cqw — 배지 중심(19.6cqw)에서 화면 왼쪽 끝 안 · 글 시작선(41.6cqw) 앞 · 위아래 안에서 끝남 */
     .c1 > .sym { overflow: visible; }  /* 바탕 있던 시절의 자르기 — 파동이 기호 칸 오른쪽에서 잘리던 원인 */
@@ -406,6 +415,7 @@
               <li>글은 기호 칸 끝에서 1u, 오른쪽은 최소 1u — 넘치면 폭에 맞춰 줄임</li>
               <li>핵심어(또는 숫자) + 안내문 덩어리 중심 = 배지 중심선, 안내문은 핵심어 아래 1u, 핵심어 줄 사이 0.5u (모두 글자 먹 기준)</li>
               <li>배터리는 색이 든 기호라 판 색과 상관없이 흰 배지</li>
+              <li>3 · 2 · 1 카운트다운과 회수 순서(1~4) 숫자도 배지 안, 숫자 높이 ≈ 배지 56%</li>
             </ul></section>
             <section><h3>글자 3단</h3><ul>
               <li>숫자 30cqw — 5m</li>
@@ -495,7 +505,8 @@ const keys=a=>`<div>${a.map(K3).join('')}</div>`;
 const KL=(ko,en)=>keys(L(ko,en));
 const badge=(svg,{ring,anim}={})=>`<span class="ic">${ring?'<i></i><i></i>':''}${anim?`<span class="${anim}">${svg}</span>`:svg}</span>`;
 const prog=svg=>`<span class="ic"><svg class="prg" viewBox="0 0 32 32"><circle class="trk" cx="16" cy="16" r="14"/><circle class="bar" cx="16" cy="16" r="14"/></svg>${svg}</span>`;
-const CD=`<div class="num"><div class="cd"><span class="n3">3</span><span class="n2">2</span><span class="n1">1</span></div></div>`;
+const CD=`<span class="ic cdb"><span class="num"><span class="cd"><span class="n3">3</span><span class="n2">2</span><span class="n1">1</span></span></span></span>`;  /* 11/17 숫자도 배지 안 */
+const CDR=`<span class="ic cdb"><svg class="prg cdr" viewBox="0 0 32 32"><circle class="trk" cx="16" cy="16" r="14"/><circle class="bar" cx="16" cy="16" r="14"/></svg><span class="num"><span class="cd"><span class="n3">3</span><span class="n2">2</span><span class="n1">1</span></span></span></span>`;  /* 비교용: 1초마다 줄어드는 링 */
 const A=(c,sym,key,sen)=>`<div class="c1 ${c}"><div class="sym">${sym}</div><div class="key">${key}${sen?K15(sen):''}</div></div>`;
 const OFF=t=>`<div class="off"><p>${t}</p></div>`;
 const NUM=n=>`<div class="num">${n}<small>%</small></div>`;
@@ -582,7 +593,7 @@ const SCENES=[
   {n:'03',t:['접근금지 / 우회 안내','Keep out / detour'],src:['회수 대기중 접근하지 마세요 · [회수 가이드 보기]','Awaiting pickup, do not approach · [View pickup guide]'],m:['원이 그려진 뒤 같은 점에서 사선이 그어짐, 2.8초 반복','Ring draws, then the slash from the same point, 2.8s'],
    s:()=>A('r',badge(I.ban,{anim:'pls'}),KL(['접근','금지'],['KEEP','OUT']),L('회수 대기 중','AWAIT PICKUP'))},
   {n:'04',t:['회수 담당자 호출','Pickup staff called'],src:['회수 준비 → 전원 종료 → 운반 → 인계 순서로 영상 플레이','Video plays: prepare → power off → carry → hand over'],m:['4단계를 2초씩 자동 순환','Cycles through 4 steps, 2s each'],
-   s:()=>A('b',`<div class="num"><div class="sq4"><span>1</span><span>2</span><span>3</span><span>4</span></div></div>`,`<div class="sq4">${L([['회수','준비'],['전원','종료'],['로봇','운반'],['충전소','인계']],[['PREP','PICKUP'],['POWER','OFF'],['CARRY','ROBOT'],['HAND','OVER']]).map(keys).join('')}</div>`,L('회수 순서 안내','PICKUP STEPS'))},
+   s:()=>A('b',`<span class="ic cdb"><span class="num"><span class="sq4"><span>1</span><span>2</span><span>3</span><span>4</span></span></span></span>`,`<div class="sq4">${L([['회수','준비'],['전원','종료'],['로봇','운반'],['충전소','인계']],[['PREP','PICKUP'],['POWER','OFF'],['CARRY','ROBOT'],['HAND','OVER']]).map(keys).join('')}</div>`,L('회수 순서 안내','PICKUP STEPS'))},
   {n:'05',t:['회수 완료 처리','Pickup complete'],src:['off — 완료 처리는 회수 담당자 태블릿','off — completion is handled on the staff tablet'],m:['—','—'],flag:['전원 꺼짐','Power off'],
    s:()=>OFF(L('전원 꺼짐<br>완료 처리는 담당자 태블릿','Power off<br>Completed on staff tablet'))},
  ],notes:[['3단계 [회수 가이드 보기] 버튼은 터치 없음 원칙에 따라 뺐습니다. 관제가 담당자 도착을 표시하면 4단계 순서 안내가 자동으로 나옵니다.','The step 3 [View pickup guide] button was removed under the no-touch rule. When control marks the staff as arrived, the step 4 guide plays automatically.'],['4단계 “영상”은 숫자 1–4 + 핵심어로 바꿔 거리 규칙을 지켰습니다. 기호 타일 숫자는 사전예고 3·2·1과 같은 문법입니다.','The step 4 “video” became numbers 1–4 plus a keyword to keep the distance rules. The numbered tile uses the same grammar as the 3·2·1 countdown.']]},
@@ -660,10 +671,12 @@ function mlab(){
     ['s4',3,'4 · 마이크 — 소리 레벨','마이크 몸통 안이 말소리처럼 오르내린다. 면 파동과 함께.'],
     ['s2',1,'5 · 사람 감지 — 훑는 선','가로선이 사람을 위에서 아래로 훑어 "감지 중"을 보여 준다. 면 파동과 함께.'],
     ['s8',0,'6 · 계단 — 오르는 점','계단 선이 그려진 뒤 점(로봇)이 한 칸씩 올라간다.'],
+    ['s1',2,'7 · 카운트다운 — 링 없음 (보드)','3 · 2 · 1 숫자가 배지 안에서 1초마다 바뀐다. 회수 순서(1~4)도 같은 꼴.'],
+    ['s1',2,'8 · 카운트다운 — 링 있음 (비교)','숫자가 바뀔 때마다 배지 테두리를 따라 링이 1초 동안 줄어든다. 고르면 보드에 적용.','ring'],
   ];
   const el=document.getElementById('mlab');
   el.innerHTML=items.map(([id,i,t,d])=>`<article class="mlab-card"><h3>${t}</h3><div class="bezel"><div class="scr"></div></div><p>${d}</p></article>`).join('');
-  el.querySelectorAll('.mlab-card').forEach((card,n)=>{const [id,i]=items[n];show(card.querySelector('.scr'),SCENES.find(s=>s.id===id).steps[i].s());});
+  el.querySelectorAll('.mlab-card').forEach((card,n)=>{const [id,i,,,v]=items[n];let h=SCENES.find(s=>s.id===id).steps[i].s();if(v==='ring')h=h.replace(CD,CDR);show(card.querySelector('.scr'),h);});
 }
 function legend(){
   const pick=[['g','s1',4,'초록 · 안전 · 완료'],['b','s2',0,'파랑 · 확인 · 측정'],['y','s4',1,'노랑 · 주의 · 예고'],['r','s3',1,'빨강 · 위험 · 금지']];
