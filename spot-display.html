@@ -142,10 +142,10 @@
     .scr[lang="en"] .c1 .k3{font-family:var(--f-num);font-stretch:75%;font-weight:900;letter-spacing:.01em;line-height:1}
     .scr[lang="en"] .c1 .k15{font-family:var(--f-num);font-stretch:75%;font-weight:800;letter-spacing:.05em}
     /* 등장 모션: 화면이 보일 때마다 핵심어 → 안내문 순서로 올라옴 */
-    .scr.in .c1 > .key > *{animation:keyIn .55s cubic-bezier(.2,.8,.2,1) both}
+    .scr.in .c1 > .key > *{animation:keyIn .55s cubic-bezier(.2,.8,.2,1) backwards}
     .scr.in .c1 > .key > :nth-child(2){animation-delay:.12s}
-    .scr.in .c1 > .key > div > .k3:nth-child(2){animation:keyIn .55s .06s cubic-bezier(.2,.8,.2,1) both}
-    .scr.in .c1 > .sym > *{animation:symIn .5s cubic-bezier(.3,1.4,.5,1) both}
+    .scr.in .c1 > .key > div > .k3:nth-child(2){animation:keyIn .55s .06s cubic-bezier(.2,.8,.2,1) backwards}
+    .scr.in .c1 > .sym > *{animation:symIn .5s cubic-bezier(.3,1.4,.5,1) backwards}
     .c1.r > .sym::after{content:"";position:absolute;inset:0;background:#000;opacity:0;animation:alarm 1.2s ease-in-out infinite;pointer-events:none}
     .c1 .stp path{stroke-dasharray:40;animation:stp 1.8s ease-in-out infinite}
     .c1 .spk .w{animation:spk 1.2s ease-in-out infinite}.c1 .spk .w2{animation-delay:.2s}
@@ -159,7 +159,7 @@
     .c1 .bob{display:grid;animation:upl 1.4s ease-in-out infinite}
     .c1 .nud{display:grid;animation:nud 1.4s ease-in-out infinite}
     .c1 .dia{display:grid;animation:dia 1.4s ease-in-out infinite}
-    .c1 .pop{display:grid;animation:pop .6s cubic-bezier(.3,1.6,.5,1) both}
+    .c1 .pop{display:grid;animation:pop .6s cubic-bezier(.3,1.6,.5,1) backwards}
     .c1 .pls{display:grid;animation:pls 1.2s ease-in-out infinite}
     .c1 .ndl{transform-box:view-box;transform-origin:12px 12px;animation:ndl 1.6s ease-in-out infinite}
     .c1 .wv rect{transform-box:fill-box;transform-origin:center;animation:wv .9s ease-in-out infinite}
@@ -226,7 +226,7 @@
       animation-timing-function: cubic-bezier(.2,.9,.25,1.25), ease-in-out;
       animation-delay: calc(.1s + var(--l) * .12s + var(--i) * .045s), calc(1.4s + var(--l) * .12s + var(--i) * .07s);
       animation-iteration-count: 1, infinite;
-      animation-fill-mode: both, none;
+      animation-fill-mode: backwards, none;
     }
     @keyframes chWave { 0%, 22%, 100% { transform: none; } 9% { transform: translateY(-7%); } }
     .c1 .ck { animation: drawCk 3.2s cubic-bezier(.5,0,.3,1) 1.2s infinite; }
@@ -292,14 +292,15 @@
     .scr.in .c1 > .key > div:not(.num), .scr.in .c1 > .key > .k3, .scr.in .c1 > .key > .k15,
     .scr.in .c1 > .key > div > .k3:nth-child(2) { animation: none; }
     .scr .c1 .k3 { overflow: hidden; padding-bottom: .05em; }
+    /* 11/17 등장 모션은 끝나면 원래 상태로(fill backwards) — 끝난 transform 을 붙잡고 있으면 Chrome 이 층으로 남겨 가장자리가 흐려질 수 있음 */
     .scr .c1 .ch { display: inline-block; }
     .scr.in .c1 .k3 .ch { animation: chUp .62s cubic-bezier(.2,.9,.25,1.25) both; animation-delay: calc(.1s + var(--l) * .12s + var(--i) * .045s); }
-    .scr.in .c1 .k15 { animation: wipe .5s cubic-bezier(.6,0,.2,1) both; animation-delay: calc(.32s + var(--n, 1) * .045s); }
-    .scr.in .c1 .k15 .ch { animation: chIn .4s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(.4s + var(--n, 1) * .045s + var(--i) * .025s); }
-    .scr.in .c1 > .sym > * { animation: symSpin .6s cubic-bezier(.3,1.5,.5,1) both; }
-    .scr.in .c1.r > .key > div:not(.num), .scr.in .c1.r > .key > .k3 { animation: jolt .45s ease-in-out both; animation-delay: calc(.6s + var(--n, 1) * .045s); }
+    .scr.in .c1 .k15 { animation: wipe .5s cubic-bezier(.6,0,.2,1) backwards; animation-delay: calc(.32s + var(--n, 1) * .045s); }
+    .scr.in .c1 .k15 .ch { animation: chIn .4s cubic-bezier(.2,.8,.2,1) backwards; animation-delay: calc(.4s + var(--n, 1) * .045s + var(--i) * .025s); }
+    .scr.in .c1 > .sym > * { animation: symSpin .6s cubic-bezier(.3,1.5,.5,1) backwards; }
+    .scr.in .c1.r > .key > div:not(.num), .scr.in .c1.r > .key > .k3 { animation: jolt .45s ease-in-out backwards; animation-delay: calc(.6s + var(--n, 1) * .045s); }
     @keyframes chUp { from { transform: translateY(110%); opacity: 0; } 50% { opacity: 1; } to { transform: none; opacity: 1; } }
-    @keyframes chIn { from { transform: translateX(-.4em); opacity: 0; } to { transform: none; opacity: .92; } }
+    @keyframes chIn { from { transform: translateX(-.4em); opacity: 0; } to { transform: none; opacity: 1; } }
     @keyframes wipe { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
     @keyframes symSpin { from { opacity: 0; transform: scale(.4) rotate(-25deg); } to { opacity: 1; transform: none; } }
     @keyframes jolt { 0%, 100% { transform: none; } 20% { transform: translateX(-2.2%); } 45% { transform: translateX(1.8%); } 70% { transform: translateX(-.9%); } }
@@ -413,23 +414,24 @@ const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ----- A안 시안 아티팩트의 기호 · 화면 조립 · 장면 데이터 그대로 ----- */
 const I={
-  /* 11/17 Figma Pictogram(828:2780) 디자이너 수정본 — 240 그리드, 원형 배지 지름 = 240(그림 상자 전체). 배지 원은 CSS(.ic) 가 그린다.
+  /* 11/17 맞닿은 도형 이음매(흰 실선) 없앰: ↑ → 음향은 한 도형, 우회 · 회전 · ↗ 는 선을 머리 안으로 15, 태블릿 초록은 테두리 안쪽
+     11/17 Figma Pictogram(828:2780) 디자이너 수정본 — 240 그리드, 원형 배지 지름 = 240(그림 상자 전체). 배지 원은 CSS(.ic) 가 그린다.
      tablet · bat · batLow 는 색이 든 기호라 판 색과 상관없이 흰 배지(.fx) */
   check:`<svg viewBox="0 0 240 240"><path class="ck" pathLength="1" d="M60 120L100 160L180 80" fill="none" stroke="currentColor" stroke-width="30" stroke-miterlimit="10" stroke-linejoin="round"/></svg>`,
   person:`<svg viewBox="0 0 240 240"><path d="M120 70C133.807 70 145 58.8071 145 45C145 31.1929 133.807 20 120 20C106.193 20 95 31.1929 95 45C95 58.8071 106.193 70 120 70Z" fill="currentColor"/><path d="M80 100C80 88.9543 88.9543 80 100 80H140C151.046 80 160 88.9543 160 100V150H140V210H100V150H80V100Z" fill="currentColor"/></svg>`,
-  up:`<svg viewBox="0 0 240 240"><g class="wp-up"><path d="M120 30L170 110H70L120 30Z" fill="currentColor"/><rect x="105" y="110" width="30" height="90" fill="currentColor"/></g></svg>`,
-  right:`<svg viewBox="0 0 240 240"><g class="wp-rt"><path d="M210 120L130 170L130 70L210 120Z" fill="currentColor"/><rect x="40" y="105" width="90" height="30" fill="currentColor"/></g></svg>`,
+  up:`<svg viewBox="0 0 240 240"><g class="wp-up"><path d="M120 30L170 110H135V200H105V110H70Z" fill="currentColor"/></g></svg>`,
+  right:`<svg viewBox="0 0 240 240"><g class="wp-rt"><path d="M210 120L130 170V135H40V105H130V70Z" fill="currentColor"/></g></svg>`,
   ban:`<svg viewBox="0 0 240 240"><circle cx="120" cy="120" r="81" fill="none" stroke="currentColor" stroke-width="30"/><path d="M58 58L182 182" stroke="currentColor" stroke-width="30"/></svg>`,
-  detour:`<svg viewBox="0 0 240 240"><path class="drw" pathLength="1" d="M70 190V125C70 102.909 87.9086 85 110 85H130" fill="none" stroke="currentColor" stroke-width="30"/><path class="hd" d="M210 85.0875L130 135L130 36L210 85.0875Z" fill="currentColor"/></svg>`,
+  detour:`<svg viewBox="0 0 240 240"><path class="drw" pathLength="1" d="M70 190V125C70 102.909 87.9086 85 110 85H145" fill="none" stroke="currentColor" stroke-width="30"/><path class="hd" d="M210 85.0875L130 135L130 36L210 85.0875Z" fill="currentColor"/></svg>`,
   gauge:`<svg viewBox="0 0 240 240"><path d="M201 120C201 75.2649 164.735 39 120 39C75.2649 39 39 75.2649 39 120" fill="none" stroke="currentColor" stroke-width="30"/><g class="ndl" style="transform-origin:120px 130px"><path fill-rule="evenodd" d="M152.669 86.9102C157.721 83.3754 163.739 89.6954 160.373 95L144.562 125.326C144.848 126.84 145 128.403 145 130C145 143.807 133.807 155 120 155C106.193 155 95.0001 143.807 95 130C95 116.193 106.193 105 120 105C120.789 105 121.569 105.038 122.339 105.109L152.669 86.9102ZM120 120C114.477 120 110 124.477 110 130C110 135.523 114.477 140 120 140C125.523 140 130 135.523 130 130C130 124.477 125.523 120 120 120Z" fill="currentColor"/></g></svg>`,
-  wave:`<svg viewBox="0 0 240 240" class="spk"><rect x="30" y="90" width="20" height="60" fill="currentColor"/><path d="M50 90L120 50V190L50 150V90Z" fill="currentColor"/><path class="w" d="M155.355 84.6447C174.882 104.171 174.882 135.829 155.355 155.355" fill="none" stroke="currentColor" stroke-width="20"/><path class="w w2" d="M177.275 62.7244C208.908 94.3568 208.908 145.643 177.275 177.276" fill="none" stroke="currentColor" stroke-width="20"/></svg>`,
+  wave:`<svg viewBox="0 0 240 240" class="spk"><path d="M30 90H50L120 50V190L50 150H30Z" fill="currentColor"/><path class="w" d="M155.355 84.6447C174.882 104.171 174.882 135.829 155.355 155.355" fill="none" stroke="currentColor" stroke-width="20"/><path class="w w2" d="M177.275 62.7244C208.908 94.3568 208.908 145.643 177.275 177.276" fill="none" stroke="currentColor" stroke-width="20"/></svg>`,
   helmet:`<svg viewBox="0 0 240 240"><path d="M210 140V160H30V140Z" fill="currentColor"/><path d="M130 40V80H110V40Z" fill="currentColor"/><path fill-rule="evenodd" d="M140 50.709C173.923 55.5613 200 84.7353 200 120V130H40V120C40 84.7353 66.0771 55.5613 100 50.709V80C100 85.5228 104.477 90 110 90H130C135.523 90 140 85.5258 140 80.0029V50.709ZM130 50V70C130 75.5228 125.523 80 120 80C114.477 80 110 75.5228 110 70V50H130Z" fill="currentColor"/></svg>`,
   mic:`<svg viewBox="0 0 240 240"><path d="M120 160V195" stroke="currentColor" stroke-width="20"/><path d="M80 200H160" stroke="currentColor" stroke-width="20"/><path d="M70 120V130C70 146.569 83.4315 160 100 160H140C156.569 160 170 146.569 170 130V120" fill="none" stroke="currentColor" stroke-width="20" stroke-linejoin="round"/><rect x="90" y="30" width="60" height="110" rx="20" fill="currentColor"/></svg>`,
   pause:`<svg viewBox="0 0 240 240" class="pz"><rect x="70" y="70" width="30" height="100" fill="currentColor"/><rect x="140" y="70" width="30" height="100" fill="currentColor"/></svg>`,
-  uturn:`<svg viewBox="0 0 240 240"><path class="drw" pathLength="1" d="M170 190V90C170 67.9086 152.091 50 130 50H120C97.9086 50 80 67.9086 80 90V120" fill="none" stroke="currentColor" stroke-width="30"/><path class="hd" d="M80 200L130 120H30L80 200Z" fill="currentColor"/></svg>`,
+  uturn:`<svg viewBox="0 0 240 240"><path class="drw" pathLength="1" d="M170 190V90C170 67.9086 152.091 50 130 50H120C97.9086 50 80 67.9086 80 90V135" fill="none" stroke="currentColor" stroke-width="30"/><path class="hd" d="M80 200L130 120H30L80 200Z" fill="currentColor"/></svg>`,
   stairs:`<svg viewBox="0 0 240 240" class="stp"><path pathLength="40" d="M40 170H100V120H150V70H200" fill="none" stroke="currentColor" stroke-width="30" stroke-linejoin="round"/></svg>`,
-  diag:`<svg viewBox="0 0 240 240"><path class="drw" pathLength="1" d="M60 180.5L130.5 110" stroke="currentColor" stroke-width="30"/><path class="hd" d="M186.924 53.3553L165.71 145.279L94.9998 74.5685L186.924 53.3553Z" fill="currentColor"/></svg>`,
-  tablet:`<svg viewBox="0 0 240 240" class="fx"><rect x="60" y="40" width="120" height="160" rx="20" fill="#16A145"/><rect x="70" y="50" width="100" height="140" rx="10" fill="none" stroke="#111" stroke-width="20"/><path d="M95 120L111.667 136L145 104" fill="none" stroke="#111" stroke-width="20" stroke-miterlimit="10" stroke-linejoin="round"/></svg>`,
+  diag:`<svg viewBox="0 0 240 240"><path class="drw" pathLength="1" d="M60 180.5L141 99.5" stroke="currentColor" stroke-width="30"/><path class="hd" d="M186.924 53.3553L165.71 145.279L94.9998 74.5685L186.924 53.3553Z" fill="currentColor"/></svg>`,
+  tablet:`<svg viewBox="0 0 240 240" class="fx"><rect x="75" y="55" width="90" height="130" rx="6" fill="#16A145"/><rect x="70" y="50" width="100" height="140" rx="10" fill="none" stroke="#111" stroke-width="20"/><path d="M95 120L111.667 136L145 104" fill="none" stroke="#111" stroke-width="20" stroke-miterlimit="10" stroke-linejoin="round"/></svg>`,
   bat:`<span class="ic fx"><svg viewBox="0 0 240 240" class="fx"><rect x="30" y="60" width="160" height="120" rx="20" fill="#111"/><rect x="205" y="105" width="10" height="30" rx="5" fill="none" stroke="#111" stroke-width="10"/><path d="M50 90C50 84.4772 54.4772 80 60 80H110V160H60C54.4772 160 50 155.523 50 150V90Z" style="fill:var(--pl)"/><path class="chg" d="M121 109H129.729C135.664 109 138.907 115.922 135.107 120.481L107.841 153.201L99 163.811V131H90.2705C84.3356 131 81.0932 124.078 84.8926 119.519L112.159 86.7988L121 76.1895V109Z" fill="#fff" stroke="#111" stroke-width="10"/></svg></span>`,
   batLow:`<span class="ic fx"><svg viewBox="0 0 240 240" class="fx"><rect x="30" y="60" width="160" height="120" rx="20" fill="#111"/><path class="chg" d="M50 90C50 84.4772 54.4772 80 60 80H80V160H60C54.4772 160 50 155.523 50 150V90Z" style="fill:var(--pl)"/><rect x="205" y="105" width="10" height="30" rx="5" fill="none" stroke="#111" stroke-width="10"/></svg></span>`,
 };
