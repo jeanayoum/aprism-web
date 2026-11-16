@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>APRISM — SPOT 디스플레이 화면 (A안)</title>
+  <meta name="description" content="로봇개 등 위 7인치 디스플레이 — A안(안전 사인형) 확정 화면. 시나리오 8개 · 장면 40개를 재생 화면과 단계 목록으로 본다." />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/static/woff2/SUIT.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- 표지판 글자만 Noto Sans KR · Archivo(영문 75% 폭). 문서 글자는 사이트 기본 SUIT -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,700..900&family=Noto+Sans+KR:wght@500;700;900&display=swap">
+  <link rel="stylesheet" href="./assets/css/tokens.css?v=b64812bd" />
+  <link rel="stylesheet" href="./assets/css/base.css?v=5ccd4bb3" />
+  <style>
+    /* 디스플레이 디자인 문서 — 레이아웃은 D안 시안(재생 화면 + 단계 목록), 화면은 A안 확정안.
+       문서 껍데기는 토큰만, 표지판 안쪽 색 · 글자는 A안 값 그대로(사이트 테마와 무관). */
+    :root {
+      --G:#1E7B3E; --B:#1F5BD6; --Y:#F6C400; --R:#D52B1E;
+      --f-sign:"Noto Sans KR",system-ui,sans-serif;
+      --f-num:"Archivo","Noto Sans KR",system-ui,sans-serif;
+      --t5:30cqw; --t3:15.5cqw; --t15:8cqw;
+      --dev:#1A1C1F; --dev-edge:#2E3034;
+    }
+    html[lang="ko"] [data-l="en"], html[lang="en"] [data-l="ko"] { display: none !important; }
+    .site-main { max-width: 1360px; }
+
+    .intro-row { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-16); flex-wrap: wrap; }
+    .chips { display: flex; flex-wrap: wrap; gap: var(--space-8); margin-top: var(--space-16); }
+    .chips span { padding: var(--space-2) var(--space-12); border: var(--border-width-thin) solid var(--border-default); border-radius: var(--radius-pill); color: var(--text-secondary); font-size: var(--font-size-13); }
+    .seg { display: inline-flex; padding: 2px; border: var(--border-width-thin) solid var(--border-default); border-radius: var(--radius-pill); }
+    .seg button { padding: var(--space-4) var(--space-12); border: 0; border-radius: var(--radius-pill); background: transparent; color: var(--text-tertiary); font: inherit; font-size: var(--font-size-13); font-weight: 600; cursor: pointer; }
+    .seg button[aria-pressed="true"] { background-color: var(--bg-inverse); color: var(--text-on-inverse); }
+    button:focus-visible, summary:focus-visible, a:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
+
+    .stack { display: flex; flex-direction: column; gap: var(--space-48); margin-top: var(--space-40); }
+
+    /* 표지판 규칙 — 접힘 상자 */
+    .rulebox { border: var(--border-width-thin) solid var(--border-divider); border-radius: var(--radius-card); background-color: var(--bg-panel); }
+    .rulebox summary { cursor: pointer; list-style: none; display: flex; align-items: baseline; gap: var(--space-12); padding: var(--space-16) var(--space-20); color: var(--text-primary); font-size: var(--font-size-16); font-weight: 700; }
+    .rulebox summary::-webkit-details-marker { display: none; }
+    .rulebox summary::before { content: ""; flex: none; align-self: center; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); transition: transform .2s; }
+    .rulebox[open] summary::before { transform: rotate(45deg); }
+    .rulebox summary small { color: var(--text-tertiary); font-size: var(--font-size-13); font-weight: 400; }
+    .rb { display: flex; flex-direction: column; gap: var(--space-20); padding: 0 var(--space-20) var(--space-20); }
+    .tbl-wrap { overflow-x: auto; }
+    .tbl { width: 100%; min-width: 760px; border-collapse: collapse; font-size: var(--font-size-13); }
+    .tbl th, .tbl td { padding: var(--space-8) var(--space-12); border-bottom: var(--border-width-thin) solid var(--border-divider); text-align: left; vertical-align: middle; word-break: keep-all; }
+    .tbl th { color: var(--text-tertiary); font-size: var(--font-size-12); font-weight: 600; }
+    .tbl td { color: var(--text-secondary); }
+    .tbl td.sw { display: flex; align-items: center; gap: var(--space-8); color: var(--text-primary); font-weight: 700; white-space: nowrap; }
+    .tbl td.sw i { flex: none; width: 40px; height: 24px; border-radius: var(--radius-4); }
+    .tbl td.hex { font-variant-numeric: tabular-nums; }
+    .rgrid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--space-12); }
+    .rgrid section { min-width: 0; padding: var(--space-12) var(--space-16); border-radius: var(--radius-card); background-color: var(--bg-page); }
+    .rgrid h3 { margin: 0 0 var(--space-8); color: var(--text-primary); font-size: var(--font-size-14); }
+    .rgrid ul { margin: 0; padding-left: var(--space-16); display: flex; flex-direction: column; gap: var(--space-4); }
+    .rgrid li { color: var(--text-secondary); font-size: var(--font-size-13); line-height: var(--font-line-height-20); word-break: keep-all; }
+    @media (max-width: 1100px) { .rgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 560px) { .rgrid { grid-template-columns: minmax(0, 1fr); } }
+    .picto-h { margin: 0; color: var(--text-primary); font-size: var(--font-size-14); }
+    .picto-h a { margin-left: var(--space-8); color: var(--text-tertiary); font-size: var(--font-size-12); font-weight: 400; }
+    .picto { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: var(--space-12); }
+    .picto figure { margin: 0; display: flex; flex-direction: column; gap: var(--space-4); color: var(--text-tertiary); font-size: var(--font-size-12); line-height: var(--font-line-height-18); }
+    .picto figure b { display: block; color: var(--text-primary); font-size: var(--font-size-13); }
+    .pt { aspect-ratio: 1; border-radius: var(--radius-8); display: grid; place-items: center; container-type: inline-size; --ib:#fff; }
+    .pt .ic { width: 70cqw; height: 70cqw; border-radius: 50%; display: grid; place-items: center; }
+    .pt .ic svg { width: 46cqw; height: 46cqw; }
+    .pt.g { background: var(--G); } .pt.b { background: var(--B); } .pt.y { background: var(--Y); --ib:#111; } .pt.r { background: var(--R); }
+    .pt.g .ic, .pt.b .ic, .pt.r .ic { background: #fff; } .pt.y .ic { background: #111; color: var(--Y); }
+    .pt.g .ic { color: var(--G); } .pt.b .ic { color: var(--B); } .pt.r .ic { color: var(--R); }
+
+    /* 범례 — 색 넷의 대표 화면 */
+    .sec-h { margin: 0 0 var(--space-12); color: var(--text-primary); font-size: var(--font-size-16); }
+    .legend { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-12); }
+    .legend figure { margin: 0; min-width: 0; display: flex; flex-direction: column; gap: var(--space-8); padding: var(--space-12); border: var(--border-width-thin) solid var(--border-divider); border-radius: var(--radius-card); background-color: var(--bg-panel); }
+    .legend figcaption { color: var(--text-tertiary); font-size: var(--font-size-13); line-height: var(--font-line-height-20); }
+    .legend figcaption b { display: block; color: var(--text-primary); font-size: var(--font-size-14); }
+    @media (max-width: 960px) { .legend { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+    /* 시나리오 목차 */
+    .scn-toc { display: flex; flex-wrap: wrap; gap: var(--space-8); margin: 0; padding: 0; list-style: none; }
+    .scn-toc a { display: inline-block; padding: var(--space-4) var(--space-12); border: var(--border-width-thin) solid var(--border-default); border-radius: var(--radius-pill); color: var(--text-secondary); font-size: var(--font-size-13); text-decoration: none; }
+    .scn-toc a b { margin-right: var(--space-4); color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
+    .scn-toc a:hover { color: var(--text-primary); border-color: var(--border-strong); }
+
+    /* 시나리오 보드 — 왼쪽 재생 화면, 오른쪽 단계 목록 */
+    .boards { display: flex; flex-direction: column; gap: 56px; }
+    .board { display: flex; flex-direction: column; gap: var(--space-16); scroll-margin-top: var(--space-16); }
+    .bhead { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-4) var(--space-12); }
+    .bhead .tag { color: var(--text-tertiary); font-size: var(--font-size-12); font-variant-numeric: tabular-nums; }
+    .bhead h2 { margin: 0; color: var(--text-primary); font-size: var(--font-size-20); line-height: var(--font-line-height-28); word-break: keep-all; }
+    .lv { padding: 0 var(--space-8); border-radius: var(--radius-pill); color: #fff; font-size: var(--font-size-12); font-weight: 700; line-height: var(--font-line-height-20); }
+    .lv.safe { background: var(--G); } .lv.warn { background: var(--Y); color: #111; } .lv.danger { background: var(--R); }
+    .bgrid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: var(--space-20); align-items: start; }
+    @media (max-width: 960px) { .bgrid { grid-template-columns: minmax(0, 1fr); } }
+    .player { display: flex; flex-direction: column; gap: var(--space-8); min-width: 0; }
+    .bezel { padding: 12px; border: 1px solid var(--dev-edge); border-radius: 18px; background: var(--dev); }
+    .ctl { display: flex; align-items: center; gap: var(--space-12); color: var(--text-tertiary); font-size: var(--font-size-13); }
+    .ctl button { padding: var(--space-4) var(--space-12); border: var(--border-width-thin) solid var(--border-default); border-radius: var(--radius-pill); background-color: var(--bg-panel); color: var(--text-primary); font: inherit; font-size: var(--font-size-13); font-weight: 600; cursor: pointer; }
+    .ctl .pos { font-variant-numeric: tabular-nums; }
+    .ctl .mo { margin-left: auto; text-align: right; word-break: keep-all; }
+    .steps { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .steps button {
+      position: relative; overflow: hidden; width: 100%; display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 2px var(--space-8);
+      padding: var(--space-8) var(--space-12) var(--space-8) var(--space-16); text-align: left; cursor: pointer;
+      border: var(--border-width-thin) solid var(--border-divider); border-radius: var(--radius-card); background-color: var(--bg-panel); color: var(--text-primary); font: inherit;
+    }
+    .steps button::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--c, transparent); }
+    .steps button:hover { border-color: var(--border-default); }
+    .steps button[aria-pressed="true"] { border-color: var(--text-primary); }
+    .steps .no { grid-row: span 2; color: var(--text-tertiary); font-size: var(--font-size-14); font-weight: 700; font-variant-numeric: tabular-nums; line-height: var(--font-line-height-22); }
+    .steps .nm { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-8); font-size: var(--font-size-14); font-weight: 700; line-height: var(--font-line-height-22); }
+    .steps .fl { padding: 0 6px; border-radius: var(--radius-4); background-color: var(--bg-cell); color: var(--text-tertiary); font-size: var(--font-size-12); font-weight: 600; }
+    .steps .src { color: var(--text-secondary); font-size: var(--font-size-13); line-height: var(--font-line-height-20); word-break: keep-all; }
+    .notes { margin: 0; padding: var(--space-12) var(--space-16) var(--space-12) var(--space-32); border: var(--border-width-thin) solid var(--border-divider); border-radius: var(--radius-card); background-color: var(--bg-panel); display: flex; flex-direction: column; gap: var(--space-4); }
+    .notes li { color: var(--text-secondary); font-size: var(--font-size-13); line-height: var(--font-line-height-20); word-break: keep-all; }
+
+    /* ===== 이하 A안 표지판 화면 — 시안 아티팩트 CSS 그대로 (155×86mm, 1cqw = 1.55mm) ===== */
+    .scr{container-type:inline-size;aspect-ratio:155/86;width:100%;border-radius:6px;overflow:hidden;position:relative;isolation:isolate}
+    .scr svg{display:block}
+    
+    /* ===== A: 안전 사인형 ===== */
+    .c1{height:100%;display:grid;grid-template-columns:38% 1fr;font-family:var(--f-sign)}
+    .c1 > .sym{display:grid;place-items:center;background:rgba(0,0,0,.18);position:relative;overflow:hidden}
+    /* 글 블록은 오른쪽 2/3 안에서 가운데: 좌우 여백 같게, 블록 폭은 글자만큼 */
+    .c1 > .key{align-self:center;justify-self:start;max-width:100%;padding:0 3cqw 0 4.5cqw;display:flex;flex-direction:column;gap:2.4cqw;min-width:0}
+    .c1{--ib:#fff}.c1.y{--ib:#111}
+    .pt{--ib:#fff}.pt.y{--ib:#111}
+    .ib{fill:var(--ib)}.ibs{stroke:var(--ib)}
+    .c1.g{background:var(--G);color:#fff}.c1.b{background:var(--B);color:#fff}.c1.y{background:var(--Y);color:#111}.c1.r{background:var(--R);color:#fff}
+    .c1 .ic{width:22cqw;height:22cqw;border-radius:50%;display:grid;place-items:center;position:relative}
+    .c1 .ic svg{width:15cqw;height:15cqw;position:relative}
+    .c1.g .ic{background:#fff;color:var(--G)}.c1.b .ic{background:#fff;color:var(--B)}.c1.r .ic{background:#fff;color:var(--R)}.c1.y .ic{background:#111;color:var(--Y)}
+    .c1 .ic i{position:absolute;inset:0;border:.6cqw solid #fff;border-radius:50%;animation:ring2 2.4s ease-out infinite}
+    .c1.y .ic i{border-color:#111}
+    .c1 .ic i+i{animation-delay:1.2s}
+    .k3{font:900 var(--t3)/1.06 var(--f-sign);letter-spacing:0;white-space:nowrap}
+    .k15{font:700 var(--t15)/1.2 var(--f-sign);letter-spacing:.02em;white-space:nowrap;opacity:.92}
+    /* 영문: Archivo 75% 폭(사인용 압축체). 글자 높이는 한글과 같은 단계 크기 유지 */
+    .scr[lang="en"] .c1 .k3{font-family:var(--f-num);font-stretch:75%;font-weight:900;letter-spacing:.01em;line-height:1}
+    .scr[lang="en"] .c1 .k15{font-family:var(--f-num);font-stretch:75%;font-weight:800;letter-spacing:.05em}
+    /* 등장 모션: 화면이 보일 때마다 핵심어 → 안내문 순서로 올라옴 */
+    .scr.in .c1 > .key > *{animation:keyIn .55s cubic-bezier(.2,.8,.2,1) both}
+    .scr.in .c1 > .key > :nth-child(2){animation-delay:.12s}
+    .scr.in .c1 > .key > div > .k3:nth-child(2){animation:keyIn .55s .06s cubic-bezier(.2,.8,.2,1) both}
+    .scr.in .c1 > .sym > *{animation:symIn .5s cubic-bezier(.3,1.4,.5,1) both}
+    .c1.r > .sym::after{content:"";position:absolute;inset:0;background:#000;opacity:0;animation:alarm 1.2s ease-in-out infinite;pointer-events:none}
+    .c1 .stp path{stroke-dasharray:40;animation:stp 1.8s ease-in-out infinite}
+    .c1 .spk .w{animation:spk 1.2s ease-in-out infinite}.c1 .spk .w2{animation-delay:.2s}
+    .c1 .hat .ridge{animation:breath 2.4s ease-in-out infinite}
+    .c1 .num{font:900 var(--t5)/.86 var(--f-num);letter-spacing:-.05em;display:flex;align-items:baseline}
+    .c1 .num small{font-size:11cqw;margin-left:.6cqw}
+    .c1 .bat{width:24cqw;height:12cqw}
+    .c1 .batv{width:13cqw;height:26cqw}
+    .c1.y .bat{color:#111}
+    .c1 .chg{animation:breath 2.4s ease-in-out infinite}
+    .c1 .bob{display:grid;animation:upl 1.4s ease-in-out infinite}
+    .c1 .nud{display:grid;animation:nud 1.4s ease-in-out infinite}
+    .c1 .dia{display:grid;animation:dia 1.4s ease-in-out infinite}
+    .c1 .pop{display:grid;animation:pop .6s cubic-bezier(.3,1.6,.5,1) both}
+    .c1 .pls{display:grid;animation:pls 1.2s ease-in-out infinite}
+    .c1 .ndl{transform-box:view-box;transform-origin:12px 12px;animation:ndl 1.6s ease-in-out infinite}
+    .c1 .wv rect{transform-box:fill-box;transform-origin:center;animation:wv .9s ease-in-out infinite}
+    .c1 .wv rect:nth-child(2){animation-delay:-.2s}.c1 .wv rect:nth-child(3){animation-delay:-.45s}.c1 .wv rect:nth-child(4){animation-delay:-.1s}.c1 .wv rect:nth-child(5){animation-delay:-.35s}
+    .c1 .ic svg.prg{position:absolute;left:-2.75cqw;top:-2.75cqw;width:27.5cqw;height:27.5cqw}
+    .c1 .prg circle{fill:none;stroke-width:2.4}
+    .c1 .prg .trk{stroke:rgba(255,255,255,.28)}
+    .c1 .prg .bar{stroke:#fff;stroke-linecap:round;stroke-dasharray:88;transform:rotate(-90deg);transform-origin:center;animation:prg 4s linear infinite}
+    .cd,.sq4{display:grid}
+    .cd > *,.sq4 > *{grid-area:1/1}
+    .cd .n3{animation:cd3 3s linear infinite}.cd .n2{animation:cd2 3s linear infinite}.cd .n1{animation:cd1 3s linear infinite}
+    .sq4 > *{opacity:0;animation:sq4 8s steps(1) infinite}
+    .sq4 > :nth-child(2){animation-delay:-6s}.sq4 > :nth-child(3){animation-delay:-4s}.sq4 > :nth-child(4){animation-delay:-2s}
+    .off{height:100%;background:#0B0D0D;display:grid;place-items:center;text-align:center;border:1px dashed #2E3436;border-radius:6px}
+    .off p{font:500 3.6cqw/1.5 var(--f-sign);color:#6B7577}
+    
+    @keyframes ring2{0%{transform:scale(1);opacity:.85}100%{transform:scale(2.2);opacity:0}}
+    @keyframes pop{0%{transform:scale(.6)}100%{transform:scale(1)}}
+    @keyframes breath{0%,100%{opacity:.55}50%{opacity:1}}
+    @keyframes upl{0%,100%{transform:translateY(8%);opacity:.6}50%{transform:translateY(-8%);opacity:1}}
+    @keyframes nud{0%,100%{transform:translateX(-8%);opacity:.6}50%{transform:translateX(8%);opacity:1}}
+    @keyframes dia{0%,100%{transform:translate(-6%,6%);opacity:.6}50%{transform:translate(6%,-6%);opacity:1}}
+    @keyframes pls{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+    @keyframes ndl{0%,100%{transform:rotate(-85deg)}50%{transform:rotate(0deg)}}
+    @keyframes wv{0%,100%{transform:scaleY(.45)}50%{transform:scaleY(1)}}
+    @keyframes prg{from{stroke-dashoffset:88}to{stroke-dashoffset:0}}
+    @keyframes cd3{0%,33.2%{opacity:1}33.3%,100%{opacity:0}}
+    @keyframes cd2{0%,33.2%{opacity:0}33.3%{opacity:1;transform:scale(1.08)}40%,66.5%{opacity:1;transform:scale(1)}66.6%,100%{opacity:0}}
+    @keyframes cd1{0%,66.5%{opacity:0}66.6%{opacity:1;transform:scale(1.08)}73%,99.9%{opacity:1;transform:scale(1)}100%{opacity:0}}
+    @keyframes sq4{0%{opacity:1}25%,100%{opacity:0}}
+    @keyframes keyIn{from{opacity:0;transform:translateY(18%)}to{opacity:1;transform:none}}
+    @keyframes symIn{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
+    @keyframes alarm{0%,100%{opacity:0}50%{opacity:.14}}
+    @keyframes stp{0%{stroke-dashoffset:40}55%,85%{stroke-dashoffset:0}100%{stroke-dashoffset:0;opacity:.4}}
+    @keyframes spk{0%,100%{opacity:.25}50%{opacity:1}}
+    @media (prefers-reduced-motion: reduce){
+      .c1 *,.c1::after,.c1 > .sym::after{animation:none!important}
+      .c1 .ic i{opacity:0}
+      .cd .n2,.cd .n1,.sq4 > :not(:first-child){opacity:0}
+      .sq4 > :first-child{opacity:1}
+    }
+    .scr .c1 { border-radius: 6px; }
+    .scr p, .scr h1, .scr h2, .scr h3 { margin: 0; }  /* base.css 의 p 여백이 표지판 안에 들어오면 글 블록이 넘쳐 아래로 밀린다 */
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-name">APRISM</span>
+    </div>
+    <a href="./index.html" class="theme-toggle" style="text-decoration:none">목록으로</a>
+  </header>
+
+  <main class="site-main">
+    <section class="intro">
+      <div class="intro-row">
+        <p class="eyebrow">Design · SPOT Display · Type A</p>
+        <div class="seg" role="group" aria-label="화면 언어">
+          <button type="button" data-set="ko" aria-pressed="true">화면 한국어</button>
+          <button type="button" data-set="en" aria-pressed="false">English</button>
+        </div>
+      </div>
+      <h1>SPOT 디스플레이 화면</h1>
+      <p class="lead">로봇개 등 위 7인치 디스플레이의 A안(안전 사인형) 확정 화면. 시나리오 8개 · 장면 40개를 시나리오마다 재생 화면 하나와 단계 목록으로 본다. 왼쪽 38%는 기호 타일, 오른쪽 62%는 핵심어와 안내문 두 층뿐이다. 리서치는 <a href="./robot-display.html">로봇 디스플레이</a>, 기호 원본은 Figma <a href="https://www.figma.com/design/6jlcnuP9HDFNNHwaAhX5vz/KISTA-2026?node-id=828-2780">06. 디스플레이 · Pictogram</a> · 2026-11-16</p>
+      <div class="chips">
+        <span>155×86mm · 800×480</span>
+        <span>A형 장착 · 양쪽 화면 같은 내용</span>
+        <span>터치 없음</span>
+        <span>단계마다 3.2초 자동 재생</span>
+      </div>
+    </section>
+
+    <div class="stack">
+      <details class="rulebox" id="rules">
+        <summary>표지판 규칙<small>색 · 판 구성 · 글자 · 모션 · 기호</small></summary>
+        <div class="rb">
+          <div class="tbl-wrap"><table class="tbl">
+            <thead><tr><th>색</th><th>값</th><th>뜻</th><th>배지 · 글자</th><th>대표 기호</th></tr></thead>
+            <tbody>
+              <tr><td class="sw"><i style="background:var(--G)"></i>초록</td><td class="hex">#1E7B3E</td><td>안전 · 완료 · 정상 운행</td><td>흰 원 배지 · 흰 글자</td><td>체크, 이동 화살표, 충전 배터리</td></tr>
+              <tr><td class="sw"><i style="background:var(--B)"></i>파랑</td><td class="hex">#1F5BD6</td><td>확인 중 · 측정 · 연결 · 관제 대기</td><td>흰 원 배지 · 흰 글자</td><td>사람, 게이지, 음향, 마이크</td></tr>
+              <tr><td class="sw"><i style="background:var(--Y)"></i>노랑</td><td class="hex">#F6C400</td><td>주의 · 예고 · 양보 요청</td><td>검정 원 배지 · 검정 글자</td><td>안전모, 정지, 카운트다운, 계단, 회전 화살표, 태블릿</td></tr>
+              <tr><td class="sw"><i style="background:var(--R)"></i>빨강 (추가)</td><td class="hex">#D52B1E</td><td>위험 · 접근 금지 — 시나리오 3 · 7 · 8 위험단계, 조명 적색과 맞춤</td><td>흰 원 배지 · 흰 글자 · 기호 칸 1.2초 어두워짐</td><td>금지, 우회, ↗ 화살표, 배터리 부족</td></tr>
+            </tbody>
+          </table></div>
+          <div class="rgrid">
+            <section><h3>판 구성</h3><ul>
+              <li>왼쪽 38% 기호 타일(판 색을 18% 어둡게), 오른쪽 62% 글</li>
+              <li>기호는 지름 22cqw 원형 배지 안 15cqw</li>
+              <li>배터리는 배지 없이 타일에 바로</li>
+              <li>글 블록은 오른쪽 칸 세로 가운데, 왼쪽 정렬</li>
+            </ul></section>
+            <section><h3>글자 3단</h3><ul>
+              <li>숫자 30cqw — 5m</li>
+              <li>핵심어 15.5cqw, 굵기 900 — 3m</li>
+              <li>안내문 8cqw, 굵기 700 — 1.5m</li>
+              <li>이보다 작은 글자 없음, 핵심어는 두 줄까지</li>
+            </ul></section>
+            <section><h3>글자색 · 영문</h3><ul>
+              <li>초록 · 파랑 · 빨강 판은 흰 글자</li>
+              <li>노랑 판은 검정 글자</li>
+              <li>영문은 Archivo 75% 폭, 한글과 같은 크기</li>
+            </ul></section>
+            <section><h3>모션</h3><ul>
+              <li>화면이 바뀌면 기호 0.5초 커지며 등장, 핵심어 → 안내문 0.12초 차로 올라옴</li>
+              <li>감지 · 연결은 파동 2겹, 1.2초 간격</li>
+              <li>화살표 1.4초 반복, 방향은 바닥 화살표와 같게</li>
+              <li>체크 0.6초 팝, 카운트다운 1초마다</li>
+            </ul></section>
+            <section><h3>쓰지 않는 것</h3><ul>
+              <li>터치 버튼 — [인계 확인] · [회수 가이드 보기]는 담당자 태블릿 · 관제 지시로</li>
+              <li>3단 밖 글자 크기</li>
+              <li>세 줄 핵심어</li>
+            </ul></section>
+          </div>
+          <p class="picto-h">기호 15종<a href="https://www.figma.com/design/6jlcnuP9HDFNNHwaAhX5vz/KISTA-2026?node-id=828-2780">Figma 컴포넌트 (배터리 2종 포함 17종)</a></p>
+          <div class="picto" id="picto"></div>
+        </div>
+      </details>
+
+      <section aria-labelledby="legend-h">
+        <h2 class="sec-h" id="legend-h">색 넷의 대표 화면</h2>
+        <div class="legend" id="legend"></div>
+      </section>
+
+      <ul class="scn-toc" id="toc" aria-label="시나리오"></ul>
+
+      <div class="boards" id="boards"></div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <span>APRISM · 공장 환경점검 로봇 관제 대시보드</span>
+  </footer>
+
+  <script>
+let LANG='ko';
+const L=(k,e)=>LANG==='en'?e:k;
+// 문서 글(단계 이름 · 원문 · 모션 · 메모)은 늘 한국어, 표지판 화면만 LANG 을 따른다
+const P=x=>Array.isArray(x)?x[0]:x;
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ----- A안 시안 아티팩트의 기호 · 화면 조립 · 장면 데이터 그대로 ----- */
+const I={
+  bat:`<svg viewBox="0 0 24 48" class="batv"><rect x="8" y="1" width="8" height="3.5" rx="1.2" fill="currentColor"/><rect x="1.5" y="5.5" width="21" height="41" rx="3.5" fill="none" stroke="currentColor" stroke-width="2.6"/><rect x="4.5" y="13.8" width="15" height="29.7" rx="1.5" fill="currentColor"/><path class="chg" d="M14 18.5 7.5 30h4.2l-1.7 9.5 6.5-12.2h-4.2z" style="fill:var(--G)"/></svg>`,
+  batLow:`<svg viewBox="0 0 24 48" class="batv"><rect x="8" y="1" width="8" height="3.5" rx="1.2" fill="currentColor"/><rect x="1.5" y="5.5" width="21" height="41" rx="3.5" fill="none" stroke="currentColor" stroke-width="2.6"/><rect class="chg" x="4.5" y="36" width="15" height="7.5" rx="1.5" fill="currentColor"/></svg>`,
+  person:`<svg viewBox="0 0 24 24"><circle cx="12" cy="4.4" r="3.1" fill="currentColor"/><path d="M7 11a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v4.2h-2.3l-.7 7.3h-4l-.7-7.3H7z" fill="currentColor"/></svg>`,
+  up:`<svg viewBox="0 0 24 24"><path d="M12 2.5 3.5 11h5.2v10.5h6.6V11h5.2z" fill="currentColor"/></svg>`,
+  right:`<svg viewBox="0 0 24 24"><path d="M21.5 12 13 3.5v5.2H2.5v6.6H13v5.2z" fill="currentColor"/></svg>`,
+  diag:`<svg viewBox="0 0 24 24"><g transform="rotate(45 12 12)"><path d="M12 2.5 3.5 11h5.2v10.5h6.6V11h5.2z" fill="currentColor"/></g></svg>`,
+  check:`<svg viewBox="0 0 24 24"><path d="M4.2 12.6l5.1 5L19.8 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10"/></svg>`,
+  ban:`<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="3.2"/><path d="M5.8 5.8 18.2 18.2" stroke="currentColor" stroke-width="3.2"/></svg>`,
+  detour:`<svg viewBox="0 0 24 24"><path d="M6.5 22V11.5a4.5 4.5 0 0 1 4.5-4.5h4" fill="none" stroke="currentColor" stroke-width="3.4"/><path d="M14 1.6 21.8 7 14 12.4z" fill="currentColor"/></svg>`,
+  pause:`<svg viewBox="0 0 24 24"><rect x="5.5" y="4" width="4.6" height="16" rx="1.2" fill="currentColor"/><rect x="13.9" y="4" width="4.6" height="16" rx="1.2" fill="currentColor"/></svg>`,
+  gauge:`<svg viewBox="0 0 24 24"><path d="M1.5 16.5a10.5 10.5 0 0 1 21 0v1.7a1.8 1.8 0 0 1-1.8 1.8H3.3a1.8 1.8 0 0 1-1.8-1.8z" fill="currentColor"/><g class="ndl" style="transform-origin:12px 16.5px"><path class="ibs" d="M12 16.5 17.2 10.6" stroke-width="2.6" stroke-linecap="round"/></g><circle class="ib" cx="12" cy="16.5" r="2.3"/></svg>`,
+  helmet:`<svg viewBox="0 0 24 24" class="hat"><path d="M3.6 16.2A8.4 8.4 0 0 1 12 7.8a8.4 8.4 0 0 1 8.4 8.4z" fill="currentColor"/><rect x="9.6" y="5.2" width="4.8" height="6.4" rx="1.6" fill="currentColor"/><path class="ridge ibs" d="M12 6.8v4.4" stroke-width="1.6" stroke-linecap="round"/><rect x="1.6" y="16.6" width="20.8" height="3.4" rx="1.7" fill="currentColor"/></svg>`,
+  mic:`<svg viewBox="0 0 24 24"><rect x="8.5" y="2" width="7" height="12.5" rx="3.5" fill="currentColor"/><path d="M5.3 11.3a6.7 6.7 0 0 0 13.4 0M12 18.2v3.3M8.6 21.5h6.8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>`,
+  wave:`<svg viewBox="0 0 24 24" class="spk"><path d="M2.5 9.2a1.2 1.2 0 0 1 1.2-1.2h3.1l5-4.3a.8.8 0 0 1 1.3.6v15.4a.8.8 0 0 1-1.3.6l-5-4.3H3.7a1.2 1.2 0 0 1-1.2-1.2z" fill="currentColor"/><path class="w" d="M16.2 8.6a4.6 4.6 0 0 1 0 6.8" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/><path class="w w2" d="M18.9 5.6a8.6 8.6 0 0 1 0 12.8" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg>`,
+  stairs:`<svg viewBox="0 0 24 24" class="stp"><path d="M2 21.5h5.5v-5h5v-5h5v-5H22" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round"/></svg>`,
+  uturn:`<svg viewBox="0 0 24 24"><path d="M18.5 22V9.5a5.5 5.5 0 0 0-11 0v3.2" fill="none" stroke="currentColor" stroke-width="3.4"/><path d="M1.8 11.6 7.5 19.5l5.7-7.9z" fill="currentColor"/></svg>`,
+  tablet:`<svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="3" fill="currentColor"/><path class="ibs" d="M8 11.8l2.9 2.9 5.1-5.5" fill="none" stroke-width="2.6" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10"/></svg>`,
+};
+const K3=t=>`<p class="k3">${t}</p>`, K15=t=>`<p class="k15">${t}</p>`;
+const keys=a=>`<div>${a.map(K3).join('')}</div>`;
+const KL=(ko,en)=>keys(L(ko,en));
+const badge=(svg,{ring,anim}={})=>`<span class="ic">${ring?'<i></i><i></i>':''}${anim?`<span class="${anim}">${svg}</span>`:svg}</span>`;
+const prog=svg=>`<span class="ic"><svg class="prg" viewBox="0 0 32 32"><circle class="trk" cx="16" cy="16" r="14"/><circle class="bar" cx="16" cy="16" r="14"/></svg>${svg}</span>`;
+const CD=`<div class="num"><div class="cd"><span class="n3">3</span><span class="n2">2</span><span class="n1">1</span></div></div>`;
+const A=(c,sym,key,sen)=>`<div class="c1 ${c}"><div class="sym">${sym}</div><div class="key">${key}${sen?K15(sen):''}</div></div>`;
+const OFF=t=>`<div class="off"><p>${t}</p></div>`;
+const NUM=n=>`<div class="num">${n}<small>%</small></div>`;
+
+/* 각 단계: n 번호, t 단계명, src 원문, m 모션 — [한국어, English]. s()는 현재 언어로 화면을 그림 */
+const SCENES=[
+ {id:'s1',no:1,lv:['safe',['안전','Safe']],title:['도크에서 사람 감지 후 안전 판단하여 기립','Detect people at the dock, then stand up safely'],file:'SCENARIO 8',steps:[
+  {n:'01',t:['대기','Standby'],src:['충전 후 배터리 잔량, 배터리 86%','Battery level after charging, battery 86%'],m:['번개 2.4초 숨쉬기','Bolt breathes, 2.4s'],
+   s:()=>A('g',I.bat,NUM(86),L('충전 중','CHARGING'))},
+  {n:'02',t:['주변감지','Area scan'],src:['주변을 확인하고 있습니다 + 사람 아이콘','Checking the surroundings + person icon'],m:['파동 2겹, 1.2초 간격','Two ripples, 1.2s apart'],
+   s:()=>A('b',badge(I.person,{ring:1}),KL(['주변','확인 중'],['AREA','CHECK']),L('작업자 1명 감지','WORKER NEAR'))},
+  {n:'03',t:['사전 예고','Advance notice'],src:['3초 후 기립합니다 “3” → “2” → “1”','Standing up in 3 seconds “3” → “2” → “1”'],m:['숫자 1초마다 전환, 바닥 1m 원과 같은 박자','Number changes every 1s, in sync with the 1m floor ring'],
+   s:()=>A('y',CD,KL(['초 후','기립'],['SEC','TO RISE']),L('물러나세요','STEP BACK'))},
+  {n:'04',t:['저속기립','Slow rise'],src:['천천히 일어나는 중입니다','Standing up slowly'],m:['화살표 1.4초 위아래 반복','Arrow moves up and down, 1.4s'],
+   s:()=>A('y',badge(I.up,{anim:'bob'}),K3(L('기립 중','RISING')),L('천천히 기립 중','SLOW RISE'))},
+  {n:'05',t:['기립완료','Standing'],src:['기립완료·미션 시작 + 체크 아이콘','Standing complete · mission start + check icon'],m:['체크 0.6초 팝','Check pops, 0.6s'],
+   s:()=>A('g',badge(I.check,{anim:'pop'}),KL(['기립','완료'],['READY']),L('미션 시작','MISSION START'))},
+ ]},
+ {id:'s2',no:2,lv:['safe',['안전','Safe']],title:['근로자와 마주쳤을 때 놀라지 않고 안전하게 통행','Passing a worker safely without startling them'],file:'SCENARIO 15',steps:[
+  {n:'01',t:['근로자와 만남','Meeting a worker'],src:['지하4층 미션 수행 중 · N₂ 배관 압력계 판독','B4 mission in progress · reading N₂ pipe pressure gauge'],m:['게이지 바늘 1.6초 흔들림, 파동 2겹 (정지 후 측정)','Gauge needle swings, 1.6s, two ripples (stopped to measure)'],
+   s:()=>A('b',badge(I.gauge,{ring:1}),L(K3('측정 중'),K3('READING')),L('B4 압력계 판독','B4 N₂ GAUGE'))},
+  {n:'02',t:['전방 근로자 감지','Worker ahead'],src:['전방에 사람이 감지되었습니다 + 사람 아이콘','A person was detected ahead + person icon'],m:['파동 2겹, 1.2초 간격','Two ripples, 1.2s apart'],
+   s:()=>A('b',badge(I.person,{ring:1}),KL(['사람','감지'],['PERSON','AHEAD']),L('전방 1명','1 DETECTED'))},
+  {n:'03',t:['감속 및 접근예고','Slow down & notice'],src:['정지하여 기다리고 있습니다. 지나가 주세요','Stopped and waiting. Please go ahead'],m:['정지 기호 고정, 바닥 초록 화살표 길과 함께','Pause symbol holds, with green floor arrows'],
+   s:()=>A('y',badge(I.pause),KL(['먼저','가세요'],['AFTER','YOU']),L('로봇 정지 대기','ROBOT WAITS'))},
+  {n:'04',t:['정지 후 이동의사','Intent to move'],src:['통행을 확인하고 있습니다 (출발 전 알림음)','Checking that the way is clear (chime before departure)'],m:['화살표 1.4초 좌우 반복, 바닥 화살표 방향과 일치','Arrow moves side to side, 1.4s, matching the floor arrow'],
+   s:()=>A('y',badge(I.right,{anim:'nud'}),KL(['곧','출발'],['MOVING','SOON']),L('통행 확인 완료','PATH CLEAR'))},
+  {n:'05',t:['임무재개','Resume mission'],src:['지하4층 미션 수행 중 · way-04로 이동 중','B4 mission in progress · moving to way-04'],m:['화살표 1.4초 좌우 반복','Arrow moves side to side, 1.4s'],
+   s:()=>A('g',badge(I.right,{anim:'nud'}),K3(L('이동 중','MOVING')),L('WP-04로 이동','TO WP-04'))},
+ ],notes:[['3·4단계는 바닥 투사가 황색이므로 화면도 노랑으로 맞췄습니다. 로봇이 양보하는 단계라 금지 기호는 쓰지 않았습니다.','Steps 3–4 use yellow to match the yellow floor projection. The robot is yielding here, so no prohibition symbol is used.']]},
+ {id:'s3',no:3,lv:['danger',['위험단계','Danger']],title:['배관 이상 감지 — 위험단계','Pipe anomaly detected — danger level'],file:'SCENARIO 11',steps:[
+  {n:'01',t:['정지 및 정밀확인','Stop & inspect'],src:['N₂ 배관 압력계 판독 중 · 이상 징후를 확인하고 있습니다','Reading N₂ pipe pressure gauge · checking for signs of a fault'],m:['게이지 바늘 1.6초 흔들림','Gauge needle swings, 1.6s'],
+   s:()=>A('b',badge(I.gauge,{ring:1}),KL(['이상','확인 중'],['FAULT','CHECK']),L('N₂ 배관 압력계','N₂ PIPE GAUGE'))},
+  {n:'02',t:['이상 감지 및 판단','Fault confirmed'],src:['배관 압력계 판독 중 이상현상이 감지되었습니다. 🚫접근하지 마세요','A fault was detected while reading the pipe gauge. 🚫Do not approach'],m:['금지 기호 1.2초 맥동','Prohibition symbol pulses, 1.2s'],
+   s:()=>A('r',badge(I.ban,{anim:'pls'}),KL(['접근','금지'],['KEEP','OUT']),L('배관 이상 감지','PIPE FAULT'))},
+  {n:'03',t:['작업자 우회 안내','Detour guidance'],src:['위험이 확인되었습니다. 🚫접근하지 마세요','Danger confirmed. 🚫Do not approach'],m:['우회 화살표 1.4초 반복, 바닥 우회 통로 초록 화살표와 함께','Detour arrow repeats, 1.4s, with green floor detour arrows'],
+   s:()=>A('r',badge(I.detour,{anim:'nud'}),KL(['위험','구역'],['DANGER','ZONE']),L('우회하세요','USE DETOUR'))},
+  {n:'04',t:['현장 조치 및 상태안내','On-site action'],src:['— (관제사가 로봇 정지 / 현장 점검 / 도크 복귀 결정)','— (control decides: stop robot / on-site inspection / return to dock)'],m:['3단계 화면 그대로','Same as step 3'],hold:1,flag:['화면 유지','Hold screen'],
+   s:()=>A('r',badge(I.detour,{anim:'nud'}),KL(['위험','구역'],['DANGER','ZONE']),L('우회하세요','USE DETOUR'))},
+  {n:'05',t:['임무복귀','Back to mission'],src:['안전 조치가 완료됐습니다','Safety measures are complete'],m:['체크 0.6초 팝','Check pops, 0.6s'],
+   s:()=>A('g',badge(I.check,{anim:'pop'}),KL(['조치','완료'],['ALL','CLEAR']),L('이동 재개','RESUMING'))},
+ ],notes:[['4단계는 시나리오상 표시 내용이 없어 관제 결정 전까지 3단계 화면을 유지합니다. 현장 점검이 결정되면 2·3단계 문구 그대로 두고, 해제되면 5단계로 넘어갑니다.','Step 4 has no display content in the scenario, so the step 3 screen holds until control decides. If an on-site inspection is ordered the step 2–3 copy stays; once cleared, it moves to step 5.']]},
+ {id:'s4',no:4,lv:['warn',['주의단계 1','Caution 1']],title:['안전모 미착용 근로자 감지 — 주의단계 1','Worker without a helmet — caution level 1'],file:'SCENARIO 20',steps:[
+  {n:'01',t:['안전모 미착용 감지','No helmet detected'],src:['안전모 미착용이 감지되었습니다','A worker without a helmet was detected'],m:['파동 2겹, 1.2초 간격','Two ripples, 1.2s apart'],
+   s:()=>A('y',badge(I.helmet,{ring:1}),KL(['안전모','미착용'],['NO','HELMET']),L('감지되었습니다','DETECTED'))},
+  {n:'02',t:['감속·정지 및 착용안내','Stop & ask to wear'],src:['안전모를 착용해주세요 + 안전모 아이콘','Please wear your helmet + helmet icon'],m:['안전모 1.2초 맥동, 바닥 안전모 픽토그램과 같은 박자','Helmet pulses, 1.2s, in sync with the floor pictogram'],
+   s:()=>A('y',badge(I.helmet,{anim:'pls'}),KL(['안전모','착용'],['WEAR','HELMET']),L('확인 후 출발','THEN WE GO'))},
+  {n:'3-1',t:['착용 대기 → 확인','Helmet confirmed'],src:['안전모 착용이 확인되었습니다','Helmet confirmed'],m:['체크 0.6초 팝','Check pops, 0.6s'],flag:['분기 A','Branch A'],
+   s:()=>A('g',badge(I.check,{anim:'pop'}),KL(['착용','확인'],['HELMET','ON']),L('감사합니다','THANK YOU'))},
+  {n:'3-2',t:['미조치 시 관제 연결','Connect to control'],src:['관제실과 음성 연결중입니다 + 마이크 아이콘','Connecting voice to the control room + mic icon'],m:['마이크 파동 2겹, 대화 중 안내음 없음','Mic ripples; no chimes during the call'],flag:['분기 B','Branch B'],
+   s:()=>A('b',badge(I.mic,{ring:1}),KL(['관제실','연결 중'],['VOICE','CALL']),L('말씀하세요','CONTROL ROOM'))},
+  {n:'04',t:['확인 후 임무재개','Resume mission'],src:['이동을 재개합니다','Resuming movement'],m:['화살표 1.4초 좌우 반복','Arrow moves side to side, 1.4s'],
+   s:()=>A('g',badge(I.right,{anim:'nud'}),KL(['이동','재개'],['MOVING','ON']),L('다음 지점으로','NEXT POINT'))},
+ ]},
+ {id:'s5',no:5,lv:['warn',['주의단계 2','Caution 2']],title:['설비 이상음향 감지 — 주의단계 2','Abnormal equipment sound — caution level 2'],file:'SCENARIO 19',steps:[
+  {n:'01',t:['정지 및 정밀확인','Stop & inspect'],src:['[설비명] 판독 중 · 이상 음향을 확인하고 있습니다','Reading [equipment] · checking an abnormal sound'],m:['음파 두 줄 1.2초 번갈아 켜짐','Sound waves light in turn, 1.2s'],
+   s:()=>A('b',badge(I.wave),KL(['음향','확인 중'],['SOUND','CHECK']),L('펌프 P-2 판독','PUMP P-2'))},
+  {n:'02',t:['이상 – 주의 판단','Caution judged'],src:['이상음향 감지 · 관제 확인 대기','Abnormal sound detected · awaiting control review'],m:['음파 두 줄 1.2초 번갈아 켜짐','Sound waves light in turn, 1.2s'],
+   s:()=>A('y',badge(I.wave),KL(['이상','음향'],['ODD','SOUND']),L('관제 확인 대기','CONTROL CHECK'))},
+  {n:'3-1',t:['재측정','Re-measure'],src:['[설비명] 음향 재측정 중 · 측정 진행 상태(프로그레스바)','Re-measuring [equipment] sound · progress bar'],m:['배지 둘레 원형 진행 표시 4초','Circular progress around the badge, 4s'],flag:['분기 A','Branch A'],
+   s:()=>A('b',prog(I.wave),KL(['다시','측정 중'],['CHECK','AGAIN']),L('거리 유지','KEEP DISTANCE'))},
+  {n:'3-2',t:['현장 점검 요청','On-site inspection'],src:['설비명, 감지시각, 감지위치 · [감지음향 듣기]/[인계 확인] 버튼','Equipment, time, location · [Play sound]/[Confirm handover] buttons'],m:['파동 2겹, 1.2초 간격','Two ripples, 1.2s apart'],flag:['분기 B','Branch B'],
+   s:()=>A('y',badge(I.tablet,{ring:1}),KL(['점검','인계'],['HAND','OVER']),L('태블릿 확인','SEE TABLET'))},
+  {n:'04',t:['임무재개','Resume mission'],src:['임무 재개','Mission resumed'],m:['화살표 1.4초 좌우 반복','Arrow moves side to side, 1.4s'],
+   s:()=>A('g',badge(I.right,{anim:'nud'}),KL(['이동','재개'],['MOVING','ON']),L('다음 점검 지점','NEXT POINT'))},
+ ],notes:[['3-1 프로그레스바는 안내문 줄 대신 기호 배지 둘레의 원형 진행 표시로 옮겼습니다(글자 2단 유지).','The 3-1 progress bar moved from the guide line to a circular progress ring around the badge (keeps two text layers).'],['3-2 버튼 두 개는 터치 없음 원칙에 따라 화면에서 뺐습니다. 감지시각·위치·음향 재생과 [인계 확인]은 담당자 태블릿에서 처리하고, 로봇 화면은 “태블릿 확인”만 안내합니다.','The two 3-2 buttons were removed under the no-touch rule. Time, location, sound playback and [Confirm handover] are handled on the staff tablet; the robot screen only says “See tablet”.']]},
+ {id:'s6',no:6,lv:['warn',['배터리 부족','Low battery']],title:['배터리 부족 — 자율 복귀','Low battery — autonomous return'],file:'SCENARIO 17',steps:[
+  {n:'01',t:['배터리 부족','Low battery'],src:['배터리가 부족합니다 · 배터리 잔량 20%','Battery is low · 20% remaining'],m:['남은 칸 2.4초 숨쉬기','Remaining cell breathes, 2.4s'],
+   s:()=>A('y',I.batLow,NUM(20),L('배터리 부족','LOW BATTERY'))},
+  {n:'02',t:['복귀 가능성 계산','Return check'],src:['배터리 부족 아이콘 + 충전소 복귀 가능. 복귀 대기 중','Low-battery icon + can return to charger. Waiting to return'],m:['남은 칸 2.4초 숨쉬기','Remaining cell breathes, 2.4s'],
+   s:()=>A('b',I.batLow,KL(['복귀','대기'],['HOLD','RETURN']),L('관제 지시 대기','AWAIT CONTROL'))},
+  {n:'03',t:['복귀 의사 예고','Return notice'],src:['충전소 복귀 예정입니다. 이동경로를 비워주세요','Returning to charger. Please clear the path'],m:['회전 화살표 1.4초 반복, 로봇 회전 방향과 일치','Turn arrow repeats, 1.4s, matching the robot’s turn'],
+   s:()=>A('y',badge(I.uturn,{anim:'nud'}),KL(['복귀','예정'],['RETURN','SOON']),L('길 비켜주세요','CLEAR PATH'))},
+  {n:'04',t:['저속 자율 복귀','Slow return'],src:['배터리 부족 아이콘 + 충전소로 복귀 중','Low-battery icon + returning to charger'],m:['화살표 1.4초 좌우 반복','Arrow moves side to side, 1.4s'],
+   s:()=>A('y',badge(I.right,{anim:'nud'}),L(K3('복귀 중'),keys(['GOING','TO DOCK'])),L('충전소로 이동','SLOW RETURN'))},
+  {n:'05',t:['충전 시작','Charging'],src:['충전 중 · 배터리 잔량 NN%','Charging · battery NN%'],m:['번개 2.4초 숨쉬기 (시나리오 1 대기와 같은 화면)','Bolt breathes, 2.4s (same screen as scenario 1 standby)'],
+   s:()=>A('g',I.bat,NUM(21),L('충전 중','CHARGING'))},
+ ],notes:[['1·2단계는 배터리 기호를 왼쪽 타일에 고정해, 색만 노랑→파랑으로 바뀌며 “부족 → 관제 대기”가 구분되도록 했습니다.','Steps 1–2 keep the battery symbol fixed in the left tile; only the color changes (yellow → blue) to separate “low” from “awaiting control”.']]},
+ {id:'s7',no:7,lv:['danger',['위험단계','Danger']],title:['배터리 20% 이하, 자율 복귀 불가 — 회수','Battery under 20%, cannot return — pickup'],file:'SCENARIO 24',steps:[
+  {n:'01',t:['배터리 20% 이하','Battery ≤ 20%'],src:['(적색 배터리 아이콘) 배터리 부족, 자율 복귀 불가','(Red battery icon) Low battery, cannot return on its own'],m:['남은 칸 2.4초 숨쉬기','Remaining cell breathes, 2.4s'],
+   s:()=>A('r',I.batLow,KL(['복귀','불가'],['CAN’T','RETURN']),L('배터리 부족','LOW BATTERY'))},
+  {n:'02',t:['통로 가장자리 정지','Stop at aisle edge'],src:['(적색 배터리 아이콘) 자율 복귀 불가, 회수 대기 중','(Red battery icon) Cannot return, waiting for pickup'],m:['남은 칸 2.4초 숨쉬기','Remaining cell breathes, 2.4s'],
+   s:()=>A('r',I.batLow,KL(['회수','대기'],['AWAIT','PICKUP']),L('자율 복귀 불가','CANNOT RETURN'))},
+  {n:'03',t:['접근금지 / 우회 안내','Keep out / detour'],src:['회수 대기중 접근하지 마세요 · [회수 가이드 보기]','Awaiting pickup, do not approach · [View pickup guide]'],m:['금지 기호 1.2초 맥동','Prohibition symbol pulses, 1.2s'],
+   s:()=>A('r',badge(I.ban,{anim:'pls'}),KL(['접근','금지'],['KEEP','OUT']),L('회수 대기 중','AWAIT PICKUP'))},
+  {n:'04',t:['회수 담당자 호출','Pickup staff called'],src:['회수 준비 → 전원 종료 → 운반 → 인계 순서로 영상 플레이','Video plays: prepare → power off → carry → hand over'],m:['4단계를 2초씩 자동 순환','Cycles through 4 steps, 2s each'],
+   s:()=>A('b',`<div class="num"><div class="sq4"><span>1</span><span>2</span><span>3</span><span>4</span></div></div>`,`<div class="sq4">${L([['회수','준비'],['전원','종료'],['로봇','운반'],['충전소','인계']],[['PREP','PICKUP'],['POWER','OFF'],['CARRY','ROBOT'],['HAND','OVER']]).map(keys).join('')}</div>`,L('회수 순서 안내','PICKUP STEPS'))},
+  {n:'05',t:['회수 완료 처리','Pickup complete'],src:['off — 완료 처리는 회수 담당자 태블릿','off — completion is handled on the staff tablet'],m:['—','—'],flag:['전원 꺼짐','Power off'],
+   s:()=>OFF(L('전원 꺼짐<br>완료 처리는 담당자 태블릿','Power off<br>Completed on staff tablet'))},
+ ],notes:[['3단계 [회수 가이드 보기] 버튼은 터치 없음 원칙에 따라 뺐습니다. 관제가 담당자 도착을 표시하면 4단계 순서 안내가 자동으로 나옵니다.','The step 3 [View pickup guide] button was removed under the no-touch rule. When control marks the staff as arrived, the step 4 guide plays automatically.'],['4단계 “영상”은 숫자 1–4 + 핵심어로 바꿔 거리 규칙을 지켰습니다. 기호 타일 숫자는 사전예고 3·2·1과 같은 문법입니다.','The step 4 “video” became numbers 1–4 plus a keyword to keep the distance rules. The numbered tile uses the same grammar as the 3·2·1 countdown.']]},
+ {id:'s8',no:8,lv:['danger',['위험단계','Danger']],title:['계단 이동','Stair climbing'],file:'SCENARIO 21',steps:[
+  {n:'01',t:['계단 이동 사전안내','Stair notice'],src:['계단 아이콘 + 계단 이동 예정, 잠시 대기해주세요','Stairs icon + about to climb stairs, please wait'],m:['계단 선 1.8초 그려짐','Stair line draws, 1.8s'],
+   s:()=>A('y',badge(I.stairs),KL(['계단','진입'],['STAIRS','AHEAD']),L('잠시 대기','PLEASE WAIT'))},
+  {n:'02',t:['로봇 진입','Robot enters'],src:['(↗아이콘) 계단 이동중입니다. 통행을 대기해주세요','(↗ icon) Climbing stairs. Please hold off passing'],m:['↗ 화살표 1.4초 대각선 반복','↗ arrow moves diagonally, 1.4s'],
+   s:()=>A('r',badge(I.diag,{anim:'dia'}),KL(['계단','이동 중'],['ON','STAIRS']),L('통행 대기','DO NOT ENTER'))},
+  {n:'03',t:['계단 이동','Climbing'],src:['(↗아이콘) 계단 이동중입니다. 통행을 대기해주세요','(↗ icon) Climbing stairs. Please hold off passing'],m:['2단계 화면 그대로','Same as step 2'],hold:1,flag:['화면 유지','Hold screen'],
+   s:()=>A('r',badge(I.diag,{anim:'dia'}),KL(['계단','이동 중'],['ON','STAIRS']),L('통행 대기','DO NOT ENTER'))},
+  {n:'04',t:['계단 출구 통과','Leaving stairs'],src:['계단을 벗어나는 중 · 조금만 기다려주세요','Leaving the stairs · please wait a moment'],m:['↗ 화살표 1.4초 대각선 반복','↗ arrow moves diagonally, 1.4s'],
+   s:()=>A('r',badge(I.diag,{anim:'dia'}),KL(['계단','통과 중'],['STAIRS','EXIT']),L('곧 통과합니다','ALMOST DONE'))},
+  {n:'05',t:['이동완료 · 근로자 통행','Done · workers pass'],src:['계단 이동 완료','Stair climb complete'],m:['체크 0.6초 팝','Check pops, 0.6s'],
+   s:()=>A('g',badge(I.check,{anim:'pop'}),KL(['이동','완료'],['ALL','CLEAR']),L('지나가세요','GO AHEAD'))},
+ ],notes:[['경사 이동 중에는 조명이 적색이므로 2–4단계를 빨강으로 했습니다. 단, 계단 위/아래에서는 A형 화면의 모서리만 보이므로 이 구간은 음성·조명이 주 신호이고 화면은 보조입니다.','Steps 2–4 are red to match the red lighting on slopes. From above or below the stairs only the edge of the A-frame screens is visible, so voice and lighting are the main signals here and the screen is secondary.']]},
+];
+
+const PICTO=[
+  ['g',I.check,['체크','Check'],['완료','Done']],['b',I.person,['사람','Person'],['감지','Detected']],['y',I.up,['↑ 화살표','↑ Arrow'],['기립','Rise']],['g',I.right,['→ 화살표','→ Arrow'],['이동 · 진행','Move · heading']],
+  ['r',I.ban,['금지','Prohibition'],['접근 금지','Keep out']],['r',I.detour,['우회 화살표','Detour arrow'],['우회','Detour']],['b',I.gauge,['게이지','Gauge'],['계기 판독','Gauge reading']],['b',I.wave,['음향','Sound'],['음향 측정','Sound check']],
+  ['y',I.helmet,['안전모','Helmet'],['착용 안내','Wear helmet']],['b',I.mic,['마이크','Mic'],['관제 연결','Call control']],['y',I.pause,['정지','Pause'],['먼저 가세요','After you']],['y',I.uturn,['회전 화살표','Turn arrow'],['복귀 예고','Return notice']],
+  ['y',I.stairs,['계단','Stairs'],['계단 진입','Stairs ahead']],['r',I.diag,['↗ 화살표','↗ Arrow'],['계단 이동','On stairs']],['y',I.tablet,['태블릿','Tablet'],['인계 확인','Handover']],
+];
+
+/* ----- 이 문서의 레이아웃 (D안 시안 꼴: 재생 화면 + 단계 목록) ----- */
+const COL={g:'var(--G)',b:'var(--B)',y:'var(--Y)',r:'var(--R)'};
+const pad=n=>String(n).padStart(2,'0');
+function show(scr,html){
+  scr.classList.remove('in');scr.innerHTML=html;scr.setAttribute('lang',LANG);
+  void scr.offsetWidth;scr.classList.add('in');
+}
+function legend(){
+  const pick=[['g','s1',4,'초록 · 안전 · 완료'],['b','s2',0,'파랑 · 확인 · 측정'],['y','s4',1,'노랑 · 주의 · 예고'],['r','s3',1,'빨강 · 위험 · 금지']];
+  const el=document.getElementById('legend');
+  el.innerHTML=pick.map(([c,id,i,cap])=>{const st=SCENES.find(s=>s.id===id).steps[i];
+    return `<figure><div class="bezel"><div class="scr"></div></div><figcaption><b>${cap}</b>${P(st.t)} — ${P(st.src)}</figcaption></figure>`}).join('');
+  el.querySelectorAll('.scr').forEach((scr,k)=>{const [,id,i]=pick[k];show(scr,SCENES.find(s=>s.id===id).steps[i].s())});
+}
+function picto(){
+  document.getElementById('picto').innerHTML=PICTO.map(([c,svg,n,d])=>`<figure><div class="pt ${c}"><span class="ic">${svg}</span></div><figcaption><b>${P(n)}</b>${P(d)}</figcaption></figure>`).join('');
+}
+const boards=[];
+function setStep(b,i){
+  b.i=i;const st=b.sc.steps[i];
+  show(b.scr,st.s());
+  b.list.querySelectorAll('button').forEach((x,j)=>x.setAttribute('aria-pressed',String(j===i)));
+  b.pos.textContent=`${pad(i+1)} / ${pad(b.sc.steps.length)}`;
+  b.mo.textContent=P(st.m)==='—'?'':'모션 · '+P(st.m);
+}
+function setPlay(b,on){
+  b.play=on;clearInterval(b.tm);
+  if(on) b.tm=setInterval(()=>setStep(b,(b.i+1)%b.sc.steps.length),3200);
+  b.btn.textContent=on?'일시정지':'재생';
+  b.btn.setAttribute('aria-pressed',String(on));
+}
+function render(){
+  boards.forEach(b=>clearInterval(b.tm));boards.length=0;
+  picto();legend();
+  document.getElementById('toc').innerHTML=SCENES.map(s=>`<li><a href="#${s.id}"><b>${pad(s.no)}</b>${P(s.title).split(' — ')[0]}</a></li>`).join('');
+  const root=document.getElementById('boards');
+  root.innerHTML=SCENES.map(s=>`
+<section class="board" id="${s.id}" aria-labelledby="${s.id}-h">
+  <div class="bhead"><span class="tag">Scene ${s.no} · ${s.file}</span><h2 id="${s.id}-h">${P(s.title)}</h2><span class="lv ${s.lv[0]}">${P(s.lv[1])}</span></div>
+  <div class="bgrid">
+    <div class="player">
+      <div class="bezel"><div class="scr" role="img" aria-label="${P(s.title)} 화면"></div></div>
+      <div class="ctl"><button type="button" class="pl"></button><span class="pos"></span><span class="mo"></span></div>
+    </div>
+    <ol class="steps">${s.steps.map(st=>`<li><button type="button" style="--c:${COL[(st.s().match(/c1 ([gbyr])/)||[])[1]]||'var(--border-strong)'}"><span class="no">${st.n}</span><span class="nm">${P(st.t)}${st.flag?`<span class="fl">${P(st.flag)}</span>`:''}</span><span class="src">${P(st.src)}</span></button></li>`).join('')}</ol>
+  </div>
+  ${s.notes?`<ul class="notes">${s.notes.map(n=>`<li>${P(n)}</li>`).join('')}</ul>`:''}
+</section>`).join('');
+  root.querySelectorAll('.board').forEach((el,k)=>{
+    const b={sc:SCENES[k],scr:el.querySelector('.scr'),list:el.querySelector('.steps'),pos:el.querySelector('.pos'),mo:el.querySelector('.mo'),btn:el.querySelector('.pl'),i:0};
+    boards.push(b);
+    b.list.querySelectorAll('button').forEach((x,j)=>x.addEventListener('click',()=>{setStep(b,j);if(b.play)setPlay(b,true)}));
+    b.btn.addEventListener('click',()=>setPlay(b,!b.play));
+    setStep(b,0);setPlay(b,!RM);
+  });
+}
+function setLang(l){
+  LANG=l;
+  document.querySelectorAll('.seg button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.set===l)));
+  render();
+  try{localStorage.setItem('spot-display-lang',l)}catch(e){}
+}
+document.querySelectorAll('.seg button').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.set)));
+let saved='ko';try{saved=localStorage.getItem('spot-display-lang')||'ko'}catch(e){}
+setLang(saved==='en'?'en':'ko');
+  </script>
+  <script src="./assets/js/theme.js?v=c86093d9"></script>
+</body>
+</html>
