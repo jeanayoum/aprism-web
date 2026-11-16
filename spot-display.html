@@ -445,7 +445,7 @@ const I={
   stairs:`<svg viewBox="0 0 240 240" class="stp"><path pathLength="40" d="M40 170H100V120H150V70H200" fill="none" stroke="currentColor" stroke-width="30" stroke-linejoin="round"/></svg>`,
   diag:`<svg viewBox="0 0 240 240"><path class="drw" pathLength="1" d="M60 180.5L141 99.5" stroke="currentColor" stroke-width="30"/><path class="hd h-ne" d="M186.924 53.3553L165.71 145.279L94.9998 74.5685L186.924 53.3553Z" fill="currentColor"/></svg>`,
   tablet:`<svg viewBox="0 0 240 240" class="fx"><rect x="75" y="55" width="90" height="130" rx="6" fill="#16A145"/><rect x="70" y="50" width="100" height="140" rx="10" fill="none" stroke="#111" stroke-width="20"/><path d="M95 120L111.667 136L145 104" fill="none" stroke="#111" stroke-width="20" stroke-miterlimit="10" stroke-linejoin="round"/></svg>`,
-  bat:`<span class="ic fx"><svg viewBox="0 0 240 240" class="fx"><rect x="30" y="60" width="160" height="120" rx="20" fill="#111"/><rect x="205" y="105" width="10" height="30" rx="5" fill="none" stroke="#111" stroke-width="10"/><path d="M50 90C50 84.4772 54.4772 80 60 80H110V160H60C54.4772 160 50 155.523 50 150V90Z" style="fill:var(--pl)"/><path class="chg" d="M121 109H129.729C135.664 109 138.907 115.922 135.107 120.481L107.841 153.201L99 163.811V131H90.2705C84.3356 131 81.0932 124.078 84.8926 119.519L112.159 86.7988L121 76.1895V109Z" fill="#fff" stroke="#111" stroke-width="10"/></svg></span>`,
+  bat:`<span class="ic fx"><svg viewBox="0 0 240 240" class="fx"><rect x="30" y="60" width="160" height="120" rx="20" fill="#111"/><rect x="205" y="105" width="10" height="30" rx="5" fill="none" stroke="#111" stroke-width="10"/><path d="M50 90C50 84.4772 54.4772 80 60 80H110V160H60C54.4772 160 50 155.523 50 150V90Z" style="fill:var(--pl)"/><path d="M121 109H129.729C135.664 109 138.907 115.922 135.107 120.481L107.841 153.201L99 163.811V131H90.2705C84.3356 131 81.0932 124.078 84.8926 119.519L112.159 86.7988L121 76.1895V109Z" fill="#fff" stroke="#111" stroke-width="10"/></svg></span>`,
   batLow:`<span class="ic fx"><svg viewBox="0 0 240 240" class="fx"><rect x="30" y="60" width="160" height="120" rx="20" fill="#111"/><path class="chg" d="M50 90C50 84.4772 54.4772 80 60 80H80V160H60C54.4772 160 50 155.523 50 150V90Z" style="fill:var(--pl)"/><rect x="205" y="105" width="10" height="30" rx="5" fill="none" stroke="#111" stroke-width="10"/></svg></span>`,
 };
 const K3=t=>`<p class="k3">${t}</p>`, K15=t=>`<p class="k15">${t}</p>`;
@@ -461,7 +461,7 @@ const NUM=n=>`<div class="num">${n}<small>%</small></div>`;
 /* 각 단계: n 번호, t 단계명, src 원문, m 모션 — [한국어, English]. s()는 현재 언어로 화면을 그림 */
 const SCENES=[
  {id:'s1',no:1,lv:['safe',['안전','Safe']],title:['도크에서 사람 감지 후 안전 판단하여 기립','Detect people at the dock, then stand up safely'],file:'SCENARIO 8',steps:[
-  {n:'01',t:['대기','Standby'],src:['충전 후 배터리 잔량, 배터리 86%','Battery level after charging, battery 86%'],m:['번개 2.4초 숨쉬기','Bolt breathes, 2.4s'],
+  {n:'01',t:['대기','Standby'],src:['충전 후 배터리 잔량, 배터리 86%','Battery level after charging, battery 86%'],m:['번개 고정(움직임 없음)','Bolt holds still'],
    s:()=>A('g',I.bat,NUM(86),L('충전 중','CHARGING'))},
   {n:'02',t:['주변감지','Area scan'],src:['주변을 확인하고 있습니다 + 사람 아이콘','Checking the surroundings + person icon'],m:['면 파동 2겹, 1.2초 간격','Two filled ripples, 1.2s apart'],
    s:()=>A('b',badge(I.person,{ring:1}),KL(['주변','확인 중'],['AREA','CHECK']),L('작업자 1명 감지','WORKER NEAR'))},
@@ -529,7 +529,7 @@ const SCENES=[
    s:()=>A('y',badge(I.uturn,{anim:'nud'}),KL(['복귀','예정'],['RETURN','SOON']),L('길 비켜주세요','CLEAR PATH'))},
   {n:'04',t:['저속 자율 복귀','Slow return'],src:['배터리 부족 아이콘 + 충전소로 복귀 중','Low-battery icon + returning to charger'],m:['화살표가 꼬리에서 머리 쪽으로 그려짐, 1.6초 반복','Arrow draws tail to head, 1.6s loop'],
    s:()=>A('y',badge(I.right,{anim:'nud'}),L(K3('복귀 중'),keys(['GOING','TO DOCK'])),L('충전소로 이동','SLOW RETURN'))},
-  {n:'05',t:['충전 시작','Charging'],src:['충전 중 · 배터리 잔량 NN%','Charging · battery NN%'],m:['번개 2.4초 숨쉬기 (시나리오 1 대기와 같은 화면)','Bolt breathes, 2.4s (same screen as scenario 1 standby)'],
+  {n:'05',t:['충전 시작','Charging'],src:['충전 중 · 배터리 잔량 NN%','Charging · battery NN%'],m:['번개 고정 (시나리오 1 대기와 같은 화면)','Bolt holds still (same screen as scenario 1 standby)'],
    s:()=>A('g',I.bat,NUM(21),L('충전 중','CHARGING'))},
  ],notes:[['1·2단계는 배터리 기호를 왼쪽 타일에 고정해, 색만 노랑→파랑으로 바뀌며 “부족 → 관제 대기”가 구분되도록 했습니다.','Steps 1–2 keep the battery symbol fixed in the left tile; only the color changes (yellow → blue) to separate “low” from “awaiting control”.']]},
  {id:'s7',no:7,lv:['danger',['위험단계','Danger']],title:['배터리 20% 이하, 자율 복귀 불가 — 회수','Battery under 20%, cannot return — pickup'],file:'SCENARIO 24',steps:[
