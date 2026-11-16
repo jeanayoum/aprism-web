@@ -325,8 +325,10 @@
     .c1 .cdb .num > span { position: relative; top: var(--cd-dy, 0); }
     .c1 .cdb .cd > *, .c1 .cdb .sq4 > * { text-align: center; }
     /* 비교용 링 — 1초마다 원 테두리를 따라 줄어듦(3초 = 3 · 2 · 1) */
-    .c1 .prg.cdr .bar { animation: cdRing 1s linear infinite; }
-    @keyframes cdRing { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 88; } }
+    /* 링: 3초(3 · 2 · 1 전체) 동안 한 바퀴 줄어듦 · 끝은 각지게 · 트랙 없음 ·
+       반지름 13.6(굵기 2.4) → 안쪽 가장자리가 배지(12.8)에 0.4 겹쳐 사이 틈 · 실선 없음 */
+    .c1 .prg.cdr .bar { stroke-linecap: butt; stroke-dasharray: 1; animation: cdRing 3s linear infinite; }
+    @keyframes cdRing { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 1; } }
     .c1.y .prg .trk { stroke: rgba(0,0,0,.18); } .c1.y .prg .bar { stroke: #111; }
     @keyframes waveFill { 0% { transform: scale(1); opacity: .55; } 100% { transform: scale(1.3); opacity: 0; } }
     /* 1.3배 = 반지름 19.5cqw — 배지 중심(19.6cqw)에서 화면 왼쪽 끝 안 · 글 시작선(41.6cqw) 앞 · 위아래 안에서 끝남 */
@@ -506,7 +508,7 @@ const KL=(ko,en)=>keys(L(ko,en));
 const badge=(svg,{ring,anim}={})=>`<span class="ic">${ring?'<i></i><i></i>':''}${anim?`<span class="${anim}">${svg}</span>`:svg}</span>`;
 const prog=svg=>`<span class="ic"><svg class="prg" viewBox="0 0 32 32"><circle class="trk" cx="16" cy="16" r="14"/><circle class="bar" cx="16" cy="16" r="14"/></svg>${svg}</span>`;
 const CD=`<span class="ic cdb"><span class="num"><span class="cd"><span class="n3">3</span><span class="n2">2</span><span class="n1">1</span></span></span></span>`;  /* 11/17 숫자도 배지 안 */
-const CDR=`<span class="ic cdb"><svg class="prg cdr" viewBox="0 0 32 32"><circle class="trk" cx="16" cy="16" r="14"/><circle class="bar" cx="16" cy="16" r="14"/></svg><span class="num"><span class="cd"><span class="n3">3</span><span class="n2">2</span><span class="n1">1</span></span></span></span>`;  /* 비교용: 1초마다 줄어드는 링 */
+const CDR=`<span class="ic cdb"><svg class="prg cdr" viewBox="0 0 32 32"><circle class="bar" pathLength="1" cx="16" cy="16" r="13.6"/></svg><span class="num"><span class="cd"><span class="n3">3</span><span class="n2">2</span><span class="n1">1</span></span></span></span>`;  /* 비교용: 1초마다 줄어드는 링 */
 const A=(c,sym,key,sen)=>`<div class="c1 ${c}"><div class="sym">${sym}</div><div class="key">${key}${sen?K15(sen):''}</div></div>`;
 const OFF=t=>`<div class="off"><p>${t}</p></div>`;
 const NUM=n=>`<div class="num">${n}<small>%</small></div>`;
@@ -672,7 +674,7 @@ function mlab(){
     ['s2',1,'5 · 사람 감지 — 훑는 선','가로선이 사람을 위에서 아래로 훑어 "감지 중"을 보여 준다. 면 파동과 함께.'],
     ['s8',0,'6 · 계단 — 오르는 점','계단 선이 그려진 뒤 점(로봇)이 한 칸씩 올라간다.'],
     ['s1',2,'7 · 카운트다운 — 링 없음 (보드)','3 · 2 · 1 숫자가 배지 안에서 1초마다 바뀐다. 회수 순서(1~4)도 같은 꼴.'],
-    ['s1',2,'8 · 카운트다운 — 링 있음 (비교)','숫자가 바뀔 때마다 배지 테두리를 따라 링이 1초 동안 줄어든다. 고르면 보드에 적용.','ring'],
+    ['s1',2,'8 · 카운트다운 — 링 있음 (비교)','3 · 2 · 1 전체 3초 동안 배지 테두리 링이 한 바퀴 줄어든다(끝은 각지게, 배지와 붙은 한 몸). 고르면 보드에 적용.','ring'],
   ];
   const el=document.getElementById('mlab');
   el.innerHTML=items.map(([id,i,t,d])=>`<article class="mlab-card"><h3>${t}</h3><div class="bezel"><div class="scr"></div></div><p>${d}</p></article>`).join('');
