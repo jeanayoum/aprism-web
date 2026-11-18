@@ -64,7 +64,9 @@
     /* 단계 바 — PPT 진행 바(대기 · 주변감지 …)와 같은 꼴. 누르면 그 단계만 재생하고 멈춘다 */
     .stepbar { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); padding: 12px 8px 14px; border-radius: 8px; background: var(--bg-raised); box-shadow: 0 2px 10px rgba(0,0,0,.08); }
     .stepbar::before { content: ""; position: absolute; left: 10%; right: 10%; bottom: 21px; height: 1px; background: var(--border-default); }
-    .stepbar button { position: relative; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 0 4px; border: 0; background: none; font: inherit; font-size: 14px; color: var(--text-tertiary); cursor: pointer; }
+    .stepbar button { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 10px; padding: 0 4px; border: 0; background: none; font: inherit; font-size: 14px; line-height: 1.35; text-align: center; color: var(--text-tertiary); cursor: pointer; }
+    .stepbar button:focus { outline: none; }
+    .stepbar button:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; border-radius: 4px; }   /* 글이 두 줄이어도 점은 아래 한 줄(justify-content: flex-end) */
     .stepbar button::after { content: ""; width: 9px; height: 9px; border-radius: 50%; border: 1px solid var(--text-tertiary); background: var(--bg-raised); box-sizing: border-box; }
     .stepbar button:hover { color: var(--text-primary); }
     .stepbar button.is-now { color: var(--text-primary); font-weight: 700; }
@@ -199,7 +201,7 @@
       cam: { pos: [-4.6, 3.4, 4.2], target: [-12.4, 0.6, -3.0], fov: 40, view: { from: [0.45, 0.89], pitch: 32 } } },
     { id: "3-2", title: "배터리 부족 · 자율복귀 불가", zone: "통로 가장자리",
       steps: ["배터리 20% 이하 도달", "통로 가장자리 이동 후 정지", "접근금지 우회 안내", "회수 담당자 호출", "담당자 회수 완료 처리"],
-      cam: { pos: [8.8, 3.1, 5.4], target: [3.0, 0.5, -1.0], fov: 40, view: { from: [0.34, 0.94], pitch: 35 } } },
+      cam: { pos: [8.8, 3.1, 5.4], target: [3.0, 0.5, -1.0], fov: 40, view: { from: [0.34, 0.94], pitch: 35 }, focus: { a: [9.5, 17.0], b: [15.5, 26] }, minD: 5 } },   // focus: 그 시간에만 근로자를 함께 잡음(그 밖엔 로봇 중심 — 초반 로봇이 가장자리로 밀리던 것)
   ];
 
   const W = 1740, H = 1590;   // 칸 870×795 의 두 배 — 녹화 · PNG 때만 이 크기로 그린다
@@ -1430,7 +1432,15 @@
       const [rx, rz] = posAt(SEG.robot, tt);
       if (spot) boxAt(rx, rz, 0.62, 0.98);
       const nr = cur?.cam?.near ?? NEAR;
-      for (const key of ["a", "b"]) if (SEG[key]) { let [x, z] = posAt(SEG[key].segs, tt); const dd = Math.hypot(x - rx, z - rz); if (dd > nr) { x = rx + (x - rx) * nr / dd; z = rz + (z - rz) * nr / dd; } boxAt(x, z, 0.32, 1.86); }
+      for (const key of ["a", "b"]) if (SEG[key]) { let [x, z] = posAt(SEG[key].segs, tt); const dd = Math.hypot(x - rx, z - rz);
+        if (dd > nr) { x = rx + (x - rx) * nr / dd; z = rz + (z - rz) * nr / dd; }   // NEAR 밖은 원 위로 당겨 셈
+        // focus 장면: 정한 시간에만 근로자를 함께 잡는다 — 들고 날 때 1.5초 동안 로봇 쪽에서 차츰 펼쳐져(이어져서 튀지 않음)
+        const fw = cur?.cam?.focus?.[key];
+        let hgt = 1.86;
+        if (cur?.cam?.focus) { const w = fw ? smooth(Math.max(0, Math.min(1, (tt - fw[0]) / 1.5, (fw[1] - tt) / 1.5))) : 0;
+          if (w <= 0) continue;   // 빠진 근로자는 아예 셈하지 않는다(로봇 자리에 사람 키 상자를 남기지 않게)
+          x = rx + (x - rx) * w; z = rz + (z - rz) * w; hgt = 0.98 + (1.86 - 0.98) * w; }
+        boxAt(x, z, 0.32, hgt); }
     }
     return pts;
   }
@@ -1464,14 +1474,16 @@
         _v.copy(q).sub(c); const z = _v.dot(_d) + D; if (z < 0.5) return false;
         const nx = _v.dot(_r) / (z * tx), ny = _v.dot(_u) / (z * ty);
         if (Math.abs(nx) > HX || Math.abs(ny) > HY) return false;
-        if (hudScene.visible && nx > HUD_NDC.x && ny > HUD_NDC.y) return false;   // 오른쪽 위 디스플레이 자리는 비운다
+        // 오른쪽 위 디스플레이 자리는 비운다 — 경계에서 높이 한도가 0.15 폭에 걸쳐 차츰 내려가(칼같이 나뉘면 카메라 거리가 튄다)
+        if (hudScene.visible) { const k = Math.max(0, Math.min(1, (nx - (HUD_NDC.x - 0.15)) / 0.15)); if (ny > HY + (HUD_NDC.y - HY) * k) return false; }
       }
       return true;
     };
     const at = (D) => c.clone().addScaledVector(_d, -D);
     if (fixedD) return { D: fixedD, p: at(fixedD) };
-    if (fits(MIN_DIST)) return { D: MIN_DIST, p: at(MIN_DIST) };
-    let lo = MIN_DIST, hi = 40;
+    const md = cur?.cam?.minD ?? MIN_DIST;   // 장면별 최소 거리(로봇 하나만 잡힐 때 과하게 당기지 않게)
+    if (fits(md)) return { D: md, p: at(md) };
+    let lo = md, hi = 40;
     for (let i = 0; i < 20; i++) { const mid = (lo + hi) / 2; if (fits(mid)) hi = mid; else lo = mid; }
     return { D: hi, p: at(hi) };
   }
