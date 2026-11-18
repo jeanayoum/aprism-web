@@ -22,7 +22,7 @@
     @media (max-width: 960px) { .ks { grid-template-columns: 1fr; } }
 
     .stage-wrap { display: flex; justify-content: center; }
-    .stage { position: relative; aspect-ratio: 870 / 795; width: min(100%, calc((100vh - 120px) * 870 / 795)); background: #C9CDCC; border-radius: 4px; overflow: hidden; }
+    .stage { position: relative; aspect-ratio: 870 / 795; width: min(100%, calc((100vh - 120px) * 870 / 795)); background: #A7ABAD; border-radius: 4px; overflow: hidden; }
     .stage canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; display: block; }
 
     /* 슬라이드 위에서 가려지는 자리 — 화면에만 보이고 녹화에는 안 들어간다 */
@@ -208,8 +208,8 @@
   stage.prepend(renderer.domElement);
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xC9CDCC);
-  scene.fog = new THREE.Fog(0xC9CDCC, 34, 80);
+  scene.background = new THREE.Color(0xA7ABAD);
+  scene.fog = new THREE.Fog(0xA7ABAD, 34, 80);
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
 
@@ -248,9 +248,9 @@
 
   // 에폭시 바닥 — 국내 공장에 흔한 회녹색. 얼룩 · 긁힘 · 바퀴 자국
   const floorMap = canvasTex(1024, 1024, (g, w, h) => {
-    g.fillStyle = "#5F7769"; g.fillRect(0, 0, w, h);
-    blotch(g, w, h, 40, "rgba(40,55,45,0.10)", 60, 220);
-    blotch(g, w, h, 30, "rgba(200,215,205,0.07)", 40, 160);
+    g.fillStyle = "#9A9EA0"; g.fillRect(0, 0, w, h);
+    blotch(g, w, h, 40, "rgba(45,48,50,0.10)", 60, 220);
+    blotch(g, w, h, 30, "rgba(215,218,220,0.08)", 40, 160);
     speckle(g, w, h, 9000, ["rgba(30,40,35,.18)", "rgba(220,230,225,.12)"], 2);
     g.strokeStyle = "rgba(30,35,32,0.10)"; g.lineWidth = 1;
     for (let i = 0; i < 60; i++) { g.beginPath(); const x = rnd() * w, y = rnd() * h; g.moveTo(x, y); g.lineTo(x + (rnd() - .5) * 140, y + (rnd() - .5) * 30); g.stroke(); }
@@ -265,7 +265,7 @@
 
   // 벽 아래 — 칠한 콘크리트 블록
   const blockMap = canvasTex(512, 256, (g, w, h) => {
-    g.fillStyle = "#8E9893"; g.fillRect(0, 0, w, h);
+    g.fillStyle = "#7C8185"; g.fillRect(0, 0, w, h);
     speckle(g, w, h, 4000, ["rgba(0,0,0,.08)", "rgba(255,255,255,.08)"], 2);
     g.strokeStyle = "rgba(40,45,42,.35)"; g.lineWidth = 3;
     for (let r = 0; r < 4; r++) { const y = r * 64; g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke();
@@ -273,7 +273,7 @@
   }, { repeat: [20, 1] });
   // 벽 위 — 골 진 샌드위치 패널
   const panelMap = canvasTex(256, 256, (g, w, h) => {
-    g.fillStyle = "#CDD1D2"; g.fillRect(0, 0, w, h);
+    g.fillStyle = "#6C7176"; g.fillRect(0, 0, w, h);
     for (let x = 0; x < w; x += 64) { g.fillStyle = "rgba(0,0,0,.10)"; g.fillRect(x, 0, 6, h); g.fillStyle = "rgba(255,255,255,.35)"; g.fillRect(x + 6, 0, 3, h); g.fillStyle = "rgba(0,0,0,.04)"; g.fillRect(x + 30, 0, 4, h); }
     blotch(g, w, h, 6, "rgba(90,90,80,0.05)", 30, 90);
   }, { repeat: [40, 3] });
@@ -312,24 +312,24 @@
     block: new THREE.MeshStandardMaterial({ map: blockMap, roughness: 0.9 }),
     panel: new THREE.MeshStandardMaterial({ map: panelMap, bumpMap: panelMap, bumpScale: 0.6, roughness: 0.6, metalness: 0.15 }),
     steel: new THREE.MeshStandardMaterial({ color: 0x8C939A, roughness: 0.45, metalness: 0.6 }),
-    steelDark: new THREE.MeshStandardMaterial({ color: 0x3E444A, roughness: 0.55, metalness: 0.5 }),
+    steelDark: new THREE.MeshStandardMaterial({ color: 0x2E3236, roughness: 0.55, metalness: 0.5 }),
     galv: new THREE.MeshStandardMaterial({ color: 0xA9AFB3, roughness: 0.35, metalness: 0.8 }),
-    column: new THREE.MeshStandardMaterial({ color: 0x5B6670, roughness: 0.6, metalness: 0.3 }),
+    column: new THREE.MeshStandardMaterial({ color: 0x3A3F44, roughness: 0.6, metalness: 0.3 }),
     yellow: new THREE.MeshStandardMaterial({ color: 0xF2C230, roughness: 0.5 }),
     lineY: new THREE.MeshStandardMaterial({ color: 0xF0BE1E, roughness: 0.6, polygonOffset: true, polygonOffsetFactor: -2 }),
     lineW: new THREE.MeshStandardMaterial({ color: 0xEDEFEE, roughness: 0.6, polygonOffset: true, polygonOffsetFactor: -2 }),
-    walk: new THREE.MeshStandardMaterial({ color: 0x2F8E58, roughness: 0.5, polygonOffset: true, polygonOffsetFactor: -1 }),
-    cabinet: new THREE.MeshStandardMaterial({ color: 0xD6D9D5, roughness: 0.5, metalness: 0.1 }),
-    rackUp: new THREE.MeshStandardMaterial({ color: 0x1F4E9A, roughness: 0.5, metalness: 0.2 }),
-    rackBeam: new THREE.MeshStandardMaterial({ color: 0xE0651B, roughness: 0.5, metalness: 0.2 }),
-    wood: new THREE.MeshStandardMaterial({ color: 0xB08A5B, roughness: 0.85 }),
-    box: new THREE.MeshStandardMaterial({ color: 0xBC915E, roughness: 0.9 }),
-    drum: new THREE.MeshStandardMaterial({ color: 0x1E57A3, roughness: 0.45, metalness: 0.3 }),
-    tank: new THREE.MeshStandardMaterial({ color: 0xE6E8E6, roughness: 0.35, metalness: 0.2 }),
-    motor: new THREE.MeshStandardMaterial({ color: 0x2B5FA8, roughness: 0.4, metalness: 0.4 }),
-    pipeG: new THREE.MeshStandardMaterial({ color: 0x3C8C55, roughness: 0.45, metalness: 0.3 }),
-    pipeY: new THREE.MeshStandardMaterial({ color: 0xD9A820, roughness: 0.45, metalness: 0.3 }),
-    pipeB: new THREE.MeshStandardMaterial({ color: 0x6F8FA8, roughness: 0.45, metalness: 0.3 }),
+    walk: new THREE.MeshStandardMaterial({ color: 0x7E8386, roughness: 0.5, polygonOffset: true, polygonOffsetFactor: -1 }),
+    cabinet: new THREE.MeshStandardMaterial({ color: 0x9FA4A8, roughness: 0.5, metalness: 0.1 }),
+    rackUp: new THREE.MeshStandardMaterial({ color: 0x3A3F44, roughness: 0.5, metalness: 0.2 }),
+    rackBeam: new THREE.MeshStandardMaterial({ color: 0xF2C230, roughness: 0.5, metalness: 0.2 }),
+    wood: new THREE.MeshStandardMaterial({ color: 0x4A4E52, roughness: 0.8 }),   // 플라스틱 팔레트
+    box: new THREE.MeshStandardMaterial({ color: 0x8C9093, roughness: 0.85 }),   // 회색 적재함
+    drum: new THREE.MeshStandardMaterial({ color: 0xC4262A, roughness: 0.45, metalness: 0.3 }),
+    tank: new THREE.MeshStandardMaterial({ color: 0xBCC1C4, roughness: 0.32, metalness: 0.75 }),   // 보온 알루미늄
+    motor: new THREE.MeshStandardMaterial({ color: 0x4A4F54, roughness: 0.4, metalness: 0.4 }),
+    pipeG: new THREE.MeshStandardMaterial({ color: 0xB4B9BC, roughness: 0.32, metalness: 0.75 }),
+    pipeY: new THREE.MeshStandardMaterial({ color: 0xA9AEB1, roughness: 0.35, metalness: 0.75 }),
+    pipeB: new THREE.MeshStandardMaterial({ color: 0xBEC3C6, roughness: 0.3, metalness: 0.75 }),
     red: new THREE.MeshStandardMaterial({ color: 0xD8262A, roughness: 0.45 }),
     black: new THREE.MeshStandardMaterial({ color: 0x1B1E22, roughness: 0.6 }),
     rubber: new THREE.MeshStandardMaterial({ color: 0x23262A, roughness: 0.9 }),
@@ -453,14 +453,14 @@
     wallSign(numTex, 0.5, 0.25, d.x, 1.5, -6.86);
   }
   // 충전 구역 벽 표지 · 분전반 · 소화기
-  const dockSign = canvasTex(1024, 256, (g, w, h) => { g.fillStyle = "#1F5FBF"; g.fillRect(0, 0, w, h); g.fillStyle = "#fff"; g.font = '900 120px "Noto Sans KR"'; g.textBaseline = "middle"; g.fillText("로봇 충전 구역", 60, h / 2 + 6); });
+  const dockSign = canvasTex(1024, 256, (g, w, h) => { g.fillStyle = "#2B2F33"; g.fillRect(0, 0, w, h); g.fillStyle = "#F2C230"; g.font = '900 120px "Noto Sans KR"'; g.textBaseline = "middle"; g.fillText("로봇 충전 구역", 60, h / 2 + 6); });
   wallSign(dockSign, 2.4, 0.6, -12.85, 2.6, -6.86);
   boxB(0.7, 0.9, 0.2, M.cabinet, -18.0, 1.2, -6.8);
   { cyl(0.09, 0.55, M.red, -17.2, 0.05, -6.75, 20); boxB(0.25, 0.05, 0.2, M.black, -17.2, 0, -6.75); }
 
   /* ================= MCC 반 (전동기 제어반) ================= */
   const mccTex = (label) => canvasTex(256, 640, (g, w, h) => {
-    g.fillStyle = "#D6D9D5"; g.fillRect(0, 0, w, h);
+    g.fillStyle = "#9FA4A8"; g.fillRect(0, 0, w, h);
     g.strokeStyle = "rgba(40,45,42,.55)"; g.lineWidth = 3;
     g.strokeRect(10, 10, w - 20, h * 0.48); g.strokeRect(10, h * 0.5, w - 20, h * 0.48);
     g.fillStyle = "rgba(40,45,42,.35)"; for (let i = 0; i < 6; i++) g.fillRect(70, h * 0.82 + i * 12, w - 140, 5);   // 통풍구
@@ -484,10 +484,10 @@
   for (let x = -9.8; x <= -2.6; x += 1.2) box(0.04, 0.9, 0.04, M.galv, x, 3.5, -6.3);
   // 벽 안전 현수막
   const safetyTex = canvasTex(2048, 360, (g, w, h) => {
-    g.fillStyle = "#FFFFFF"; g.fillRect(0, 0, w, h); g.fillStyle = "#1E8C45"; g.fillRect(0, 0, w, 18); g.fillRect(0, h - 18, w, 18);
-    g.fillStyle = "#1E8C45"; const cx = 200, cy = h / 2, a = 120, t = 44; g.fillRect(cx - t, cy - a, t * 2, a * 2); g.fillRect(cx - a, cy - t, a * 2, t * 2);
-    g.fillStyle = "#16301F"; g.font = '900 170px "Noto Sans KR"'; g.textBaseline = "middle"; g.fillText("안전제일", 380, h / 2 + 8);
-    g.fillStyle = "#555"; g.font = '700 70px "Noto Sans KR"'; g.fillText("보호구 착용 · 통로 확보", 1180, h / 2 + 6);
+    g.fillStyle = "#2B2F33"; g.fillRect(0, 0, w, h); g.fillStyle = "#F2C230"; g.fillRect(0, 0, w, 18); g.fillRect(0, h - 18, w, 18);
+    g.fillStyle = "#F2C230"; const cx = 200, cy = h / 2, a = 120, t = 44; g.fillRect(cx - t, cy - a, t * 2, a * 2); g.fillRect(cx - a, cy - t, a * 2, t * 2);
+    g.fillStyle = "#F4F5F4"; g.font = '900 170px "Noto Sans KR"'; g.textBaseline = "middle"; g.fillText("안전제일", 380, h / 2 + 8);
+    g.fillStyle = "#B8BDC0"; g.font = '700 70px "Noto Sans KR"'; g.fillText("보호구 착용 · 통로 확보", 1180, h / 2 + 6);
   }, { repeat: [1, 1] });
   wallSign(safetyTex, 7.2, 1.27, -5.4, 4.9, -6.89);
 
@@ -558,12 +558,16 @@
   });
   { const sx = 10.6, sz = -1.75; boxB(0.5, 0.04, 0.4, M.rubber, sx, 0, sz); boxB(0.04, 1.1, 0.04, M.steelDark, sx, 0.04, sz);
     const s = wallSign(warnTex, 0.6, 0.75, sx, 1.45, sz + 0.03); s.castShadow = true; }
-  { const bx = 18.6, bz = -2.0; boxB(0.16, 0.16, 0.16, M.black, bx, 0.97, bz); cyl(0.08, 0.16, lamp(0xFF8A1E, 3.2), bx, 1.13, bz, 20); }
+  { const bx = 18.6, bz = -2.0; boxB(0.16, 0.16, 0.16, M.black, bx, 0.97, bz); cyl(0.08, 0.16, lamp(0xFF3B30, 3.2), bx, 1.13, bz, 20); }
   // 벽 배관 묶음 — 도킹 구역부터 위험 구역까지
   pipeRun([[-20.4, 3.5, -6.72], [20.4, 3.5, -6.72]], 0.1, M.pipeG);
   pipeRun([[-20.4, 3.85, -6.68], [20.4, 3.85, -6.68]], 0.08, M.pipeY);
   pipeRun([[-20.4, 4.2, -6.7], [20.4, 4.2, -6.7]], 0.12, M.pipeB);
   for (let x = -18; x <= 18; x += 3) boxB(0.06, 0.9, 0.35, M.steelDark, x, 3.3, -6.72);
+  // 배관 빨간 띠 — 참고 사진처럼 은색 배관에 포인트로만
+  for (let x = -15; x <= 15; x += 7.5) for (const [y, z, r] of [[3.5, -6.72, 0.1], [4.2, -6.7, 0.12]]) {
+    const band = new THREE.Mesh(new THREE.CylinderGeometry(r + 0.006, r + 0.006, 0.22, 24), M.red); band.rotation.z = Math.PI / 2; band.position.set(x, y, z); world.add(band);
+  }
 
   /* ================= 남쪽(카메라 쪽) 소품 ================= */
   // 드럼통 · 팔레트 · 대차
@@ -577,7 +581,7 @@
   decal(grate, 3.0, 0.3, 9.0, 4.4, 0, 0.005);
 
   /* ================= 조명 ================= */
-  scene.add(new THREE.HemisphereLight(0xEEF3F6, 0x6B7A70, 0.9));
+  scene.add(new THREE.HemisphereLight(0xEEF1F3, 0x6E7276, 0.9));
   const sun = new THREE.DirectionalLight(0xFFF5E6, 2.1);   // 고천장 조명 전체를 한 덩어리 빛으로 — 그림자 담당
   sun.position.set(-6, 16, 9); sun.target.position.set(0, 0, -1);
   sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
