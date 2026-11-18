@@ -85,6 +85,12 @@
     .combo-r .ctl iframe { width: 1920px; height: 1080px; border: 0; transform: scale(calc(770 / 1920)); transform-origin: 0 0; }
     .combo-bar { position: fixed; left: 0; top: 807px; z-index: 51; display: flex; gap: 8px; align-items: center; padding: 8px 12px; background: var(--bg-raised); border: 1px solid var(--border-default); border-radius: 8px; font-size: 13px; }
     .combo-bar[hidden] { display: none; }
+    /* 고화질 녹화 1단계 — 관제 화면만 화면 왼쪽 위에 크게(1920×1080 을 창에 맞춰) 띄워 찍는다. --hq = 창에 맞춘 배율 */
+    body.combo-hq .combo { z-index: 300; }
+    body.combo-hq .combo-r { overflow: visible; }
+    body.combo-hq .combo-r .ctl { position: fixed; left: 0; top: 0; z-index: 10; width: calc(1920px * var(--hq, 1)); height: calc(1080px * var(--hq, 1)); border-radius: 0; }
+    body.combo-hq .combo-r .ctl iframe { transform: scale(var(--hq, 1)); }
+    body.combo-hq .combo-bar { visibility: hidden; }
     body.clean .site-header, body.clean .panel, body.clean .stepbar, body.clean .stepbar-row { display: none; }
     body.clean .stage-col { width: auto; }
     body.clean .site-main { padding: 0; }
@@ -189,9 +195,10 @@
     <span id="comboScene"></span>
     <label class="field">범위 <select id="comboRange"></select></label>
     <button class="btn" id="comboPlay" type="button">▶ 미리 보기</button>
-    <button class="btn primary" id="comboRec" type="button">합친 영상 녹화</button>
+    <button class="btn primary" id="comboHQ" type="button">고화질 녹화 (3520×1590)</button>
+    <button class="btn" id="comboRec" type="button">빠른 녹화</button>
     <button class="btn" id="comboExit" type="button">닫기</button>
-    <span class="note" id="comboNote">녹화를 누르면 '이 탭 공유'를 묻는다 — 탭 오디오도 공유하면 음성이 들어간다</span>
+    <span class="note" id="comboNote">고화질: '이 탭' 공유 → 관제 화면만 크게 떠 실제 시간으로 찍고, 이어서 3D 와 합쳐 굽는다(음성 자동) · 빠른 녹화: 보이는 그대로(탭 오디오 공유 시 음성)</span>
   </div>
 
   <script src="./assets/js/robot-spot.js?v=16205c28"></script>
@@ -2084,6 +2091,162 @@
   document.getElementById("comboExit").onclick = comboExit;
   document.getElementById("comboPlay").onclick = comboPreview;
   document.getElementById("comboRec").onclick = comboRecord;
+
+  /* ================= 고화질 합친 영상(3520×1590) =================
+   * 빠른 녹화는 화면에 보이는 픽셀 그대로라(1760×795, 관제 화면은 1920×1080 을 0.4배로 줄여 그려 글자가 뭉갠다) 낮다. 두 번에 나눠 굽는다.
+   *   1) 관제 화면만 창에 맞춰 크게 띄우고(1920×1080 × --hq) 이 탭을 공유받아 실제 시간으로 찍는다. 프레임마다 그때의 장면 시각을 붙여
+   *      1540×866(모니터 화면 칸 770×433 의 두 배)으로 줄여 H.264 로 메모리에 담는다(MediaStreamTrackProcessor → VideoEncoder).
+   *   2) 작업현장 3D 를 영상 녹화처럼 한 프레임씩 두 배(1740×1590)로 그리고, 같은 시각의 관제 프레임을 차례로 풀어(VideoDecoder — 되감기 없음)
+   *      모니터 목업 칸에 붙여 3520×1590 MP4(H.264 + AAC 음성)로 굽는다. 두 칸 · 사이 20 · 모니터 자리는 합친 영상 모드(1760×795)의 두 배 그대로.
+   */
+  const HQ = { W: 3520, H: 1590, fps: 30, CW: 1540, CH: 866 };
+  let hqBusy = false;
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  async function hqCodec(w, h, fps, bitrate) {
+    for (const codec of CODECS.concat(["avc1.640028"])) {
+      const cfg = { codec, width: w, height: h, bitrate, framerate: fps, avc: { format: "avc" } };
+      try { if ((await VideoEncoder.isConfigSupported(cfg)).supported) return cfg; } catch (e) {}
+    }
+    return null;
+  }
+  function hqFit() { document.body.style.setProperty("--hq", Math.min(innerWidth / 1920, innerHeight / 1080).toFixed(4)); }
+  async function comboRecordHQ() {
+    if (hqBusy || comboRec || recording) return;
+    const note = document.getElementById("comboNote");
+    if (!ctlReady()) { note.textContent = "관제 화면을 불러오는 중이에요 — 잠시 뒤 다시 눌러 주세요"; return; }
+    if (!window.MediaStreamTrackProcessor || !window.VideoEncoder || !window.VideoDecoder) { note.textContent = "이 브라우저는 고화질 녹화를 못 해요 — 최신 Chrome 에서 열어 주세요"; return; }
+    const ocfg = await hqCodec(HQ.W, HQ.H, HQ.fps, 40e6), tcfg = await hqCodec(HQ.CW, HQ.CH, HQ.fps, 24e6);
+    if (!ocfg || !tcfg) { note.textContent = "이 PC 의 H.264 인코더가 3520×1590 을 못 받아요 — 빠른 녹화를 써 주세요"; return; }
+    hqBusy = true;
+    try {
+      await loadDisp(cur.id); await loadVoices();
+      let stream;
+      try {
+        stream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "browser", cursor: "never", frameRate: 30 }, audio: false,
+          preferCurrentTab: true, selfBrowserSurface: "include", surfaceSwitching: "exclude" });
+      } catch (e) { note.textContent = "탭 공유를 취소했어요"; return; }
+      const [track] = stream.getVideoTracks();
+      // 1단계 — 관제 화면만 크게
+      hqFit(); document.body.classList.add("combo-hq"); window.scrollTo(0, 0);
+      const ctlBox = document.querySelector(".combo-r .ctl");
+      await sleep(400);
+      if (window.CropTarget && track.cropTo) { try { await track.cropTo(await CropTarget.fromElement(ctlBox)); } catch (e) { console.warn("영역 자르기 실패", e); } }
+      const devW = Math.round(1920 * parseFloat(getComputedStyle(document.body).getPropertyValue("--hq")) * devicePixelRatio);
+      const [tA, tB, tag] = comboRangeT();
+      stopPlay(); seek(tA); ctlApply(tA, true);
+      await sleep(1200);   // 관제 화면이 상태 · 팝오버를 다 그릴 틈
+      const cv = new OffscreenCanvas(HQ.CW, HQ.CH), g = cv.getContext("2d");
+      const chunks = []; let dcfg = null, terr = null, tsPrev = -1, n = 0, started = false, stop = false;
+      const tenc = new VideoEncoder({ output: (c, meta) => { if (meta && meta.decoderConfig) dcfg = meta.decoderConfig; const b = new Uint8Array(c.byteLength); c.copyTo(b); chunks.push({ type: c.type, timestamp: c.timestamp, data: b }); }, error: e => { terr = e; } });
+      tenc.configure(tcfg);
+      const reader = new MediaStreamTrackProcessor({ track }).readable.getReader();
+      const pump = (async () => {
+        while (!stop) {
+          const { value: vf, done } = await reader.read(); if (done) break;
+          // 이 프레임이 보여 주는 장면 시각 — 읽은 때의 장면 시계에서 잡힘 지연(약 한 프레임)을 뺀다
+          const st = started ? Math.max(tA, curT - 0.035) : tA;
+          g.drawImage(vf, 0, 0, HQ.CW, HQ.CH); vf.close();
+          let ts = Math.round(st * 1e6); if (ts <= tsPrev) ts = tsPrev + 1; tsPrev = ts;
+          const f = new VideoFrame(cv, { timestamp: ts }); tenc.encode(f, { keyFrame: n % 60 === 0 }); f.close(); n++;
+          if (n % 15 === 0) note.textContent = `1/2 관제 화면 찍는 중 ${Math.round((curT - tA) / (tB - tA) * 100)}%`;
+        }
+      })();
+      await sleep(300);
+      playEnd = tB; started = true; startPlay();
+      while (playing) await sleep(100);
+      await sleep(250);
+      stop = true; try { await reader.cancel(); } catch (e) {}
+      stream.getTracks().forEach(t => t.stop());
+      await pump.catch(() => {});
+      await tenc.flush(); tenc.close();
+      document.body.classList.remove("combo-hq");
+      if (terr || !dcfg || !chunks.length) { note.textContent = "관제 화면 찍기 실패" + (terr ? ": " + terr.message : ""); return; }
+      // 2단계 — 3D 두 배 + 관제 프레임을 모니터 칸에
+      await hqCompose(chunks, dcfg, ocfg, tA, tB, tag, note, devW);
+    } catch (e) {
+      console.error(e); note.textContent = "고화질 녹화 실패: " + e.message;
+    } finally {
+      hqBusy = false; document.body.classList.remove("combo-hq");
+      if (recording) { recording = false; renderer.setSize(PW, PH, false); dirty = true; }
+    }
+  }
+  async function hqCompose(chunks, dcfg, ocfg, tA, tB, tag, note, devW) {
+    const { Muxer, ArrayBufferTarget } = await import("https://cdn.jsdelivr.net/npm/mp4-muxer@5.1.3/+esm");
+    const fps = HQ.fps, X2 = 2, RX = (870 + 20) * X2;   // 오른쪽 칸 왼쪽 끝
+    const out = document.createElement("canvas"); out.width = HQ.W; out.height = HQ.H;
+    const o = out.getContext("2d"); o.imageSmoothingQuality = "high";
+    const hw = document.querySelector(".combo-r .hw"), stand = document.querySelector(".combo-r .stand");
+    // 관제 프레임을 차례로 푼다 — 장면 시각 t 이하에서 가장 늦은 프레임
+    const q = []; let fed = 0, flushed = false, derr = null;
+    const dec = new VideoDecoder({ output: f => q.push(f), error: e => { derr = e; } });
+    dec.configure(dcfg);
+    async function ctlAt(t) {
+      const tt = Math.round(t * 1e6);
+      for (let guard = 0; guard < 4000 && !derr; guard++) {
+        if (q.some(f => f.timestamp > tt) || flushed) break;
+        if (fed < chunks.length) {
+          if (dec.decodeQueueSize < 6) { const c = chunks[fed++]; dec.decode(new EncodedVideoChunk({ type: c.type, timestamp: c.timestamp, data: c.data })); }
+          else await sleep(2);
+        } else { await dec.flush(); flushed = true; }
+        if (guard % 4 === 3) await sleep(0);
+      }
+      while (q.length > 1 && q[1].timestamp <= tt) q.shift().close();
+      return q[0] || null;
+    }
+    // 음성
+    let audioBuf = null; const acfg = { codec: "mp4a.40.2", sampleRate: 48000, numberOfChannels: 2, bitrate: 128000 };
+    if (SEG.voice.some(([ts, k]) => ts < tB && ts + (vbuf[k]?.duration ?? 6) > tA) && window.AudioEncoder) {
+      try { if ((await AudioEncoder.isConfigSupported(acfg)).supported) audioBuf = await mixVoices(tA, tB); } catch (e) { console.warn("음성 굽기 불가", e); }
+    }
+    const muxer = new Muxer({ target: new ArrayBufferTarget(), video: { codec: "avc", width: HQ.W, height: HQ.H, frameRate: fps },
+      ...(audioBuf ? { audio: { codec: "aac", sampleRate: 48000, numberOfChannels: 2 } } : {}), fastStart: "in-memory" });
+    let err = null;
+    if (audioBuf) {
+      const aenc = new AudioEncoder({ output: (chunk, meta) => muxer.addAudioChunk(chunk, meta), error: e => { err = e; } });
+      aenc.configure(acfg);
+      const L = audioBuf.getChannelData(0), R = audioBuf.getChannelData(1), N = 1024;
+      for (let i = 0; i < audioBuf.length; i += N) {
+        const m = Math.min(N, audioBuf.length - i), data = new Float32Array(m * 2);
+        data.set(L.subarray(i, i + m), 0); data.set(R.subarray(i, i + m), m);
+        const ad = new AudioData({ format: "f32-planar", sampleRate: 48000, numberOfFrames: m, numberOfChannels: 2, timestamp: Math.round(i / 48000 * 1e6), data });
+        aenc.encode(ad); ad.close();
+      }
+      await aenc.flush(); aenc.close();
+    }
+    const enc = new VideoEncoder({ output: (chunk, meta) => muxer.addVideoChunk(chunk, meta), error: e => { err = e; } });
+    enc.configure(ocfg);
+    recording = true; renderer.setSize(W, H, false);
+    const frames = Math.round((tB - tA) * fps), dtUs = 1e6 / fps;
+    seek(tA);
+    for (let i = 0; i < frames && !err && !derr; i++) {
+      const tt = tA + i / fps;
+      if (i > 0) stepRobot(tt, 1 / fps);
+      poseAll(tt);
+      await ensureDisp(tt);
+      renderFrame();
+      o.fillStyle = "#fff"; o.fillRect(0, 0, HQ.W, HQ.H);
+      o.drawImage(renderer.domElement, 0, 0, 870 * X2, 795 * X2);
+      o.fillStyle = "#F0F3F6"; o.fillRect(RX, 0, 870 * X2, 795 * X2);
+      o.drawImage(stand, RX + 333 * X2, 654 * X2, 215 * X2, 141 * X2);
+      o.drawImage(hw, RX + 40 * X2, 210 * X2, 791 * X2, 446 * X2);
+      const cf = await ctlAt(tt);
+      o.save(); o.beginPath(); o.roundRect(RX + 53 * X2, 216 * X2, 770 * X2, 433 * X2, 3 * X2); o.clip();
+      o.fillStyle = "#0A0F18"; o.fillRect(RX + 53 * X2, 216 * X2, 770 * X2, 433 * X2);
+      if (cf) o.drawImage(cf, RX + 53 * X2, 216 * X2, 770 * X2, 433 * X2);
+      o.restore();
+      const vf = new VideoFrame(out, { timestamp: Math.round(i * dtUs), duration: Math.round(dtUs) });
+      enc.encode(vf, { keyFrame: i % (fps * 2) === 0 }); vf.close();
+      if (enc.encodeQueueSize > 4 || i % 6 === 0) { note.textContent = `2/2 굽는 중 ${Math.round((i + 1) / frames * 100)}%`; await sleep(0); }
+    }
+    await enc.flush(); enc.close();
+    q.forEach(f => f.close()); try { dec.close(); } catch (e) {}
+    recording = false; renderer.setSize(PW, PH, false); dirty = true; seek(tA);
+    if (err || derr) { note.textContent = "굽기 실패: " + (err || derr).message; return; }
+    muxer.finalize();
+    download(new Blob([muxer.target.buffer], { type: "video/mp4" }), `KISTA_합친영상_${cur.id}${tag}_고화질_${stamp()}.mp4`);
+    note.textContent = `저장했어요 — 3520×1590${audioBuf ? " · 음성 포함" : ""}` + (devW < HQ.CW ? ` · 관제 화면은 창이 작아 ${devW}px 로 찍혀 조금 흐릴 수 있어요(창을 키우거나 F11)` : "");
+  }
+  document.getElementById("comboHQ").onclick = comboRecordHQ;
   function setPlayBtn() { const b = document.getElementById("btnPlay"); if (b) b.textContent = playing ? "❚❚ 멈춤" : "▶ 재생"; }
   tick();
   window.__ksReady = true;
