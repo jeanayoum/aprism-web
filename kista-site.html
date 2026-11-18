@@ -127,6 +127,7 @@
           <div style="display:grid;gap:6px">
             <label class="chk"><input type="checkbox" id="optGuide" checked> 슬라이드에서 가려지는 자리 표시</label>
             <label class="chk"><input type="checkbox" id="optActors" checked> 로봇 · 근로자 보이기</label>
+            <label class="chk"><input type="checkbox" id="optFollow" checked> 카메라가 로봇 · 근로자를 따라가며 크게</label>
             <label class="chk"><input type="checkbox" id="optOrbit"> 카메라 직접 돌려 보기</label>
           </div>
         </div>
@@ -137,7 +138,7 @@
             <label class="field">범위 <select id="recRange"></select></label>
             <label class="field"><select id="recFps"><option value="30">30fps</option><option value="60" selected>60fps</option></select></label>
           </div>
-          <label class="chk" style="margin-bottom:8px"><input type="checkbox" id="optDrift" checked> 카메라 천천히 밀기(달리)</label>
+          <label class="chk" style="margin-bottom:8px"><input type="checkbox" id="optDrift" checked> 카메라 천천히 밀기(달리) — 따라가기를 끈 때만</label>
           <div class="row">
             <button class="btn primary" id="btnRec" type="button">영상 녹화</button>
             <button class="btn" id="btnPng" type="button">정지 화면 PNG</button>
@@ -964,7 +965,7 @@
   }
 
   // 로봇 — SPOT 다리는 상태를 쌓아 가며 움직인다. 되감을 땐 처음부터 1/30초씩 다시 돌린다(가볍다)
-  let SEG = null, curT = 0, playing = false;
+  let SEG = null, curT = 0, playing = false, recording = false;
   function buildScene(id) {
     const sc = SCRIPT[id];
     SEG = { dur: sc.dur, st: sc.st, sign: sc.sign || [], robot: build(sc.robot) };
@@ -973,6 +974,7 @@
   function stepRobot(t, dt) { if (!spot) return; const s = placeOn(spot.group, SEG.robot, t, 0.8); spot.update(dt, s.mode || "idle"); }
   function poseAll(t) {
     for (const [h, k] of [[wkA, "a"], [wkB, "b"]]) { const w = SEG[k]; h.visible = !!w; if (w) poseWorker(h, w, t); }
+    placeCam(t);
     let sg = null; for (const [st, key] of SEG.sign) if (t >= st) sg = key; if (sg) setSign(sg);
     dirty = true;
   }
@@ -1015,6 +1017,72 @@
     camera.position.copy(camBase.pos).addScaledVector(dir, 0.06 * e).addScaledVector(side, 0.35 * (e - 0.5));
     camera.lookAt(camBase.target);
   }
+
+  /*
+   * 따라가기 — 장면 구도(카메라 방향 · 내려다보는 각)는 그대로 두고, 거리와 자리만 로봇 · 근로자에 맞춘다.
+   * 지금 앞뒤 1.2초 동안 배우들이 있는 범위(상자)를 모아 화면 안전 구역에 꽉 차게 넣는다 —
+   * 위 왼쪽 '작업현장' 칩, 아래 PPT 진행 바 자리는 비운다. 앞뒤를 같이 보니 카메라가 덜컥거리지 않고,
+   * 시각만으로 정해져 단계별로 끊어 녹화해도 이어 붙인 화면이 맞는다.
+   */
+  const SAFE = { x0: -0.86, x1: 0.86, y0: 1 - 2 * 760 / 795, y1: 1 - 2 * 92 / 795 };   // NDC — 아래 진행 바 · 위 칩 비움
+  const MIN_DIST = 3.2;   // 너무 붙지 않게(로봇 하나만 있을 때)
+  const MAX_K = 0.75, NEAR = 4.5;
+  function posAt(segs, t) { const s = segs[segAt(segs, t)], u = Math.min(1, Math.max(0, (t - s.t0) / s.d)); return [s.from[0] + (s.to[0] - s.from[0]) * u, s.from[1] + (s.to[1] - s.from[1]) * u]; }
+  function actorPoints(t) {   // 로봇에서 NEAR 보다 먼 근로자는 NEAR 원 위로 당겨 셈 — 다가올수록 이어서 화면에 들어온다(끊김 없음)
+    const pts = [];
+    const boxAt = (x, z, r, h) => { for (const dx of [-r, r]) for (const dz of [-r, r]) for (const y of [0, h]) pts.push(new THREE.Vector3(x + dx, y, z + dz)); };
+    for (let k = -4; k <= 4; k++) {
+      const tt = Math.min(SEG.dur, Math.max(0, t + k * 0.3));
+      const [rx, rz] = posAt(SEG.robot, tt);
+      if (spot) boxAt(rx, rz, 0.62, 0.98);
+      for (const key of ["a", "b"]) if (SEG[key]) { let [x, z] = posAt(SEG[key].segs, tt); const dd = Math.hypot(x - rx, z - rz); if (dd > NEAR) { x = rx + (x - rx) * NEAR / dd; z = rz + (z - rz) * NEAR / dd; } boxAt(x, z, 0.32, 1.86); }
+    }
+    return pts;
+  }
+  const _r = new THREE.Vector3(), _u = new THREE.Vector3(), _d = new THREE.Vector3(), _v = new THREE.Vector3();
+  function fitAt(t) {   // 거리 상한 = 장면 구도 거리의 75%
+    const cap = camBase.pos.distanceTo(camBase.target) * MAX_K, pts = actorPoints(t);
+    const f = fitPts(pts); return f.D > cap ? fitPts(pts, cap).p : f.p;
+  }
+  const _acc = new THREE.Vector3();
+  function followCam(t) {   // 앞뒤 0.6초 평균으로 한 번 더 다듬는다
+    _d.copy(camBase.target).sub(camBase.pos).normalize();
+    _r.crossVectors(_d, new THREE.Vector3(0, 1, 0)).normalize(); _u.crossVectors(_r, _d);
+    _acc.set(0, 0, 0); let n = 0;
+    for (let k = -3; k <= 3; k++) { _acc.add(fitAt(Math.min(SEG.dur, Math.max(0, t + k * 0.2)))); n++; }
+    _acc.divideScalar(n);
+    camera.position.copy(_acc); camera.lookAt(_acc.clone().add(_d));
+  }
+  function fitPts(pts, fixedD) {
+    const c = new THREE.Box3().setFromPoints(pts).getCenter(new THREE.Vector3());
+    const tx = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * camera.aspect, ty = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
+    // 거리 D 에서 자리를 옆 · 위로 옮겨(sx, sy) 범위를 안전 구역 가운데에 — 거리는 이분 탐색
+    const fit = (D) => {
+      let sx = 0, sy = 0, ok = true;
+      for (let it = 0; it < 4; it++) {
+        const p = c.clone().addScaledVector(_d, -D).addScaledVector(_r, sx).addScaledVector(_u, sy);
+        let xa = Infinity, xb = -Infinity, ya = Infinity, yb = -Infinity, dep = 0;
+        for (const q of pts) { _v.copy(q).sub(p); const z = _v.dot(_d); if (z < 0.3) { ok = false; break; } const nx = _v.dot(_r) / (z * tx), ny = _v.dot(_u) / (z * ty); xa = Math.min(xa, nx); xb = Math.max(xb, nx); ya = Math.min(ya, ny); yb = Math.max(yb, ny); dep += z; }
+        if (!ok) return { ok, p };
+        dep /= pts.length;
+        sx += ((xa + xb) / 2 - (SAFE.x0 + SAFE.x1) / 2) * dep * tx; sy += ((ya + yb) / 2 - (SAFE.y0 + SAFE.y1) / 2) * dep * ty;
+        ok = xb - xa <= SAFE.x1 - SAFE.x0 && yb - ya <= SAFE.y1 - SAFE.y0;
+      }
+      return { ok, p: c.clone().addScaledVector(_d, -D).addScaledVector(_r, sx).addScaledVector(_u, sy) };
+    };
+    if (fixedD) return { D: fixedD, p: fit(fixedD).p };
+    let lo = MIN_DIST, hi = 40, best = fit(hi), D = hi;
+    const f0 = fit(lo); if (f0.ok) { best = f0; D = lo; } else { for (let i = 0; i < 16; i++) { const mid = (lo + hi) / 2, f = fit(mid); if (f.ok) { hi = mid; best = f; D = mid; } else lo = mid; } }
+    return { D, p: best.p };
+  }
+  // 카메라 놓기 — 직접 돌리는 중이면 손대지 않는다
+  function placeCam(t) {
+    if (controls.enabled) return;
+    const fol = document.getElementById("optFollow");
+    if (!fol || fol.checked) followCam(t);
+    else if (recording && document.getElementById("optDrift")?.checked) driftAt(t / SEG.dur);
+    else { camera.position.copy(camBase.pos); camera.lookAt(camBase.target); }
+  }
   const scenesEl = document.getElementById("scenes"), stepsEl = document.getElementById("steps");
   function selectScene(id) {
     cur = SCENES.find(s => s.id === id) || SCENES[0];
@@ -1044,8 +1112,9 @@
   stage.classList.toggle("show-guide", $("optGuide").checked && !qs.has("clean"));
   $("optActors").onchange = e => { actors.visible = e.target.checked; dirty = true; };
   if (qs.get("actors") === "0") { actors.visible = false; $("optActors").checked = false; }
-  $("optOrbit").onchange = e => { controls.enabled = e.target.checked; if (!e.target.checked) applyCam(cur); };
-  $("btnCamReset").onclick = () => applyCam(cur);
+  $("optOrbit").onchange = e => { controls.enabled = e.target.checked; if (!e.target.checked) { applyCam(cur); placeCam(curT); } };
+  $("optFollow").onchange = () => { placeCam(curT); dirty = true; };
+  $("btnCamReset").onclick = () => { applyCam(cur); placeCam(curT); };
   const camStr = () => `pos: [${camera.position.toArray().map(v => v.toFixed(2)).join(", ")}], target: [${controls.target.toArray().map(v => v.toFixed(2)).join(", ")}], fov: ${camera.fov}`;
   $("btnCamCopy").onclick = () => navigator.clipboard?.writeText(`{ ${camStr()} }`);
 
@@ -1053,7 +1122,6 @@
    * WebCodecs(VideoEncoder) 로 한 프레임씩 굽고 mp4-muxer 로 MP4 를 만든다.
    * 프레임마다 시각을 박아 넣으므로 렌더가 느려도 영상은 정확히 30/60fps — 실시간 녹화(MediaRecorder)처럼 느려지지 않는다.
    * H.264 High 5.2(avc1.640034) — 1740×1590 이 들어가는 단계. PPT 에 바로 넣을 수 있다. */
-  let recording = false;
   function download(blob, name) { const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }
   const stamp = () => new Date().toISOString().slice(0, 16).replace(/[-:T]/g, "");
   const CODECS = ["avc1.640034", "avc1.640033", "avc1.4d0034"];
@@ -1088,7 +1156,6 @@
     for (let i = 0; i < frames && !err; i++) {
       const tt = tA + i / fps;
       // 달리는 장면 전체 길이 기준 — 단계별로 나눠 녹화해도 이어 붙이면 카메라가 끊기지 않는다
-      if (drift) driftAt(tt / SEG.dur); else applyCam(cur);
       if (i > 0) stepRobot(tt, 1 / fps);
       poseAll(tt);
       renderer.render(scene, camera);
