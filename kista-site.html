@@ -129,6 +129,7 @@
             <label class="chk"><input type="checkbox" id="optActors" checked> 로봇 · 근로자 보이기</label>
             <label class="chk"><input type="checkbox" id="optFollow" checked> 카메라가 로봇 · 근로자를 따라가며 크게</label>
             <label class="chk"><input type="checkbox" id="optHud" checked> 오른쪽 위에 로봇 디스플레이 크게(영상에도 들어감)</label>
+            <label class="chk"><input type="checkbox" id="optVoice" checked> 로봇 안내 음성(재생 · 녹화 MP4 에 들어감)</label>
             <label class="chk"><input type="checkbox" id="optOrbit"> 카메라 직접 돌려 보기</label>
           </div>
         </div>
@@ -896,12 +897,14 @@
   const SCRIPT = {
     // 대기 → 주변감지 → 사전 예고 → 저속 기립 → 기립완료. 도킹 앞을 지나던 근로자가 카운트다운에 물러나 지켜본다
     "1-1": { dur: 12, st: [0, 2, 4, 7, 10], sign: [[0, "standby"], [4, "cd3"], [5, "cd2"], [6, "cd1"], [7, "rising"], [10, "resume"]],
+      voice: [[4.1, "1-1-c"]],
       robot: { start: [-14.1, -5.0], face: Math.PI, segs: [{ d: 7, mode: "sit" }, { d: 5, mode: "idle" }] },
       a: { start: [-16.8, -2.2], helmet: true, segs: [
         { d: 3.0, clip: "walk", to: [-14.7, -3.4] }, { d: 1.4, clip: "idle", faceAt: [-14.1, -5.0] },
         { d: 1.6, clip: "walkBack", to: [-14.9, -1.9], back: true }, { d: 6.0, clip: "idle", faceAt: [-14.1, -5.0] }] } },
     // 근로자와 만남 → 전방 근로자 감지 → 감속 및 접근 예고 → 정지 후 이동 의사 표현 → 임무재개
-    "1-2": { dur: 12, st: [0, 2.4, 4.8, 7.2, 9.6], sign: [[0, "patrol"], [2.4, "person"], [7.6, "yield"], [10.8, "resume"]],
+    "1-2": { dur: 12, st: [0, 2.4, 4.8, 7.2, 9.6], sign: [[0, "patrol"], [2.4, "person"], [4.8, "yield"], [8.7, "resume"]],
+      voice: [[4.9, "1-2-c"], [8.7, "1-2-d"]],
       robot: { start: [-11.4, 0.5], face: E_, segs: [
         { d: 4.8, mode: "walk", to: [-8.9, 0.5] }, { d: 1.8, mode: "walk", to: [-8.2, 0.5] },
         { d: 1.0, mode: "walk", to: [-7.9, 1.1], face: E_ }, { d: 3.2, mode: "idle", face: E_ }, { d: 1.2, mode: "walk", to: [-7.3, 1.1] }] },
@@ -909,36 +912,45 @@
         { d: 3.0, clip: "walk", to: [-5.2, -0.5] }, { d: 4.4, clip: "idle" }, { d: 1.4, clip: "nod" },
         { d: 3.2, clip: "walk", to: [-9.8, -0.6] }] } },
     // 미착용 근로자 감지 → 감속·정지 및 착용 안내 → 착용대기(못 듣고 작업 계속) → 미조치 시 연결(관제 통화) → 확인 후 임무 재개(안전모 씀)
-    "2-1": { dur: 14, st: [0, 2.8, 5.6, 8.4, 11.2], sign: [[0, "patrol"], [2.8, "helmet"], [8.4, "call"], [11.2, "checked"]],
+    // (11/18 음성) 관제 통화 · 착용 확인 · 이동 재개 음성이 겹치지 않게 14 → 18초. 안전모 쓰는 때 11.2 → 12.0
+    "2-1": { dur: 18, st: [0, 2.8, 5.6, 8.4, 12.0], sign: [[0, "patrol"], [2.8, "helmet"], [8.4, "call"], [12.0, "checked"]],
+      voice: [[0.3, "2-1-a"], [3.0, "2-1-b"], [8.5, "2-1-d"], [12.1, "2-1-c"], [15.9, "2-1-e"]],
       robot: { start: [1.2, 0.2], face: W_, segs: [
         { d: 2.8, mode: "walk", to: [-1.6, -0.4] }, { d: 1.4, mode: "walk", to: [-2.6, -1.6] },
-        { d: 7.0, mode: "idle", faceAt: [-5.0, -5.2] }, { d: 2.8, mode: "walk", to: [-6.2, -0.6] }] },
-      b: { start: [-5.0, -5.2], face: 0, helmet: false, ev: [[11.2, true]], segs: [
+        { d: 11.6, mode: "idle", faceAt: [-5.0, -5.2] }, { d: 2.2, mode: "walk", to: [-5.6, -0.6] }] },
+      b: { start: [-5.0, -5.2], face: 0, helmet: false, ev: [[12.0, true]], segs: [
         { d: 3.6, clip: "idle" }, { d: 2.0, clip: "idle", faceAt: [-2.6, -1.6], turn: 0.9 }, { d: 2.8, clip: "idle", face: 0, turn: 0.9 },
-        { d: 2.8, clip: "phone", off: 2.0 }, { d: 1.4, clip: "nod", faceAt: [-2.6, -1.6], turn: 0.6 }, { d: 1.4, clip: "idle", face: 0 }] } },
+        { d: 3.6, clip: "phone", off: 2.0 }, { d: 1.4, clip: "nod", faceAt: [-2.6, -1.6], turn: 0.6 }, { d: 4.6, clip: "idle", face: 0 }] } },
     // 정지 및 정밀 확인 → 이상 감지 및 판단 → 작업자 우회 안내 → 현장 조치 및 상태 안내 → 임무 복귀
     "2-2": { dur: 14, st: [0, 2.8, 5.6, 8.4, 11.2], sign: [[0, "inspect"], [2.8, "danger"], [11.2, "resume"]],
+      voice: [[0.3, "2-2-a"], [5.7, "2-2-c"], [11.3, "2-2-e"]],
       robot: { start: [9.0, -0.9], segs: [{ d: 11.2, mode: "inspect", faceAt: [13.0, -4.0] }, { d: 2.8, mode: "walk", to: [7.0, -0.2] }] },
       a: { start: [17.6, 3.4], helmet: true, segs: [
         { d: 5.6, clip: "walk", to: [12.8, -1.2] }, { d: 1.6, clip: "react", faceAt: [9.0, -0.9] },
         { d: 1.2, clip: "walkBack", to: [13.2, 0.4], back: true }, { d: 1.0, clip: "idle", faceAt: [9.0, -0.9] },
         { d: 1.4, clip: "walk", to: [12.6, 2.6] }, { d: 3.2, clip: "walk", to: [8.4, 2.6] }] } },
     // 배터리 부족 → 복귀 가능성 계산 → 복귀 의사 예고 → 저속 자율 복귀 → 충전 시작(도킹 02)
-    "3-1": { dur: 18, st: [0, 2.4, 4.8, 7.2, 15.6], sign: [[0, "bat20"], [4.8, "goDock"], [15.6, "charging"]],
+    // (11/18 음성) 1 · 2 · 3단계 음성(2.6 · 4.2 · 5.2초)이 겹치지 않게 18 → 24초. 4단계 음성은 표에 '근로자가 가까울 때만' — 이 장면엔 없어 뺌
+    "3-1": { dur: 24, st: [0, 3.0, 7.3, 12.6, 21.0], sign: [[0, "bat20"], [7.3, "goDock"], [21.0, "charging"]],
+      voice: [[0.2, "3-1-a"], [3.0, "3-1-b"], [7.3, "3-1-c"], [21.1, "3-1-e"]],
       robot: { start: [-8.6, 0.2], face: W_, segs: [
-        { d: 7.2, mode: "idle" }, { d: 4.0, mode: "walk", to: [-11.6, -1.4] }, { d: 1.8, mode: "walk", to: [-11.6, -3.3] },
+        { d: 12.6, mode: "idle" }, { d: 4.0, mode: "walk", to: [-11.6, -1.4] }, { d: 1.8, mode: "walk", to: [-11.6, -3.3] },
         // 도킹은 QR 을 등지고 앉는다 — 돌아선 뒤 뒤로 걸어 들어간다
-        { d: 1.0, mode: "idle", face: Math.PI, turn: 1.0 }, { d: 1.6, mode: "walk", to: [-11.6, -5.0], face: Math.PI }, { d: 2.4, mode: "sit" }] } },
+        { d: 1.0, mode: "idle", face: Math.PI, turn: 1.0 }, { d: 1.6, mode: "walk", to: [-11.6, -5.0], face: Math.PI }, { d: 3.0, mode: "sit" }] } },
     // 배터리 20% 이하 → 통로 가장자리 이동 후 정지 → 접근금지 우회 안내(지나는 근로자 A) → 회수 담당자 호출(B 통화) → 회수 완료 처리(B 가 옆에 앉아 확인)
-    "3-2": { dur: 18, st: [0, 3, 6, 9, 12], sign: [[0, "bat20"], [6, "noReturn"], [9, "calling"], [16.8, "recovered"]],
-      robot: { start: [6.2, 0.3], face: W_, segs: [
-        { d: 3.0, mode: "walk", to: [4.0, 0.3] }, { d: 2.2, mode: "walk", to: [2.6, -1.1] }, { d: 0.8, mode: "idle", face: W_ }, { d: 12, mode: "sit" }] },
+    // (11/18 음성) 1 · 2단계 음성(6.0 · 5.1초)이 길어 18 → 26초. 1단계에 주행을 멈추고, 2단계에 가장자리로 옮겨 앉는다.
+    // 3단계 음성은 표에 '사람이 접근할 때만' — 근로자 A 가 다가올 때. 4단계 음성은 회수 담당자 B 가 도착했을 때
+    "3-2": { dur: 26, st: [0, 6.4, 11.6, 16.0, 22.0], sign: [[0, "bat20"], [6.4, "noReturn"], [16.0, "calling"], [24.8, "recovered"]],
+      voice: [[0.2, "3-2-a"], [6.4, "3-2-b"], [11.7, "3-2-c"], [21.7, "3-2-d"]],
+      robot: { start: [6.4, 0.3], face: W_, segs: [
+        { d: 1.6, mode: "walk", to: [5.2, 0.3] }, { d: 4.8, mode: "idle", face: W_ }, { d: 3.0, mode: "walk", to: [2.6, -1.1] },
+        { d: 0.8, mode: "idle", face: W_ }, { d: 15.8, mode: "sit" }] },
       a: { start: [-6.5, 0.4], helmet: true, segs: [
-        { d: 6.2, clip: "walk", to: [1.0, 0.5] }, { d: 1.4, clip: "walk", to: [3.0, 1.4] }, { d: 2.6, clip: "walk", to: [6.2, 1.3] },
-        { d: 4.4, clip: "walk", to: [11.5, 0.8] }, { d: 3.4, clip: "idle" }] },
+        { d: 6.0, clip: "idle", face: E_ }, { d: 6.2, clip: "walk", to: [1.0, 0.5] }, { d: 1.4, clip: "walk", to: [3.0, 1.4] }, { d: 2.6, clip: "walk", to: [6.2, 1.3] },
+        { d: 4.4, clip: "walk", to: [11.5, 0.8] }, { d: 5.4, clip: "idle" }] },
       b: { start: [-1.8, 2.8], face: E_, helmet: true, segs: [
-        { d: 9.0, clip: "idle" }, { d: 2.0, clip: "phone", off: 1.0 }, { d: 3.6, clip: "walk", to: [2.2, -0.2] },
-        { d: 2.4, clip: "kneelDown", faceAt: [2.6, -1.1] }, { d: 1.0, clip: "kneel" }] } },
+        { d: 16.0, clip: "idle" }, { d: 2.0, clip: "phone", off: 1.0 }, { d: 3.6, clip: "walk", to: [2.2, -0.2] },
+        { d: 2.4, clip: "kneelDown", faceAt: [2.6, -1.1] }, { d: 2.0, clip: "kneel" }] } },
   };
 
   /* ================= 조명 · 바닥 투사(LIGHT) =================
@@ -972,11 +984,11 @@
       { t: [9.6, 12], k: "arrows", fwd: 2.6, c: "T" }] },
     // 1. [상태] 작업자 방향으로 황색 조명 / 2. [상태][투사] 황색 바닥 안전모 픽토그램 / 3-1. 확인되면 하늘색으로
     // 3-2. [상태][투사] 황색 아이콘 유지 / 4. [상태][투사] 황색 → 청록, 이동 방향 표시
-    "2-1": { body: [[0, 11.2, "Y"], [11.2, 12.4, "S"], [12.4, 14, "T"]], fx: [
+    "2-1": { body: [[0, 12.0, "Y"], [12.0, 15.8, "S"], [15.8, 18, "T"]], fx: [
       { t: [0, 2.8], k: "fan", toward: "b", c: "Y" },
-      { t: [2.8, 11.2], k: "icon", icon: "helmet", fwd: 1.3, size: 1.3, c: "Y" },
-      { t: [11.2, 12.4], k: "icon", icon: "check", fwd: 1.3, size: 1.3, c: "S" },
-      { t: [12.4, 14], k: "arrows", fwd: 2.4, c: "T" }] },
+      { t: [2.8, 12.0], k: "icon", icon: "helmet", fwd: 1.3, size: 1.3, c: "Y" },
+      { t: [12.0, 15.8], k: "icon", icon: "check", fwd: 1.3, size: 1.3, c: "S" },
+      { t: [15.8, 18], k: "arrows", fwd: 2.4, c: "T" }] },
     // 1. [투사] 흰색으로 이상 지점 점등 / 2. [투사][상태] 붉은색으로 이상 지점 주변 감지 반경 / 3. 적색 지속 + 근로자 우회 통로 초록
     // 4. - / 5. [상태] 적색 해제 후 청록 정상
     "2-2": { body: [[0, 2.8, "W"], [2.8, 11.2, "R"], [11.2, 14, "T"]], fx: [
@@ -988,10 +1000,10 @@
       { t: [5.6, 8.4], k: "arrows", path: [[13.2, 0.4], [12.6, 2.6], [8.4, 2.6]], c: "G" },
       { t: [11.2, 14], k: "arrows", fwd: 2.4, c: "T" }] },
     // 조명 1~4. 앞쪽 배터리 표기 황색 / 5. 배터리 잔량만큼. 라이팅 3 · 4. [투사] 이동경로 화살표 / 5. 복귀 중 황색 점멸 종료
-    "3-1": { body: [[0, 7.2, "Y"], [7.2, 15.6, "Y", "blink"], [15.6, 18, "G", "level", 0.4]], fx: [
-      { t: [4.8, 15.6], k: "arrows", path: [[-8.6, 0.2], [-11.6, -1.4], [-11.6, -3.3], [-11.6, -4.5]], c: "T" }] },
+    "3-1": { body: [[0, 12.6, "Y"], [12.6, 21.0, "Y", "blink"], [21.0, 24, "G", "level", 0.4]], fx: [
+      { t: [7.3, 21.0], k: "arrows", path: [[-8.6, 0.2], [-11.6, -1.4], [-11.6, -3.3], [-11.6, -4.5]], c: "T" }] },
     // 조명 1~4. 앞쪽 배터리 표기 적색 / 5. off. 라이팅 '-'
-    "3-2": { body: [[0, 16.8, "R"]], fx: [] },
+    "3-2": { body: [[0, 24.8, "R"]], fx: [] },
   };
 
   // --- 바닥 투사 그리기 재료(흰 그림 + 재질 색) ---
@@ -1157,7 +1169,7 @@
   let SEG = null, curT = 0, playing = false, recording = false;
   function buildScene(id) {
     const sc = SCRIPT[id];
-    SEG = { dur: sc.dur, st: sc.st, sign: sc.sign || [], robot: build(sc.robot) };
+    SEG = { dur: sc.dur, st: sc.st, sign: sc.sign || [], voice: sc.voice || [], robot: build(sc.robot) };
     for (const k of ["a", "b"]) SEG[k] = sc[k] ? { ...sc[k], segs: build(sc[k]) } : null;
   }
   function stepRobot(t, dt) { if (!spot) return; const s = placeOn(spot.group, SEG.robot, t, 0.8); spot.update(dt, s.mode || "idle"); }
@@ -1187,7 +1199,7 @@
   function playStep(i) {
     if (recording) return;
     playEnd = SEG.st[i + 1] ?? SEG.dur;
-    seek(SEG.st[i]); playing = true; lastTs = performance.now(); setPlayBtn();
+    seek(SEG.st[i]); startPlay();
     const rr = document.getElementById("recRange"); if (rr) rr.value = String(i);
   }
 
@@ -1292,7 +1304,7 @@
   function selectScene(id) {
     cur = SCENES.find(s => s.id === id) || SCENES[0];
     [...scenesEl.children].forEach(b => b.setAttribute("aria-pressed", String(b.dataset.id === cur.id)));
-    buildScene(cur.id); playing = false; setPlayBtn();
+    buildScene(cur.id); playing = false; playEnd = null; stopVoices(); setPlayBtn();
     stepsEl.innerHTML = cur.steps.map((s, i) => `<li data-i="${i}">${s}<small>${SEG.st[i].toFixed(1)}초~</small></li>`).join("");
     [...stepsEl.children].forEach(li => li.onclick = () => playStep(+li.dataset.i));
     const bar = document.getElementById("stepbar");
@@ -1344,7 +1356,7 @@
   $("btnRec").onclick = async () => {
     if (recording) return;
     const fps = +$("recFps").value, rv = $("recRange").value;
-    playing = false; setPlayBtn();
+    stopPlay();
     // 범위 — 전체, 또는 PPT 단계 하나(그 단계 시작 ~ 다음 단계 시작)
     const tA = rv === "all" ? 0 : SEG.st[+rv], tB = rv === "all" ? SEG.dur : (SEG.st[+rv + 1] ?? SEG.dur);
     const sec = tB - tA;
@@ -1353,8 +1365,26 @@
     recording = true; controls.enabled = false; $("optOrbit").checked = false; applyCam(cur);
     renderer.setSize(W, H, false);
     stage.classList.add("recording"); $("btnRec").disabled = true;
-    const muxer = new Muxer({ target: new ArrayBufferTarget(), video: { codec: "avc", width: W, height: H, frameRate: fps }, fastStart: "in-memory" });
+    // 음성 — 이 구간에 음성이 있고 AAC 를 구울 수 있으면 MP4 에 음성 트랙을 넣는다
+    let audioBuf = null, acfg = { codec: "mp4a.40.2", sampleRate: 48000, numberOfChannels: 2, bitrate: 128000 };
+    if ($("optVoice").checked && SEG.voice.some(([ts, k]) => ts < tB && ts + (vbuf[k]?.duration ?? 6) > tA) && window.AudioEncoder) {
+      try { if ((await AudioEncoder.isConfigSupported(acfg)).supported) audioBuf = await mixVoices(tA, tB); } catch (e) { console.warn("음성 굽기 불가", e); }
+    }
+    const muxer = new Muxer({ target: new ArrayBufferTarget(), video: { codec: "avc", width: W, height: H, frameRate: fps },
+      ...(audioBuf ? { audio: { codec: "aac", sampleRate: 48000, numberOfChannels: 2 } } : {}), fastStart: "in-memory" });
     let err = null;
+    if (audioBuf) {
+      const aenc = new AudioEncoder({ output: (chunk, meta) => muxer.addAudioChunk(chunk, meta), error: e => { err = e; } });
+      aenc.configure(acfg);
+      const L = audioBuf.getChannelData(0), R = audioBuf.getChannelData(1), N = 1024;
+      for (let i = 0; i < audioBuf.length; i += N) {
+        const m = Math.min(N, audioBuf.length - i), data = new Float32Array(m * 2);
+        data.set(L.subarray(i, i + m), 0); data.set(R.subarray(i, i + m), m);
+        const ad = new AudioData({ format: "f32-planar", sampleRate: 48000, numberOfFrames: m, numberOfChannels: 2, timestamp: Math.round(i / 48000 * 1e6), data });
+        aenc.encode(ad); ad.close();
+      }
+      await aenc.flush(); aenc.close();
+    }
     const enc = new VideoEncoder({ output: (chunk, meta) => muxer.addVideoChunk(chunk, meta), error: e => { err = e; } });
     enc.configure(cfg);
     const frames = Math.round(sec * fps), dtUs = 1e6 / fps, drift = $("optDrift").checked;
@@ -1378,6 +1408,7 @@
     applyCam(cur);
     if (err) { $("recNote").textContent = "녹화 실패: " + err.message; return; }
     muxer.finalize();
+    $("recNote").textContent = audioBuf ? "MP4(H.264 + AAC 음성) · 1740×1590" : "MP4(H.264) · 1740×1590 — 이 구간엔 음성이 없거나 음성을 구울 수 없는 브라우저";
     seek(tA);
     download(new Blob([muxer.target.buffer], { type: "video/mp4" }), `KISTA_작업현장_${cur.id}${rv === "all" ? "" : "_" + (+rv + 1) + "단계"}_${stamp()}.mp4`);
   };
@@ -1390,19 +1421,20 @@
   // 재생 중에만 매 프레임 그린다(1배 크기). 멈추면 바뀐 게 있을 때만
   $("btnPlay").onclick = () => {
     if (recording) return;
-    playing = !playing; playEnd = null;
-    if (playing && curT >= SEG.dur - 0.05) seek(0);
-    lastTs = performance.now(); setPlayBtn();
+    if (playing) { stopPlay(); return; }
+    playEnd = null;
+    if (curT >= SEG.dur - 0.05) seek(0);
+    startPlay();
   };
   const camOut = $("camOut");
   let lastCamTxt = "", lastTs = performance.now();
   function tick(now) {
     if (!recording) {   // 녹화 중에는 녹화 루프가 직접 그린다
-      if (playing) {
-        const dt = Math.min(0.05, ((now ?? performance.now()) - lastTs) / 1000);
+      if (playing) {   // 벽시계 기준(음성과 같은 시계) — 프레임이 밀려도 소리와 어긋나지 않는다
         const end = playEnd ?? SEG.dur;
-        curT = Math.min(end, curT + dt);
-        stepRobot(curT, dt); poseAll(curT); showT();
+        const nt = Math.min(end, playT0 + ((now ?? performance.now()) - playWall0) / 1000), dt = Math.max(0, nt - curT);
+        curT = nt;
+        if (dt > 0.2) seek(curT); else { stepRobot(curT, dt); poseAll(curT); showT(); }
         if (curT >= end) { playing = false; playEnd = null; setPlayBtn(); }
       }
       lastTs = now ?? performance.now();
@@ -1413,6 +1445,50 @@
       }
     }
     requestAnimationFrame(tick);
+  }
+  /* ================= 음성 =================
+   * 클로바 음성(assets/source/kista_음성_클로바_대성ver → assets/audio/kista/<장면>-<단계 a~e>.mp3). 장면 SCRIPT 의 voice 시각에 낸다.
+   * 미리보기: Web Audio 로 재생 시작 때 한 번에 예약(재생 중간부터면 그 지점부터). 녹화: 같은 시각표를 OfflineAudioContext 로
+   * 섞어 AAC 로 구워 MP4 음성 트랙에 넣는다(PPT 에서 영상과 같이 나온다).
+   */
+  // var — 장면을 처음 고를 때(이 줄보다 먼저 실행) stopVoices 가 불려도 오류 나지 않게
+  var actx = null, playT0 = 0, playWall0 = 0, vbuf = {}, vsrc = [];
+  async function loadVoices() {
+    if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+    const keys = new Set(); for (const sc of Object.values(SCRIPT)) for (const [, k] of sc.voice || []) keys.add(k);
+    await Promise.all([...keys].map(async k => {
+      if (vbuf[k]) return;
+      try { const ab = await (await fetch(`./assets/audio/kista/${k}.mp3?v=1`)).arrayBuffer(); vbuf[k] = await actx.decodeAudioData(ab); } catch (e) { console.warn("음성", k, e); }
+    }));
+  }
+  function stopVoices() { while (vsrc && vsrc.length) { try { vsrc.pop().stop(); } catch (e) {} } }
+  function startVoices(t0, t1) {
+    stopVoices();
+    if (!actx || !document.getElementById("optVoice")?.checked) return;
+    actx.resume();
+    const now = actx.currentTime + 0.03;
+    for (const [ts, k] of SEG.voice) {
+      const b = vbuf[k]; if (!b || ts + b.duration <= t0 || ts >= t1) continue;
+      const off = Math.max(0, t0 - ts), when = now + Math.max(0, ts - t0), len = Math.min(b.duration - off, t1 - Math.max(ts, t0));
+      if (len <= 0) continue;
+      const src = actx.createBufferSource(); src.buffer = b; src.connect(actx.destination); src.start(when, off, len); vsrc.push(src);
+    }
+  }
+  function startPlay() {
+    playing = true; playT0 = curT; playWall0 = performance.now() + 30; setPlayBtn();
+    loadVoices().then(() => { if (playing) { playT0 = curT; playWall0 = performance.now() + 30; startVoices(curT, playEnd ?? SEG.dur); } });
+  }
+  function stopPlay() { playing = false; playEnd = null; stopVoices(); setPlayBtn(); }
+  // 녹화용 — [tA, tB) 구간 음성을 48kHz 스테레오로 섞는다
+  async function mixVoices(tA, tB) {
+    await loadVoices();
+    const SR = 48000, n = Math.max(1, Math.round((tB - tA) * SR)), oc = new OfflineAudioContext(2, n, SR);
+    for (const [ts, k] of SEG.voice) {
+      const b = vbuf[k]; if (!b || ts + b.duration <= tA || ts >= tB) continue;
+      const off = Math.max(0, tA - ts), when = Math.max(0, ts - tA), len = Math.min(b.duration - off, tB - Math.max(ts, tA));
+      const src = oc.createBufferSource(); src.buffer = b; src.connect(oc.destination); src.start(when, off, len);
+    }
+    return oc.startRendering();
   }
   function setPlayBtn() { const b = document.getElementById("btnPlay"); if (b) b.textContent = playing ? "❚❚ 멈춤" : "▶ 재생"; }
   tick();
