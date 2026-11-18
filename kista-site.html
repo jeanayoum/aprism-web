@@ -417,7 +417,8 @@
   // 통로 가운데 진행 방향 화살표
   const arrowTex = canvasTex(256, 128, (g, w, h) => { g.fillStyle = "rgba(240,190,30,.9)"; g.beginPath(); g.moveTo(10, 44); g.lineTo(160, 44); g.lineTo(160, 14); g.lineTo(246, 64); g.lineTo(160, 114); g.lineTo(160, 84); g.lineTo(10, 84); g.closePath(); g.fill();
     g.globalCompositeOperation = "destination-out"; speckle(g, w, h, 300, ["rgba(0,0,0,.4)"], 3); });
-  for (const x of [-12, -6, 6, 12]) { decal(arrowTex, 1.4, 0.7, x, -0.7, 0, 0.006); decal(arrowTex, 1.4, 0.7, x + 2, 0.7, Math.PI, 0.006); }
+  // 오른쪽 통행 — 북쪽 차선(z<0)은 서쪽, 남쪽 차선(z>0)은 동쪽(11/18: 반대로 칠해 로봇 · 근로자 진행 방향과 어긋났다)
+  for (const x of [-12, -6, 6, 12]) { decal(arrowTex, 1.4, 0.7, x, -0.7, Math.PI, 0.006); decal(arrowTex, 1.4, 0.7, x + 2, 0.7, 0, 0.006); }
   // 횡단보도 — 통로를 가로질러 MCC 반으로
   for (let i = 0; i < 6; i++) decal(null, 0.3, 3.0, -4.6 + i * 0.6 - 1.5, 0, 0, 0.006, M.lineW);
 
@@ -984,7 +985,7 @@
     // (11/18 음성) 1 · 2 · 3단계 음성(2.6 · 4.2 · 5.2초)이 겹치지 않게 18 → 24초. 4단계 음성은 표에 '근로자가 가까울 때만' — 이 장면엔 없어 뺌
     "3-1": { dur: 24, st: [0, 3.0, 7.3, 12.6, 21.0], sign: [[0, "bat20"], [7.3, "goDock"], [21.0, "charging"]],
       voice: [[0.2, "3-1-a"], [3.0, "3-1-b"], [7.3, "3-1-c"], [21.1, "3-1-e"]],
-      robot: { start: [-8.6, 0.2], face: W_, segs: [
+      robot: { start: [-8.6, -0.5], face: W_, segs: [
         { d: 12.6, mode: "idle" }, { d: 4.0, mode: "walk", to: [-11.6, -1.4] }, { d: 1.8, mode: "walk", to: [-11.6, -3.3] },
         // 도킹은 QR 을 등지고 앉는다 — 돌아선 뒤 뒤로 걸어 들어간다
         { d: 1.0, mode: "idle", face: Math.PI, turn: 1.0 }, { d: 1.6, mode: "walk", to: [-11.6, -5.0], face: Math.PI }, { d: 3.0, mode: "sit" }] } },
@@ -993,8 +994,8 @@
     // 3단계 음성은 표에 '사람이 접근할 때만' — 근로자 A 가 다가올 때. 4단계 음성은 회수 담당자 B 가 도착했을 때
     "3-2": { dur: 26, st: [0, 6.4, 11.6, 16.0, 22.0], sign: [[0, "bat20"], [6.4, "noReturn"], [16.0, "calling"], [24.8, "recovered"]],
       voice: [[0.2, "3-2-a"], [6.4, "3-2-b"], [11.7, "3-2-c"], [21.7, "3-2-d"]],
-      robot: { start: [6.4, 0.3], face: W_, segs: [
-        { d: 1.6, mode: "walk", to: [5.2, 0.3] }, { d: 4.8, mode: "idle", face: W_ }, { d: 3.0, mode: "walk", to: [2.6, -1.1] },
+      robot: { start: [6.4, -0.5], face: W_, segs: [
+        { d: 1.6, mode: "walk", to: [5.2, -0.5] }, { d: 4.8, mode: "idle", face: W_ }, { d: 3.0, mode: "walk", to: [2.6, -1.1] },
         { d: 0.8, mode: "idle", face: W_ }, { d: 15.8, mode: "sit" }] },
       a: { start: [-6.5, 0.4], helmet: true, segs: [
         { d: 6.0, clip: "idle", face: E_ }, { d: 6.2, clip: "walk", to: [1.0, 0.5] }, { d: 1.4, clip: "walk", to: [3.0, 1.4] }, { d: 2.6, clip: "walk", to: [6.2, 1.3] },
@@ -1043,7 +1044,7 @@
     // 자율 복귀는 v7 처럼 회색. 도킹해 앉으면(21초) 끈다 — v7 도 도킹 중엔 호를 숨긴다
     "3-1": { body: [[0, 12.6, "Y"], [12.6, 21.0, "Y", "blink"], [21.0, 24, "G", "level", 0.4]],
       halo: [[0, 7.3, "Y", "stand"], [7.3, 12.6, "Y", "stand", { aim: [-11.6, -1.4] }], [12.6, 21.0, "N", "walk"]], fx: [
-      { t: [7.3, 21.0], k: "arrows", path: [[-8.6, 0.2], [-11.6, -1.4], [-11.6, -3.3], [-11.6, -4.5]], c: "T" }] },
+      { t: [7.3, 21.0], k: "arrows", path: [[-8.6, -0.5], [-11.6, -1.4], [-11.6, -3.3], [-11.6, -4.5]], c: "T" }] },
     // 위험(자율복귀 불가)은 빨강 — 걷는 동안 점멸, 멈추면 켠 채. 5단계 22초 '전원 꺼짐'에 같이 끈다
     "3-2": { body: [[0, 22.0, "R"]],
       halo: [[0, 1.6, "R", "walk"], [1.6, 6.4, "R", "stand"], [6.4, 9.4, "R", "walk"], [9.4, 22.0, "R", "stand"]], fx: [] },
@@ -1061,12 +1062,13 @@
       g.beginPath(); g.arc(128, 128, 112, 0, 7); g.stroke();
       if (kind === "helmet") { g.beginPath(); g.arc(128, 150, 62, Math.PI, 0); g.closePath(); g.fill(); g.fillRect(48, 150, 160, 18); g.fillRect(120, 78, 16, 30); }
       else if (kind === "check") { g.lineWidth = 22; g.beginPath(); g.moveTo(74, 132); g.lineTo(112, 170); g.lineTo(184, 92); g.stroke(); }
+      else if (kind === "arrow") { g.beginPath(); g.moveTo(128, 46); g.lineTo(196, 124); g.lineTo(152, 124); g.lineTo(152, 206); g.lineTo(104, 206); g.lineTo(104, 124); g.lineTo(60, 124); g.closePath(); g.fill(); }   // 위(=진행 방향)를 가리킨다
       else if (kind === "warn") { g.beginPath(); g.moveTo(128, 50); g.lineTo(206, 186); g.lineTo(50, 186); g.closePath(); g.fill(); g.globalCompositeOperation = "destination-out"; g.fillRect(118, 92, 20, 56); g.fillRect(118, 158, 20, 18); }
     }, { repeat: [1, 1] });
   }
   for (const t of Object.values(fxTex)) t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
   fxTex.chev.wrapS = THREE.RepeatWrapping;
-  const ICONS = { helmet: iconTex("helmet"), check: iconTex("check"), warn: iconTex("warn") };
+  const ICONS = { helmet: iconTex("helmet"), check: iconTex("check"), warn: iconTex("warn"), arrow: iconTex("arrow") };
   for (const t of Object.values(ICONS)) t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
   const fxMat = (map, add) => new THREE.MeshBasicMaterial({ map, color: 0xffffff, transparent: true, opacity: 1, depthWrite: false, toneMapped: false,
     blending: add ? THREE.AdditiveBlending : THREE.NormalBlending, polygonOffset: true, polygonOffsetFactor: -6 });
@@ -1078,7 +1080,7 @@
   for (let i = 0; i < 3; i++) POOL.arc.push(flat(new THREE.RingGeometry(0.9, 1, 32, 1, Math.PI / 2 - (i + 1) * 2 * Math.PI / 3 + 0.07, 2 * Math.PI / 3 - 0.14), fxMat(null)));
   for (let i = 0; i < 3; i++) POOL.glow.push(flat(new THREE.PlaneGeometry(2, 2), fxMat(fxTex.glow, true)));
   for (let i = 0; i < 6; i++) { const tx = fxTex.chev.clone(); tx.needsUpdate = true; POOL.strip.push(flat(new THREE.PlaneGeometry(1, 1), fxMat(tx))); }
-  for (let i = 0; i < 2; i++) POOL.icon.push(flat(new THREE.PlaneGeometry(1, 1), fxMat(ICONS.helmet)));
+  for (let i = 0; i < 6; i++) POOL.icon.push(flat(new THREE.PlaneGeometry(1, 1), fxMat(ICONS.helmet)));
   POOL.fan.push(flat(new THREE.PlaneGeometry(1, 1), fxMat(fxTex.fan, true)));
   const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.32, 1, 24, 1, true), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.22, depthWrite: false, toneMapped: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
   beam.visible = false; FX.add(beam);
@@ -1197,12 +1199,14 @@
         if (f.fwd) pts = [[rp.x + rp.fx * 0.75, rp.z + rp.fz * 0.75], [rp.x + rp.fx * (0.75 + f.fwd), rp.z + rp.fz * (0.75 + f.fwd)]];
         else if (f.worker) { const w = SEG[f.worker]; if (!w) continue; const [wx, wz] = posAt(w.segs, t); pts = [[wx + f.dir[0] * 0.6, wz + f.dir[1] * 0.6], [wx + f.dir[0] * (0.6 + f.len), wz + f.dir[1] * (0.6 + f.len)]]; }
         else pts = f.path;
-        for (let i = 0; i < pts.length - 1; i++) {
-          const [x0, z0] = pts[i], [x1, z1] = pts[i + 1], len = Math.hypot(x1 - x0, z1 - z0), WA = 0.55;
-          // 판의 +x(화살 끝 방향)를 진행 방향으로: yaw 는 +x 가 (dx, dz) 를 향하게
-          const m = put(take("strip"), (x0 + x1) / 2, (z0 + z1) / 2, len, WA, Math.atan2(-(z1 - z0), x1 - x0), a * 0.9);
-          if (!m) break;
-          m.material.map.repeat.set(len / (WA * 2), 1); m.material.map.offset.x = -(t * 0.9) / (WA * 2);   // 앞으로 흐른다
+        // (11/18) 길게 깐 화살표 대신 안전모 표지와 같은 꼴 — 동그라미 안 화살표. 근로자 쪽은 근로자 앞에 하나,
+        //   경로는 꺾이는 지점마다 하나씩 다음 지점을 가리킨다. 그림 위(화살 끝)가 진행 방향 → yaw = atan2(-dx, -dz)
+        const marks = f.worker ? [[pts[0][0] + f.dir[0] * 0.6, pts[0][1] + f.dir[1] * 0.6, f.dir[0], f.dir[1]]]
+          : pts.slice(0, -1).map((p, i) => { const q = pts[i + 1], dx = q[0] - p[0], dz = q[1] - p[1], d = Math.hypot(dx, dz) || 1, k = i === 0 ? 0.35 : 0;
+              return [p[0] + dx * k, p[1] + dz * k, dx / d, dz / d]; });
+        for (const [x, z, dx, dz] of marks) {
+          const m = put(take("icon"), x, z, f.size || 1.0, f.size || 1.0, Math.atan2(-dx, -dz), a * 0.95);
+          if (!m) break; m.material.map = ICONS.arrow;
         }
       }
     }
