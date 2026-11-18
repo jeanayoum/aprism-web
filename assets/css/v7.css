@@ -1608,3 +1608,7 @@ body.ver-7 .ac-tab { column-gap: var(--space-8) !important; gap: var(--space-8) 
 body.ver-7 .sb-tab:not([data-mission]) { column-gap: var(--space-8) !important; gap: var(--space-8) !important; } /* 미션 탭 전체 미션 6 → --space-8 */
 body.ver-7 .ma-check:not(.z1) { padding-left: var(--space-8) !important; padding-right: var(--space-8) !important; } /* 조치 체크 줄 10/6 → --space-8 */
 body.ver-7 .dc6-btns { gap: var(--space-8) !important; }                                              /* Delta 답변 버튼 사이 8 숫자 → --space-8 */
+
+/* ---------- 작은 점도 아이콘: 지름 6을 아이콘 상자 12 가운데에 둠 (앞뒤 3은 상자 안 여백, 간격 토큰이 아님) ---------- */
+body.ver-7 .badge-dot { margin-left: calc((12px - 6px) / 2) !important; margin-right: calc((12px - 6px) / 2) !important; }
+body.ver-7 .tag-running::before { margin-left: calc((12px - 6px) / 2) !important; margin-right: calc((12px - 6px) / 2) !important; }
