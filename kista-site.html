@@ -186,22 +186,22 @@
   const SCENES = [
     { id: "1-1", title: "도킹스테이션에서 기립", zone: "도킹 구역",
       steps: ["대기", "주변감지", "사전 예고", "저속 기립", "기립완료"],
-      cam: { pos: [-8.4, 3.2, 1.6], target: [-13.0, 0.6, -4.6], fov: 40 } },
+      cam: { pos: [-8.4, 3.2, 1.6], target: [-13.0, 0.6, -4.6], fov: 40, view: { from: [0.75, 0.66], pitch: 30 } } },
     { id: "1-2", title: "통로에서 근로자와 마주침", zone: "통로",
       steps: ["근로자와 만남", "전방 근로자 감지", "감속 및 접근 예고", "정지 후 이동 의사 표현", "임무재개"],
-      cam: { pos: [-11.8, 2.9, 4.6], target: [-4.0, 0.7, -0.4], fov: 40 } },
+      cam: { pos: [-11.8, 2.9, 4.6], target: [-4.0, 0.7, -0.4], fov: 40, view: { from: [0.5, 0.87], pitch: 28 } } },
     { id: "2-1", title: "주의 · 안전모 미착용", zone: "통로 · MCC 반 앞",
       steps: ["미착용 근로자 감지", "감속·정지 및 착용 안내", "착용대기", "미조치 시 연결", "확인 후 임무 재개"],
-      cam: { pos: [0.6, 3.2, 5.6], target: [-4.4, 0.8, -2.2], fov: 40 } },
+      cam: { pos: [0.6, 3.2, 5.6], target: [-4.4, 0.8, -2.2], fov: 40, view: { from: [-0.73, 0.69], pitch: 30 } } },
     { id: "2-2", title: "위험 · 위험 구역 접근", zone: "위험 구역",
       steps: ["정지 및 정밀 확인", "이상 감지 및 판단", "작업자 우회 안내", "현장 조치 및 상태 안내", "임무 복귀"],
-      cam: { pos: [6.2, 4.4, 6.4], target: [13.2, 1.0, -3.0], fov: 42 } },
+      cam: { pos: [6.2, 4.4, 6.4], target: [13.2, 1.0, -3.0], fov: 42, view: { from: [0.38, 0.93], pitch: 32 } } },
     { id: "3-1", title: "배터리 부족 · 자율복귀 가능", zone: "통로 → 도킹 구역",
       steps: ["배터리 부족", "복귀 가능성 계산", "복귀 의사 예고", "저속 자율 복귀", "충전 시작"],
-      cam: { pos: [-4.6, 3.4, 4.2], target: [-12.4, 0.6, -3.0], fov: 40 } },
+      cam: { pos: [-4.6, 3.4, 4.2], target: [-12.4, 0.6, -3.0], fov: 40, view: { from: [0.45, 0.89], pitch: 32 } } },
     { id: "3-2", title: "배터리 부족 · 자율복귀 불가", zone: "통로 가장자리",
       steps: ["배터리 20% 이하 도달", "통로 가장자리 이동 후 정지", "접근금지 우회 안내", "회수 담당자 호출", "담당자 회수 완료 처리"],
-      cam: { pos: [8.8, 3.1, 5.4], target: [3.0, 0.5, -1.0], fov: 40 } },
+      cam: { pos: [8.8, 3.1, 5.4], target: [3.0, 0.5, -1.0], fov: 40, view: { from: [0.34, 0.94], pitch: 35 } } },
   ];
 
   const W = 1740, H = 1590;   // 칸 870×795 의 두 배 — 녹화 · PNG 때만 이 크기로 그린다
@@ -1004,8 +1004,18 @@
   /* ================= 장면 · 카메라 ================= */
   let cur = SCENES[0];
   const camBase = { pos: new THREE.Vector3(), target: new THREE.Vector3() };
+  /*
+   * 디스플레이가 보이는 구도(11/18) — 화면은 몸 위에서 A 자로 양옆을 본다. 그래서 카메라는 로봇 옆(살짝 앞이나 뒤)에서
+   * 조금 내려다본다. view.from = 대상에서 카메라 쪽 수평 방향 [x, z], view.pitch = 내려다보는 각(도).
+   * 장면마다 로봇이 보는 방향 · 근로자 자리(로봇을 가리지 않는 쪽) · 벽과 랙(카메라를 막지 않는 쪽)으로 골랐다.
+   * 거리는 원래 구도 거리를 그대로 쓴다(따라가기의 상한 기준).
+   */
   function applyCam(s) {
-    camBase.pos.set(...s.cam.pos); camBase.target.set(...s.cam.target);
+    camBase.target.set(...s.cam.target);
+    if (s.cam.view) {
+      const L = new THREE.Vector3(...s.cam.pos).distanceTo(camBase.target), [fx, fz] = s.cam.view.from, h = Math.hypot(fx, fz), pr = THREE.MathUtils.degToRad(s.cam.view.pitch);
+      camBase.pos.set(camBase.target.x + fx / h * Math.cos(pr) * L, camBase.target.y + Math.sin(pr) * L, camBase.target.z + fz / h * Math.cos(pr) * L);
+    } else camBase.pos.set(...s.cam.pos);
     camera.fov = s.cam.fov; camera.updateProjectionMatrix();
     camera.position.copy(camBase.pos); controls.target.copy(camBase.target); camera.lookAt(camBase.target); controls.update();
     dirty = true;
