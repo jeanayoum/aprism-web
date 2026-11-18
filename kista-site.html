@@ -1028,7 +1028,8 @@
       halo: [[0, 2, "G", "ring"], [2, 4, "G", "grow"], [4, 7, "G", "count"], [7, 10, "G", "rise"], [10, 12, "G", "blink"]], fx: [] },
     "1-2": { body: [[0, 2.4, "B"], [2.4, 7.2, "Y"], [7.2, 9.6, "B"], [9.6, 12, "T"]],
       halo: [[0, 2.4, "B", "walk"], [2.4, 4.8, "B", "walk", { c2: "Y" }], [4.8, 7.2, "Y", "stand"], [7.2, 9.6, "Y", "walk", { c2: "B" }], [9.6, 12, "T", "walk"]], fx: [
-      { t: [4.8, 7.2], k: "arrows", worker: "a", dir: [-1, 0], len: 3.6, c: "G" }] },
+      // 3. 먼저 가세요 — 로봇에서 근로자 쪽 1.3m 에 → 화살표, 근로자가 지나갈 방향(서쪽)
+      { t: [4.8, 7.2], k: "sym", icon: "right", near: "a", dir: [-1, 0], c: "G" }] },
     "2-1": { body: [[0, 12.0, "Y"], [12.0, 15.8, "S"], [15.8, 18, "T"]],
       halo: [[0, 2.8, "Y", "walk", { aim: "b" }], [2.8, 12.0, "Y", "stand", { aim: "b" }], [12.0, 15.8, "S", "stand", { aim: "b" }], [15.8, 18, "T", "walk"]], fx: [
       { t: [2.8, 12.0], k: "icon", icon: "helmet", fwd: 1.3, size: 1.3, c: "Y" },
@@ -1037,11 +1038,14 @@
     "2-2": { body: [[0, 2.8, "W"], [2.8, 11.2, "R"], [11.2, 14, "T"]],
       halo: [[0, 2.8, "W", "inspect", { aim: [12.6, -4.4] }], [2.8, 11.2, "R", "stand", { aim: [12.6, -4.4] }], [11.2, 14, "T", "walk"]], fx: [
       { t: [2.8, 5.6], k: "icon", icon: "warn", fwd: 1.1, size: 0.9, c: "R" },
-      { t: [5.6, 8.4], k: "arrows", path: [[13.2, 0.4], [12.6, 2.6], [8.4, 2.6]], c: "G" }] },
+      // 3. 작업자 우회 안내 — 로봇에서 근로자 쪽 1.3m 에 우회 화살표, 근로자가 피해 갈 보행 통로 쪽
+      { t: [5.6, 8.4], k: "sym", icon: "detour", near: "a", dirTo: [12.6, 2.6], c: "G" }] },
     // 자율 복귀는 v7 처럼 회색. 도킹해 앉으면(21초) 끈다 — v7 도 도킹 중엔 호를 숨긴다
     "3-1": { body: [[0, 12.6, "Y"], [12.6, 21.0, "Y", "blink"], [21.0, 24, "G", "level", 0.4]],
       halo: [[0, 7.3, "Y", "stand"], [7.3, 12.6, "Y", "stand", { aim: [-11.6, -1.4] }], [12.6, 21.0, "N", "walk"]], fx: [
-      { t: [7.3, 21.0], k: "arrows", path: [[-8.6, -0.5], [-11.6, -1.4], [-11.6, -3.3], [-11.6, -4.5]], c: "T" }] },
+      // 3. 복귀 의사 예고 — 로봇 앞 1.3m 에 회전 화살표, 복귀 방향 / 4. 저속 자율 복귀 — 로봇이 가는 쪽 1.3m 에 → 화살표(같이 움직임)
+      { t: [7.3, 12.6], k: "sym", icon: "uturn", dirTo: [-11.6, -1.4], c: "T" },
+      { t: [12.6, 21.0], k: "sym", icon: "right", dir: "move", c: "T" }] },
     // 위험(자율복귀 불가)은 빨강 — 걷는 동안 점멸, 멈추면 켠 채. 5단계 22초 '전원 꺼짐'에 같이 끈다
     "3-2": { body: [[0, 22.0, "R"]],
       halo: [[0, 1.6, "R", "walk"], [1.6, 6.4, "R", "stand"], [6.4, 9.4, "R", "walk"], [9.4, 22.0, "R", "stand"]], fx: [] },
@@ -1065,7 +1069,22 @@
   }
   for (const t of Object.values(fxTex)) t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
   fxTex.chev.wrapS = THREE.RepeatWrapping;
-  const ICONS = { helmet: iconTex("helmet"), check: iconTex("check"), warn: iconTex("warn"), arrow: iconTex("arrow") };
+  /* 디스플레이(spot-display.html A안) 기호를 그대로 — 240 격자 SVG 경로를 동그라미 안에 그린다.
+   * right · detour 는 화살 머리가 오른쪽(+x), uturn 은 아래(+y)를 가리킨다 → sym 이 방향을 맞춰 돌린다 */
+  function symTex(paths) {
+    return canvasTex(256, 256, (g) => {
+      g.strokeStyle = "#fff"; g.fillStyle = "#fff"; g.lineWidth = 12;
+      g.beginPath(); g.arc(128, 128, 112, 0, 7); g.stroke();
+      g.save(); g.translate(128, 128); g.scale(0.72 * 256 / 240, 0.72 * 256 / 240); g.translate(-120, -120);
+      for (const [d, fill] of paths) { const p2 = new Path2D(d); if (fill) g.fill(p2); else { g.lineWidth = 30; g.lineCap = "butt"; g.stroke(p2); } }
+      g.restore();
+    }, { repeat: [1, 1] });
+  }
+  const ICONS = { helmet: iconTex("helmet"), check: iconTex("check"), warn: iconTex("warn"), arrow: iconTex("arrow"),
+    right: symTex([["M210 120L130 170V135H40V105H130V70Z", true]]),
+    detour: symTex([["M70 190V125C70 102.909 87.9086 85 110 85H145", false], ["M210 85.0875L130 135L130 36L210 85.0875Z", true]]),
+    uturn: symTex([["M170 190V90C170 67.9086 152.091 50 130 50H120C97.9086 50 80 67.9086 80 90V135", false], ["M80 200L130 120H30L80 200Z", true]]) };
+  const SYM_AXIS = { right: "x", detour: "x", uturn: "down" };
   for (const t of Object.values(ICONS)) t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
   const fxMat = (map, add) => new THREE.MeshBasicMaterial({ map, color: 0xffffff, transparent: true, opacity: 1, depthWrite: false, toneMapped: false,
     blending: add ? THREE.AdditiveBlending : THREE.NormalBlending, polygonOffset: true, polygonOffsetFactor: -6 });
@@ -1191,6 +1210,19 @@
         const A = new THREE.Vector3(rp.x, 0.95, rp.z), B = new THREE.Vector3(...f.to), D = B.clone().sub(A);
         beam.visible = true; beam.position.copy(A).addScaledVector(D, 0.5); beam.scale.set(1, D.length(), 1);
         beam.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), D.clone().normalize()); beam.material.color.copy(col); beam.material.opacity = 0.22 * a;
+      } else if (f.k === "sym") {
+        // 로봇이 바닥에 비추는 표지 — 안전모 표지처럼 로봇 가까이(1.3m). 자리: near(근로자) 쪽 또는 가리키는 방향 쪽
+        let dx, dz;
+        if (Array.isArray(f.dir)) [dx, dz] = f.dir;
+        else if (f.dir === "move") { const [x1, z1] = posAt(SEG.robot, Math.min(SEG.dur, t + 0.25)); dx = x1 - rp.x; dz = z1 - rp.z; if (Math.hypot(dx, dz) < 0.02) { dx = rp.fx; dz = rp.fz; } }
+        else if (f.dirTo) { let ox = rp.x, oz = rp.z; if (f.near && SEG[f.near]) [ox, oz] = posAt(SEG[f.near].segs, t); dx = f.dirTo[0] - ox; dz = f.dirTo[1] - oz; }
+        const dd = Math.hypot(dx, dz) || 1; dx /= dd; dz /= dd;
+        let px = dx, pz = dz;   // 놓는 쪽
+        if (f.near && SEG[f.near]) { const [wx, wz] = posAt(SEG[f.near].segs, t), qx = wx - rp.x, qz = wz - rp.z, qd = Math.hypot(qx, qz) || 1; px = qx / qd; pz = qz / qd; }
+        const D = f.dist || 1.3, sz = f.size || 1.2;
+        const yaw = SYM_AXIS[f.icon] === "down" ? Math.atan2(dx, dz) : Math.atan2(-dz, dx);   // 그림의 화살 머리 쪽을 (dx, dz) 로
+        const m = put(take("icon"), rp.x + px * D, rp.z + pz * D, sz, sz, yaw, a * 0.95);
+        if (m) m.material.map = ICONS[f.icon];
       } else if (f.k === "arrows") {
         let pts;
         if (f.fwd) pts = [[rp.x + rp.fx * 0.75, rp.z + rp.fz * 0.75], [rp.x + rp.fx * (0.75 + f.fwd), rp.z + rp.fz * (0.75 + f.fwd)]];
