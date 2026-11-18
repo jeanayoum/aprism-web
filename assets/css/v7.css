@@ -1503,8 +1503,8 @@ body.ver-7 .tb {
 body.ver-7 .account-chip,
 body.ver-7 .theme-chip,
 body.ver-7 .signal-chip {
-  /* 규칙대로 버튼 Small(높이 26, 좌우 8, 모서리 4)에 보조 버튼(Secondary) 면과 테를 씀 */
-  background-color: var(--comp-button-secondary-bg-default) !important; border: 1px solid var(--comp-button-secondary-border-default) !important; box-shadow: none !important;
+  /* 버튼 Small(높이 26, 좌우 8, 모서리 4). 면과 테는 원래 상단 버튼 색(--bg-cell, --border-divider) */
+  background-color: var(--bg-cell) !important; border: 1px solid var(--border-divider) !important; box-shadow: none !important;
   border-radius: var(--radius-4) !important; height: 26px !important; min-height: 26px !important; box-sizing: border-box !important;
 }
 body.ver-7 .account-chip { padding: 0 var(--space-8) !important; font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-medium) !important; }
@@ -1608,5 +1608,3 @@ body.ver-7 .ac-tab { column-gap: var(--space-8) !important; gap: var(--space-8) 
 body.ver-7 .sb-tab:not([data-mission]) { column-gap: var(--space-8) !important; gap: var(--space-8) !important; } /* 미션 탭 전체 미션 6 → --space-8 */
 body.ver-7 .ma-check:not(.z1) { padding-left: var(--space-8) !important; padding-right: var(--space-8) !important; } /* 조치 체크 줄 10/6 → --space-8 */
 body.ver-7 .dc6-btns { gap: var(--space-8) !important; }                                              /* Delta 답변 버튼 사이 8 숫자 → --space-8 */
-body.ver-7 .account-chip:hover, body.ver-7 .theme-chip:hover, body.ver-7 .signal-chip:hover { background-color: var(--comp-button-secondary-bg-hover) !important; }
-body.ver-7 .account-chip:active, body.ver-7 .theme-chip:active, body.ver-7 .signal-chip:active { background-color: var(--comp-button-secondary-bg-pressed) !important; }
