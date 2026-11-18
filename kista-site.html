@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KISTA 작업현장 3D</title>
+  <meta name="description" content="KISTA 2026 발표 '03. 상황별 적용 예시' 상세 페이지의 작업현장 칸(870×795)에 넣을 3D 현장 공간. 장면 6개 구도 · 브라우저 녹화." />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/static/woff2/SUIT.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- 현장 표지 글자(바닥 · 벽 표지)는 Noto Sans KR — 캔버스에 그린다 -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700;900&display=swap">
+  <link rel="stylesheet" href="./assets/css/tokens.css?v=b64812bd" />
+  <link rel="stylesheet" href="./assets/css/base.css?v=5ccd4bb3" />
+  <style>
+    /*
+     * 작업현장 3D — 발표 PPT(Figma KISTA-2026 · 시나리오 905:2677) 상세 페이지의 왼쪽 "작업현장" 칸에 들어갈 영상의 무대.
+     * 칸 크기 870×795 → 녹화는 그 두 배 1740×1590(H.264 는 짝수 크기여야 한다 — 795 는 홀수라 1배는 못 쓴다).
+     */
+    .site-main { max-width: none; padding-top: var(--space-16); }
+    .ks { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: var(--space-24); align-items: start; }
+    @media (max-width: 960px) { .ks { grid-template-columns: 1fr; } }
+
+    .stage-wrap { display: flex; justify-content: center; }
+    .stage { position: relative; aspect-ratio: 870 / 795; width: min(100%, calc((100vh - 120px) * 870 / 795)); background: #C9CDCC; border-radius: 4px; overflow: hidden; }
+    .stage canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; display: block; }
+
+    /* 슬라이드 위에서 가려지는 자리 — 화면에만 보이고 녹화에는 안 들어간다 */
+    .guide { position: absolute; pointer-events: none; display: none; }
+    .stage.show-guide .guide { display: block; }
+    .g-chip { left: calc(20 / 870 * 100%); top: calc(20 / 795 * 100%); width: calc(100 / 870 * 100%); height: calc(44 / 795 * 100%);
+      background: rgba(255,255,255,.92); border-radius: 999px; align-items: center; justify-content: center; font-size: clamp(9px, 1.2vw, 15px); color: #111; }
+    .stage.show-guide .g-chip { display: flex; }
+    .g-steps { left: calc(274 / 870 * 100%); right: 0; bottom: 0; height: calc(54 / 795 * 100%); background: rgba(255,255,255,.88); border-top-left-radius: 6px; box-shadow: 0 -2px 10px rgba(0,0,0,.12); }
+    .g-safe { inset: calc(84 / 795 * 100%) calc(24 / 870 * 100%) calc(64 / 795 * 100%); border: 1px dashed rgba(255,255,255,.75); border-radius: 4px; }
+    .rec-badge { position: absolute; top: 10px; right: 10px; display: none; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: rgba(0,0,0,.6); color: #fff; font-size: 13px; pointer-events: none; }
+    .rec-badge::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #FF383C; }
+    .stage.recording .rec-badge { display: inline-flex; }
+
+    .panel { display: flex; flex-direction: column; gap: var(--space-20); max-height: calc(100vh - 100px); overflow: auto; padding-right: 4px; }
+    .panel::-webkit-scrollbar { width: 12px; }
+    .panel::-webkit-scrollbar-track { background: transparent; }
+    .panel::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 999px; border: 4px solid transparent; background-clip: content-box; }
+    .panel h1 { font-size: 20px; margin: 0; }
+    .panel .lead { font-size: 13px; color: var(--text-secondary); margin: 6px 0 0; line-height: 1.55; }
+    .grp-label { font-size: 12px; color: var(--text-tertiary); margin: 0 0 8px; }
+    .scenes { display: grid; grid-template-columns: 1fr; gap: 6px; }
+    .scenes button { text-align: left; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-default); background: var(--bg-raised); color: var(--text-primary); font: inherit; font-size: 14px; cursor: pointer; }
+    .scenes button small { display: block; color: var(--text-tertiary); font-size: 12px; margin-top: 2px; }
+    .scenes button[aria-pressed="true"] { border-color: var(--text-primary); box-shadow: inset 0 0 0 1px var(--text-primary); }
+    .steps { margin: 0; padding: 0 0 0 18px; font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .btn { padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border-default); background: var(--bg-raised); color: var(--text-primary); font: inherit; font-size: 14px; cursor: pointer; }
+    .btn.primary { background: var(--text-primary); color: var(--text-on-inverse); border-color: var(--text-primary); }
+    .btn:disabled { opacity: .45; cursor: default; }
+    .chk { display: flex; gap: 8px; align-items: center; font-size: 14px; }
+    .field { display: flex; gap: 6px; align-items: center; font-size: 14px; }
+    .field select, .field input { font: inherit; font-size: 14px; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border-default); background: var(--bg-raised); color: var(--text-primary); }
+    .field input { width: 64px; }
+    .note { font-size: 12px; color: var(--text-tertiary); line-height: 1.55; margin: 0; }
+    .cam-out { font-family: ui-monospace, Consolas, monospace; font-size: 11px; color: var(--text-secondary); word-break: break-all; }
+    body.clean .site-header, body.clean .panel { display: none; }
+    body.clean .site-main { padding: 0; }
+    body.clean .ks { display: block; }
+    body.clean .stage { width: 100vw; height: 100vh; aspect-ratio: auto; border-radius: 0; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-name">APRISM</span>
+    </div>
+    <a href="./index.html" class="theme-toggle" style="text-decoration:none">목록으로</a>
+  </header>
+
+  <main class="site-main">
+    <div class="ks">
+      <div class="stage-wrap">
+        <div class="stage" id="stage">
+          <div class="guide g-safe"></div>
+          <div class="guide g-chip">작업현장</div>
+          <div class="guide g-steps"></div>
+          <span class="rec-badge" id="recBadge">녹화 중</span>
+        </div>
+      </div>
+
+      <aside class="panel">
+        <div>
+          <h1>작업현장 3D 공간</h1>
+          <p class="lead">KISTA 발표 상세 페이지 왼쪽 칸(870×795)에 넣을 영상의 무대. 공장 실내 한 채(도킹 구역 · 통로 · 위험 구역)를 두고 장면마다 카메라만 바꾼다. 녹화는 1740×1590.</p>
+        </div>
+
+        <div>
+          <p class="grp-label">장면</p>
+          <div class="scenes" id="scenes"></div>
+        </div>
+
+        <div>
+          <p class="grp-label">이 장면의 단계 (PPT 진행 바)</p>
+          <ol class="steps" id="steps"></ol>
+        </div>
+
+        <div>
+          <p class="grp-label">보기</p>
+          <div style="display:grid;gap:6px">
+            <label class="chk"><input type="checkbox" id="optGuide" checked> 슬라이드에서 가려지는 자리 표시</label>
+            <label class="chk"><input type="checkbox" id="optActors" checked> 크기 참고용 로봇 · 근로자</label>
+            <label class="chk"><input type="checkbox" id="optOrbit"> 카메라 직접 돌려 보기</label>
+          </div>
+        </div>
+
+        <div>
+          <p class="grp-label">녹화</p>
+          <div class="row" style="margin-bottom:8px">
+            <label class="field">길이 <input type="number" id="recSec" min="2" max="60" value="8">초</label>
+            <label class="field"><select id="recFps"><option value="30">30fps</option><option value="60" selected>60fps</option></select></label>
+          </div>
+          <label class="chk" style="margin-bottom:8px"><input type="checkbox" id="optDrift" checked> 카메라 천천히 밀기(달리)</label>
+          <div class="row">
+            <button class="btn primary" id="btnRec" type="button">영상 녹화</button>
+            <button class="btn" id="btnPng" type="button">정지 화면 PNG</button>
+          </div>
+          <p class="note" id="recNote" style="margin-top:8px"></p>
+        </div>
+
+        <div>
+          <p class="grp-label">지금 카메라 값</p>
+          <div class="cam-out" id="camOut"></div>
+          <div class="row" style="margin-top:8px">
+            <button class="btn" id="btnCamCopy" type="button">값 복사</button>
+            <button class="btn" id="btnCamReset" type="button">장면 구도로 되돌리기</button>
+          </div>
+        </div>
+
+        <p class="note">로봇은 관제 지도와 같은 SPOT 모델(robot-spot.js), 근로자는 크기 참고용 임시 인형이다. 장면별 동작은 다음 단계에서 붙인다. 출처: Figma KISTA-2026 <a href="https://www.figma.com/design/6jlcnuP9HDFNNHwaAhX5vz/KISTA-2026?node-id=905-2677">시나리오</a> · 2026-11-18</p>
+      </aside>
+    </div>
+  </main>
+
+  <script src="./assets/js/robot-spot.js?v=16205c28"></script>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module">
+  import * as THREE from "three";
+  import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+  import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+
+  /* ================================================================
+   * 장면 6개 — PPT 상세 페이지 순서. 공간은 하나, 구도만 다르다.
+   *   도킹 구역  x -19 ~ -12 (북쪽 벽 앞)
+   *   통로      z -1.6 ~ 1.6 (동서로 길게), 보행자 통로 z 2.0 ~ 3.2
+   *   MCC 반    x -10 ~ 2, 자재 랙 x 3 ~ 8
+   *   위험 구역  x 9 ~ 19 (탱크 · 펌프, 차단봉으로 막음)
+   * 단위 m. 북쪽 벽 z = -7, 카메라는 남쪽에서 북쪽을 본다.
+   * ================================================================ */
+  const SCENES = [
+    { id: "1-1", title: "도킹스테이션에서 기립", zone: "도킹 구역",
+      steps: ["대기", "주변감지", "사전 예고", "저속 기립", "기립완료"],
+      cam: { pos: [-8.4, 3.2, 1.6], target: [-13.0, 0.6, -4.6], fov: 40 } },
+    { id: "1-2", title: "통로에서 근로자와 마주침", zone: "통로",
+      steps: ["근로자와 만남", "전방 근로자 감지", "감속 및 접근 예고", "정지 후 이동 의사 표현", "임무재개"],
+      cam: { pos: [-11.8, 2.9, 4.6], target: [-4.0, 0.7, -0.4], fov: 40 } },
+    { id: "2-1", title: "주의 · 안전모 미착용", zone: "통로 · MCC 반 앞",
+      steps: ["미착용 근로자 감지", "감속·정지 및 착용 안내", "착용대기", "미조치 시 연결", "확인 후 임무 재개"],
+      cam: { pos: [0.6, 3.2, 5.6], target: [-4.4, 0.8, -2.2], fov: 40 } },
+    { id: "2-2", title: "위험 · 위험 구역 접근", zone: "위험 구역",
+      steps: ["정지 및 정밀 확인", "이상 감지 및 판단", "작업자 우회 안내", "현장 조치 및 상태 안내", "임무 복귀"],
+      cam: { pos: [6.2, 4.4, 6.4], target: [13.2, 1.0, -3.0], fov: 42 } },
+    { id: "3-1", title: "배터리 부족 · 자율복귀 가능", zone: "통로 → 도킹 구역",
+      steps: ["배터리 부족", "복귀 가능성 계산", "복귀 의사 예고", "저속 자율 복귀", "충전 시작"],
+      cam: { pos: [-4.6, 3.4, 4.2], target: [-12.4, 0.6, -3.0], fov: 40 } },
+    { id: "3-2", title: "배터리 부족 · 자율복귀 불가", zone: "통로 가장자리",
+      steps: ["배터리 20% 이하 도달", "통로 가장자리 이동 후 정지", "접근금지 우회 안내", "회수 담당자 호출", "담당자 회수 완료 처리"],
+      cam: { pos: [8.8, 3.1, 5.4], target: [3.0, 0.5, -1.0], fov: 40 } },
+  ];
+
+  const W = 1740, H = 1590;   // 칸 870×795 의 두 배 — 녹화 · PNG 때만 이 크기로 그린다
+  const PW = 870, PH = 795;    // 미리보기는 1배(가볍게). 바뀐 게 있을 때만 다시 그린다(dirty)
+  let dirty = true;
+  const qs = new URLSearchParams(location.search);
+  if (qs.has("clean")) document.body.classList.add("clean");
+
+  /* ---------------- 렌더러 ---------------- */
+  const stage = document.getElementById("stage");
+  const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+  renderer.setPixelRatio(1);
+  renderer.setSize(PW, PH, false);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 0.88;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  stage.prepend(renderer.domElement);
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xC9CDCC);
+  scene.fog = new THREE.Fog(0xC9CDCC, 34, 80);
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
+
+  const camera = new THREE.PerspectiveCamera(40, W / H, 0.1, 200);
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.enabled = false;
+  controls.addEventListener("change", () => { dirty = true; });
+
+  const MAX_ANISO = renderer.capabilities.getMaxAnisotropy();
+  await document.fonts.load('900 64px "Noto Sans KR"').catch(() => {});
+  await document.fonts.load('700 64px "Noto Sans KR"').catch(() => {});
+
+  /* ---------------- 캔버스 질감 ---------------- */
+  function canvasTex(w, h, draw, { repeat = [1, 1], srgb = true } = {}) {
+    const c = document.createElement("canvas"); c.width = w; c.height = h;
+    const g = c.getContext("2d"); draw(g, w, h);
+    const t = new THREE.CanvasTexture(c);
+    if (srgb) t.colorSpace = THREE.SRGBColorSpace;
+    t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(repeat[0], repeat[1]);
+    t.anisotropy = MAX_ANISO;
+    return t;
+  }
+  let seed = 7;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  function speckle(g, w, h, n, colors, size = 2) {
+    for (let i = 0; i < n; i++) { g.fillStyle = colors[(rnd() * colors.length) | 0]; const s = size * (0.5 + rnd()); g.fillRect(rnd() * w, rnd() * h, s, s); }
+  }
+  function blotch(g, w, h, n, rgba, rMin, rMax) {
+    for (let i = 0; i < n; i++) {
+      const x = rnd() * w, y = rnd() * h, r = rMin + rnd() * (rMax - rMin);
+      const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, rgba); gr.addColorStop(1, "rgba(0,0,0,0)");
+      g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2);
+    }
+  }
+
+  // 에폭시 바닥 — 국내 공장에 흔한 회녹색. 얼룩 · 긁힘 · 바퀴 자국
+  const floorMap = canvasTex(1024, 1024, (g, w, h) => {
+    g.fillStyle = "#5F7769"; g.fillRect(0, 0, w, h);
+    blotch(g, w, h, 40, "rgba(40,55,45,0.10)", 60, 220);
+    blotch(g, w, h, 30, "rgba(200,215,205,0.07)", 40, 160);
+    speckle(g, w, h, 9000, ["rgba(30,40,35,.18)", "rgba(220,230,225,.12)"], 2);
+    g.strokeStyle = "rgba(30,35,32,0.10)"; g.lineWidth = 1;
+    for (let i = 0; i < 60; i++) { g.beginPath(); const x = rnd() * w, y = rnd() * h; g.moveTo(x, y); g.lineTo(x + (rnd() - .5) * 140, y + (rnd() - .5) * 30); g.stroke(); }
+    g.strokeStyle = "rgba(20,25,22,0.06)"; g.lineWidth = 14;   // 지게차 · 대차 바퀴 자국
+    for (let i = 0; i < 4; i++) { g.beginPath(); const y = rnd() * h; g.moveTo(0, y); g.bezierCurveTo(w * .3, y + 40, w * .6, y - 40, w, y + (rnd() - .5) * 30); g.stroke(); }
+  }, { repeat: [10, 4.25] });
+  const floorRough = canvasTex(512, 512, (g, w, h) => {
+    g.fillStyle = "#7a7a7a"; g.fillRect(0, 0, w, h);
+    blotch(g, w, h, 40, "rgba(160,160,160,0.35)", 30, 120);
+    blotch(g, w, h, 30, "rgba(60,60,60,0.30)", 30, 100);
+  }, { repeat: [10, 4.25], srgb: false });
+
+  // 벽 아래 — 칠한 콘크리트 블록
+  const blockMap = canvasTex(512, 256, (g, w, h) => {
+    g.fillStyle = "#8E9893"; g.fillRect(0, 0, w, h);
+    speckle(g, w, h, 4000, ["rgba(0,0,0,.08)", "rgba(255,255,255,.08)"], 2);
+    g.strokeStyle = "rgba(40,45,42,.35)"; g.lineWidth = 3;
+    for (let r = 0; r < 4; r++) { const y = r * 64; g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke();
+      for (let c = 0; c < 4; c++) { const x = c * 128 + (r % 2) * 64; g.beginPath(); g.moveTo(x, y); g.lineTo(x, y + 64); g.stroke(); } }
+  }, { repeat: [20, 1] });
+  // 벽 위 — 골 진 샌드위치 패널
+  const panelMap = canvasTex(256, 256, (g, w, h) => {
+    g.fillStyle = "#CDD1D2"; g.fillRect(0, 0, w, h);
+    for (let x = 0; x < w; x += 64) { g.fillStyle = "rgba(0,0,0,.10)"; g.fillRect(x, 0, 6, h); g.fillStyle = "rgba(255,255,255,.35)"; g.fillRect(x + 6, 0, 3, h); g.fillStyle = "rgba(0,0,0,.04)"; g.fillRect(x + 30, 0, 4, h); }
+    blotch(g, w, h, 6, "rgba(90,90,80,0.05)", 30, 90);
+  }, { repeat: [40, 3] });
+
+  function hatch(g, x, y, w, h, c1, c2, band) {
+    g.save(); g.beginPath(); g.rect(x, y, w, h); g.clip();
+    g.fillStyle = c1; g.fillRect(x, y, w, h); g.fillStyle = c2;
+    for (let k = -h; k < w + h; k += band * 2) { g.beginPath(); g.moveTo(x + k, y); g.lineTo(x + k + band, y); g.lineTo(x + k + band - h, y + h); g.lineTo(x + k - h, y + h); g.closePath(); g.fill(); }
+    g.restore();
+  }
+  // 바닥 구역 표시 — 가장자리 사선 띠 + 가운데 글자. 칠이 닳은 느낌을 살짝
+  function zoneDecal(wm, hm, { c1, c2, border = 0.14, label, sub, ink = "#F2C230", fill = null, px = 160 }) {
+    const w = Math.round(wm * px), h = Math.round(hm * px), b = border * px;
+    return canvasTex(w, h, (g) => {
+      if (fill) { g.fillStyle = fill; g.fillRect(0, 0, w, h); }
+      hatch(g, 0, 0, w, b, c1, c2, b * 0.9); hatch(g, 0, h - b, w, b, c1, c2, b * 0.9);
+      hatch(g, 0, 0, b, h, c1, c2, b * 0.9); hatch(g, w - b, 0, b, h, c1, c2, b * 0.9);
+      if (label) { g.fillStyle = ink; g.textAlign = "center"; g.textBaseline = "middle";
+        g.font = `900 ${Math.round(Math.min(h * 0.2, w * 0.13))}px "Noto Sans KR"`; g.fillText(label, w / 2, h / 2 - (sub ? h * 0.08 : 0));
+        if (sub) { g.font = `700 ${Math.round(Math.min(h * 0.09, w * 0.06))}px "Noto Sans KR"`; g.fillText(sub, w / 2, h / 2 + h * 0.14); } }
+      g.globalCompositeOperation = "destination-out"; speckle(g, w, h, w * h / 400, ["rgba(0,0,0,.35)"], 3);
+    }, { repeat: [1, 1] });
+  }
+  function floorText(text, wm, hm, color = "rgba(255,255,255,.88)", weight = 900) {
+    const px = 200, w = Math.round(wm * px), h = Math.round(hm * px);
+    return canvasTex(w, h, (g) => {
+      g.fillStyle = color; g.textAlign = "center"; g.textBaseline = "middle";
+      g.font = `${weight} ${Math.round(h * 0.72)}px "Noto Sans KR"`; g.fillText(text, w / 2, h / 2);
+      g.globalCompositeOperation = "destination-out"; speckle(g, w, h, w * h / 300, ["rgba(0,0,0,.4)"], 3);
+    });
+  }
+
+  /* ---------------- 재질 ---------------- */
+  const M = {
+    floor: new THREE.MeshStandardMaterial({ map: floorMap, roughnessMap: floorRough, roughness: 0.55, metalness: 0 }),
+    block: new THREE.MeshStandardMaterial({ map: blockMap, roughness: 0.9 }),
+    panel: new THREE.MeshStandardMaterial({ map: panelMap, bumpMap: panelMap, bumpScale: 0.6, roughness: 0.6, metalness: 0.15 }),
+    steel: new THREE.MeshStandardMaterial({ color: 0x8C939A, roughness: 0.45, metalness: 0.6 }),
+    steelDark: new THREE.MeshStandardMaterial({ color: 0x3E444A, roughness: 0.55, metalness: 0.5 }),
+    galv: new THREE.MeshStandardMaterial({ color: 0xA9AFB3, roughness: 0.35, metalness: 0.8 }),
+    column: new THREE.MeshStandardMaterial({ color: 0x5B6670, roughness: 0.6, metalness: 0.3 }),
+    yellow: new THREE.MeshStandardMaterial({ color: 0xF2C230, roughness: 0.5 }),
+    lineY: new THREE.MeshStandardMaterial({ color: 0xF0BE1E, roughness: 0.6, polygonOffset: true, polygonOffsetFactor: -2 }),
+    lineW: new THREE.MeshStandardMaterial({ color: 0xEDEFEE, roughness: 0.6, polygonOffset: true, polygonOffsetFactor: -2 }),
+    walk: new THREE.MeshStandardMaterial({ color: 0x2F8E58, roughness: 0.5, polygonOffset: true, polygonOffsetFactor: -1 }),
+    cabinet: new THREE.MeshStandardMaterial({ color: 0xD6D9D5, roughness: 0.5, metalness: 0.1 }),
+    rackUp: new THREE.MeshStandardMaterial({ color: 0x1F4E9A, roughness: 0.5, metalness: 0.2 }),
+    rackBeam: new THREE.MeshStandardMaterial({ color: 0xE0651B, roughness: 0.5, metalness: 0.2 }),
+    wood: new THREE.MeshStandardMaterial({ color: 0xB08A5B, roughness: 0.85 }),
+    box: new THREE.MeshStandardMaterial({ color: 0xBC915E, roughness: 0.9 }),
+    drum: new THREE.MeshStandardMaterial({ color: 0x1E57A3, roughness: 0.45, metalness: 0.3 }),
+    tank: new THREE.MeshStandardMaterial({ color: 0xE6E8E6, roughness: 0.35, metalness: 0.2 }),
+    motor: new THREE.MeshStandardMaterial({ color: 0x2B5FA8, roughness: 0.4, metalness: 0.4 }),
+    pipeG: new THREE.MeshStandardMaterial({ color: 0x3C8C55, roughness: 0.45, metalness: 0.3 }),
+    pipeY: new THREE.MeshStandardMaterial({ color: 0xD9A820, roughness: 0.45, metalness: 0.3 }),
+    pipeB: new THREE.MeshStandardMaterial({ color: 0x6F8FA8, roughness: 0.45, metalness: 0.3 }),
+    red: new THREE.MeshStandardMaterial({ color: 0xD8262A, roughness: 0.45 }),
+    black: new THREE.MeshStandardMaterial({ color: 0x1B1E22, roughness: 0.6 }),
+    rubber: new THREE.MeshStandardMaterial({ color: 0x23262A, roughness: 0.9 }),
+    lampOn: new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xFFF6E4, emissiveIntensity: 2.2 }),
+    window: new THREE.MeshStandardMaterial({ color: 0xDCE8EE, emissive: 0xCFE2EC, emissiveIntensity: 0.9, roughness: 0.2 }),
+  };
+  const lamp = (hex, k = 2.4) => new THREE.MeshStandardMaterial({ color: hex, emissive: hex, emissiveIntensity: k });
+
+  /* ---------------- 도우미 ---------------- */
+  const world = new THREE.Group(); scene.add(world);
+  function add(mesh, x, y, z, parent = world) { mesh.position.set(x, y, z); mesh.castShadow = true; mesh.receiveShadow = true; parent.add(mesh); return mesh; }
+  const box = (w, h, d, mat, x, y, z, p) => add(new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat), x, y, z, p);   // y 는 바닥 기준 아래면
+  const boxB = (w, h, d, mat, x, y, z, p) => box(w, h, d, mat, x, y + h / 2, z, p);
+  const cyl = (r, h, mat, x, y, z, seg = 32, p) => add(new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, seg), mat), x, y + h / 2, z, p);
+  function decal(tex, w, d, x, z, rot = 0, y = 0.006, mat) {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), mat || new THREE.MeshStandardMaterial({ map: tex, transparent: true, roughness: 0.6, polygonOffset: true, polygonOffsetFactor: -3, depthWrite: false }));
+    m.rotation.x = -Math.PI / 2; m.rotation.z = rot; m.position.set(x, y, z); m.receiveShadow = true; world.add(m); return m;
+  }
+  function wallSign(tex, w, h, x, y, z, rotY = 0) {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.55 }));
+    m.position.set(x, y, z); m.rotation.y = rotY; m.receiveShadow = true; world.add(m); return m;
+  }
+  function pipeRun(points, r, mat) {
+    const curve = new THREE.CatmullRomCurve3(points.map(p => new THREE.Vector3(...p)), false, "catmullrom", 0.02);
+    const m = new THREE.Mesh(new THREE.TubeGeometry(curve, Math.max(24, points.length * 24), r, 16, false), mat);
+    m.castShadow = true; m.receiveShadow = true; world.add(m); return m;
+  }
+
+  /* ================= 건물 ================= */
+  const X0 = -20, X1 = 20, ZB = -7, ZF = 11, HALL_H = 9;
+  { const f = new THREE.Mesh(new THREE.PlaneGeometry(X1 - X0, ZF - ZB), M.floor); f.rotation.x = -Math.PI / 2; f.position.set(0, 0, (ZB + ZF) / 2); f.receiveShadow = true; world.add(f); }
+  // 북쪽 벽: 아래 1.2m 블록, 위 패널, 맨 위 채광 띠창
+  box(X1 - X0, 1.2, 0.25, M.block, 0, 0.6, ZB - 0.125);
+  box(X1 - X0, HALL_H - 1.2, 0.18, M.panel, 0, 1.2 + (HALL_H - 1.2) / 2, ZB - 0.2);
+  for (let x = -18; x <= 18; x += 4) box(3.2, 0.9, 0.05, M.window, x, 7.3, ZB - 0.09);
+  // 동 · 서 벽
+  for (const sx of [X0, X1]) {
+    const s = Math.sign(sx);
+    const b = box(0.25, 1.2, ZF - ZB, M.block, sx + s * 0.125, 0.6, (ZB + ZF) / 2); b.material = M.block.clone(); b.material.map = blockMap.clone(); b.material.map.repeat.set(9, 1);
+    box(0.18, HALL_H - 1.2, ZF - ZB, M.panel, sx + s * 0.2, 1.2 + (HALL_H - 1.2) / 2, (ZB + ZF) / 2);
+    for (let z = -4; z <= 8; z += 4) box(0.05, 0.9, 3.2, M.window, sx + s * 0.09, 7.3, z);
+  }
+  // 기둥 — 북쪽 벽 따라, 남쪽 한 줄. 아래에 노랑/검정 충돌 방호
+  const guardTex = canvasTex(256, 256, (g, w, h) => hatch(g, 0, 0, w, h, "#F2C230", "#1B1E22", 28));
+  const guardMat = new THREE.MeshStandardMaterial({ map: guardTex, roughness: 0.55 });
+  for (let x = -16; x <= 16; x += 8) {
+    for (const z of [ZB + 0.25, 6.0]) {
+      boxB(0.4, HALL_H, 0.4, M.column, x, 0, z);
+      if (z > 0) boxB(0.56, 1.1, 0.56, guardMat, x, 0, z);
+    }
+  }
+  // 지붕 트러스 · 고천장 조명
+  for (let x = -16; x <= 16; x += 8) {
+    box(0.25, 0.5, ZF - ZB, M.steelDark, x, HALL_H - 0.25, (ZB + ZF) / 2);
+    box(0.08, 0.08, ZF - ZB, M.steelDark, x, HALL_H - 1.4, (ZB + ZF) / 2);
+  }
+  const lampGeo = new THREE.CylinderGeometry(0.32, 0.42, 0.28, 32);
+  const lampFace = new THREE.CircleGeometry(0.4, 32);
+  for (let x = -16; x <= 16; x += 4) for (const z of [-3.2, 3.8]) {
+    const h = new THREE.Mesh(lampGeo, M.steelDark); h.position.set(x, 7.4, z); world.add(h);
+    const f = new THREE.Mesh(lampFace, M.lampOn); f.rotation.x = Math.PI / 2; f.position.set(x, 7.255, z); world.add(f);
+    box(0.02, 1.2, 0.02, M.steelDark, x, 8.1, z);
+  }
+
+  /* ================= 바닥 표시 ================= */
+  // 로봇 · 대차 통로 노란 선, 보행자 통로 녹색 띠
+  for (const z of [-1.6, 1.6]) decal(null, 37, 0.12, -0.5, z, 0, 0.004, M.lineY);
+  decal(null, 37, 1.2, -0.5, 2.6, 0, 0.003, M.walk);
+  for (const z of [2.0, 3.2]) decal(null, 37, 0.08, -0.5, z, 0, 0.005, M.lineW);
+  const walkTxt = floorText("보행자 통로", 2.4, 0.7);
+  for (const x of [-14, -2, 10]) decal(walkTxt, 2.4, 0.7, x, 2.6, 0, 0.006);
+  // 통로 가운데 진행 방향 화살표
+  const arrowTex = canvasTex(256, 128, (g, w, h) => { g.fillStyle = "rgba(240,190,30,.9)"; g.beginPath(); g.moveTo(10, 44); g.lineTo(160, 44); g.lineTo(160, 14); g.lineTo(246, 64); g.lineTo(160, 114); g.lineTo(160, 84); g.lineTo(10, 84); g.closePath(); g.fill();
+    g.globalCompositeOperation = "destination-out"; speckle(g, w, h, 300, ["rgba(0,0,0,.4)"], 3); });
+  for (const x of [-12, -6, 6, 12]) { decal(arrowTex, 1.4, 0.7, x, -0.7, 0, 0.006); decal(arrowTex, 1.4, 0.7, x + 2, 0.7, Math.PI, 0.006); }
+  // 횡단보도 — 통로를 가로질러 MCC 반으로
+  for (let i = 0; i < 6; i++) decal(null, 0.3, 3.0, -4.6 + i * 0.6 - 1.5, 0, 0, 0.006, M.lineW);
+
+  /* ================= 도킹 구역 ================= */
+  const dockBay = zoneDecal(1.8, 2.6, { c1: "#F2C230", c2: "#1B1E22", border: 0.14, label: "DOCK", sub: "로봇 충전", ink: "#F2C230" });
+  const DOCKS = [{ x: -14.1, n: "01" }, { x: -11.6, n: "02" }];
+  for (const d of DOCKS) {
+    decal(dockBay, 1.8, 2.6, d.x, -5.1, 0, 0.006);
+    // 충전 패드 · 기둥형 충전기(벽에 붙음)
+    boxB(1.1, 0.06, 1.3, M.black, d.x, 0, -5.0);
+    for (const dx of [-0.18, 0.18]) boxB(0.08, 0.012, 0.9, new THREE.MeshStandardMaterial({ color: 0xC98A4B, metalness: 0.9, roughness: 0.3 }), d.x + dx, 0.06, -5.0);
+    const tower = new THREE.Group(); tower.position.set(d.x, 0, -6.55); world.add(tower);
+    boxB(0.8, 1.35, 0.45, M.cabinet, 0, 0, 0, tower);
+    boxB(0.66, 0.5, 0.02, M.black, 0, 0.62, 0.23, tower);                 // 작은 화면
+    boxB(0.5, 0.25, 0.01, lamp(0x3CC37A, 1.2), 0, 0.74, 0.245, tower);     // 화면 빛 — 충전 대기
+    boxB(0.7, 0.04, 0.02, lamp(0x35D07F, 3), 0, 1.22, 0.23, tower);        // 상태 LED 띠
+    boxB(0.8, 0.08, 0.5, M.steelDark, 0, 0, 0, tower);
+    const numTex = canvasTex(256, 128, (g, w, h) => { g.fillStyle = "#1B1E22"; g.fillRect(0, 0, w, h); g.fillStyle = "#F2C230"; g.font = '900 84px "Noto Sans KR"'; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(d.n, w / 2, h / 2 + 4); });
+    wallSign(numTex, 0.5, 0.25, d.x, 1.75, -6.3);
+    pipeRun([[d.x + 0.3, 1.35, -6.6], [d.x + 0.3, 3.0, -6.75], [d.x + 0.3, 4.6, -6.75]], 0.035, M.steelDark);   // 전선관
+  }
+  // 충전 구역 벽 표지 · 분전반 · 소화기
+  const dockSign = canvasTex(1024, 256, (g, w, h) => { g.fillStyle = "#1F5FBF"; g.fillRect(0, 0, w, h); g.fillStyle = "#fff"; g.font = '900 120px "Noto Sans KR"'; g.textBaseline = "middle"; g.fillText("로봇 충전 구역", 60, h / 2 + 6); });
+  wallSign(dockSign, 2.4, 0.6, -12.85, 2.6, -6.86);
+  boxB(0.7, 0.9, 0.2, M.cabinet, -18.0, 1.2, -6.8);
+  { cyl(0.09, 0.55, M.red, -17.2, 0.05, -6.75, 20); boxB(0.25, 0.05, 0.2, M.black, -17.2, 0, -6.75); }
+
+  /* ================= MCC 반 (전동기 제어반) ================= */
+  const mccTex = (label) => canvasTex(256, 640, (g, w, h) => {
+    g.fillStyle = "#D6D9D5"; g.fillRect(0, 0, w, h);
+    g.strokeStyle = "rgba(40,45,42,.55)"; g.lineWidth = 3;
+    g.strokeRect(10, 10, w - 20, h * 0.48); g.strokeRect(10, h * 0.5, w - 20, h * 0.48);
+    g.fillStyle = "rgba(40,45,42,.35)"; for (let i = 0; i < 6; i++) g.fillRect(70, h * 0.82 + i * 12, w - 140, 5);   // 통풍구
+    g.fillStyle = "#30363C"; g.fillRect(w - 46, h * 0.36, 14, 70); g.fillRect(w - 46, h * 0.6, 14, 70);           // 손잡이
+    g.fillStyle = "#F4F5F2"; g.fillRect(50, 40, w - 100, 52); g.strokeStyle = "#555"; g.lineWidth = 2; g.strokeRect(50, 40, w - 100, 52);
+    g.fillStyle = "#222"; g.font = '700 34px "Noto Sans KR"'; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(label, w / 2, 68);
+    g.fillStyle = "#FFD400"; g.beginPath(); g.moveTo(w / 2, h * 0.58); g.lineTo(w / 2 + 34, h * 0.64); g.lineTo(w / 2 - 34, h * 0.64); g.closePath(); g.fill();   // 감전 주의
+    g.fillStyle = "#111"; g.font = '900 30px "Noto Sans KR"'; g.fillText("!", w / 2, h * 0.622);
+  }, { repeat: [1, 1] });
+  for (let i = 0; i < 9; i++) {
+    const x = -9.6 + i * 0.85;
+    const cab = new THREE.Group(); cab.position.set(x, 0, -6.45); world.add(cab);
+    boxB(0.84, 0.1, 0.62, M.black, 0, 0, 0, cab);
+    boxB(0.84, 2.1, 0.62, M.cabinet, 0, 0.1, 0, cab);
+    const face = new THREE.Mesh(new THREE.PlaneGeometry(0.82, 2.08), new THREE.MeshStandardMaterial({ map: mccTex(`MCC-${String(i + 1).padStart(2, "0")}`), roughness: 0.5, metalness: 0.1 }));
+    face.position.set(0, 1.15, 0.311); face.receiveShadow = true; cab.add(face);
+    [0x2FBF5B, 0xE23B32, 0xF0B323].forEach((c, k) => { const l = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.03, 16), lamp(c, k === 0 || (i + k) % 3 === 0 ? 2.6 : 0.25)); l.rotation.x = Math.PI / 2; l.position.set(-0.18 + k * 0.09, 1.82, 0.33); cab.add(l); });
+  }
+  // 위 케이블 트레이 → 반 위로
+  box(8.0, 0.1, 0.6, M.galv, -6.2, 3.05, -6.3);
+  for (let x = -9.8; x <= -2.6; x += 1.2) box(0.04, 0.9, 0.04, M.galv, x, 3.5, -6.3);
+  // 벽 안전 현수막
+  const safetyTex = canvasTex(2048, 360, (g, w, h) => {
+    g.fillStyle = "#FFFFFF"; g.fillRect(0, 0, w, h); g.fillStyle = "#1E8C45"; g.fillRect(0, 0, w, 18); g.fillRect(0, h - 18, w, 18);
+    g.fillStyle = "#1E8C45"; const cx = 200, cy = h / 2, a = 120, t = 44; g.fillRect(cx - t, cy - a, t * 2, a * 2); g.fillRect(cx - a, cy - t, a * 2, t * 2);
+    g.fillStyle = "#16301F"; g.font = '900 170px "Noto Sans KR"'; g.textBaseline = "middle"; g.fillText("안전제일", 380, h / 2 + 8);
+    g.fillStyle = "#555"; g.font = '700 70px "Noto Sans KR"'; g.fillText("보호구 착용 · 통로 확보", 1180, h / 2 + 6);
+  }, { repeat: [1, 1] });
+  wallSign(safetyTex, 7.2, 1.27, -5.4, 4.9, -6.89);
+
+  /* ================= 자재 랙 ================= */
+  { const rx = 3.4, rz = -6.1;
+    for (const x of [rx, rx + 2.4, rx + 4.8]) for (const z of [rz - 0.45, rz + 0.45]) boxB(0.08, 4.2, 0.08, M.rackUp, x, 0, z);
+    for (const y of [1.4, 2.8, 4.1]) for (const z of [rz - 0.45, rz + 0.45]) for (const s of [0, 2.4]) box(2.32, 0.12, 0.06, M.rackBeam, rx + s + 1.2, y, z);
+    for (const lv of [0, 1.46, 2.86]) for (const s of [0, 2.4]) {
+      const bx = rx + s + 1.2; boxB(1.1, 0.14, 0.9, M.wood, bx - 0.55, lv, rz); boxB(1.1, 0.14, 0.9, M.wood, bx + 0.6, lv, rz);
+      const n = 1 + ((s * 3 + lv * 7) | 0) % 3;
+      for (let k = 0; k < n; k++) boxB(0.5, 0.42, 0.42, M.box, bx - 0.8 + k * 0.55, lv + 0.14, rz + (k % 2 ? 0.2 : -0.18));
+      boxB(0.9, 0.7, 0.8, M.box, bx + 0.6, lv + 0.14, rz);
+    } }
+
+  /* ================= 위험 구역 — 펌프 · 탱크, 차단봉으로 막음 ================= */
+  const HZ = { x0: 9.4, x1: 18.8, z0: -6.8, z1: -2.2 };
+  const hazTex = zoneDecal(HZ.x1 - HZ.x0, HZ.z1 - HZ.z0, { c1: "#EDEFEE", c2: "#D8262A", border: 0.32, px: 90 });
+  decal(hazTex, HZ.x1 - HZ.x0, HZ.z1 - HZ.z0, (HZ.x0 + HZ.x1) / 2, (HZ.z0 + HZ.z1) / 2, 0, 0.006);
+  decal(floorText("위험 구역", 2.6, 0.8, "rgba(216,38,42,.9)"), 2.6, 0.8, 11.2, -2.95, 0, 0.007);
+  // 탱크
+  { const tx = 15.6, tz = -4.6;
+    cyl(1.3, 4.3, M.tank, tx, 0.35, tz, 48); add(new THREE.Mesh(new THREE.SphereGeometry(1.3, 48, 16, 0, Math.PI * 2, 0, Math.PI / 2), M.tank), tx, 4.65, tz).scale.y = 0.35;
+    for (const a of [0, 1, 2, 3]) { const ang = a * Math.PI / 2 + Math.PI / 4; boxB(0.12, 0.4, 0.12, M.steelDark, tx + Math.cos(ang) * 1.1, 0, tz + Math.sin(ang) * 1.1); }
+    for (const y of [1.4, 2.8, 4.2]) { const ring = new THREE.Mesh(new THREE.TorusGeometry(1.31, 0.025, 8, 64), M.steelDark); ring.rotation.x = Math.PI / 2; add(ring, tx, y, tz); }
+    // 사다리
+    for (const dx of [-0.22, 0.22]) boxB(0.05, 4.8, 0.05, M.yellow, tx - 0.5 + dx, 0.2, tz + 1.36);
+    for (let y = 0.5; y < 4.9; y += 0.3) box(0.44, 0.03, 0.03, M.yellow, tx - 0.5, y, tz + 1.36);
+    const plate = canvasTex(512, 256, (g, w, h) => { g.fillStyle = "#F4F5F2"; g.fillRect(0, 0, w, h); g.strokeStyle = "#D8262A"; g.lineWidth = 14; g.strokeRect(7, 7, w - 14, h - 14);
+      g.fillStyle = "#D8262A"; g.font = '900 64px "Noto Sans KR"'; g.textAlign = "center"; g.fillText("TK-101", w / 2, 100); g.fillStyle = "#222"; g.font = '700 40px "Noto Sans KR"'; g.fillText("고압 · 화학물질", w / 2, 176); });
+    const pl = new THREE.Mesh(new THREE.CylinderGeometry(1.312, 1.312, 0.55, 48, 1, true, -0.55, 1.1), new THREE.MeshStandardMaterial({ map: plate, roughness: 0.5 }));
+    pl.position.set(tx, 2.2, tz); pl.rotation.y = Math.PI / 2 + 0.25; world.add(pl);
+  }
+  // 펌프 스키드
+  { const px = 11.6, pz = -4.4;
+    boxB(2.4, 0.2, 1.1, M.steelDark, px, 0, pz);
+    const mot = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.9, 32), M.motor); mot.rotation.z = Math.PI / 2; add(mot, px - 0.5, 0.58, pz);
+    for (let i = 0; i < 8; i++) { const fin = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.012, 6, 32), M.motor); fin.rotation.y = Math.PI / 2; add(fin, px - 0.88 + i * 0.1, 0.58, pz); }
+    const vol = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.34, 0.26, 32), M.steel); vol.rotation.z = Math.PI / 2; add(vol, px + 0.4, 0.62, pz);
+    pipeRun([[px + 0.4, 0.95, pz], [px + 0.4, 1.8, pz], [px + 2.0, 1.8, pz], [14.2, 1.8, -4.6]], 0.09, M.pipeG);
+    pipeRun([[px + 0.8, 0.62, pz], [px + 1.6, 0.62, pz - 1.4], [px + 1.6, 0.62, -6.4], [px + 1.6, 3.6, -6.6]], 0.08, M.pipeY);
+    // 밸브 핸들
+    for (const [vx, vy, vz] of [[px + 1.1, 1.8, pz], [px + 1.6, 1.4, -6.4]]) { const hw = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.02, 8, 24), M.red); add(hw, vx, vy + 0.22, vz); hw.rotation.x = Math.PI / 2; box(0.03, 0.22, 0.03, M.steelDark, vx, vy + 0.1, vz); }
+    // 압력계
+    const gTex = canvasTex(128, 128, (g, w) => { g.fillStyle = "#fff"; g.beginPath(); g.arc(64, 64, 60, 0, 7); g.fill(); g.strokeStyle = "#222"; g.lineWidth = 6; g.stroke(); g.strokeStyle = "#D8262A"; g.lineWidth = 5; g.beginPath(); g.moveTo(64, 64); g.lineTo(100, 34); g.stroke(); });
+    const gauge = new THREE.Mesh(new THREE.CircleGeometry(0.1, 24), new THREE.MeshStandardMaterial({ map: gTex })); gauge.position.set(px + 2.0, 2.05, pz + 0.1); world.add(gauge);
+  }
+  // 차단봉(빨강/흰 줄무늬) + 체인 — 통로 쪽 앞면과 서쪽 면
+  const postTex = canvasTex(64, 256, (g, w, h) => { for (let i = 0; i < 8; i++) { g.fillStyle = i % 2 ? "#EDEFEE" : "#D8262A"; g.fillRect(0, i * 32, w, 32); } });
+  const postMat = new THREE.MeshStandardMaterial({ map: postTex, roughness: 0.45 });
+  const chainMat = new THREE.MeshStandardMaterial({ map: canvasTex(256, 16, (g, w, h) => { for (let i = 0; i < 16; i++) { g.fillStyle = i % 2 ? "#EDEFEE" : "#D8262A"; g.fillRect(i * 16, 0, 16, h); } }, { repeat: [3, 1] }), roughness: 0.4 });
+  const posts = [];
+  for (let x = 9.6; x <= 18.61; x += 1.5) posts.push([x, -2.0]);
+  for (let z = -3.5; z >= -6.6; z -= 1.5) posts.unshift([9.6, z]);
+  posts.sort((a, b) => (a[0] === 9.6 && b[0] === 9.6) ? a[1] - b[1] : a[0] - b[0]);
+  posts.forEach(([x, z], i) => {
+    cyl(0.17, 0.05, M.rubber, x, 0, z, 24); cyl(0.04, 0.95, postMat, x, 0.05, z, 16);
+    const n = posts[i + 1]; if (!n) return;
+    const a = new THREE.Vector3(x, 0.92, z), b = new THREE.Vector3(n[0], 0.92, n[1]), m = a.clone().lerp(b, 0.5); m.y -= 0.16;
+    const t = new THREE.Mesh(new THREE.TubeGeometry(new THREE.QuadraticBezierCurve3(a, m, b), 20, 0.014, 6, false), chainMat); t.castShadow = true; world.add(t);
+  });
+  // 경고 표지판(스탠드) · 경광등
+  const warnTex = canvasTex(512, 640, (g, w, h) => {
+    g.fillStyle = "#FFFFFF"; g.fillRect(0, 0, w, h);
+    g.fillStyle = "#F2C230"; g.beginPath(); g.moveTo(w / 2, 40); g.lineTo(w - 50, 340); g.lineTo(50, 340); g.closePath(); g.fill(); g.strokeStyle = "#111"; g.lineWidth = 22; g.stroke();
+    g.fillStyle = "#111"; g.font = '900 190px "Noto Sans KR"'; g.textAlign = "center"; g.fillText("!", w / 2, 300);
+    g.fillStyle = "#D8262A"; g.fillRect(0, 380, w, 120); g.fillStyle = "#fff"; g.font = '900 86px "Noto Sans KR"'; g.fillText("위험 구역", w / 2, 470);
+    g.fillStyle = "#111"; g.font = '700 46px "Noto Sans KR"'; g.fillText("관계자 외 출입금지", w / 2, 580);
+  });
+  { const sx = 10.6, sz = -1.75; boxB(0.5, 0.04, 0.4, M.rubber, sx, 0, sz); boxB(0.04, 1.1, 0.04, M.steelDark, sx, 0.04, sz);
+    const s = wallSign(warnTex, 0.6, 0.75, sx, 1.45, sz + 0.03); s.castShadow = true; }
+  { const bx = 18.6, bz = -2.0; boxB(0.16, 0.16, 0.16, M.black, bx, 0.97, bz); cyl(0.08, 0.16, lamp(0xFF8A1E, 3.2), bx, 1.13, bz, 20); }
+  // 벽 배관 묶음 — 도킹 구역부터 위험 구역까지
+  pipeRun([[-20.4, 3.5, -6.72], [20.4, 3.5, -6.72]], 0.1, M.pipeG);
+  pipeRun([[-20.4, 3.85, -6.68], [20.4, 3.85, -6.68]], 0.08, M.pipeY);
+  pipeRun([[-20.4, 4.2, -6.7], [20.4, 4.2, -6.7]], 0.12, M.pipeB);
+  for (let x = -18; x <= 18; x += 3) boxB(0.06, 0.9, 0.35, M.steelDark, x, 3.3, -6.72);
+
+  /* ================= 남쪽(카메라 쪽) 소품 ================= */
+  // 드럼통 · 팔레트 · 대차
+  for (const [x, z] of [[-12.4, 6.6], [-11.8, 6.7], [-12.1, 7.3], [-11.5, 7.35]]) { cyl(0.29, 0.88, M.drum, x, 0.14, z, 28); for (const y of [0.45, 0.75]) { const r = new THREE.Mesh(new THREE.TorusGeometry(0.29, 0.012, 6, 32), M.drum); r.rotation.x = Math.PI / 2; add(r, x, y, z); } }
+  boxB(1.2, 0.14, 1.2, M.wood, -11.9, 0, 7.0);
+  { const wrap = new THREE.MeshStandardMaterial({ color: 0xBFC6C8, roughness: 0.25, metalness: 0.05, transparent: true, opacity: 0.92 });
+    boxB(1.2, 0.14, 1.0, M.wood, 4.2, 0, 6.8); boxB(1.15, 1.1, 0.95, M.box, 4.2, 0.14, 6.8); boxB(1.17, 1.12, 0.97, wrap, 4.2, 0.14, 6.8); }
+  // 바닥 배수 그레이팅
+  const grate = canvasTex(256, 64, (g, w, h) => { g.fillStyle = "#3A3F44"; g.fillRect(0, 0, w, h); g.fillStyle = "#15181B"; for (let x = 4; x < w; x += 10) g.fillRect(x, 6, 5, h - 12); });
+  decal(grate, 3.0, 0.3, -1.0, 4.4, 0, 0.005);
+  decal(grate, 3.0, 0.3, 9.0, 4.4, 0, 0.005);
+
+  /* ================= 조명 ================= */
+  scene.add(new THREE.HemisphereLight(0xEEF3F6, 0x6B7A70, 0.9));
+  const sun = new THREE.DirectionalLight(0xFFF5E6, 2.1);   // 고천장 조명 전체를 한 덩어리 빛으로 — 그림자 담당
+  sun.position.set(-6, 16, 9); sun.target.position.set(0, 0, -1);
+  sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
+  Object.assign(sun.shadow.camera, { left: -24, right: 24, top: 16, bottom: -16, near: 1, far: 50 });
+  sun.shadow.bias = -0.0003; sun.shadow.normalBias = 0.03; sun.shadow.radius = 4;
+  scene.add(sun, sun.target);
+  // 점광원은 픽셀마다 계산돼 무겁다 — 10개 → 3개(통로 위 한 줄)로 줄이고 세기를 올렸다
+  for (const x of [-12, 0, 12]) { const p = new THREE.PointLight(0xFFF1DC, 18, 22, 1.6); p.position.set(x, 6.8, 0.5); scene.add(p); }
+
+  /* ================= 크기 참고용 배우 ================= */
+  const actors = new THREE.Group(); scene.add(actors);
+  // 모델 몸길이 약 0.85 → 실물 SPOT 몸길이 1.1m 에 맞춘다
+  const ROBOT_SCALE = 1.3;
+  let spot = null;
+  if (window.APRISM_SPOT) {
+    spot = window.APRISM_SPOT(THREE, "spot");
+    spot.group.scale.setScalar(ROBOT_SCALE);
+    spot.group.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+    actors.add(spot.group);
+  }
+  function worker({ vest = 0xF07A1A, helmet = true }) {
+    const g = new THREE.Group();
+    const cloth = new THREE.MeshStandardMaterial({ color: 0x2D3A4F, roughness: 0.85 });
+    const skin = new THREE.MeshStandardMaterial({ color: 0xC99A7A, roughness: 0.7 });
+    const vestM = new THREE.MeshStandardMaterial({ color: vest, roughness: 0.6 });
+    const refl = new THREE.MeshStandardMaterial({ color: 0xDADFE3, roughness: 0.25, metalness: 0.6 });
+    const shoe = M.rubber;
+    const cap = (r, l, m) => new THREE.Mesh(new THREE.CapsuleGeometry(r, l, 6, 14), m);
+    for (const s of [-1, 1]) {
+      const leg = cap(0.075, 0.72, cloth); leg.position.set(s * 0.1, 0.48, 0); g.add(leg);
+      const ft = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.08, 0.26), shoe); ft.position.set(s * 0.1, 0.04, -0.04); g.add(ft);
+      const arm = cap(0.055, 0.5, cloth); arm.position.set(s * 0.26, 1.18, 0); arm.rotation.z = s * 0.08; g.add(arm);
+      const hand = new THREE.Mesh(new THREE.SphereGeometry(0.05, 12, 8), skin); hand.position.set(s * 0.285, 0.88, 0); g.add(hand);
+    }
+    const torso = cap(0.17, 0.42, cloth); torso.position.y = 1.2; torso.scale.set(1.15, 1, 0.75); g.add(torso);
+    const v = cap(0.178, 0.36, vestM); v.position.y = 1.22; v.scale.set(1.16, 1, 0.78); g.add(v);
+    for (const y of [1.12, 1.3]) { const b = new THREE.Mesh(new THREE.CylinderGeometry(0.206, 0.206, 0.035, 24, 1, true), refl); b.position.y = y; b.scale.set(1.0, 1, 0.68); g.add(b); }
+    const neck = cap(0.05, 0.05, skin); neck.position.y = 1.5; g.add(neck);
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.11, 24, 16), skin); head.position.y = 1.63; head.scale.set(0.9, 1.05, 0.95); g.add(head);
+    if (helmet) {
+      const hm = new THREE.MeshStandardMaterial({ color: 0xF4F4F0, roughness: 0.35 });
+      const dome = new THREE.Mesh(new THREE.SphereGeometry(0.135, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2), hm); dome.position.y = 1.67; g.add(dome);
+      const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.012, 24), hm); brim.position.set(0, 1.675, -0.03); brim.scale.set(1, 1, 1.15); g.add(brim);
+    } else {
+      const hair = new THREE.Mesh(new THREE.SphereGeometry(0.115, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0x1D1A18, roughness: 0.9 })); hair.position.y = 1.65; g.add(hair);
+    }
+    g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+    return g;
+  }
+  const wkA = worker({ helmet: true }), wkB = worker({ helmet: false });
+  actors.add(wkA, wkB);
+  // 장면마다 배우 자리 — 크기 · 거리 감만 보는 용도. 실제 동작은 다음 단계에서
+  const POSE = {
+    "1-1": { robot: [-14.1, -5.0, Math.PI, "sit"], a: [-12.2, -1.2, -2.4], b: null },
+    "1-2": { robot: [-8.6, 0.2, -Math.PI / 2, "idle"], a: [-3.6, -0.4, Math.PI / 2], b: null },
+    "2-1": { robot: [-2.4, 0.0, -Math.PI / 2, "idle"], a: null, b: [-5.0, -4.6, 0.3] },
+    "2-2": { robot: [9.4, -0.6, -Math.PI / 2 + 0.3, "inspect"], a: [12.6, 0.6, Math.PI * 0.85], b: null },
+    "3-1": { robot: [-8.0, -0.3, Math.PI / 2, "walk"], a: null, b: null },
+    "3-2": { robot: [2.4, -1.15, -Math.PI / 2, "sit"], a: [6.8, 0.8, Math.PI / 2], b: null },
+  };
+  let robotMotion = "idle";
+  function placeActors(id) {
+    const p = POSE[id];
+    if (spot) { const [x, z, ry, m] = p.robot; spot.group.position.set(x, 0, z); spot.group.rotation.y = ry; robotMotion = m; for (let i = 0; i < 120; i++) spot.update(1 / 30, m); }
+    dirty = true;
+    for (const [wk, k] of [[wkA, "a"], [wkB, "b"]]) { const v = p[k]; wk.visible = !!v; if (v) { wk.position.set(v[0], 0, v[1]); wk.rotation.y = v[2]; } }
+  }
+
+  /* ================= 장면 · 카메라 ================= */
+  let cur = SCENES[0];
+  const camBase = { pos: new THREE.Vector3(), target: new THREE.Vector3() };
+  function applyCam(s) {
+    camBase.pos.set(...s.cam.pos); camBase.target.set(...s.cam.target);
+    camera.fov = s.cam.fov; camera.updateProjectionMatrix();
+    camera.position.copy(camBase.pos); controls.target.copy(camBase.target); camera.lookAt(camBase.target); controls.update();
+    dirty = true;
+  }
+  // 달리 — 대상 쪽으로 6% 다가서며 아주 조금 옆으로. t 0~1
+  function driftAt(t) {
+    const e = t * t * (3 - 2 * t), dir = camBase.target.clone().sub(camBase.pos);
+    const side = new THREE.Vector3(-dir.z, 0, dir.x).normalize();
+    camera.position.copy(camBase.pos).addScaledVector(dir, 0.06 * e).addScaledVector(side, 0.35 * (e - 0.5));
+    camera.lookAt(camBase.target);
+  }
+  const scenesEl = document.getElementById("scenes"), stepsEl = document.getElementById("steps");
+  function selectScene(id) {
+    cur = SCENES.find(s => s.id === id) || SCENES[0];
+    [...scenesEl.children].forEach(b => b.setAttribute("aria-pressed", String(b.dataset.id === cur.id)));
+    stepsEl.innerHTML = cur.steps.map(s => `<li>${s}</li>`).join("");
+    applyCam(cur); placeActors(cur.id);
+    try { localStorage.setItem("kista-site-scene", cur.id); } catch (e) {}
+    history.replaceState(null, "", "?" + new URLSearchParams({ ...Object.fromEntries(qs), scene: cur.id }).toString());
+  }
+  SCENES.forEach(s => {
+    const b = document.createElement("button"); b.type = "button"; b.dataset.id = s.id;
+    b.innerHTML = `${s.id}. ${s.title}<small>${s.zone}</small>`; b.onclick = () => selectScene(s.id); scenesEl.append(b);
+  });
+  let startId = qs.get("scene"); if (!startId) { try { startId = localStorage.getItem("kista-site-scene"); } catch (e) {} }
+  selectScene(startId || "1-1");
+
+  /* ================= 보기 옵션 ================= */
+  const $ = id => document.getElementById(id);
+  $("optGuide").onchange = e => stage.classList.toggle("show-guide", e.target.checked);
+  stage.classList.toggle("show-guide", $("optGuide").checked && !qs.has("clean"));
+  $("optActors").onchange = e => { actors.visible = e.target.checked; dirty = true; };
+  if (qs.get("actors") === "0") { actors.visible = false; $("optActors").checked = false; }
+  $("optOrbit").onchange = e => { controls.enabled = e.target.checked; if (!e.target.checked) applyCam(cur); };
+  $("btnCamReset").onclick = () => applyCam(cur);
+  const camStr = () => `pos: [${camera.position.toArray().map(v => v.toFixed(2)).join(", ")}], target: [${controls.target.toArray().map(v => v.toFixed(2)).join(", ")}], fov: ${camera.fov}`;
+  $("btnCamCopy").onclick = () => navigator.clipboard?.writeText(`{ ${camStr()} }`);
+
+  /* ================= 녹화 =================
+   * WebCodecs(VideoEncoder) 로 한 프레임씩 굽고 mp4-muxer 로 MP4 를 만든다.
+   * 프레임마다 시각을 박아 넣으므로 렌더가 느려도 영상은 정확히 30/60fps — 실시간 녹화(MediaRecorder)처럼 느려지지 않는다.
+   * H.264 High 5.2(avc1.640034) — 1740×1590 이 들어가는 단계. PPT 에 바로 넣을 수 있다. */
+  let recording = false;
+  function download(blob, name) { const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }
+  const stamp = () => new Date().toISOString().slice(0, 16).replace(/[-:T]/g, "");
+  const CODECS = ["avc1.640034", "avc1.640033", "avc1.4d0034"];
+  async function pickCodec(fps) {
+    if (!window.VideoEncoder) return null;
+    for (const codec of CODECS) {
+      const cfg = { codec, width: W, height: H, bitrate: 24e6, framerate: fps, avc: { format: "avc" } };
+      try { if ((await VideoEncoder.isConfigSupported(cfg)).supported) return cfg; } catch (e) {}
+    }
+    return null;
+  }
+  pickCodec(60).then(c => { $("recNote").textContent = c ? `MP4(H.264) · 1740×1590 · 프레임 단위로 구워 끊김 없음` : "이 브라우저는 WebCodecs 녹화를 지원하지 않는다 — 최신 Chrome 에서 열어 주세요."; if (!c) $("btnRec").disabled = true; });
+
+  $("btnRec").onclick = async () => {
+    if (recording) return;
+    const fps = +$("recFps").value, sec = Math.max(2, Math.min(60, +$("recSec").value || 8));
+    const cfg = await pickCodec(fps); if (!cfg) return;
+    const { Muxer, ArrayBufferTarget } = await import("https://cdn.jsdelivr.net/npm/mp4-muxer@5.1.3/+esm");
+    recording = true; controls.enabled = false; $("optOrbit").checked = false; applyCam(cur);
+    renderer.setSize(W, H, false);
+    stage.classList.add("recording"); $("btnRec").disabled = true;
+    const muxer = new Muxer({ target: new ArrayBufferTarget(), video: { codec: "avc", width: W, height: H, frameRate: fps }, fastStart: "in-memory" });
+    let err = null;
+    const enc = new VideoEncoder({ output: (chunk, meta) => muxer.addVideoChunk(chunk, meta), error: e => { err = e; } });
+    enc.configure(cfg);
+    const frames = Math.round(sec * fps), dtUs = 1e6 / fps, drift = $("optDrift").checked;
+    for (let i = 0; i < frames && !err; i++) {
+      const t = i / Math.max(1, frames - 1);
+      if (drift) driftAt(t); else applyCam(cur);
+      if (spot) spot.update(1 / fps, robotMotion);
+      renderer.render(scene, camera);
+      const vf = new VideoFrame(renderer.domElement, { timestamp: Math.round(i * dtUs), duration: Math.round(dtUs) });
+      enc.encode(vf, { keyFrame: i % (fps * 2) === 0 }); vf.close();
+      if (enc.encodeQueueSize > 4 || i % 6 === 0) {
+        $("recBadge").textContent = `굽는 중 ${Math.round((i + 1) / frames * 100)}%`;
+        await new Promise(r => setTimeout(r, 0));
+      }
+    }
+    await enc.flush(); enc.close();
+    renderer.setSize(PW, PH, false); dirty = true;
+    recording = false; stage.classList.remove("recording"); $("btnRec").disabled = false; $("recBadge").textContent = "녹화 중";
+    applyCam(cur);
+    if (err) { $("recNote").textContent = "녹화 실패: " + err.message; return; }
+    muxer.finalize();
+    download(new Blob([muxer.target.buffer], { type: "video/mp4" }), `KISTA_작업현장_${cur.id}_${stamp()}.mp4`);
+  };
+  $("btnPng").onclick = () => {
+    renderer.setSize(W, H, false); renderer.render(scene, camera);
+    renderer.domElement.toBlob(b => { download(b, `KISTA_작업현장_${cur.id}_${stamp()}.png`); renderer.setSize(PW, PH, false); dirty = true; });
+  };
+
+  /* ================= 돌리기 ================= */
+  const camOut = $("camOut");
+  let lastCamTxt = "";
+  function tick() {
+    // 미리보기는 바뀐 게 있을 때만 그린다 — 가만히 있으면 GPU 를 쓰지 않는다. 로봇 걸음은 녹화 때만 움직인다
+    if (!recording) {   // 녹화 중에는 녹화 루프가 직접 그린다
+      if (controls.enabled) controls.update();   // 감속 중이면 change 가 와서 dirty
+      if (dirty) {
+        renderer.render(scene, camera); dirty = false;
+        const txt = camStr(); if (txt !== lastCamTxt) { camOut.textContent = txt; lastCamTxt = txt; }
+      }
+    }
+    requestAnimationFrame(tick);
+  }
+  tick();
+  window.__ksReady = true;
+  </script>
+</body>
+</html>
