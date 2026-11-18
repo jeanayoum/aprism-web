@@ -134,7 +134,7 @@
 .rr-ring path.on { stroke: var(--color-blue-400, #89b9ed); stroke-opacity: 1; }
 
 /* ---------- 우측 지금 카드 — 상태 줄 ---------- */
-.rr-notes { display: grid; gap: 4px; margin-top: 4px; }
+.rr-notes { display: grid; gap: var(--space-4); margin-top: var(--space-4); }
 .rr-note { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; font-weight: 600; color: inherit; }
 .rr-note.is-measure { justify-content: flex-start; }
 .rr-note.is-measure .num { margin-left: auto; }

@@ -286,7 +286,7 @@
 .sf .dlogo i { display: none; }
 .sf .dl .hh .dlogo { margin-right: var(--space-4); vertical-align: -2px; }
 .sf .mx .dmm { display: flex; gap: var(--space-8); align-items: flex-start; color: var(--status-info-text); }
-.sf .mx .dmm .dlogo { flex: none; margin-top: 4px; }
+.sf .mx .dmm .dlogo { flex: none; margin-top: var(--space-4); }
 
 /* 값 칩 — 정상 · 주의 · 위험 모두 점 + 값, 같은 테 두께 */
 .sf .cv { display: inline-flex; align-items: center; gap: var(--space-4); padding: var(--space-4) var(--space-8); border: var(--border-width-thin) solid var(--border-default); border-radius: var(--radius-control); background-color: var(--bg-cell); color: var(--text-secondary); font-size: var(--font-size-13); line-height: var(--font-line-height-18); font-weight: 500; }
