@@ -1029,7 +1029,7 @@
     "1-2": { body: [[0, 2.4, "B"], [2.4, 7.2, "Y"], [7.2, 9.6, "B"], [9.6, 12, "T"]],
       halo: [[0, 2.4, "B", "walk"], [2.4, 4.8, "B", "walk", { c2: "Y" }], [4.8, 7.2, "Y", "stand"], [7.2, 9.6, "Y", "walk", { c2: "B" }], [9.6, 12, "T", "walk"]], fx: [
       // 3. 먼저 가세요 — 로봇에서 근로자 쪽 1.3m 에 → 화살표, 근로자가 지나갈 방향(서쪽)
-      { t: [4.8, 7.2], k: "sym", icon: "right", near: "a", dir: [-1, 0], c: "G" }] },
+      { t: [4.8, 7.2], k: "band", near: "a", dir: [-1, 0], c: "G" }] },
     "2-1": { body: [[0, 12.0, "Y"], [12.0, 15.8, "S"], [15.8, 18, "T"]],
       halo: [[0, 2.8, "Y", "walk", { aim: "b" }], [2.8, 12.0, "Y", "stand", { aim: "b" }], [12.0, 15.8, "S", "stand", { aim: "b" }], [15.8, 18, "T", "walk"]], fx: [
       { t: [2.8, 12.0], k: "icon", icon: "helmet", fwd: 1.3, size: 1.3, c: "Y" },
@@ -1039,13 +1039,13 @@
       halo: [[0, 2.8, "W", "inspect", { aim: [12.6, -4.4] }], [2.8, 11.2, "R", "stand", { aim: [12.6, -4.4] }], [11.2, 14, "T", "walk"]], fx: [
       { t: [2.8, 5.6], k: "icon", icon: "warn", fwd: 1.1, size: 0.9, c: "R" },
       // 3. 작업자 우회 안내 — 로봇에서 근로자 쪽 1.3m 에 우회 화살표, 근로자가 피해 갈 보행 통로 쪽
-      { t: [5.6, 8.4], k: "sym", icon: "detour", near: "a", dirTo: [12.6, 2.6], c: "G" }] },
+      { t: [5.6, 8.4], k: "band", near: "a", dirTo: [12.6, 2.6], c: "G" }] },
     // 자율 복귀는 v7 처럼 회색. 도킹해 앉으면(21초) 끈다 — v7 도 도킹 중엔 호를 숨긴다
     "3-1": { body: [[0, 12.6, "Y"], [12.6, 21.0, "Y", "blink"], [21.0, 24, "G", "level", 0.4]],
       halo: [[0, 7.3, "Y", "stand"], [7.3, 12.6, "Y", "stand", { aim: [-11.6, -1.4] }], [12.6, 21.0, "N", "walk"]], fx: [
       // 3. 복귀 의사 예고 — 로봇 앞 1.3m 에 회전 화살표, 복귀 방향 / 4. 저속 자율 복귀 — 로봇이 가는 쪽 1.3m 에 → 화살표(같이 움직임)
-      { t: [7.3, 12.6], k: "sym", icon: "uturn", dirTo: [-11.6, -1.4], c: "T" },
-      { t: [12.6, 21.0], k: "sym", icon: "right", dir: "move", c: "T" }] },
+      { t: [7.3, 12.6], k: "band", dirTo: [-11.6, -1.4], c: "T" },
+      { t: [12.6, 21.0], k: "band", dir: "move", c: "T" }] },
     // 위험(자율복귀 불가)은 빨강 — 걷는 동안 점멸, 멈추면 켠 채. 5단계 22초 '전원 꺼짐'에 같이 끈다
     "3-2": { body: [[0, 22.0, "R"]],
       halo: [[0, 1.6, "R", "walk"], [1.6, 6.4, "R", "stand"], [6.4, 9.4, "R", "walk"], [9.4, 22.0, "R", "stand"]], fx: [] },
@@ -1112,6 +1112,41 @@
   if (spot) addBodyLight(spot.group.children[0]);
 
   const _c1 = new THREE.Color(), _c2 = new THREE.Color();
+  // --- 호 띠 + 화살표 무늬(디자이너 스케치 11/18) — 캔버스 하나를 프레임마다 다시 그린다(띠가 보일 때만) ---
+  const BAND = { ext: 2.0, rIn: 1.1, rOut: 1.9, half: 38 * Math.PI / 180, px: 512 };
+  const bandCv = document.createElement("canvas"); bandCv.width = bandCv.height = BAND.px;
+  const bandG = bandCv.getContext("2d");
+  const bandTex = new THREE.CanvasTexture(bandCv); bandTex.colorSpace = THREE.SRGBColorSpace;
+  const bandMesh = flat(new THREE.PlaneGeometry(1, 1), fxMat(bandTex)); bandMesh.renderOrder = 4;
+  function drawBand(t, rp, cx, cz, dx, dz, col, a) {
+    const S = BAND.px, k = S / (2 * BAND.ext), g = bandG;
+    const yaw = Math.atan2(-cz, cx);   // 캔버스 +x(띠 가운데)를 (cx, cz) 쪽으로
+    // 가리키는 방향을 캔버스 각으로 — 캔버스 +x ↔ (cos yaw, -sin yaw), +y ↔ (sin yaw, cos yaw)
+    const rel = Math.atan2(dx * Math.sin(yaw) + dz * Math.cos(yaw), dx * Math.cos(yaw) - dz * Math.sin(yaw));
+    g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, S, S); g.translate(S / 2, S / 2);
+    const ro = BAND.rOut * k, ri = BAND.rIn * k, h = BAND.half, cap = (ro - ri) / 2;
+    const band = new Path2D();
+    band.arc(0, 0, ro, -h, h);
+    band.arc(Math.cos(h) * (ri + cap), Math.sin(h) * (ri + cap), cap, h, h + Math.PI);   // 둥근 끝
+    band.arc(0, 0, ri, h, -h, true);
+    band.arc(Math.cos(-h) * (ri + cap), Math.sin(-h) * (ri + cap), cap, -h + Math.PI, -h);
+    band.closePath();
+    g.fillStyle = "rgba(255,255,255,0.2)"; g.fill(band);
+    g.lineWidth = 3; g.strokeStyle = "rgba(255,255,255,0.75)"; g.stroke(band);
+    g.save(); g.clip(band); g.rotate(rel);
+    // 화살표 무늬 — 가리키는 쪽으로 흐른다(초당 0.6m)
+    const step = 0.46 * k, row = 0.42 * k, off = ((t * 0.6 * k) % step + step) % step;   // 화살표 간격 · 줄 간격(m) — 크게 · 성기게 읽히게
+    g.strokeStyle = "#fff"; g.lineWidth = 0.085 * k; g.lineCap = "round"; g.lineJoin = "round";
+    for (let y = -S, r = 0; y <= S; y += row, r++) {
+      const sh = (r % 2) * step / 2;
+      for (let x = -S - step + off + sh; x <= S; x += step) { g.beginPath(); g.moveTo(x - 0.09 * k, y - 0.14 * k); g.lineTo(x + 0.06 * k, y); g.lineTo(x - 0.09 * k, y + 0.14 * k); g.stroke(); }
+    }
+    g.restore();
+    bandTex.needsUpdate = true;
+    bandMesh.visible = true; bandMesh.position.set(rp.x, 0.017, rp.z); bandMesh.scale.set(2 * BAND.ext, 2 * BAND.ext, 1);
+    bandMesh.rotation.set(-Math.PI / 2, yaw, 0, "YXZ"); bandMesh.material.color.copy(col); bandMesh.material.opacity = a * 0.95;
+  }
+
   // --- 4방위 호(v7 관제 지도 rrHalo 와 같은 그림: 시안 R=120 이 1m, 캔버스 반폭 1.22R) ---
   function haloArc(halfDeg, width, glow, full) {
     const R = 120, half = R * 1.22, k = 2, n = Math.round(half * 2 * k);
@@ -1171,7 +1206,7 @@
   function lightColor(f, u, e) { _c1.setHex(LC[f.c]); if (f.c2) _c1.lerpHSL(_c2.setHex(LC[f.c2]), smooth(Math.min(1, e / 0.6))); return _c1; }
   function applyLights(t) {
     for (const k in POOL) POOL[k].forEach(m => { m.visible = false; });
-    beam.visible = false;
+    beam.visible = false; bandMesh.visible = false;
     const L = LIGHT[cur.id] || { body: [], fx: [] }, rp = robotPose(t);
     drawHalo(t, rp);
     // 몸 불빛
@@ -1210,6 +1245,16 @@
         const A = new THREE.Vector3(rp.x, 0.95, rp.z), B = new THREE.Vector3(...f.to), D = B.clone().sub(A);
         beam.visible = true; beam.position.copy(A).addScaledVector(D, 0.5); beam.scale.set(1, D.length(), 1);
         beam.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), D.clone().normalize()); beam.material.color.copy(col); beam.material.opacity = 0.22 * a;
+      } else if (f.k === "band") {
+        // (11/18 디자이너) 호 띠 + 안에 화살표 무늬 — 4방위 호 바로 바깥(1.1~1.9m) 76° 띠. 놓는 쪽 = 근로자 쪽(near) 또는 가리키는 쪽
+        let dx, dz;
+        if (Array.isArray(f.dir)) [dx, dz] = f.dir;
+        else if (f.dir === "move") { const [x1, z1] = posAt(SEG.robot, Math.min(SEG.dur, t + 0.25)); dx = x1 - rp.x; dz = z1 - rp.z; if (Math.hypot(dx, dz) < 0.02) { dx = rp.fx; dz = rp.fz; } }
+        else if (f.dirTo) { let ox = rp.x, oz = rp.z; if (f.near && SEG[f.near]) [ox, oz] = posAt(SEG[f.near].segs, t); dx = f.dirTo[0] - ox; dz = f.dirTo[1] - oz; }
+        const dd = Math.hypot(dx, dz) || 1; dx /= dd; dz /= dd;
+        let cx = dx, cz = dz;
+        if (f.near && SEG[f.near]) { const [wx, wz] = posAt(SEG[f.near].segs, t), qx = wx - rp.x, qz = wz - rp.z, qd = Math.hypot(qx, qz) || 1; cx = qx / qd; cz = qz / qd; }
+        drawBand(t, rp, cx, cz, dx, dz, col, a);
       } else if (f.k === "sym") {
         // 로봇이 바닥에 비추는 표지 — 안전모 표지처럼 로봇 가까이(1.3m). 자리: near(근로자) 쪽 또는 가리키는 방향 쪽
         let dx, dz;
