@@ -1,0 +1,83 @@
+{
+  "_설명": "v7 디자인 시스템 규칙. tools/ds-check 스크립트와 저장소 루트 CLAUDE.md가 이 값을 기준으로 삼는다. 값을 바꾸면 CLAUDE.md 표도 같이 고친다.",
+  "updated": "2026-11-18",
+  "space": [
+    0,
+    2,
+    4,
+    8,
+    12,
+    16,
+    20,
+    24,
+    32,
+    40,
+    48,
+    64
+  ],
+  "radius": [
+    0,
+    2,
+    4,
+    8,
+    "pill"
+  ],
+  "iconBox": [
+    14,
+    16,
+    20,
+    24
+  ],
+  "chip": {
+    "heights": {
+      "Small": 22,
+      "Medium": 26,
+      "Large": 32
+    },
+    "paddingX": {
+      "Small": 8,
+      "Medium": 8,
+      "Large": 12,
+      "faceless": 4
+    },
+    "paddingY": 4,
+    "innerGap": 4,
+    "between": 4,
+    "exceptions": {
+      "층 꼬리표": "높이 18, 원래 모양 유지"
+    }
+  },
+  "button": {
+    "heights": {
+      "XSmall": 22,
+      "Small": 26,
+      "Medium": 32,
+      "Large": 40
+    },
+    "paddingX": {
+      "XSmall": 8,
+      "Small": 8,
+      "Medium": 12,
+      "Large": 16,
+      "faceless": 4,
+      "panelEdge": 0
+    },
+    "paddingY": 4,
+    "innerGap": 4,
+    "between": 8,
+    "iconOnly": {
+      "24": 4,
+      "32": 8,
+      "36": 8
+    },
+    "exceptions": {
+      "알림 센터 >": "아이콘 간격 --space-2"
+    }
+  },
+  "lineHeight": {
+    "22": 14,
+    "26": 18,
+    "32": 24,
+    "40": 32
+  }
+}

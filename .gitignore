@@ -22,3 +22,6 @@ dist/
 # (README 만 남긴다. assets/source/README.md 에 쓰는 법이 적혀 있다.)
 assets/source/*
 !assets/source/README.md
+
+# 규칙 검사 결과 (tools/ds-check)
+tools/ds-check/out/
