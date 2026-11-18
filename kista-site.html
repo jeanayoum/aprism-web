@@ -632,13 +632,71 @@
   let hudScreenMat = null;
   {
     // (11/18) 표지는 원본 그대로(색이 화면을 가득 채움, SPOT 디스플레이 A안 800×480) + 검은 테두리. 그림자는 없음
-    const SW = 288, SH = 172.8, PAD = 10, BW = SW + PAD * 2, BH = SH + PAD * 2, M_ = 24, cx = 870 - M_ - BW / 2, cy = 795 - M_ - BH / 2;
+    const SW = 288, SH = 288 * 86 / 155, PAD = 10, BW = SW + PAD * 2, BH = SH + PAD * 2, M_ = 24, cx = 870 - M_ - BW / 2, cy = 795 - M_ - BH / 2;
     const rrShape = (w, h, r) => { const sh = new THREE.Shape(), x = -w / 2, y = -h / 2; sh.moveTo(x + r, y); sh.lineTo(x + w - r, y); sh.quadraticCurveTo(x + w, y, x + w, y + r); sh.lineTo(x + w, y + h - r); sh.quadraticCurveTo(x + w, y + h, x + w - r, y + h); sh.lineTo(x + r, y + h); sh.quadraticCurveTo(x, y + h, x, y + h - r); sh.lineTo(x, y + r); sh.quadraticCurveTo(x, y, x + r, y); return sh; };
     const bezel = new THREE.Mesh(new THREE.ShapeGeometry(rrShape(BW, BH, 12)), new THREE.MeshBasicMaterial({ color: 0x15171A, depthTest: false, toneMapped: false }));
     bezel.position.set(cx, cy, 1); bezel.renderOrder = 1; hudScene.add(bezel);
     hudScreenMat = new THREE.MeshBasicMaterial({ color: 0xffffff, depthTest: false, toneMapped: false });
     const scr = new THREE.Mesh(new THREE.PlaneGeometry(SW, SH), hudScreenMat); scr.position.set(cx, cy, 2); scr.renderOrder = 2; hudScene.add(scr);
   }
+
+  /* ================= 디스플레이 원본 프레임 =================
+   * SPOT 디스플레이(spot-display.html A안) 화면을 장면 단계별로 찍어 둔 프레임(tools/capture-spot-display.mjs →
+   * assets/display/kista/<장면>.bin + .json, 576×320 = 실물 7인치 표시 영역 155:86, 15fps). 기호 · 글자 모션까지 원본 그대로.
+   * 로봇 등 화면 두 장 · 오른쪽 위 고정 화면이 같은 캔버스 하나를 쓴다. 프레임은 압축된 채로 두고 그때그때 풀어 그린다(메모리 아낌).
+   * 프레임을 못 불러오면 예전 표지(SIGNS)로 그린다.
+   */
+  const dispCanvas = document.createElement("canvas"); dispCanvas.width = 576; dispCanvas.height = 320;
+  const dispCtx = dispCanvas.getContext("2d");
+  const dispTex = new THREE.CanvasTexture(dispCanvas); dispTex.colorSpace = THREE.SRGBColorSpace; dispTex.anisotropy = MAX_ANISO;
+  const DISP = {};          // 장면 → { meta, bin } 또는 Promise
+  const dispBmp = new Map(); // 프레임 키 → ImageBitmap(최근 것만)
+  let dispShown = null, dispWant = null;
+  function loadDisp(id) {
+    if (DISP[id]) return DISP[id] instanceof Promise ? DISP[id] : Promise.resolve(DISP[id]);
+    return (DISP[id] = Promise.all([
+      fetch(`./assets/display/kista/${id}.json?v=1`).then(r => r.json()),
+      fetch(`./assets/display/kista/${id}.bin?v=1`).then(r => r.arrayBuffer()),
+    ]).then(([meta, bin]) => (DISP[id] = { meta, bin: new Uint8Array(bin) })).catch(e => { console.warn("디스플레이 프레임", id, e); DISP[id] = null; return null; }));
+  }
+  function dispIndexAt(d, t) {
+    const segs = d.meta.segs; let s = segs[0];
+    for (const x of segs) if (t >= x.t0 - 1e-6) s = x;
+    return s.first + Math.max(0, Math.min(s.count - 1, Math.floor((t - s.t0) * d.meta.fps + 1e-6)));
+  }
+  async function dispBitmap(id, d, idx) {
+    const key = id + ":" + idx; let bm = dispBmp.get(key);
+    if (!bm) {
+      const [o, l] = d.meta.frames[idx];
+      bm = await createImageBitmap(new Blob([d.bin.subarray(o, o + l)], { type: "image/webp" }));
+      dispBmp.set(key, bm);
+      if (dispBmp.size > 90) { const k0 = dispBmp.keys().next().value; dispBmp.get(k0).close?.(); dispBmp.delete(k0); }
+    }
+    return bm;
+  }
+  function drawDisp(key, bm) { dispCtx.drawImage(bm, 0, 0, 576, 320); dispTex.needsUpdate = true; dispShown = key; dirty = true; }
+  // 미리보기 — 원하는 프레임을 풀어 오면 그린다(늦게 온 옛 프레임은 버림)
+  function wantDisp(t) {
+    const d = DISP[cur.id];
+    if (!d || d instanceof Promise) return false;
+    const idx = dispIndexAt(d, t), key = cur.id + ":" + idx;
+    if (key === dispShown) return true;
+    dispWant = key;
+    const bm = dispBmp.get(key);
+    if (bm) drawDisp(key, bm); else dispBitmap(cur.id, d, idx).then(b => { if (dispWant === key) drawDisp(key, b); });
+    return true;
+  }
+  // 녹화 — 그 프레임이 그려질 때까지 기다린다
+  async function ensureDisp(t) {
+    const d = DISP[cur.id]; if (!d || d instanceof Promise) return;
+    const idx = dispIndexAt(d, t), key = cur.id + ":" + idx;
+    if (key !== dispShown) drawDisp(key, await dispBitmap(cur.id, d, idx));
+  }
+  function useDispTex() {
+    if (screenMat && screenMat.map !== dispTex) { screenMat.map = dispTex; screenMat.needsUpdate = true; }
+    if (hudScreenMat && hudScreenMat.map !== dispTex) { hudScreenMat.map = dispTex; hudScreenMat.needsUpdate = true; }
+  }
+
   function renderFrame() {
     renderer.render(scene, camera);
     if (!hudScene.visible || !hudScreenMat.map) return;
@@ -660,7 +718,7 @@
       const panel = new THREE.Mesh(new RoundedBoxGeometry(Dd, Hd, Wd, 3, 0.006), black);
       panel.position.set(s * (Math.sin(th) * Hd / 2 + Math.cos(th) * Dd / 2), 0.006 + Math.cos(th) * Hd / 2 + Math.sin(th) * Dd / 2, 0);
       panel.rotation.z = s * th; g.add(panel);
-      const scr = new THREE.Mesh(new THREE.PlaneGeometry(0.135, 0.081), screenMat);
+      const scr = new THREE.Mesh(new THREE.PlaneGeometry(0.135, 0.135 * 86 / 155), screenMat);   // 실물 표시 영역 155:86
       scr.position.set(s * (Dd / 2 + 0.0008), 0.008, 0); scr.rotation.y = s * Math.PI / 2; panel.add(scr); screens.push(scr);
     }
     // 위 맞붙는 자리 — 꼭대기 이음 막대
@@ -995,7 +1053,7 @@
     "3-1": { body: [[0, 12.6, "Y"], [12.6, 21.0, "Y", "blink"], [21.0, 24, "G", "level", 0.4]], fx: [
       { t: [7.3, 21.0], k: "arrows", path: [[-8.6, 0.2], [-11.6, -1.4], [-11.6, -3.3], [-11.6, -4.5]], c: "T" }] },
     // 조명 1~4. 앞쪽 배터리 표기 적색 / 5. off. 라이팅 '-'
-    "3-2": { body: [[0, 24.8, "R"]], fx: [] },
+    "3-2": { body: [[0, 22.0, "R"]], fx: [] },   // 5단계 22초 = 디스플레이 '전원 꺼짐'과 같이 끔
   };
 
   // --- 바닥 투사 그리기 재료(흰 그림 + 재질 색) ---
@@ -1168,7 +1226,8 @@
   function poseAll(t) {
     for (const [h, k] of [[wkA, "a"], [wkB, "b"]]) { const w = SEG[k]; h.visible = !!w; if (w) poseWorker(h, w, t); }
     placeCam(t);
-    let sg = null; for (const [st, key] of SEG.sign) if (t >= st) sg = key; if (sg) setSign(sg);
+    if (wantDisp(t)) useDispTex();
+    else { let sg = null; for (const [st, key] of SEG.sign) if (t >= st) sg = key; if (sg) setSign(sg); }
     applyLights(t);
     dirty = true;
   }
@@ -1264,7 +1323,7 @@
    * 안전 구역이 위아래로 조금 비대칭이라(위 칩 · 아래 진행 바) 판정은 좁은 쪽(위 0.77)으로 위아래 같게 잡는다.
    */
   const HX = Math.min(-SAFE.x0, SAFE.x1), HY = Math.min(-SAFE.y0, SAFE.y1);
-  const HUD_NDC = { x: 2 * (870 - 24 - 308 - 12) / 870 - 1, y: 1 - 2 * (24 + 193 + 12) / 795 };   // 오른쪽 위 디스플레이(+여유 12) 왼쪽 아래 모서리
+  const HUD_NDC = { x: 2 * (870 - 24 - 308 - 12) / 870 - 1, y: 1 - 2 * (24 + 180 + 12) / 795 };   // 오른쪽 위 디스플레이(+여유 12) 왼쪽 아래 모서리
   function fitPts(pts, fixedD) {
     const c = new THREE.Box3().setFromPoints(pts).getCenter(new THREE.Vector3());
     const tx = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * camera.aspect, ty = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
@@ -1305,6 +1364,7 @@
     const rr = document.getElementById("recRange");
     rr.innerHTML = `<option value="all">전체 ${SEG.dur}초</option>` + cur.steps.map((s, i) => `<option value="${i}">${i + 1}단계 · ${s}</option>`).join("");
     applyCam(cur); seek(0);
+    dispShown = null; { const id = cur.id; loadDisp(id).then(() => { if (cur.id === id) { dispShown = null; poseAll(curT); } }); }
     try { localStorage.setItem("kista-site-scene", cur.id); } catch (e) {}
     history.replaceState(null, "", "?" + new URLSearchParams({ ...Object.fromEntries(qs), scene: cur.id }).toString());
   }
@@ -1353,6 +1413,7 @@
     const tA = rv === "all" ? 0 : SEG.st[+rv], tB = rv === "all" ? SEG.dur : (SEG.st[+rv + 1] ?? SEG.dur);
     const sec = tB - tA;
     const cfg = await pickCodec(fps); if (!cfg) return;
+    await loadDisp(cur.id);   // 디스플레이 원본 프레임이 다 온 뒤 굽는다
     const { Muxer, ArrayBufferTarget } = await import("https://cdn.jsdelivr.net/npm/mp4-muxer@5.1.3/+esm");
     recording = true; controls.enabled = false; $("optOrbit").checked = false; applyCam(cur);
     renderer.setSize(W, H, false);
@@ -1386,6 +1447,7 @@
       // 달리는 장면 전체 길이 기준 — 단계별로 나눠 녹화해도 이어 붙이면 카메라가 끊기지 않는다
       if (i > 0) stepRobot(tt, 1 / fps);
       poseAll(tt);
+      await ensureDisp(tt);
       renderFrame();
       const vf = new VideoFrame(renderer.domElement, { timestamp: Math.round(i * dtUs), duration: Math.round(dtUs) });
       enc.encode(vf, { keyFrame: i % (fps * 2) === 0 }); vf.close();
