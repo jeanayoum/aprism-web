@@ -941,6 +941,166 @@
         { d: 2.4, clip: "kneelDown", faceAt: [2.6, -1.1] }, { d: 1.0, clip: "kneel" }] } },
   };
 
+  /* ================= 조명 · 바닥 투사(LIGHT) =================
+   * 출처: Figma KISTA-2026 929:2294 시나리오 표의 '조명'(로봇 앞쪽 불빛) · '라이팅'([상태] 몸 불빛 / [투사] 바닥에 비추는 빛) 줄.
+   * 장면마다 body = 몸 앞 불빛 구간 [시작, 끝, 색, 방식], fx = 바닥 투사 구간. 시각만으로 정해져 되감기 · 단계 녹화가 맞는다.
+   * 색: G 초록 · B 파랑 · Y 황색 · R 적색 · T 청록 · S 하늘색 · W 흰색
+   * fx 종류  ring  원(at = robot 또는 [x, z], r = [시작 반지름, 끝 반지름], arcs = 카운트다운 칸 수, ramp = 밝기 [시작, 끝], blink = 주기)
+   *          glow  흐린 원판   arrows  흐르는 화살표 길(path 점들 / fwd = 로봇 앞으로 길이 / worker = 근로자에서 dir 쪽으로 len)
+   *          icon  바닥 그림(helmet · check · warn, fwd = 로봇 앞 거리)   fan  로봇에서 근로자 쪽 부채꼴   beam  로봇에서 한 점으로 빛줄기
+   *          c2 가 있으면 구간 동안 c → c2 로 색이 바뀐다
+   */
+  const LC = { G: 0x2EE07A, B: 0x2F8BFF, Y: 0xFFC21A, R: 0xFF3B30, T: 0x19E3C2, S: 0x55C8FF, W: 0xFFFFFF };
+  const LIGHT = {
+    // 1. 대기 [상태] Green 상시 / 2. 주변감지 [투사] Green 원형이 천천히 확장 / 3. 사전 예고 [투사] 1m 기립반경 원이 카운트다운에 맞춰 켜짐
+    // 4. 저속기립 [투사] 1m 반경 유지 · 밝기 점진 상승 / 5. 기립완료 [투사] 반경 유지 · 느리게 점멸
+    "1-1": { body: [[0, 12, "G"]], fx: [
+      { t: [2, 4], k: "ring", at: "robot", r: [0.5, 1.6], c: "G", ramp: [0.3, 0.9] },
+      { t: [4, 7], k: "ring", at: "robot", r: [1.0, 1.0], c: "G", arcs: 3, arcT0: 4 },
+      { t: [7, 10], k: "ring", at: "robot", r: [1.0, 1.0], c: "G", ramp: [0.35, 1] },
+      { t: [7, 12], k: "glow", at: "robot", r: 1.1, c: "G", ramp: [0.15, 0.4] },
+      { t: [10, 12], k: "ring", at: "robot", r: [1.0, 1.0], c: "G", blink: 1.6 }] },
+    // 1. [투사] 푸른색 / 2. [상태] 황색 점등 · [바닥] 푸른색 → 황색 / 3. [투사] 로봇 주변 황색 원 + 사람 주행에 초록 화살표 길
+    // 4. [투사] 황색 → 푸른색, 이동 방향 화살표 / 5. [투사] 청록색, 이동 방향 화살표
+    "1-2": { body: [[0, 2.4, "B"], [2.4, 7.2, "Y"], [7.2, 9.6, "B"], [9.6, 12, "T"]], fx: [
+      { t: [0, 2.4], k: "arrows", fwd: 2.6, c: "B" },
+      { t: [2.4, 4.8], k: "arrows", fwd: 2.4, c: "B", c2: "Y" },
+      { t: [4.8, 7.2], k: "ring", at: "robot", r: [0.95, 0.95], c: "Y" },
+      { t: [4.8, 7.2], k: "arrows", worker: "a", dir: [-1, 0], len: 3.6, c: "G" },
+      { t: [7.2, 9.6], k: "ring", at: "robot", r: [0.95, 0.95], c: "Y", c2: "B" },
+      { t: [7.2, 9.6], k: "arrows", fwd: 2.2, c: "B" },
+      { t: [9.6, 12], k: "arrows", fwd: 2.6, c: "T" }] },
+    // 1. [상태] 작업자 방향으로 황색 조명 / 2. [상태][투사] 황색 바닥 안전모 픽토그램 / 3-1. 확인되면 하늘색으로
+    // 3-2. [상태][투사] 황색 아이콘 유지 / 4. [상태][투사] 황색 → 청록, 이동 방향 표시
+    "2-1": { body: [[0, 11.2, "Y"], [11.2, 12.4, "S"], [12.4, 14, "T"]], fx: [
+      { t: [0, 2.8], k: "fan", toward: "b", c: "Y" },
+      { t: [2.8, 11.2], k: "icon", icon: "helmet", fwd: 1.3, size: 1.3, c: "Y" },
+      { t: [11.2, 12.4], k: "icon", icon: "check", fwd: 1.3, size: 1.3, c: "S" },
+      { t: [12.4, 14], k: "arrows", fwd: 2.4, c: "T" }] },
+    // 1. [투사] 흰색으로 이상 지점 점등 / 2. [투사][상태] 붉은색으로 이상 지점 주변 감지 반경 / 3. 적색 지속 + 근로자 우회 통로 초록
+    // 4. - / 5. [상태] 적색 해제 후 청록 정상
+    "2-2": { body: [[0, 2.8, "W"], [2.8, 11.2, "R"], [11.2, 14, "T"]], fx: [
+      { t: [0, 2.8], k: "beam", to: [12.6, 1.6, -4.4], c: "W" },
+      { t: [0, 2.8], k: "glow", at: [12.6, -4.4], r: 0.8, c: "W", ramp: [0.5, 0.8] },
+      { t: [2.8, 11.2], k: "ring", at: [12.6, -4.4], r: [1.9, 1.9], c: "R", blink: 1.0 },
+      { t: [2.8, 11.2], k: "glow", at: [12.6, -4.4], r: 2.0, c: "R", ramp: [0.35, 0.35] },
+      { t: [2.8, 5.6], k: "icon", icon: "warn", fwd: 1.1, size: 0.9, c: "R" },
+      { t: [5.6, 8.4], k: "arrows", path: [[13.2, 0.4], [12.6, 2.6], [8.4, 2.6]], c: "G" },
+      { t: [11.2, 14], k: "arrows", fwd: 2.4, c: "T" }] },
+    // 조명 1~4. 앞쪽 배터리 표기 황색 / 5. 배터리 잔량만큼. 라이팅 3 · 4. [투사] 이동경로 화살표 / 5. 복귀 중 황색 점멸 종료
+    "3-1": { body: [[0, 7.2, "Y"], [7.2, 15.6, "Y", "blink"], [15.6, 18, "G", "level", 0.4]], fx: [
+      { t: [4.8, 15.6], k: "arrows", path: [[-8.6, 0.2], [-11.6, -1.4], [-11.6, -3.3], [-11.6, -4.5]], c: "T" }] },
+    // 조명 1~4. 앞쪽 배터리 표기 적색 / 5. off. 라이팅 '-'
+    "3-2": { body: [[0, 16.8, "R"]], fx: [] },
+  };
+
+  // --- 바닥 투사 그리기 재료(흰 그림 + 재질 색) ---
+  const fxTex = {
+    glow: canvasTex(256, 256, (g, w) => { const r = g.createRadialGradient(128, 128, 0, 128, 128, 128); r.addColorStop(0, "rgba(255,255,255,1)"); r.addColorStop(1, "rgba(255,255,255,0)"); g.fillStyle = r; g.fillRect(0, 0, w, w); }, { repeat: [1, 1] }),
+    chev: canvasTex(256, 128, (g) => { g.fillStyle = "#fff"; for (const x0 of [24, 152]) { g.beginPath(); g.moveTo(x0, 18); g.lineTo(x0 + 56, 64); g.lineTo(x0, 110); g.lineTo(x0 + 26, 110); g.lineTo(x0 + 82, 64); g.lineTo(x0 + 26, 18); g.closePath(); g.fill(); } }, { repeat: [1, 1] }),
+    fan: canvasTex(256, 256, (g) => { const r = g.createLinearGradient(0, 256, 0, 0); r.addColorStop(0, "rgba(255,255,255,0.9)"); r.addColorStop(1, "rgba(255,255,255,0)"); g.fillStyle = r; g.beginPath(); g.moveTo(128, 256); g.lineTo(20, 0); g.lineTo(236, 0); g.closePath(); g.fill(); }, { repeat: [1, 1] }),
+  };
+  function iconTex(kind) {
+    return canvasTex(256, 256, (g) => {
+      g.strokeStyle = "#fff"; g.fillStyle = "#fff"; g.lineWidth = 12; g.lineCap = g.lineJoin = "round";
+      g.beginPath(); g.arc(128, 128, 112, 0, 7); g.stroke();
+      if (kind === "helmet") { g.beginPath(); g.arc(128, 150, 62, Math.PI, 0); g.closePath(); g.fill(); g.fillRect(48, 150, 160, 18); g.fillRect(120, 78, 16, 30); }
+      else if (kind === "check") { g.lineWidth = 22; g.beginPath(); g.moveTo(74, 132); g.lineTo(112, 170); g.lineTo(184, 92); g.stroke(); }
+      else if (kind === "warn") { g.beginPath(); g.moveTo(128, 50); g.lineTo(206, 186); g.lineTo(50, 186); g.closePath(); g.fill(); g.globalCompositeOperation = "destination-out"; g.fillRect(118, 92, 20, 56); g.fillRect(118, 158, 20, 18); }
+    }, { repeat: [1, 1] });
+  }
+  for (const t of Object.values(fxTex)) t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
+  fxTex.chev.wrapS = THREE.RepeatWrapping;
+  const ICONS = { helmet: iconTex("helmet"), check: iconTex("check"), warn: iconTex("warn") };
+  for (const t of Object.values(ICONS)) t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
+  const fxMat = (map, add) => new THREE.MeshBasicMaterial({ map, color: 0xffffff, transparent: true, opacity: 1, depthWrite: false, toneMapped: false,
+    blending: add ? THREE.AdditiveBlending : THREE.NormalBlending, polygonOffset: true, polygonOffsetFactor: -6 });
+  const FX = new THREE.Group(); scene.add(FX);
+  const flat = (geo, mat) => { const m = new THREE.Mesh(geo, mat); m.rotation.x = -Math.PI / 2; m.rotation.order = "YXZ"; m.renderOrder = 3; m.visible = false; FX.add(m); return m; };
+  // 미리 만든 조각을 다시 쓴다(매 프레임 새로 만들지 않음)
+  const POOL = { ring: [], arc: [], glow: [], strip: [], icon: [], fan: [] };
+  for (let i = 0; i < 3; i++) POOL.ring.push(flat(new THREE.RingGeometry(0.9, 1, 96), fxMat(null)));
+  for (let i = 0; i < 3; i++) POOL.arc.push(flat(new THREE.RingGeometry(0.9, 1, 32, 1, Math.PI / 2 - (i + 1) * 2 * Math.PI / 3 + 0.07, 2 * Math.PI / 3 - 0.14), fxMat(null)));
+  for (let i = 0; i < 3; i++) POOL.glow.push(flat(new THREE.PlaneGeometry(2, 2), fxMat(fxTex.glow, true)));
+  for (let i = 0; i < 6; i++) { const tx = fxTex.chev.clone(); tx.needsUpdate = true; POOL.strip.push(flat(new THREE.PlaneGeometry(1, 1), fxMat(tx))); }
+  for (let i = 0; i < 2; i++) POOL.icon.push(flat(new THREE.PlaneGeometry(1, 1), fxMat(ICONS.helmet)));
+  POOL.fan.push(flat(new THREE.PlaneGeometry(1, 1), fxMat(fxTex.fan, true)));
+  const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.32, 1, 24, 1, true), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.22, depthWrite: false, toneMapped: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
+  beam.visible = false; FX.add(beam);
+
+  // 몸 앞 불빛 — 앞면 아래쪽 배터리 표기 자리(앞 = -z)에 다섯 칸. level 이면 잔량만큼만 켠다
+  const bodyLeds = [];
+  function addBodyLight(body) {
+    for (let i = 0; i < 5; i++) {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.012, 0.006), new THREE.MeshBasicMaterial({ color: 0x222222, toneMapped: false }));
+      m.position.set(-0.05 + i * 0.025, 0.462, -(0.425 + 0.006)); body.add(m); bodyLeds.push(m);
+    }
+  }
+  if (spot) addBodyLight(spot.group.children[0]);
+
+  const _c1 = new THREE.Color(), _c2 = new THREE.Color();
+  function robotPose(t) {
+    const segs = SEG.robot, s = segs[segAt(segs, t)], [x, z] = posAt(segs, t);
+    const yaw = lerpAng(s.yaw0, s.yaw1, smooth(Math.min(1, (t - s.t0) / (s.turn || 0.8))));
+    return { x, z, yaw, fx: -Math.sin(yaw), fz: -Math.cos(yaw) };
+  }
+  function lightColor(f, u) { _c1.setHex(LC[f.c]); if (f.c2) _c1.lerp(_c2.setHex(LC[f.c2]), smooth(u)); return _c1; }
+  function applyLights(t) {
+    for (const k in POOL) POOL[k].forEach(m => { m.visible = false; });
+    beam.visible = false;
+    const L = LIGHT[cur.id] || { body: [], fx: [] }, rp = robotPose(t);
+    // 몸 불빛
+    let b = null; for (const x of L.body) if (t >= x[0] && t < x[1]) b = x;
+    bodyLeds.forEach((m, i) => {
+      if (!b) { m.material.color.setHex(0x1a1a1a); return; }
+      let k = 1;
+      if (b[3] === "blink") k = 0.25 + 0.75 * (0.5 + 0.5 * Math.cos(t * Math.PI * 2 / 1.0));
+      if (b[3] === "level" && i >= Math.round(b[4] * 5)) k = 0.08;
+      m.material.color.setHex(LC[b[2]]).multiplyScalar(k);
+    });
+    // 바닥 투사
+    const use = { ring: 0, arc: 0, glow: 0, strip: 0, icon: 0, fan: 0 };
+    const take = k => POOL[k][use[k]++];
+    for (const f of L.fx) {
+      if (t < f.t[0] || t >= f.t[1]) continue;
+      const u = (t - f.t[0]) / (f.t[1] - f.t[0]);
+      let a = Math.min(1, (t - f.t[0]) / 0.3, (f.t[1] - t) / 0.3);   // 0.3초 들고 나기
+      if (f.ramp) a *= f.ramp[0] + (f.ramp[1] - f.ramp[0]) * u;
+      if (f.blink) a *= 0.35 + 0.65 * (0.5 + 0.5 * Math.cos((t - f.t[0]) * Math.PI * 2 / f.blink));
+      const col = lightColor(f, u);
+      const at = f.at === "robot" || !f.at ? [rp.x, rp.z] : f.at;
+      // 바닥 판: 회전은 바닥 위에서 도는 각(yaw) — 판의 +x 가 그 방향의 오른쪽, 판의 -y(화면 아래)가 앞
+      const put = (m, x, z, sx, sz, yaw = 0, opa = a) => { if (!m) return null; m.visible = true; m.position.set(x, 0.014, z); m.scale.set(sx, sz, 1); m.rotation.set(-Math.PI / 2, yaw, 0, "YXZ"); m.material.color.copy(col); m.material.opacity = opa; return m; };
+      if (f.k === "ring") {
+        const r = f.r[0] + (f.r[1] - f.r[0]) * smooth(u);
+        if (f.arcs) { for (let i = 0; i < f.arcs; i++) if (t >= f.arcT0 + i) put(take("arc"), at[0], at[1], r, r, rp.yaw, a); }
+        else put(take("ring"), at[0], at[1], r, r);
+      } else if (f.k === "glow") put(take("glow"), at[0], at[1], f.r, f.r, 0, a * 0.6);
+      else if (f.k === "icon") { const m = put(take("icon"), rp.x + rp.fx * f.fwd, rp.z + rp.fz * f.fwd, f.size, f.size, rp.yaw + Math.PI, a * 0.95); if (m) m.material.map = ICONS[f.icon]; }
+      else if (f.k === "fan") {
+        const w = SEG[f.toward]; if (!w) continue;
+        const [wx, wz] = posAt(w.segs, t), dx = wx - rp.x, dz = wz - rp.z, dd = Math.hypot(dx, dz), L2 = Math.max(0.5, Math.min(3.6, dd - 0.3));
+        put(take("fan"), rp.x + dx / dd * L2 / 2, rp.z + dz / dd * L2 / 2, L2 * 0.9, L2, Math.atan2(-dx, -dz), a * 0.55);
+      } else if (f.k === "beam") {
+        const A = new THREE.Vector3(rp.x, 0.95, rp.z), B = new THREE.Vector3(...f.to), D = B.clone().sub(A);
+        beam.visible = true; beam.position.copy(A).addScaledVector(D, 0.5); beam.scale.set(1, D.length(), 1);
+        beam.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), D.clone().normalize()); beam.material.color.copy(col); beam.material.opacity = 0.22 * a;
+      } else if (f.k === "arrows") {
+        let pts;
+        if (f.fwd) pts = [[rp.x + rp.fx * 0.75, rp.z + rp.fz * 0.75], [rp.x + rp.fx * (0.75 + f.fwd), rp.z + rp.fz * (0.75 + f.fwd)]];
+        else if (f.worker) { const w = SEG[f.worker]; if (!w) continue; const [wx, wz] = posAt(w.segs, t); pts = [[wx + f.dir[0] * 0.6, wz + f.dir[1] * 0.6], [wx + f.dir[0] * (0.6 + f.len), wz + f.dir[1] * (0.6 + f.len)]]; }
+        else pts = f.path;
+        for (let i = 0; i < pts.length - 1; i++) {
+          const [x0, z0] = pts[i], [x1, z1] = pts[i + 1], len = Math.hypot(x1 - x0, z1 - z0), WA = 0.55;
+          // 판의 +x(화살 끝 방향)를 진행 방향으로: yaw 는 +x 가 (dx, dz) 를 향하게
+          const m = put(take("strip"), (x0 + x1) / 2, (z0 + z1) / 2, len, WA, Math.atan2(-(z1 - z0), x1 - x0), a * 0.9);
+          if (!m) break;
+          m.material.map.repeat.set(len / (WA * 2), 1); m.material.map.offset.x = -(t * 0.9) / (WA * 2);   // 앞으로 흐른다
+        }
+      }
+    }
+  }
+
   const yawTo = (dx, dz) => Math.atan2(-dx, -dz);
   const smooth = x => x * x * (3 - 2 * x);
   const lerpAng = (a, b, k) => { const d = ((b - a + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI; return a + d * k; };
@@ -1005,6 +1165,7 @@
     for (const [h, k] of [[wkA, "a"], [wkB, "b"]]) { const w = SEG[k]; h.visible = !!w; if (w) poseWorker(h, w, t); }
     placeCam(t);
     let sg = null; for (const [st, key] of SEG.sign) if (t >= st) sg = key; if (sg) setSign(sg);
+    applyLights(t);
     dirty = true;
   }
   function seek(t) {
