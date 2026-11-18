@@ -792,14 +792,40 @@
       if (Math.hypot(dx, dz) < 20) return;   // 20cm 미만이면 제자리 동작
       for (let i = 0; i < n; i++) { const k = (tm[i] - tm[0]) / T; v[3 * i] -= dx * k; v[3 * i + 2] -= dz * k; }
     }
+    /*
+     * 정수리 머리카락 — 받은 모델(Ch17)은 안전모 쓴 캐릭터라 머리카락이 옆 · 뒤 띠(높이 171cm 까지)뿐이고 정수리가 비어 있다.
+     * 두피를 재어(모델 cm 단위: 정수리 176.4, 171 높이 반폭 7.9, 앞뒤 -7.6~11.3) 타원 모자 꼴을 얹고 머리 뼈에 붙인다.
+     * 안전모를 쓴 동안엔 숨긴다(안전모 안쪽을 뚫지 않게).
+     */
+    const capGeo = new THREE.SphereGeometry(1, 40, 20, 0, Math.PI * 2, 0, 1.22);
+    const capTex = canvasTex(512, 512, (g, w, hh) => {
+      g.fillStyle = "#2A201A"; g.fillRect(0, 0, w, hh);
+      for (let i = 0; i < 2600; i++) {   // 정수리에서 퍼져 내려가는 결(구 UV 의 세로 = 위→아래)
+        const x = rnd() * w, y = rnd() * hh, len = 30 + rnd() * 70;
+        g.strokeStyle = rnd() < 0.5 ? "rgba(70,55,45,.55)" : "rgba(15,11,9,.6)"; g.lineWidth = 1 + rnd() * 1.5;
+        g.beginPath(); g.moveTo(x, y); g.lineTo(x + (rnd() - 0.5) * 8, y + len); g.stroke();
+      }
+    }, { repeat: [3, 1] });
+    const capMat = new THREE.MeshStandardMaterial({ map: capTex, roughness: 0.75 });
+    function addHairCap(m) {
+      let head = null; m.traverse(o => { if (!head && o.isBone && /Head$/.test(o.name) && o.parent?.name !== o.name) head = o; });
+      if (!head) return null;
+      const cap = new THREE.Mesh(capGeo, capMat);
+      // 두피 정점이 모두 안에 들도록(여유 1.5%) 고른 가장 작은 꼴 — 꼭대기 176.7(정수리 +3mm). 뒤로 살짝 눕혀 앞 이마선을 올린다
+      cap.scale.set(10.4, 13.8, 11.5); cap.position.set(0, 163.5, 2.5); cap.rotation.x = -0.3;
+      m.updateMatrixWorld(true); cap.updateMatrixWorld(true); head.attach(cap);
+      cap.castShadow = cap.receiveShadow = true; cap.frustumCulled = false; cap.visible = false;
+      return cap;
+    }
     const h = new THREE.Box3().setFromObject(src).getSize(new V()).y;
     for (const holder of [wkA, wkB]) {
       const m = SkeletonUtils.clone(src);
       relax(m);   // 동작이 없을 때의 자세
       const helmets = []; m.traverse(o => { if (o.isMesh && /helmet/i.test(o.name)) helmets.push(o); });
+      const hairCap = addHairCap(m);
       const mixer = new THREE.AnimationMixer(m), actions = {};
       for (const clip of animGltf.animations) { stripRootMotion(clip); const a = mixer.clipAction(clip); a.play(); a.setEffectiveWeight(0); actions[clip.name] = a; }
-      holder.userData = { mixer: animGltf.animations.length ? mixer : null, actions, helmets };
+      holder.userData = { mixer: animGltf.animations.length ? mixer : null, actions, helmets, hairCap };
       const wrap = new THREE.Group(); wrap.add(m);
       wrap.scale.setScalar(1.75 / h);   // 키 1.75m
       wrap.rotation.y = Math.PI;        // 얼굴을 -z 로 — 로봇(SPOT)과 같은 앞 방향, SCRIPT 방향각을 그대로 쓴다
@@ -909,7 +935,7 @@
   function poseWorker(holder, w, t) {
     const segs = w.segs, i = segAt(segs, t), s = placeOn(holder, segs, t, 0.45);
     const ud = holder.userData;
-    if (ud.helmets) { let on = w.helmet; for (const [et, v] of (w.ev || [])) if (t >= et) on = v; ud.helmets.forEach(m => { m.visible = on; }); }
+    if (ud.helmets) { let on = w.helmet; for (const [et, v] of (w.ev || [])) if (t >= et) on = v; ud.helmets.forEach(m => { m.visible = on; }); if (ud.hairCap) ud.hairCap.visible = !on; }
     if (!ud.mixer) return;
     for (const a of Object.values(ud.actions)) a.setEffectiveWeight(0);
     const prev = segs[i - 1], k = prev ? Math.min(1, (t - s.t0) / 0.3) : 1;
