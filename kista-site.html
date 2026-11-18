@@ -10,6 +10,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <!-- 현장 표지 글자(바닥 · 벽 표지)는 Noto Sans KR — 캔버스에 그린다 -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700;900&display=swap">
+  <!-- 합친 영상 아래 단계 바 = 발표 슬라이드와 같은 Pretendard -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
   <link rel="stylesheet" href="./assets/css/tokens.css?v=b64812bd" />
   <link rel="stylesheet" href="./assets/css/base.css?v=5ccd4bb3" />
   <style>
@@ -75,7 +77,15 @@
     .stepbar-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-tertiary); }
 
     /* ===== 합친 영상(작업현장 + 관제실) — 슬라이드 두 칸(870×795 · 사이 20) 그대로. 칩 · 단계 바는 슬라이드에 있어 뺀다 ===== */
-    .combo { position: fixed; left: 0; top: 0; z-index: 50; display: flex; gap: 20px; width: 1760px; height: 795px; background: #fff; }
+    /* 높이 850 = 두 칸 795 + 아래 단계 바(슬라이드 Steps 899:2165 — 칸 기준 274, 741 · 1212×76)가 칸 밖으로 내려온 몫 + 그림자 */
+    .combo { position: fixed; left: 0; top: 0; z-index: 50; display: flex; align-items: flex-start; gap: 20px; width: 1760px; height: 850px; background: #fff; }
+    .combo-steps { position: absolute; left: 274px; top: 741px; width: 1212px; height: 76px; z-index: 5; background: #fff; border-radius: 8px; box-shadow: 0 12px 20px rgb(0 0 0 / 10%);
+      font-family: Pretendard, "Pretendard Variable", "Noto Sans KR", sans-serif; }
+    .combo-steps .cs-l { position: absolute; top: 56px; height: 1px; margin-top: -0.5px; background: rgb(17 18 23 / 70%); }
+    .combo-steps .cs-d { position: absolute; top: 52px; width: 8px; height: 8px; margin-left: -4px; border-radius: 50%; box-sizing: border-box; border: 1px solid #747985; }
+    .combo-steps .cs-d.on { top: 50px; width: 12px; height: 12px; margin-left: -6px; border: 0; background: #111217; }
+    .combo-steps .cs-t { position: absolute; top: 12px; transform: translateX(-50%); font-size: 20px; line-height: 28px; letter-spacing: -0.6px; white-space: nowrap; color: #747985; font-weight: 400; }
+    .combo-steps .cs-t.on { color: #111217; font-weight: 700; }
     .combo[hidden] { display: none; }
     .combo-l, .combo-r { position: relative; width: 870px; height: 795px; overflow: hidden; background: #F0F3F6; }
     .combo-l canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; }
@@ -83,7 +93,7 @@
     .combo-r .stand { position: absolute; left: 333px; top: 654px; width: 215px; height: 141px; }
     .combo-r .ctl { position: absolute; left: 53px; top: 216px; width: 770px; height: 433px; overflow: hidden; border-radius: 3px; background: #0A0F18; }
     .combo-r .ctl iframe { width: 1920px; height: 1080px; border: 0; transform: scale(calc(770 / 1920)); transform-origin: 0 0; }
-    .combo-bar { position: fixed; left: 0; top: 807px; z-index: 51; display: flex; gap: 8px; align-items: center; padding: 8px 12px; background: var(--bg-raised); border: 1px solid var(--border-default); border-radius: 8px; font-size: 13px; }
+    .combo-bar { position: fixed; left: 0; top: 862px; z-index: 51; display: flex; gap: 8px; align-items: center; padding: 8px 12px; background: var(--bg-raised); border: 1px solid var(--border-default); border-radius: 8px; font-size: 13px; }
     .combo-bar[hidden] { display: none; }
     /* 고화질 녹화 1단계 — 관제 화면만 화면 왼쪽 위에 크게(1920×1080 을 창에 맞춰) 띄워 찍는다. --hq = 창에 맞춘 배율 */
     body.combo-hq .combo { z-index: 300; }
@@ -181,8 +191,9 @@
     </div>
   </main>
 
-  <!-- 합친 영상 모드 — 왼쪽 작업현장(3D) · 오른쪽 관제실(모니터 안 v7 관제 화면). 이 1760×795 만 잘라 녹화한다 -->
+  <!-- 합친 영상 모드 — 왼쪽 작업현장(3D) · 오른쪽 관제실(모니터 안 v7 관제 화면). 이 1760×850(두 칸 + 아래 단계 바)만 잘라 녹화한다 -->
   <div class="combo" id="combo" hidden>
+    <div class="combo-steps" id="comboSteps" aria-label="장면 단계"></div>
     <div class="combo-l" id="comboL"></div>
     <div class="combo-r">
       <img class="stand" src="./assets/img/kista/monitor-stand.png" alt="">
@@ -195,7 +206,7 @@
     <span id="comboScene"></span>
     <label class="field">범위 <select id="comboRange"></select></label>
     <button class="btn" id="comboPlay" type="button">▶ 미리 보기</button>
-    <button class="btn primary" id="comboHQ" type="button">고화질 녹화 (3520×1590)</button>
+    <button class="btn primary" id="comboHQ" type="button">고화질 녹화 (3520×1700)</button>
     <button class="btn" id="comboRec" type="button">빠른 녹화</button>
     <button class="btn" id="comboExit" type="button">닫기</button>
     <span class="note" id="comboNote">고화질: '이 탭' 공유 → 관제 화면만 크게 떠 실제 시간으로 찍고, 이어서 3D 와 합쳐 굽는다(음성 자동) · 빠른 녹화: 보이는 그대로(탭 오디오 공유 시 음성)</span>
@@ -1412,6 +1423,7 @@
     stepRobot(curT, 0); poseAll(curT); showT();
   }
   function showT() {
+    if (typeof comboOn !== "undefined" && comboOn) comboStepsAt(curT);
     const el = document.getElementById("tRead"); if (el) el.textContent = `${curT.toFixed(1)} / ${SEG.dur.toFixed(1)}초`;
     const n = SEG.st.filter(x => curT >= x - 1e-6).length - 1;
     [...document.querySelectorAll("#steps li")].forEach((li, i) => li.classList.toggle("is-now", i === n));
@@ -2039,7 +2051,44 @@
     if (!d.getElementById("kista-hide")) { const st = d.createElement("style"); st.id = "kista-hide"; st.textContent = ".rsim{display:none!important}"; d.head.appendChild(st); }   // 시뮬레이션 리모콘은 화면에서 숨김(누르기만)
     return true;
   }
+  /* 아래 단계 바 — 슬라이드 Steps(899:2165): 점 중심 104 + 251k · 점 줄 y 56, 글자 20/28 아래끝 = 점 위 12. 지금 단계 하나만 진하게 */
+  const STEP_X = k => 104 + 251 * k;
+  function stepsNow(t) { return Math.max(0, SEG.st.filter(x => t >= x - 1e-6).length - 1); }
+  function comboStepsFill() {
+    const el = document.getElementById("comboSteps"); if (!el) return;
+    let h = "";
+    for (let k = 0; k < 4; k++) h += `<i class="cs-l" style="left:${STEP_X(k) + 4}px;width:${251 - 8}px"></i>`;
+    cur.steps.forEach((nm, k) => { h += `<span class="cs-t" style="left:${STEP_X(k)}px">${nm}</span><b class="cs-d" style="left:${STEP_X(k)}px"></b>`; });
+    el.innerHTML = h; el.dataset.n = "";
+    comboStepsAt(curT);
+  }
+  function comboStepsAt(t) {
+    const el = document.getElementById("comboSteps"); if (!el) return;
+    const n = String(stepsNow(t)); if (el.dataset.n === n) return; el.dataset.n = n;
+    el.querySelectorAll(".cs-t").forEach((x, k) => x.classList.toggle("on", String(k) === n));
+    el.querySelectorAll(".cs-d").forEach((x, k) => x.classList.toggle("on", String(k) === n));
+  }
+  // 같은 단계 바를 캔버스에(고화질 굽기) — sc 배율, (ox, oy) 합친 영상 왼쪽 위
+  function drawSteps(o, sc, t) {
+    const n = stepsNow(t), X = 274, Y = 741;
+    o.save(); o.scale(sc, sc); o.translate(X, Y);
+    o.save(); o.shadowColor = "rgba(0,0,0,0.1)"; o.shadowBlur = 20; o.shadowOffsetY = 12; o.fillStyle = "#fff";
+    o.beginPath(); o.roundRect(0, 0, 1212, 76, 8); o.fill(); o.restore();
+    o.fillStyle = "rgba(17,18,23,0.7)";
+    for (let k = 0; k < 4; k++) o.fillRect(STEP_X(k) + 4, 56, 251 - 8, 1);
+    o.textAlign = "center"; o.textBaseline = "middle"; o.letterSpacing = "-0.6px";
+    cur.steps.forEach((nm, k) => {
+      const on = k === n, cx = STEP_X(k);
+      o.font = `${on ? 700 : 400} 20px Pretendard, "Noto Sans KR", sans-serif`; o.fillStyle = on ? "#111217" : "#747985";
+      o.fillText(nm, cx, 26);
+      o.beginPath();
+      if (on) { o.arc(cx, 56, 6, 0, Math.PI * 2); o.fillStyle = "#111217"; o.fill(); }
+      else { o.arc(cx, 56, 3.5, 0, Math.PI * 2); o.fillStyle = "#fff"; o.fill(); o.lineWidth = 1; o.strokeStyle = "#747985"; o.stroke(); }
+    });
+    o.restore();
+  }
   function comboFill() {
+    comboStepsFill();
     document.getElementById("comboScene").textContent = `${cur.id}. ${cur.title}` + (CTRL[cur.id] ? "" : " — 관제 시간표 없음(이동 중 그대로)");
     const rr = document.getElementById("comboRange");
     rr.innerHTML = `<option value="all">전체 ${SEG.dur}초</option>` + cur.steps.map((s, i) => `<option value="${i}">${i + 1}단계 · ${s}</option>`).join("");
@@ -2104,14 +2153,14 @@
   document.getElementById("comboPlay").onclick = comboPreview;
   document.getElementById("comboRec").onclick = comboRecord;
 
-  /* ================= 고화질 합친 영상(3520×1590) =================
+  /* ================= 고화질 합친 영상(3520×1700) =================
    * 빠른 녹화는 화면에 보이는 픽셀 그대로라(1760×795, 관제 화면은 1920×1080 을 0.4배로 줄여 그려 글자가 뭉갠다) 낮다. 두 번에 나눠 굽는다.
    *   1) 관제 화면만 창에 맞춰 크게 띄우고(1920×1080 × --hq) 이 탭을 공유받아 실제 시간으로 찍는다. 프레임마다 그때의 장면 시각을 붙여
    *      1540×866(모니터 화면 칸 770×433 의 두 배)으로 줄여 H.264 로 메모리에 담는다(MediaStreamTrackProcessor → VideoEncoder).
    *   2) 작업현장 3D 를 영상 녹화처럼 한 프레임씩 두 배(1740×1590)로 그리고, 같은 시각의 관제 프레임을 차례로 풀어(VideoDecoder — 되감기 없음)
-   *      모니터 목업 칸에 붙여 3520×1590 MP4(H.264 + AAC 음성)로 굽는다. 두 칸 · 사이 20 · 모니터 자리는 합친 영상 모드(1760×795)의 두 배 그대로.
+   *      모니터 목업 칸에 붙여 3520×1700 MP4(H.264 + AAC 음성)로 굽는다(아래 단계 바 포함). 두 칸 · 사이 20 · 모니터 자리는 합친 영상 모드(1760×795)의 두 배 그대로.
    */
-  const HQ = { W: 3520, H: 1590, fps: 30, CW: 1540, CH: 866 };
+  const HQ = { W: 3520, H: 1700, fps: 30, CW: 1540, CH: 866 };   // 850 × 2 — 아래 단계 바까지
   let hqBusy = false;
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   async function hqCodec(w, h, fps, bitrate) {
@@ -2128,7 +2177,7 @@
     if (!ctlReady()) { note.textContent = "관제 화면을 불러오는 중이에요 — 잠시 뒤 다시 눌러 주세요"; return; }
     if (!window.MediaStreamTrackProcessor || !window.VideoEncoder || !window.VideoDecoder) { note.textContent = "이 브라우저는 고화질 녹화를 못 해요 — 최신 Chrome 에서 열어 주세요"; return; }
     const ocfg = await hqCodec(HQ.W, HQ.H, HQ.fps, 40e6), tcfg = await hqCodec(HQ.CW, HQ.CH, HQ.fps, 24e6);
-    if (!ocfg || !tcfg) { note.textContent = "이 PC 의 H.264 인코더가 3520×1590 을 못 받아요 — 빠른 녹화를 써 주세요"; return; }
+    if (!ocfg || !tcfg) { note.textContent = "이 PC 의 H.264 인코더가 3520×1700 을 못 받아요 — 빠른 녹화를 써 주세요"; return; }
     hqBusy = true;
     try {
       await loadDisp(cur.id); await loadVoices();
@@ -2188,6 +2237,7 @@
     const fps = HQ.fps, X2 = 2, RX = (870 + 20) * X2;   // 오른쪽 칸 왼쪽 끝
     const out = document.createElement("canvas"); out.width = HQ.W; out.height = HQ.H;
     const o = out.getContext("2d"); o.imageSmoothingQuality = "high";
+    try { await Promise.all([document.fonts.load('700 20px Pretendard'), document.fonts.load('400 20px Pretendard')]); } catch (e) {}
     const hw = document.querySelector(".combo-r .hw"), stand = document.querySelector(".combo-r .stand");
     // 관제 프레임을 차례로 푼다 — 장면 시각 t 이하에서 가장 늦은 프레임
     const q = []; let fed = 0, flushed = false, derr = null;
@@ -2251,6 +2301,7 @@
       o.fillStyle = "#0A0F18"; o.fillRect(RX + 53 * X2, 216 * X2, 770 * X2, 433 * X2);
       if (cf) o.drawImage(cf, RX + 53 * X2, 216 * X2, 770 * X2, 433 * X2);
       o.restore();
+      drawSteps(o, X2, tt);
       toVideoRange(o, HQ.W, HQ.H);
       const vf = new VideoFrame(out, { timestamp: Math.round(i * dtUs), duration: Math.round(dtUs) });
       enc.encode(vf, { keyFrame: i % (fps * 2) === 0 }); vf.close();
@@ -2263,7 +2314,7 @@
     note.textContent = "파일 만드는 중…";
     muxer.finalize();
     download(new Blob([muxer.target.buffer], { type: "video/mp4" }), `KISTA_합친영상_${cur.id}${tag}_고화질_${stamp()}.mp4`);
-    note.textContent = `저장했어요 — 3520×1590${audioBuf ? " · 음성 포함" : ""}` + (devW < HQ.CW ? ` · 관제 화면은 창이 작아 ${devW}px 로 찍혀 조금 흐릴 수 있어요(창을 키우거나 F11)` : "");
+    note.textContent = `저장했어요 — 3520×1700${audioBuf ? " · 음성 포함" : ""}` + (devW < HQ.CW ? ` · 관제 화면은 창이 작아 ${devW}px 로 찍혀 조금 흐릴 수 있어요(창을 키우거나 F11)` : "");
   }
   document.getElementById("comboHQ").onclick = comboRecordHQ;
   function setPlayBtn() { const b = document.getElementById("btnPlay"); if (b) b.textContent = playing ? "❚❚ 멈춤" : "▶ 재생"; }
