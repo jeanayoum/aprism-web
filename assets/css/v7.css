@@ -1601,7 +1601,7 @@ body.ver-7 .dc6-row { gap: var(--space-8) !important; }
 body.ver-7 .account-chip:not(.z1) { gap: var(--space-4) !important; }
 
 /* ---------- 알림센터 거르기(면 없는 체크): 좌우 패딩 4, 눈에 보이는 사이 12 (4+4+4), 안쪽 체크와 글자 사이 4 ---------- */
-body.ver-7 .ac-filter .ac-check:not(.z1):not(.z2) { padding-left: var(--space-4) !important; padding-right: var(--space-4) !important; gap: var(--space-4) !important; }
+body.ver-7 .ac-filter .ac-check:not(.z1):not(.z2) { padding-left: var(--space-4) !important; padding-right: var(--space-4) !important; gap: var(--space-8) !important; } /* 체크 상자와 글자 사이 --space-8 (입력 요소 기준) */
 
 /* ---------- 간격 토큰 고르기 결과 (11/17) ---------- */
 body.ver-7 .ac-tab { column-gap: var(--space-8) !important; gap: var(--space-8) !important; }                 /* 알림센터 탭 글자와 건수 10 → --space-8 */
