@@ -413,18 +413,44 @@
   const DOCKS = [{ x: -14.1, n: "01" }, { x: -11.6, n: "02" }];
   for (const d of DOCKS) {
     decal(dockBay, 1.8, 2.6, d.x, -5.1, 0, 0.006);
-    // 충전 패드 · 기둥형 충전기(벽에 붙음)
-    boxB(1.1, 0.06, 1.3, M.black, d.x, 0, -5.0);
-    for (const dx of [-0.18, 0.18]) boxB(0.08, 0.012, 0.9, new THREE.MeshStandardMaterial({ color: 0xC98A4B, metalness: 0.9, roughness: 0.3 }), d.x + dx, 0.06, -5.0);
-    const tower = new THREE.Group(); tower.position.set(d.x, 0, -6.55); world.add(tower);
-    boxB(0.8, 1.35, 0.45, M.cabinet, 0, 0, 0, tower);
-    boxB(0.66, 0.5, 0.02, M.black, 0, 0.62, 0.23, tower);                 // 작은 화면
-    boxB(0.5, 0.25, 0.01, lamp(0x3CC37A, 1.2), 0, 0.74, 0.245, tower);     // 화면 빛 — 충전 대기
-    boxB(0.7, 0.04, 0.02, lamp(0x35D07F, 3), 0, 1.22, 0.23, tower);        // 상태 LED 띠
-    boxB(0.8, 0.08, 0.5, M.steelDark, 0, 0, 0, tower);
+    /*
+     * 로봇 도킹 스테이션 — 실물 사진(11/18) 눈대중. 바닥판 위에 길쭉하게 세 덩어리가 앞뒤로 놓인다:
+     *   앞 낮은 블록(배 밑 충전 접점 · 초록 불) → 가운데 통풍 격자 → 뒤 높은 블록 위에 QR(피두셜) 판.
+     * 로봇은 QR 을 등지고(앞 = +z, 통로 쪽) 그 위에 앉는다. 앉은 몸 밑면이 바닥에서 약 18cm 라 배 밑 블록은 그보다 낮게.
+     */
+    const dk = new THREE.Group(); dk.position.set(d.x, 0, 0); world.add(dk);
+    const dkBlack = new THREE.MeshStandardMaterial({ color: 0x1E2124, roughness: 0.7, metalness: 0.05 });
+    const dkPlate = new THREE.MeshStandardMaterial({ color: 0x16181A, roughness: 0.85 });
+    boxB(0.36, 0.02, 2.1, dkPlate, 0, 0, -5.15, dk);                    // 바닥판 — 길게
+    boxB(0.95, 0.02, 0.42, dkPlate, 0, 0, -4.9, dk);                    // 가운데 넓은 판(로봇 발 자리)
+    boxB(0.6, 0.02, 0.3, dkPlate, 0, 0, -6.0, dk);
+    boxB(0.24, 0.15, 0.26, dkBlack, 0, 0.02, -4.62, dk);                // 앞 블록 — 배 밑
+    boxB(0.16, 0.012, 0.03, lamp(0x35D07F, 3.2), 0, 0.17, -4.62, dk);   // 충전 불(초록)
+    boxB(0.28, 0.1, 0.36, dkBlack, 0, 0.02, -5.05, dk);                 // 가운데 통풍 격자
+    for (let i = 0; i < 7; i++) boxB(0.012, 0.008, 0.3, M.rubber, -0.09 + i * 0.03, 0.12, -5.05, dk);
+    boxB(0.2, 0.13, 0.22, dkBlack, 0, 0.02, -5.42, dk);                 // 이음 블록
+    boxB(0.36, 0.34, 0.4, dkBlack, 0, 0.02, -5.95, dk);                 // 뒤 높은 블록
+    boxB(0.3, 0.02, 0.06, M.rubber, 0, 0.36, -5.95, dk);                // QR 판 받침
+    {
+      const fid = canvasTex(512, 512, (g, w, h) => {
+        g.fillStyle = "#F4F5F4"; g.fillRect(0, 0, w, h);
+        g.fillStyle = "#0E0F10"; g.fillRect(56, 56, 400, 400);
+        const bits = ["000000", "011010", "010110", "001100", "011110", "000000"];   // 사진 비슷한 무늬(임의)
+        g.fillStyle = "#F4F5F4"; const c = 400 / 8;
+        bits.forEach((row, r) => [...row].forEach((v, k) => { if (v === "1") g.fillRect(56 + c * (k + 1), 56 + c * (r + 1), c, c); }));
+        g.fillStyle = "#9AA0A6"; g.font = '600 18px "Noto Sans KR"'; g.fillText("DOCK " + d.n, 60, 490);
+      }, { repeat: [1, 1] });
+      const board = new THREE.Group(); board.position.set(0, 0.37, -5.97); board.rotation.x = -0.12; dk.add(board);
+      boxB(0.32, 0.33, 0.012, new THREE.MeshStandardMaterial({ color: 0xE9EBEA, roughness: 0.6 }), 0, 0, 0, board);
+      const face = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.3), new THREE.MeshStandardMaterial({ map: fid, roughness: 0.6 }));
+      face.position.set(0, 0.165, 0.0065); board.add(face);
+    }
+    dk.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+    // 전원선 — 뒤 블록에서 벽 콘센트로
+    pipeRun([[d.x + 0.12, 0.12, -6.15], [d.x + 0.25, 0.03, -6.5], [d.x + 0.3, 0.05, -6.84], [d.x + 0.3, 0.42, -6.86]], 0.012, M.rubber);
+    boxB(0.09, 0.12, 0.03, M.cabinet, d.x + 0.3, 0.4, -6.87);
     const numTex = canvasTex(256, 128, (g, w, h) => { g.fillStyle = "#1B1E22"; g.fillRect(0, 0, w, h); g.fillStyle = "#F2C230"; g.font = '900 84px "Noto Sans KR"'; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(d.n, w / 2, h / 2 + 4); });
-    wallSign(numTex, 0.5, 0.25, d.x, 1.75, -6.3);
-    pipeRun([[d.x + 0.3, 1.35, -6.6], [d.x + 0.3, 3.0, -6.75], [d.x + 0.3, 4.6, -6.75]], 0.035, M.steelDark);   // 전선관
+    wallSign(numTex, 0.5, 0.25, d.x, 1.5, -6.86);
   }
   // 충전 구역 벽 표지 · 분전반 · 소화기
   const dockSign = canvasTex(1024, 256, (g, w, h) => { g.fillStyle = "#1F5FBF"; g.fillRect(0, 0, w, h); g.fillStyle = "#fff"; g.font = '900 120px "Noto Sans KR"'; g.textBaseline = "middle"; g.fillText("로봇 충전 구역", 60, h / 2 + 6); });
@@ -826,7 +852,9 @@
     // 배터리 부족 → 복귀 가능성 계산 → 복귀 의사 예고 → 저속 자율 복귀 → 충전 시작(도킹 02)
     "3-1": { dur: 18, st: [0, 2.4, 4.8, 7.2, 15.6], sign: [[0, "bat20"], [4.8, "goDock"], [15.6, "charging"]],
       robot: { start: [-8.6, 0.2], face: W_, segs: [
-        { d: 7.2, mode: "idle" }, { d: 4.4, mode: "walk", to: [-11.6, -1.2] }, { d: 4.0, mode: "walk", to: [-11.6, -4.9] }, { d: 2.4, mode: "sit" }] } },
+        { d: 7.2, mode: "idle" }, { d: 4.0, mode: "walk", to: [-11.6, -1.4] }, { d: 1.8, mode: "walk", to: [-11.6, -3.3] },
+        // 도킹은 QR 을 등지고 앉는다 — 돌아선 뒤 뒤로 걸어 들어간다
+        { d: 1.0, mode: "idle", face: Math.PI, turn: 1.0 }, { d: 1.6, mode: "walk", to: [-11.6, -5.0], face: Math.PI }, { d: 2.4, mode: "sit" }] } },
     // 배터리 20% 이하 → 통로 가장자리 이동 후 정지 → 접근금지 우회 안내(지나는 근로자 A) → 회수 담당자 호출(B 통화) → 회수 완료 처리(B 가 옆에 앉아 확인)
     "3-2": { dur: 18, st: [0, 3, 6, 9, 12], sign: [[0, "bat20"], [6, "noReturn"], [9, "calling"], [16.8, "recovered"]],
       robot: { start: [6.2, 0.3], face: W_, segs: [
