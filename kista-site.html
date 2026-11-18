@@ -158,6 +158,7 @@
   import * as THREE from "three";
   import { OrbitControls } from "three/addons/controls/OrbitControls.js";
   import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+  import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 
   /* ================================================================
    * 장면 6개 — PPT 상세 페이지 순서. 공간은 하나, 구도만 다르다.
@@ -571,6 +572,102 @@
     spot.group.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
     actors.add(spot.group);
   }
+
+  /* ================= 로봇 등 디스플레이 =================
+   * 실물 사진(11/18) 눈대중: 몸 위 뒤쪽 절반(뒤 관절 앞)에 세운 검은 상자, 화면은 몸 옆을 본다. 7인치 800×480.
+   * 모델 단위(몸길이 0.85, 위판 y 0.60, 앞 = -z, 폭 ±0.111) — 1.3배 키우면 상자 약 22×17cm, 화면 약 17.5×10.5cm.
+   * DISPLAY_SIDE  1 = 로봇 오른쪽(+x), -1 = 왼쪽. 사진의 비상정지 버튼 위치로 오른쪽이라 봤다 — 반대면 이 값만 바꾼다.
+   * 화면 표지는 SPOT 디스플레이 A안(spot-display.html) 색 · 문구를 줄여 그린 것. 장면 SCRIPT 의 sign 시간표를 따른다.
+   */
+  const DISPLAY_SIDE = 1;
+  let screenMat = null, signNow = null;
+  function addDisplay(body) {
+    const TOP = 0.60, Wd = 0.17, Hd = 0.13, Dd = 0.055, ZC = 0.215, s = DISPLAY_SIDE;
+    const black = new THREE.MeshStandardMaterial({ color: 0x15171A, roughness: 0.55, metalness: 0.1 });
+    const g = new THREE.Group(); g.position.set(s * (0.09 - Dd / 2), TOP + 0.012, ZC); body.add(g);
+    const base = new THREE.Mesh(new THREE.BoxGeometry(Dd + 0.03, 0.012, Wd + 0.01), black); base.position.y = 0.0; g.add(base);
+    // 상자 — 아래가 조금 더 두꺼운 쐐기꼴(사진처럼 화면이 살짝 위를 본다)
+    const house = new THREE.Mesh(new RoundedBoxGeometry(Dd, Hd, Wd, 3, 0.01), black);
+    house.position.y = 0.006 + Hd / 2; house.rotation.z = s * 0.10; g.add(house);
+    screenMat = new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false });
+    const scr = new THREE.Mesh(new THREE.PlaneGeometry(0.135, 0.081), screenMat);
+    scr.position.set(s * (Dd / 2 + 0.0008), 0.012, 0); scr.rotation.y = s * Math.PI / 2; house.add(scr);
+    g.traverse(o => { if (o.isMesh && o !== scr) { o.castShadow = true; o.receiveShadow = true; } });
+    setSign("standby");
+  }
+
+  const SC = { G: "#16A145", B: "#156DF0", Y: "#FFCA1D", R: "#FE2E1F" };
+  const SIGNS = {
+    standby:   { c: "G", ic: "check",   k: ["임무", "대기"],     sub: "충전 완료" },
+    patrol:    { c: "G", ic: "arrow",   k: ["순회", "중"],       sub: "정기 점검" },
+    cd3:       { c: "Y", ic: "n3",      k: ["곧 기립"],          sub: "물러나세요" },
+    cd2:       { c: "Y", ic: "n2",      k: ["곧 기립"],          sub: "물러나세요" },
+    cd1:       { c: "Y", ic: "n1",      k: ["곧 기립"],          sub: "물러나세요" },
+    rising:    { c: "Y", ic: "warn",    k: ["기립 중"],          sub: "물러나세요" },
+    resume:    { c: "G", ic: "arrow",   k: ["이동", "재개"],     sub: "다음 지점으로" },
+    person:    { c: "B", ic: "person",  k: ["사람", "감지"],     sub: "전방 1명" },
+    yield:     { c: "B", ic: "person",  k: ["먼저", "지나가세요"], sub: "통과 후 이동" },
+    helmet:    { c: "Y", ic: "helmet",  k: ["안전모", "미착용"], sub: "감지되었습니다" },
+    call:      { c: "Y", ic: "phone",   k: ["관제실", "연결 중"], sub: "안전모를 착용하세요" },
+    checked:   { c: "G", ic: "check",   k: ["확인", "완료"],     sub: "이동 재개" },
+    inspect:   { c: "B", ic: "scan",    k: ["정밀", "확인"],     sub: "이상 점검 중" },
+    danger:    { c: "R", ic: "detour",  k: ["위험", "구역"],     sub: "우회하세요" },
+    bat20:     { c: "Y", ic: "bat",     k: ["20%"],              sub: "배터리 부족" },
+    goDock:    { c: "Y", ic: "bat",     k: ["복귀", "중"],       sub: "충전소로 이동" },
+    charging:  { c: "G", ic: "batFull", k: ["충전", "중"],       sub: "도킹 02" },
+    noReturn:  { c: "R", ic: "bat",     k: ["복귀", "불가"],     sub: "배터리 부족" },
+    calling:   { c: "R", ic: "phone",   k: ["회수", "요청"],     sub: "담당자 호출" },
+    recovered: { c: "G", ic: "check",   k: ["회수", "완료"],     sub: "처리됨" },
+  };
+  const signTexCache = {};
+  function signTex(key) {
+    if (signTexCache[key]) return signTexCache[key];
+    const sp = SIGNS[key], bg = SC[sp.c], ink = sp.c === "Y" ? "#111111" : "#FFFFFF";
+    const t = canvasTex(800, 480, (g, w, h) => {
+      g.fillStyle = "#0A0B0D"; g.fillRect(0, 0, w, h);
+      const rr = (x, y, ww, hh, r) => { g.beginPath(); g.roundRect(x, y, ww, hh, r); };
+      g.fillStyle = bg; rr(14, 14, w - 28, h - 28, 22); g.fill();
+      // 왼쪽 기호 원
+      const cx = 190, cy = 240, R = 128;
+      g.fillStyle = sp.c === "Y" ? "#111111" : "#FFFFFF"; g.beginPath(); g.arc(cx, cy, R, 0, 7); g.fill();
+      const ic = sp.c === "Y" ? SC.Y : bg; g.fillStyle = ic; g.strokeStyle = ic; g.lineCap = "round"; g.lineJoin = "round";
+      drawIcon(g, sp.ic, cx, cy, R, ic);
+      // 오른쪽 글
+      g.fillStyle = ink; g.textBaseline = "middle"; g.textAlign = "left";
+      const big = sp.k.length === 1 ? (sp.k[0].length <= 3 ? 170 : 104) : (Math.max(...sp.k.map(x => x.length)) > 4 ? 76 : 104);
+      g.font = `900 ${big}px "Noto Sans KR"`;
+      const x0 = 352;
+      if (sp.k.length === 1) g.fillText(sp.k[0], x0, 205);
+      else { g.fillText(sp.k[0], x0, 140); g.fillText(sp.k[1], x0, 140 + big * 1.02); }
+      g.font = `700 50px "Noto Sans KR"`; g.fillText(sp.sub, x0, 392);
+    }, { repeat: [1, 1] });
+    t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
+    return (signTexCache[key] = t);
+  }
+  function drawIcon(g, ic, cx, cy, R, col) {
+    g.lineWidth = 26;
+    const P = (pts) => { g.beginPath(); pts.forEach(([x, y], i) => (i ? g.lineTo : g.moveTo).call(g, cx + x * R, cy + y * R)); };
+    if (/^n\d$/.test(ic)) { g.font = '900 190px "Noto Sans KR"'; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(ic[1], cx, cy + 10); }
+    else if (ic === "arrow") { P([[-0.5, 0], [0.45, 0]]); g.stroke(); P([[0.1, -0.38], [0.5, 0], [0.1, 0.38]]); g.stroke(); }
+    else if (ic === "check") { P([[-0.45, 0.02], [-0.12, 0.34], [0.48, -0.32]]); g.stroke(); }
+    else if (ic === "warn") { g.font = '900 200px "Noto Sans KR"'; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("!", cx, cy + 8); }
+    else if (ic === "person") { g.beginPath(); g.arc(cx, cy - 0.42 * R, 0.2 * R, 0, 7); g.fill(); g.beginPath(); g.roundRect(cx - 0.24 * R, cy - 0.16 * R, 0.48 * R, 0.78 * R, 0.14 * R); g.fill(); }
+    else if (ic === "helmet") { g.beginPath(); g.arc(cx, cy + 0.12 * R, 0.5 * R, Math.PI, 0); g.closePath(); g.fill(); g.fillRect(cx - 0.68 * R, cy + 0.12 * R, 1.36 * R, 0.16 * R); g.fillRect(cx - 0.08 * R, cy - 0.5 * R, 0.16 * R, 0.3 * R); }
+    else if (ic === "phone") { g.beginPath(); g.roundRect(cx - 0.28 * R, cy - 0.55 * R, 0.56 * R, 1.1 * R, 0.12 * R); g.fill(); g.fillStyle = "#FFFFFF"; g.fillRect(cx - 0.18 * R, cy - 0.4 * R, 0.36 * R, 0.66 * R); g.fillStyle = col; }
+    else if (ic === "scan") { g.lineWidth = 22; g.beginPath(); g.arc(cx - 0.1 * R, cy - 0.1 * R, 0.36 * R, 0, 7); g.stroke(); P([[0.16, 0.16], [0.5, 0.5]]); g.stroke(); }
+    else if (ic === "detour") { g.lineWidth = 26; g.beginPath(); g.moveTo(cx - 0.3 * R, cy + 0.55 * R); g.lineTo(cx - 0.3 * R, cy); g.quadraticCurveTo(cx - 0.3 * R, cy - 0.3 * R, cx + 0.05 * R, cy - 0.3 * R); g.lineTo(cx + 0.4 * R, cy - 0.3 * R); g.stroke(); P([[0.12, -0.6], [0.45, -0.3], [0.12, 0]]); g.stroke(); }
+    else if (ic === "bat" || ic === "batFull") {
+      const ink = col === SC.Y ? SC.Y : "#111111";   // 노랑 표지는 기호 원이 검정이라 노랑으로 그린다
+      g.lineWidth = 14; g.strokeStyle = ink; g.fillStyle = ink;
+      g.beginPath(); g.roundRect(cx - 0.55 * R, cy - 0.3 * R, 1.0 * R, 0.6 * R, 0.1 * R); g.stroke(); g.fillRect(cx + 0.47 * R, cy - 0.12 * R, 0.1 * R, 0.24 * R);
+      g.fillStyle = ic === "batFull" ? SC.G : (col === SC.R ? SC.R : ink); g.fillRect(cx - 0.45 * R, cy - 0.2 * R, (ic === "batFull" ? 0.8 : 0.2) * R, 0.4 * R);
+    }
+  }
+  function setSign(key) {
+    if (!screenMat || key === signNow || !SIGNS[key]) return;
+    screenMat.map = signTex(key); screenMat.needsUpdate = true; signNow = key; dirty = true;
+  }
+  if (spot) addDisplay(spot.group.children[0]);   // 몸 묶음(robot-spot.js 가 맨 처음 넣는다) — 걸음 · 앉기에 같이 움직인다
   function worker({ vest = 0xF07A1A, helmet = true }) {
     const g = new THREE.Group();
     const cloth = new THREE.MeshStandardMaterial({ color: 0x2D3A4F, roughness: 0.85 });
@@ -690,13 +787,13 @@
   const W_ = Math.PI / 2, E_ = -Math.PI / 2;
   const SCRIPT = {
     // 대기 → 주변감지 → 사전 예고 → 저속 기립 → 기립완료. 도킹 앞을 지나던 근로자가 카운트다운에 물러나 지켜본다
-    "1-1": { dur: 12, st: [0, 2, 4, 7, 10],
+    "1-1": { dur: 12, st: [0, 2, 4, 7, 10], sign: [[0, "standby"], [4, "cd3"], [5, "cd2"], [6, "cd1"], [7, "rising"], [10, "resume"]],
       robot: { start: [-14.1, -5.0], face: Math.PI, segs: [{ d: 7, mode: "sit" }, { d: 5, mode: "idle" }] },
       a: { start: [-16.8, -2.2], helmet: true, segs: [
         { d: 3.0, clip: "walk", to: [-14.7, -3.4] }, { d: 1.4, clip: "idle", faceAt: [-14.1, -5.0] },
         { d: 1.6, clip: "walkBack", to: [-14.9, -1.9], back: true }, { d: 6.0, clip: "idle", faceAt: [-14.1, -5.0] }] } },
     // 근로자와 만남 → 전방 근로자 감지 → 감속 및 접근 예고 → 정지 후 이동 의사 표현 → 임무재개
-    "1-2": { dur: 12, st: [0, 2.4, 4.8, 7.2, 9.6],
+    "1-2": { dur: 12, st: [0, 2.4, 4.8, 7.2, 9.6], sign: [[0, "patrol"], [2.4, "person"], [7.6, "yield"], [10.8, "resume"]],
       robot: { start: [-11.4, 0.5], face: E_, segs: [
         { d: 4.8, mode: "walk", to: [-8.9, 0.5] }, { d: 1.8, mode: "walk", to: [-8.2, 0.5] },
         { d: 1.0, mode: "walk", to: [-7.9, 1.1], face: E_ }, { d: 3.2, mode: "idle", face: E_ }, { d: 1.2, mode: "walk", to: [-7.3, 1.1] }] },
@@ -704,7 +801,7 @@
         { d: 3.0, clip: "walk", to: [-5.2, -0.5] }, { d: 4.4, clip: "idle" }, { d: 1.4, clip: "nod" },
         { d: 3.2, clip: "walk", to: [-9.8, -0.6] }] } },
     // 미착용 근로자 감지 → 감속·정지 및 착용 안내 → 착용대기(못 듣고 작업 계속) → 미조치 시 연결(관제 통화) → 확인 후 임무 재개(안전모 씀)
-    "2-1": { dur: 14, st: [0, 2.8, 5.6, 8.4, 11.2],
+    "2-1": { dur: 14, st: [0, 2.8, 5.6, 8.4, 11.2], sign: [[0, "patrol"], [2.8, "helmet"], [8.4, "call"], [11.2, "checked"]],
       robot: { start: [1.2, 0.2], face: W_, segs: [
         { d: 2.8, mode: "walk", to: [-1.6, -0.4] }, { d: 1.4, mode: "walk", to: [-2.6, -1.6] },
         { d: 7.0, mode: "idle", faceAt: [-5.0, -5.2] }, { d: 2.8, mode: "walk", to: [-6.2, -0.6] }] },
@@ -712,18 +809,18 @@
         { d: 3.6, clip: "idle" }, { d: 2.0, clip: "idle", faceAt: [-2.6, -1.6], turn: 0.9 }, { d: 2.8, clip: "idle", face: 0, turn: 0.9 },
         { d: 2.8, clip: "phone", off: 2.0 }, { d: 1.4, clip: "nod", faceAt: [-2.6, -1.6], turn: 0.6 }, { d: 1.4, clip: "idle", face: 0 }] } },
     // 정지 및 정밀 확인 → 이상 감지 및 판단 → 작업자 우회 안내 → 현장 조치 및 상태 안내 → 임무 복귀
-    "2-2": { dur: 14, st: [0, 2.8, 5.6, 8.4, 11.2],
+    "2-2": { dur: 14, st: [0, 2.8, 5.6, 8.4, 11.2], sign: [[0, "inspect"], [2.8, "danger"], [11.2, "resume"]],
       robot: { start: [9.0, -0.9], segs: [{ d: 11.2, mode: "inspect", faceAt: [13.0, -4.0] }, { d: 2.8, mode: "walk", to: [7.0, -0.2] }] },
       a: { start: [17.6, 3.4], helmet: true, segs: [
         { d: 5.6, clip: "walk", to: [12.8, -1.2] }, { d: 1.6, clip: "react", faceAt: [9.0, -0.9] },
         { d: 1.2, clip: "walkBack", to: [13.2, 0.4], back: true }, { d: 1.0, clip: "idle", faceAt: [9.0, -0.9] },
         { d: 1.4, clip: "walk", to: [12.6, 2.6] }, { d: 3.2, clip: "walk", to: [8.4, 2.6] }] } },
     // 배터리 부족 → 복귀 가능성 계산 → 복귀 의사 예고 → 저속 자율 복귀 → 충전 시작(도킹 02)
-    "3-1": { dur: 18, st: [0, 2.4, 4.8, 7.2, 15.6],
+    "3-1": { dur: 18, st: [0, 2.4, 4.8, 7.2, 15.6], sign: [[0, "bat20"], [4.8, "goDock"], [15.6, "charging"]],
       robot: { start: [-8.6, 0.2], face: W_, segs: [
         { d: 7.2, mode: "idle" }, { d: 4.4, mode: "walk", to: [-11.6, -1.2] }, { d: 4.0, mode: "walk", to: [-11.6, -4.9] }, { d: 2.4, mode: "sit" }] } },
     // 배터리 20% 이하 → 통로 가장자리 이동 후 정지 → 접근금지 우회 안내(지나는 근로자 A) → 회수 담당자 호출(B 통화) → 회수 완료 처리(B 가 옆에 앉아 확인)
-    "3-2": { dur: 18, st: [0, 3, 6, 9, 12],
+    "3-2": { dur: 18, st: [0, 3, 6, 9, 12], sign: [[0, "bat20"], [6, "noReturn"], [9, "calling"], [16.8, "recovered"]],
       robot: { start: [6.2, 0.3], face: W_, segs: [
         { d: 3.0, mode: "walk", to: [4.0, 0.3] }, { d: 2.2, mode: "walk", to: [2.6, -1.1] }, { d: 0.8, mode: "idle", face: W_ }, { d: 12, mode: "sit" }] },
       a: { start: [-6.5, 0.4], helmet: true, segs: [
@@ -790,12 +887,13 @@
   let SEG = null, curT = 0, playing = false;
   function buildScene(id) {
     const sc = SCRIPT[id];
-    SEG = { dur: sc.dur, st: sc.st, robot: build(sc.robot) };
+    SEG = { dur: sc.dur, st: sc.st, sign: sc.sign || [], robot: build(sc.robot) };
     for (const k of ["a", "b"]) SEG[k] = sc[k] ? { ...sc[k], segs: build(sc[k]) } : null;
   }
   function stepRobot(t, dt) { if (!spot) return; const s = placeOn(spot.group, SEG.robot, t, 0.8); spot.update(dt, s.mode || "idle"); }
   function poseAll(t) {
     for (const [h, k] of [[wkA, "a"], [wkB, "b"]]) { const w = SEG[k]; h.visible = !!w; if (w) poseWorker(h, w, t); }
+    let sg = null; for (const [st, key] of SEG.sign) if (t >= st) sg = key; if (sg) setSign(sg);
     dirty = true;
   }
   function seek(t) {
