@@ -593,8 +593,69 @@
     g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
     return g;
   }
-  const wkA = worker({ helmet: true }), wkB = worker({ helmet: false });
+  // 자리를 잡는 빈 묶음 — 처음엔 임시 인형, Mixamo 작업자를 불러오면 갈아 끼운다(못 불러오면 인형이 남는다)
+  const wkA = new THREE.Group(), wkB = new THREE.Group();
+  wkA.add(worker({ helmet: true })); wkB.add(worker({ helmet: false }));
   actors.add(wkA, wkB);
+
+  /*
+   * Mixamo 작업자(Ch17 · 안전모 · 주황 조끼) — assets/source/Ch17_nonPBR.fbx(65MB, git 제외)를 줄인 것.
+   *   worker.glb   FBX → GLB(three.js FBXLoader → GLTFExporter, 뼈대 · 스킨 유지) → 정점 양자화. 4.6MB
+   *   텍스처        FBX 안의 4096 PNG 를 1024 로: 1001 = 몸 · 옷 · 안전모, 1002 = 머리카락(투명도 → PNG)
+   * 안전모는 따로 된 부품(Ch17_Helmet)이라 2-1 '안전모 미착용' 근로자는 그것만 숨긴다.
+   * 받은 모델은 T 자세라 팔만 내려 선 자세로 둔다 — 걷기 · 손짓은 Mixamo 동작 파일을 받아 붙일 다음 단계.
+   */
+  loadMixamoWorker().catch(e => console.warn("작업자 모델을 못 불러와 임시 인형을 쓴다", e));
+  async function loadMixamoWorker() {
+    const { GLTFLoader } = await import("three/addons/loaders/GLTFLoader.js");
+    const SkeletonUtils = await import("three/addons/utils/SkeletonUtils.js");
+    const base = "./assets/model/worker/", tl = new THREE.TextureLoader();
+    // 텍스처는 FBX UV 기준이라 TextureLoader 기본(flipY true) 그대로 맞는다
+    const tex = (f, srgb) => new Promise((res, rej) => tl.load(base + f, t => { if (srgb) t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = MAX_ANISO; res(t); }, undefined, rej));
+    const [gltf, d1, n1, d2, n2] = await Promise.all([
+      new GLTFLoader().loadAsync(base + "worker.glb?v=1"),
+      tex("worker_1001_diffuse.jpg", true), tex("worker_1001_normal.jpg"), tex("worker_1002_diffuse.png", true), tex("worker_1002_normal.jpg"),
+    ]);
+    const matBody = new THREE.MeshStandardMaterial({ name: "body", map: d1, normalMap: n1, roughness: 0.78 });
+    const matHair = new THREE.MeshStandardMaterial({ name: "hair", map: d2, normalMap: n2, roughness: 0.7, alphaTest: 0.45, side: THREE.DoubleSide });
+    const src = gltf.scene;
+    src.traverse(o => { if (o.isMesh) { o.material = /hair/i.test(o.material.name) ? matHair : matBody; o.castShadow = o.receiveShadow = true; o.frustumCulled = false; } });
+
+    const V = THREE.Vector3;
+    function rotWorld(bone, axis, ang) {   // 뼈를 세계 축 기준으로 돌린다
+      const pw = bone.parent.getWorldQuaternion(new THREE.Quaternion()), bw = bone.getWorldQuaternion(new THREE.Quaternion());
+      bone.quaternion.copy(pw.invert().multiply(new THREE.Quaternion().setFromAxisAngle(axis, ang).multiply(bw)));
+      bone.updateMatrixWorld(true);
+    }
+    function relax(root) {   // T(또는 A) 자세 → 팔을 몸 옆으로 내리고 팔꿈치를 살짝 굽힌다. 모델은 +z 를 본다, 왼팔 = +x
+      // 변환된 모델엔 같은 이름의 뼈가 겹겹이 이어져 있다(LeftArm > LeftArm > LeftArm …, 부품별 스킨이 남긴 보조 뼈).
+      // 사슬 맨 위(부모 이름이 다른 것)만 돌리면 아래는 따라온다 — 다 돌리면 회전이 겹쳐 쌓인다
+      root.updateMatrixWorld(true);
+      const bones = re => { const a = []; root.traverse(o => { if (o.isBone && re.test(o.name) && o.parent?.name !== o.name) a.push(o); }); return a; };
+      for (const [side, s] of [["Left", 1], ["Right", -1]]) {
+        const arms = bones(new RegExp(side + "Arm$")), fores = bones(new RegExp(side + "ForeArm$"));
+        if (!arms.length || !fores.length) continue;
+        const dir = fores[0].getWorldPosition(new V()).sub(arms[0].getWorldPosition(new V())).normalize();
+        const want = new V(s * Math.sin(0.16), -Math.cos(0.16), 0.06).normalize();
+        const axis = new V().crossVectors(dir, want); if (axis.lengthSq() < 1e-8) continue;
+        axis.normalize(); const ang = dir.angleTo(want);
+        arms.forEach(b => rotWorld(b, axis, ang));
+        fores.forEach(b => rotWorld(b, new V(1, 0, 0), -0.28));
+      }
+    }
+    const h = new THREE.Box3().setFromObject(src).getSize(new V()).y;
+    for (const [holder, helmet] of [[wkA, true], [wkB, false]]) {
+      const m = SkeletonUtils.clone(src);
+      relax(m);
+      if (!helmet) m.traverse(o => { if (o.isMesh && /helmet/i.test(o.name)) o.visible = false; });
+      const wrap = new THREE.Group(); wrap.add(m);
+      wrap.scale.setScalar(1.75 / h);   // 키 1.75m
+      wrap.rotation.y = Math.PI;        // 얼굴을 -z 로 — 로봇(SPOT)과 같은 앞 방향, POSE 각도를 그대로 쓴다
+      const b = new THREE.Box3().setFromObject(wrap); wrap.position.y = -b.min.y;
+      holder.clear(); holder.add(wrap);
+    }
+    dirty = true;
+  }
   // 장면마다 배우 자리 — 크기 · 거리 감만 보는 용도. 실제 동작은 다음 단계에서
   const POSE = {
     "1-1": { robot: [-14.1, -5.0, Math.PI, "sit"], a: [-12.2, -1.2, -2.4], b: null },
