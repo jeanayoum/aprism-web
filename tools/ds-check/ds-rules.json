@@ -49,8 +49,8 @@
   },
   "button": {
     "heights": {
-      "XSmall": 20,
-      "Small": 24,
+      "XSmall": 22,
+      "Small": 26,
       "Medium": 32,
       "Large": 40
     },

@@ -1483,50 +1483,50 @@ body.ver-7 .sfx-fl {
 /* ---------- 칩 Filter, Medium 26 ---------- */
 body.ver-7 .ah-filter .btn.is-xs,
 body.ver-7 .ac-check {
-  box-sizing: border-box !important; height: 26px !important; min-height: 26px !important;
-  padding: var(--space-4) var(--space-8) !important; font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-medium) !important; gap: var(--space-4) !important;
+  box-sizing: border-box !important; height: 26px !important; min-height: 26px !important; align-items: center !important;
+  padding: 0 var(--space-8) !important; font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-medium) !important; gap: var(--space-4) !important;
 }
 
 /* ---------- 칩 Selection, Medium 26 ---------- */
 body.ver-7 .dc6-q {
-  box-sizing: border-box !important; height: 26px !important; min-height: 26px !important;
-  padding: var(--space-4) var(--space-8) !important; font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-medium) !important;
+  box-sizing: border-box !important; height: 26px !important; min-height: 26px !important; display: inline-flex !important; align-items: center !important;
+  padding: 0 var(--space-8) !important; font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-medium) !important;
 }
 
 /* ---------- 칩 모양 탭, Large 32 ---------- */
 body.ver-7 .tb {
-  box-sizing: border-box !important; height: 32px !important;
-  padding: var(--space-4) var(--space-12) !important; font-size: var(--font-size-14) !important; line-height: var(--font-line-height-24) !important; font-weight: var(--font-weight-medium) !important;
+  box-sizing: border-box !important; height: 32px !important; display: inline-flex !important; align-items: center !important;
+  padding: 0 var(--space-12) !important; font-size: var(--font-size-14) !important; line-height: var(--font-line-height-20) !important; font-weight: var(--font-weight-medium) !important;
 }
 
 /* ---------- 칩 모양 없애고 버튼으로 ---------- */
 body.ver-7 .account-chip,
 body.ver-7 .theme-chip,
 body.ver-7 .signal-chip {
-  /* 규칙대로 버튼 Small(높이 24, 좌우 8, 모서리 4)에 보조 버튼(Secondary) 면과 테를 씀 */
+  /* 규칙대로 버튼 Small(높이 26, 좌우 8, 모서리 4)에 보조 버튼(Secondary) 면과 테를 씀 */
   background-color: var(--comp-button-secondary-bg-default) !important; border: 1px solid var(--comp-button-secondary-border-default) !important; box-shadow: none !important;
-  border-radius: var(--radius-4) !important; height: 24px !important; min-height: 24px !important; box-sizing: border-box !important;
+  border-radius: var(--radius-4) !important; height: 26px !important; min-height: 26px !important; box-sizing: border-box !important;
 }
 body.ver-7 .account-chip { padding: 0 var(--space-8) !important; font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-medium) !important; }
-body.ver-7 .theme-chip, body.ver-7 .signal-chip { width: auto !important; min-width: 24px !important; padding: 0 !important; justify-content: center !important; }
+body.ver-7 .theme-chip, body.ver-7 .signal-chip { width: auto !important; min-width: 26px !important; padding: 0 !important; justify-content: center !important; }
 body.ver-7 .sfx-go {
   background: transparent !important; border: 0 !important; border-radius: var(--radius-4) !important; box-sizing: border-box !important;
-  height: 24px !important; padding: 0 var(--space-8) !important; font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-medium) !important;
+  height: 26px !important; padding: 0 var(--space-8) !important; font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-medium) !important;
 }
 
-/* ---------- 버튼 XSmall 20, 위아래 패딩 0, 세로 가운데 ---------- */
+/* ---------- 버튼 XSmall 22, 위아래 패딩 0, 세로 가운데 ---------- */
 body.ver-7 .ah-sort-btn,
 body.ver-7 .rp-link,
 body.ver-7 .lk {
-  box-sizing: border-box !important; height: 20px !important; min-height: 20px !important; display: inline-flex !important; align-items: center !important;
+  box-sizing: border-box !important; height: 22px !important; min-height: 22px !important; display: inline-flex !important; align-items: center !important;
   padding: 0 var(--space-8) !important; font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-medium) !important; gap: var(--space-4) !important;
 }
 
-/* ---------- 버튼 Small 24, 위아래 패딩 0, 세로 가운데 ---------- */
+/* ---------- 버튼 Small 26, 위아래 패딩 0, 세로 가운데 ---------- */
 body.ver-7 .btn.is-xs:not(.ah-report):not(.ah-filter .btn),
 body.ver-7 .rr-wp-toggle,
 body.ver-7 .bigb {
-  box-sizing: border-box !important; height: 24px !important; min-height: 24px !important; align-items: center !important;
+  box-sizing: border-box !important; height: 26px !important; min-height: 26px !important; align-items: center !important;
   padding: 0 var(--space-8) !important; font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-medium) !important; gap: var(--space-4) !important;
 }
 
@@ -1551,7 +1551,7 @@ body.ver-7 .mp-cta {
 body.ver-7 .icon-button:not(.is-xs):not(.modal-close) { box-sizing: border-box !important; width: 36px !important; height: 36px !important; min-width: 36px !important; padding: var(--space-8) !important; }
 
 /* ---------- 끝선이나 정보 줄 안의 글자 버튼(Ghost): 패딩은 그대로 두고 패딩만큼 바깥으로 뺌(bleed) ----------
-   글자와 아이콘은 끝선에 맞고, 누르는 영역과 호버 면은 패딩까지 유지. 정보 줄 안에서는 XSmall 20이라 줄 높이(20)를 키우지 않음 */
+   글자와 아이콘은 끝선에 맞고, 누르는 영역과 호버 면은 패딩까지 유지. 정보 줄 안에서는 위아래도 2씩 빼서 줄 높이를 키우지 않음 */
 body.ver-7 .btn.btn-ghost[data-robot-more]:not(.z1):not(.z2):not(.z3):not(.z4):not(.z5),
 body.ver-7 .btn.btn-ghost.ah-all:not(.z1):not(.z2):not(.z3):not(.z4):not(.z5),
 body.ver-7 .rr-wp-toggle:not(.z1):not(.z2):not(.z3):not(.z4):not(.z5),
@@ -1559,7 +1559,7 @@ body.ver-7 .ah-sort-btn:not(.z1):not(.z2):not(.z3):not(.z4):not(.z5) { padding-l
 body.ver-7 .btn.btn-ghost[data-robot-more]:hover, body.ver-7 .btn.btn-ghost.ah-all:hover, body.ver-7 .rr-wp-toggle:hover, body.ver-7 .ah-sort-btn:hover { background-color: var(--comp-button-ghost-bg-hover) !important; }
 /* 정보 줄 안: 알림센터 위치 줄의 지도에서 보기, 보고서의 미션 바로가기 */
 body.ver-7 dd > a.t-caption[href*="main-v"]:not(.z1):not(.z2),
-body.ver-7 .lk:not(.z1):not(.z2) { display: inline-flex !important; align-items: center !important; box-sizing: border-box !important; height: 20px !important; padding: 0 var(--space-4) !important; margin: 0 calc(var(--space-4) * -1) !important; vertical-align: top !important; align-self: center !important; border-radius: var(--radius-4) !important; }
+body.ver-7 .lk:not(.z1):not(.z2) { display: inline-flex !important; align-items: center !important; box-sizing: border-box !important; height: 22px !important; padding: 0 var(--space-4) !important; margin: calc(var(--space-2) * -1) calc(var(--space-4) * -1) !important; vertical-align: top !important; align-self: center !important; border-radius: var(--radius-4) !important; }
 body.ver-7 dd > a.t-caption[href*="main-v"]:hover, body.ver-7 .lk:hover { background-color: var(--comp-button-ghost-bg-hover) !important; }
 
 /* ---------- 구간 전환(층 고르기 B3 B4, 웨이포인트 지도 목록): 같은 꼴, 배경과 선택 두 단계 ----------
