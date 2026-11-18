@@ -32,8 +32,6 @@
     .g-chip { left: calc(20 / 870 * 100%); top: calc(20 / 795 * 100%); width: calc(100 / 870 * 100%); height: calc(44 / 795 * 100%);
       background: rgba(255,255,255,.92); border-radius: 999px; align-items: center; justify-content: center; font-size: clamp(9px, 1.2vw, 15px); color: #111; }
     .stage.show-guide .g-chip { display: flex; }
-    .g-steps { left: calc(274 / 870 * 100%); right: 0; bottom: 0; height: calc(54 / 795 * 100%); background: rgba(255,255,255,.88); border-top-left-radius: 6px; box-shadow: 0 -2px 10px rgba(0,0,0,.12); }
-    .g-safe { inset: calc(84 / 795 * 100%) calc(24 / 870 * 100%) calc(64 / 795 * 100%); border: 1px dashed rgba(255,255,255,.75); border-radius: 4px; }
     .rec-badge { position: absolute; top: 10px; right: 10px; display: none; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: rgba(0,0,0,.6); color: #fff; font-size: 13px; pointer-events: none; }
     .rec-badge::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #FF383C; }
     .stage.recording .rec-badge { display: inline-flex; }
@@ -93,9 +91,7 @@
     <div class="ks">
       <div class="stage-wrap"><div class="stage-col">
         <div class="stage" id="stage">
-          <div class="guide g-safe"></div>
           <div class="guide g-chip">작업현장</div>
-          <div class="guide g-steps"></div>
           <span class="rec-badge" id="recBadge">녹화 중</span>
         </div>
         <nav class="stepbar" id="stepbar" aria-label="장면 단계 — 누르면 그 단계만 재생"></nav>
@@ -125,7 +121,7 @@
         <div>
           <p class="grp-label">보기</p>
           <div style="display:grid;gap:6px">
-            <label class="chk"><input type="checkbox" id="optGuide" checked> 슬라이드에서 가려지는 자리 표시</label>
+            <label class="chk"><input type="checkbox" id="optGuide" checked> 슬라이드의 '작업현장' 칩 자리 표시</label>
             <label class="chk"><input type="checkbox" id="optActors" checked> 로봇 · 근로자 보이기</label>
             <label class="chk"><input type="checkbox" id="optFollow" checked> 카메라가 로봇 · 근로자를 따라가며 크게</label>
             <label class="chk"><input type="checkbox" id="optHud" checked> 오른쪽 위에 로봇 디스플레이 크게(영상에도 들어감)</label>
@@ -635,10 +631,13 @@
   const hudScene = new THREE.Scene(), hudCam = new THREE.OrthographicCamera(0, 870, 795, 0, -10, 10);
   let hudScreenMat = null;
   {
-    // (11/18) 원본 그대로 — 검은 테두리 · 그림자 · 표지 바깥 검은 여백 없이 표지 색이 화면을 가득 채운다(SPOT 디스플레이 A안 800×480)
-    const SW = 308, SH = 184.8, M_ = 24, cx = 870 - M_ - SW / 2, cy = 795 - M_ - SH / 2;
+    // (11/18) 표지는 원본 그대로(색이 화면을 가득 채움, SPOT 디스플레이 A안 800×480) + 검은 테두리. 그림자는 없음
+    const SW = 288, SH = 172.8, PAD = 10, BW = SW + PAD * 2, BH = SH + PAD * 2, M_ = 24, cx = 870 - M_ - BW / 2, cy = 795 - M_ - BH / 2;
+    const rrShape = (w, h, r) => { const sh = new THREE.Shape(), x = -w / 2, y = -h / 2; sh.moveTo(x + r, y); sh.lineTo(x + w - r, y); sh.quadraticCurveTo(x + w, y, x + w, y + r); sh.lineTo(x + w, y + h - r); sh.quadraticCurveTo(x + w, y + h, x + w - r, y + h); sh.lineTo(x + r, y + h); sh.quadraticCurveTo(x, y + h, x, y + h - r); sh.lineTo(x, y + r); sh.quadraticCurveTo(x, y, x + r, y); return sh; };
+    const bezel = new THREE.Mesh(new THREE.ShapeGeometry(rrShape(BW, BH, 12)), new THREE.MeshBasicMaterial({ color: 0x15171A, depthTest: false, toneMapped: false }));
+    bezel.position.set(cx, cy, 1); bezel.renderOrder = 1; hudScene.add(bezel);
     hudScreenMat = new THREE.MeshBasicMaterial({ color: 0xffffff, depthTest: false, toneMapped: false });
-    const scr = new THREE.Mesh(new THREE.PlaneGeometry(SW, SH), hudScreenMat); scr.position.set(cx, cy, 2); hudScene.add(scr);
+    const scr = new THREE.Mesh(new THREE.PlaneGeometry(SW, SH), hudScreenMat); scr.position.set(cx, cy, 2); scr.renderOrder = 2; hudScene.add(scr);
   }
   function renderFrame() {
     renderer.render(scene, camera);
@@ -1265,7 +1264,7 @@
    * 안전 구역이 위아래로 조금 비대칭이라(위 칩 · 아래 진행 바) 판정은 좁은 쪽(위 0.77)으로 위아래 같게 잡는다.
    */
   const HX = Math.min(-SAFE.x0, SAFE.x1), HY = Math.min(-SAFE.y0, SAFE.y1);
-  const HUD_NDC = { x: 2 * (870 - 24 - 308 - 12) / 870 - 1, y: 1 - 2 * (24 + 185 + 12) / 795 };   // 오른쪽 위 디스플레이(+여유 12) 왼쪽 아래 모서리
+  const HUD_NDC = { x: 2 * (870 - 24 - 308 - 12) / 870 - 1, y: 1 - 2 * (24 + 193 + 12) / 795 };   // 오른쪽 위 디스플레이(+여유 12) 왼쪽 아래 모서리
   function fitPts(pts, fixedD) {
     const c = new THREE.Box3().setFromPoints(pts).getCenter(new THREE.Vector3());
     const tx = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * camera.aspect, ty = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
