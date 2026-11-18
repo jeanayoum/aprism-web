@@ -1768,7 +1768,7 @@
       [3.0, "pause", { badge: ["복귀 대기", "warning"], bat: 20, title: "자율 복귀 가능 · 지시 대기", left: "복귀 예상 2분 · 복귀 후 15%" }],
       [7.3, "return", { badge: ["복귀 예정", "idle"], bat: 19, title: "도크 02로 복귀 예정", left: "이동 경로를 비워 주세요" }],
       [12.6, "return", { badge: ["복귀 중", "idle"], bat: 18, title: "도크 02로 자율 복귀 중", left: "저속 이동" }],
-      [21.0, "return", { badge: ["충전 중", "normal"], bat: 18, title: "충전 중", left: "진행 정보 유지 · 충전 후 재개 여부 확인" }]],
+      [21.0, "run", { badge: ["충전 중", "normal"], bat: 18, title: "충전 중", left: "진행 정보 유지 · 충전 후 재개 여부 확인" }]],
     "3-2": [
       [0, "alert", { badge: ["복귀 불가", "danger"], bat: 18, title: "배터리 부족 · 자율 복귀 불가", left: "점검 · 주행 중단" }],
       [6.4, "alert", { badge: ["회수 대기", "danger"], bat: 18, title: "정지 완료 · 회수 대기", left: "통로 가장자리 정지 · 잔량 18%" }],
@@ -1812,7 +1812,8 @@
     let e = tl[0]; for (const x of tl) if (t >= x[0]) e = x;
     const d = ctlDoc(); if (!d) return;
     if (cur.id + "" !== ctlApply.scene || force) { ctlPlace(d); (POP[cur.id] || []).forEach(([, x]) => x && x.shot != null && shot3d(x.shot)); }
-    if (e[1] !== ctlMode || force) { const b =d.querySelector(`.rsim [data-m="${e[1]}"]`); if (b) { b.click(); ctlMode = e[1]; } }
+    if (e[1] !== ctlMode || force) { const b = d.querySelector(`.rsim [data-m="${e[1]}"]`); if (b) { b.click(); ctlMode = e[1]; } }
+    ctlMove(d, t);
     // 덧입힘은 0.3초마다 다시 얹는다 — 관제 화면이 배지 · 배터리 글을 제 박자로 다시 써도 덮이게
     const key = cur.id + "@" + e[0], now = performance.now();
     if (key !== ctlKey || force || now - (ctlApply.last || 0) > 300) { if (cur.id + "" !== ctlApply.scene || force) { deltaKeep(d); ctlApply.scene = cur.id; } ctlOverlay(d, e[2] || {}); ctlPop(d, popAt(t)); ctlKey = key; ctlApply.last = now; }
@@ -1833,8 +1834,23 @@
       const st = rr.stops(), [k, f] = CTRL_POS[cur.id] || CTRL_POS_BASE;
       if (st.length < 8) return;
       const a = k < 0 ? 0 : st[k], b = st[k + 1];
-      rr.mode("run"); rr.set(a + (b - a) * f);
+      ctlPlace.s0 = a + (b - a) * f; ctlPlace.sNow = null;
+      rr.mode("run"); rr.set(ctlPlace.s0);
     } catch (err) { console.warn("관제 로봇 자리", err); }
+  }
+  /* 관제 지도 로봇을 장면 시간에 맞춰 옮긴다(11/18) — [시작초, 끝초, 끝 자리(0 = 도크)]. 사이는 천천히 출발 · 도착(ease-in-out).
+   *   3-1: 12.6~21.0 저속 자율 복귀 → 도크. 21.0 부터는 관제 상태 run 이라 지도가 로봇을 충전 스테이션 칸 안에 넣는다(return 이면 안 넣는다) */
+  const CTRL_MOVE = { "3-1": [[12.6, 21.0, 0]] };
+  function ctlMove(d, t) {
+    const mv = CTRL_MOVE[cur.id], rr = d.defaultView && d.defaultView.APRISM_RR;
+    if (!mv || ctlPlace.s0 == null || !rr || !rr.ready()) return;
+    let s = ctlPlace.s0;
+    for (const [a, b, to] of mv) {
+      if (t >= b) s = to;
+      else if (t > a) { const k = (t - a) / (b - a), e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2; s = s + (to - s) * e; }
+    }
+    if (ctlPlace.sNow != null && Math.abs(s - ctlPlace.sNow) < 1e-4) return;
+    ctlPlace.sNow = s; rr.set(s);
   }
 
   /* 알림 팝오버(11/18 디자이너) — 지도 위에 따로 그린 카드 대신 관제 화면의 원래 알림 팝오버(왼쪽 패널 뒤에서 나오는 판)를 연다.
