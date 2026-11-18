@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>APRISM — v7 M1 지도 상세 수치표 (26.11.18)</title>
+  <meta name="description" content="v7 미션 관제 M1(정기 순회 점검) 3D 지도 — 개발 전달용 디자인 정의서: 배치 · 카메라 · 재질 · 경로 · 웨이포인트 · 로봇 · 알림 · 층 · 상태 · 색" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/static/woff2/SUIT.css" />
+  <link rel="stylesheet" href="./assets/css/tokens.css?v=b64812bd" />
+  <link rel="stylesheet" href="./assets/css/base.css?v=5ccd4bb3" />
+  <style>
+    /*
+     * [11/18 내부] v7 M1 지도 디자인 정의서 — 개발자 전달용(index 내부 문서 › 기준 문서).
+     *   값은 모두 코드(map-v6.js · map-fx-v6.js · route-rules.css · v6.css · v7.css · route-sim.js · screen.js)에서 읽은 실제 값이다.
+     *   코드가 바뀌면 이 문서도 같이 고친다 — 각 항목 끝의 파일:줄 이 근거다.
+     */
+    body { margin: 0; background-color: var(--bg-page); color: var(--text-primary); font-family: "SUIT", system-ui, sans-serif; }
+    .back { position: fixed; top: 16px; right: 16px; z-index: 3; padding: 4px 12px; border: 1px solid var(--border-default); border-radius: 999px; background-color: var(--bg-panel); color: var(--text-secondary); font-size: 12px; text-decoration: none; }
+    .back:hover { color: var(--text-primary); }
+    main { max-width: 1180px; margin: 0 auto; padding: 56px 32px 120px; }
+    header.top h1 { margin: 0 0 8px; font-size: 28px; line-height: 36px; }
+    header.top p { margin: 0; color: var(--text-secondary); font-size: 15px; line-height: 24px; max-width: 900px; }
+    .meta { margin-top: 12px; color: var(--text-tertiary); font-size: 13px; }
+    nav.toc { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 6px 8px; }
+    nav.toc a { padding: 4px 10px; border: 1px solid var(--border-default); border-radius: 999px; color: var(--text-secondary); font-size: 13px; text-decoration: none; }
+    nav.toc a:hover { color: var(--text-primary); border-color: var(--border-strong); }
+    section.part { margin-top: 64px; scroll-margin-top: 24px; }
+    section.part > h2 { margin: 0 0 6px; font-size: 20px; line-height: 28px; }
+    section.part > h2 .no { color: var(--text-tertiary); margin-right: 8px; font-variant-numeric: tabular-nums; }
+    section.part > p.lead { margin: 0 0 20px; color: var(--text-secondary); font-size: 14px; line-height: 22px; max-width: 880px; }
+    h3 { margin: 32px 0 10px; font-size: 16px; line-height: 24px; }
+    figure { margin: 0; }
+    figure img { display: block; width: 100%; height: auto; border: 1px solid var(--border-default); border-radius: 8px; }
+    figcaption, .cap { margin: 8px 0 0; color: var(--text-tertiary); font-size: 12px; line-height: 18px; }
+    .two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+    @media (max-width: 900px) { .two { grid-template-columns: 1fr; } main { padding: 48px 16px 96px; } }
+    .scroll { overflow-x: auto; }
+    table.grid { width: 100%; border-collapse: collapse; font-size: 13.5px; line-height: 20px; }
+    table.grid th, table.grid td { padding: 9px 12px; border: 1px solid var(--border-divider); vertical-align: top; text-align: left; }
+    table.grid thead th { color: var(--text-tertiary); font-weight: 600; font-size: 12.5px; background-color: rgb(255 255 255 / 3%); white-space: nowrap; }
+    table.grid tbody th { color: var(--text-primary); font-weight: 600; white-space: nowrap; }
+    table.grid td small, table.grid th small { display: block; margin-top: 2px; color: var(--text-tertiary); font-size: 12px; font-weight: 400; }
+    code, .mono { font-family: "JetBrains Mono", ui-monospace, Consolas, monospace; font-size: 12.5px; }
+    code { padding: 1px 5px; border-radius: 4px; background-color: rgb(255 255 255 / 6%); color: var(--text-primary); }
+    .ref { color: var(--text-tertiary); font-family: "JetBrains Mono", ui-monospace, Consolas, monospace; font-size: 11.5px; white-space: nowrap; }
+    .sw { display: inline-block; width: 12px; height: 12px; margin-right: 6px; border-radius: 3px; vertical-align: -1px; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 18%); }
+    ul.list, ol.list { margin: 0; padding-left: 20px; color: var(--text-secondary); font-size: 14px; line-height: 23px; max-width: 900px; }
+    ul.list li, ol.list li { margin: 4px 0; }
+    ul.list b, ol.list b { color: var(--text-primary); }
+    .note { margin: 16px 0 0; padding: 12px 14px; border: 1px solid var(--border-default); border-left: 3px solid var(--status-info-icon); border-radius: 6px; background-color: rgb(255 255 255 / 3%); color: var(--text-secondary); font-size: 13.5px; line-height: 21px; max-width: 900px; }
+    .note.warn { border-left-color: var(--status-warning-icon); }
+    .note b { color: var(--text-primary); }
+    .tag { display: inline-block; padding: 0 6px; border-radius: 4px; background-color: rgb(255 255 255 / 8%); color: var(--text-secondary); font-size: 11.5px; line-height: 18px; }
+    .tag.v7 { background-color: rgb(77 178 255 / 16%); color: #8CCBFF; }
+    pre.tree { margin: 0; padding: 14px 16px; border: 1px solid var(--border-divider); border-radius: 8px; background-color: rgb(0 0 0 / 22%); color: var(--text-secondary); font-family: "JetBrains Mono", ui-monospace, Consolas, monospace; font-size: 12.5px; line-height: 20px; overflow-x: auto; }
+    pre.tree b { color: var(--text-primary); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <a class="back" href="./spec-m1-map-v7.html">← 디자인 정의서</a>
+  <main>
+    <header class="top">
+      <h1>v7 M1 지도 상세 수치표</h1>
+      <p>미션 관제 화면(<code>screens/main-v7.html</code>) 가운데 3D 지도를 M1 정기 순회 점검 기준으로 정리한 개발 전달용 문서입니다. 수치·색·동작은 모두 지금 시안 코드에서 읽은 실제 값이며, 항목마다 근거 파일:줄을 달았습니다.</p>
+      <p class="meta">26.11.18 · 개발 전달용 · 기준 화면 <a href="./screens/main-v7.html" style="color: inherit;">main-v7.html</a> (M1 탭) · 화면 1920×1080 · 다크 기본, 라이트 병기</p>
+      <nav class="toc" aria-label="목차">
+        <a href="#overview">01 한눈에</a><a href="#layout">02 배치 · 층</a><a href="#camera">03 카메라 · 조작</a><a href="#model">04 모델 · 재질</a><a href="#occl">05 가림 처리</a><a href="#route">06 경로</a><a href="#wp">07 웨이포인트</a><a href="#robot">08 로봇</a><a href="#alert">09 알림 지점</a><a href="#floor">10 층 전환</a><a href="#state">11 상태 · 이벤트</a><a href="#data">12 M1 데이터</a><a href="#color">13 색 토큰</a><a href="#dev">14 구현 메모</a>
+      </nav>
+    </header>
+
+    <!-- 01 -->
+    <section class="part" id="overview">
+      <h2><span class="no">01</span>한눈에</h2>
+      <p class="lead">M1 은 Robot 01 이 지하 4층(B4)에서 웨이포인트 20개를 도는 정기 순회입니다. 화면을 열면 로봇은 WP-07 → WP-08 사이(55%)에 서 있고, 위험 2 · 주의 4 알림이 지도 번호 핀으로 표시됩니다.</p>
+      <div class="two">
+        <figure><img src="./assets/img/spec-m1-map/full-dark.jpg" alt="v7 M1 관제 화면 다크" loading="lazy" /><figcaption>다크(기본) — 1920×1080, 배율 1.25 캡처</figcaption></figure>
+        <figure><img src="./assets/img/spec-m1-map/full-light.jpg" alt="v7 M1 관제 화면 라이트" loading="lazy" /><figcaption>라이트 — <code>?theme=light</code></figcaption></figure>
+      </div>
+      <div class="two" style="margin-top: 20px;">
+        <figure><img src="./assets/img/spec-m1-map/zoom-dark.jpg" alt="지도 확대 다크 — 번호 핀, 로봇, 경로, DOCK" loading="lazy" /><figcaption>확대 — 위험 핀 ④⑦(빨강) · 주의 핀 ③⑤⑥(노랑) · 지금 지점 ⑧(파랑) · 지나온 길 점선 · 앞길 실선 · DOCK</figcaption></figure>
+        <figure><img src="./assets/img/spec-m1-map/zoom-light.jpg" alt="지도 확대 라이트" loading="lazy" /><figcaption>같은 자리 라이트 — 핀 속이 흰색, 주의 번호는 짙은 황토 #8A6100</figcaption></figure>
+      </div>
+      <h3>지도가 보여 주는 것 — 위계</h3>
+      <ol class="list">
+        <li><b>로봇(지금 여기)</b> — 화면에서 가장 밝다. 3D 로봇개 + 바닥 4방향 호(arc). 늘 맨 위에 그린다.</li>
+        <li><b>문제 지점</b> — 위험 · 주의 번호 핀은 늘 보이고 솎기(겹침 정리)에서도 빠지지 않는다.</li>
+        <li><b>지금 가는 지점</b> — 다음 웨이포인트 핀(흰 속 + 길 색 테) + 바닥 글로우.</li>
+        <li><b>앞길(파랑 실선)</b> → <b>지나온 길(점선)</b> → <b>건물(무채색)</b> 순으로 물러난다.</li>
+        <li>나머지 웨이포인트 번호는 숨기고 바닥 점만 남긴다 — 우측 레일에 손을 올릴 때만 뜬다.</li>
+      </ol>
+    </section>
+
+    <!-- 02 -->
+    <section class="part" id="layout">
+      <h2><span class="no">02</span>배치 · 층(레이어) 구조</h2>
+      <p class="lead">3D 캔버스는 지도 칸보다 넓게, 우측 패널 뒤까지 깔립니다. 손(휠·드래그)은 지도 칸에서만 받습니다. 모델 중심은 캔버스가 아니라 지도 칸 중심에 맞춥니다.</p>
+      <div class="scroll"><table class="grid">
+        <thead><tr><th>요소</th><th>크기 · 위치 (1920×1080)</th><th>역할</th><th>근거</th></tr></thead>
+        <tbody>
+          <tr><th>상단 바 · 미션 탭</th><td>높이 56 · 탭 높이 44</td><td>M1 탭 선택(<code>.is-on</code>). 선택 탭만 이름, 나머지는 번호만(최소 폭 56)</td><td class="ref">v7.css:11-42</td></tr>
+          <tr><th>좌측 알림 패널</th><td>폭 320 (≤1600px 은 308)</td><td>조치 필요 알림 — 줄 호버 시 지도 핀 강조</td><td class="ref">v7.css:879</td></tr>
+          <tr><th><code>.two-col</code></th><td>gap 20 · padding 20 · radius 8 · bg <code>--bg-page</code></td><td>지도 + 우측 패널을 담는 판, <code>overflow:hidden</code></td><td class="ref">monitor.css:72 · app-shell.css:1202</td></tr>
+          <tr><th><code>.map-view</code> (3D 캔버스)</th><td>≈1516×1008 · <code>inset:0</code> · z-index −1</td><td>WebGL. 투명 배경 — 페이지 바탕이 비친다. <code>pointer-events:none</code></td><td class="ref">app-shell.css:1254 · map-v6.js:16-21</td></tr>
+          <tr><th><code>.map-panel</code> / <code>.map-canvas</code></th><td>≈1136×968 · x≈416, y≈84</td><td>손이 닿는 지도 칸. 도구 · 팝오버 · 핀 · 로봇 표식(DOM)이 여기 얹힌다</td><td class="ref">main-v7.html:414-594</td></tr>
+          <tr><th>우측 패널</th><td>폭 320, 유리(blur) 면</td><td>로봇 카드 · 진행률 · 웨이포인트 목록/미니맵</td><td class="ref">main-v7.html:606-1122</td></tr>
+          <tr><th>Delta</th><td>지도 칸 좌상단, 폭 295</td><td>지도 위 겹침 요소(이 문서 범위 밖)</td><td class="ref">main-v7.html:329-397</td></tr>
+        </tbody>
+      </table></div>
+      <h3>DOM 트리 (지도 칸)</h3>
+<pre class="tree"><b>.two-col</b>
+├─ section.delta3                      Delta (지도 위 좌상단)
+├─ span.map-view[data-map]             3D 캔버스 칸 (z −1, 눌리지 않음)
+│   └─ canvas.map-scene[data-map-scene]
+└─ <b>section.map-panel</b> > <b>.map-canvas</b>      손이 닿는 칸
+    ├─ .floor-note[data-floor-note]    층 안내 (기본 숨김)
+    ├─ .map-tools                       우상단 도구 (z 5)
+    │   ├─ .map-tools-box   [+] [−] [로봇 위치] [전체 보기] [2D] [3D]
+    │   └─ .map-tools-box.is-floors > .map-floors   [B3] [B4]
+    ├─ .map-wp[data-map-wp]            웨이포인트 팝오버 (숨김)
+    ├─ section.map-alert.ma-v3          알림 팝오버 (숨김, z 6)
+    ├─ .map-bot[data-map-bot]          로봇 DOM 표식 · 툴팁 (z 3)
+    ├─ .map-card[data-map-card]        설비 카드 (숨김)
+    └─ <i>JS 가 만드는 것</i>  .rr-pins > .rr-pin (번호 핀, z 2) · .rr-labels · .rr-dock · .ma-wp-label</pre>
+      <h3>3D 그리기 순서 (renderOrder)</h3>
+      <div class="scroll"><table class="grid">
+        <thead><tr><th>층</th><th>값</th><th>층</th><th>값</th></tr></thead>
+        <tbody>
+          <tr><td>바닥 격자</td><td>−1</td><td>지점 바닥 표식 · DOCK</td><td>3</td></tr>
+          <tr><td>벽 뒤 경로(유령)</td><td>1</td><td>선택 지점 후광 · 외곽선 유령</td><td>4</td></tr>
+          <tr><td>점선 밑 띠 / 흰 테 / 실선 리본</td><td>1.8 / 1.9 / 2</td><td>선택 외곽선</td><td>5</td></tr>
+          <tr><td>점선 경로</td><td>2.5</td><td>로봇 바닥 호(arc)</td><td>900+ (깊이 무시)</td></tr>
+          <tr><td>다음 지점 바닥 글로우</td><td>2.8</td><td>3D 로봇</td><td>맨 마지막 (깊이 지운 뒤)</td></tr>
+        </tbody>
+      </table></div>
+      <p class="cap">근거 map-v6.js:1553 · 2498 · 2519 · 2686 · 2760 · 3850 · 3884</p>
+    </section>
+
+    <!-- 03 -->
+    <section class="part" id="camera">
+      <h2><span class="no">03</span>카메라 · 조작</h2>
+      <p class="lead">투시 카메라지만 아주 약하게 씁니다. 카메라를 모델 반지름의 9배 거리에 세우고 화각을 좁혀 앞뒤 크기 차이가 10% 남짓만 나게 했습니다. 확대는 거리 대신 화각(FOV)만 바꿉니다 — 확대해도 원근 세기가 그대로입니다.</p>
+      <div class="scroll"><table class="grid">
+        <thead><tr><th>항목</th><th>값</th><th>설명</th><th>근거</th></tr></thead>
+        <tbody>
+          <tr><th>원근 거리 EYE</th><td>9 × 모델 반지름</td><td>모델 긴 변을 120 단위로 맞춰 원점 중심에 둔다(SPAN_UNITS)</td><td class="ref">map-v6.js:76-78 · 308</td></tr>
+          <tr><th>화각</th><td><code>2·atan((baseSize/zoom/2)/(span·EYE))</code></td><td>매 프레임 계산. near = max(0.1, eye−5·span), far = eye+5·span</td><td class="ref">477-482</td></tr>
+          <tr><th>처음 각도</th><td>yaw 45° · pitch ≈31.0°</td><td>예전 아이소메트릭 (1, 0.85, 1) 방향과 같음</td><td class="ref">65-66</td></tr>
+          <tr><th>위 한계 (2D)</th><td>pitch 89°</td><td>90° 는 화면 오른쪽이 정해지지 않아 뒤집힘. pitch ≥ 87° 면 "2D 상태"로 본다</td><td class="ref">67 · 854</td></tr>
+          <tr><th>아래 한계</th><td>pitch 6°</td><td>바닥 아래로 내려가지 않는다(좌우가 뒤집혀 읽힘)</td><td class="ref">68</td></tr>
+          <tr><th>회전</th><td>yaw 무제한 · 커서 1px = 0.006 rad</td><td>11/06 v6 부터 드래그 360° 회전 열림</td><td class="ref">69 · 647</td></tr>
+          <tr><th>배율</th><td>0.3 ~ 8</td><td>휠 deltaY 1 = ×1.0015 (줄 단위 ×16, 페이지 ×100) · 버튼 ×1.5 · 커서 밑이 제자리</td><td class="ref">43-49 · 521-560</td></tr>
+          <tr><th>맞춤 여백</th><td>FIT_AIR 1.08</td><td>배율 1 에서 지금 층 크기를 지도 칸에 담는 여백. 맞춤은 늘 처음 각도 기준</td><td class="ref">47 · 390-394</td></tr>
+          <tr><th>판 밀기 한계</th><td>모델 반지름 × 3</td><td>층 중심(home)에서 축마다 자른다</td><td class="ref">74 · 513-518</td></tr>
+          <tr><th>카메라 이동</th><td>320ms · easeInOutQuad</td><td>yaw · pitch · zoom · target 을 함께 보간. yaw 는 짧은 쪽으로. 탭이 숨으면 dur+40ms 에 끝 상태로</td><td class="ref">794-842</td></tr>
+          <tr><th>페이드 보간</th><td>프레임당 0.08 · 멈춤 0.002</td><td>투명도류 따라가기</td><td class="ref">311-312</td></tr>
+        </tbody>
+      </table></div>
+      <h3>손 조작</h3>
+      <div class="scroll"><table class="grid">
+        <thead><tr><th>입력</th><th>동작</th><th>근거</th></tr></thead>
+        <tbody>
+          <tr><th>휠 · 핀치</th><td>확대·축소 (커서 / 두 손가락 중점 기준). 쉬었다가(450ms) 확대하면 커서 자리가 Focus Point 가 된다</td><td class="ref">554-567</td></tr>
+          <tr><th>왼쪽 끌기</th><td>돌아보기(yaw · pitch)</td><td class="ref">575-717</td></tr>
+          <tr><th>Shift · 가운데 · 오른쪽 끌기</th><td>판 밀기. 지도 위 오른쪽 클릭 메뉴는 막는다</td><td class="ref">763-766</td></tr>
+          <tr><th>클릭</th><td>4px 이내 움직임만 클릭. 우선순위 웨이포인트(핀) → 설비 → 계단(층 이동). 클릭 자리가 Focus Point</td><td class="ref">581 · 699-711</td></tr>
+          <tr><th>Esc</th><td>설비 선택 · Focus 해제</td><td class="ref">754-757</td></tr>
+          <tr><th>커서</th><td><code>.map-canvas.is-turning</code> · <code>.is-panning</code> · <code>.is-picking</code>(집을 수 있는 것 위)</td><td class="ref">603-606 · 731</td></tr>
+        </tbody>
+      </table></div>
+      <h3>우상단 도구 <span class="tag v7">v7</span></h3>
+      <div class="scroll"><table class="grid">
+        <thead><tr><th>버튼</th><th>속성</th><th>동작</th><th>근거</th></tr></thead>
+        <tbody>
+          <tr><th>＋ / −</th><td><code>data-map-zoom-in/out</code></td><td>지도 칸 중심 기준 ×1.5 / ÷1.5. ＋ 는 Focus 가 없으면 칸 중심을 Focus 로</td><td class="ref">770-786</td></tr>
+          <tr><th>로봇 위치</th><td><code>data-map-robot</code></td><td>로봇에게 320ms 이동, 배율 max(지금, 2.2), 각도 유지. 다른 층이면 층부터 옮긴 뒤(+360ms) 이동</td><td class="ref">943-970</td></tr>
+          <tr><th>전체 보기</th><td><code>data-map-track</code></td><td>Focus 해제 → 처음 각도 · 배율 1 · 층 중심. <b>2D 상태면 2D 를 유지</b>하고 배율 0.74</td><td class="ref">849-862</td></tr>
+          <tr><th>2D / 3D</th><td><code>data-map-top</code> · <code>data-map-3d</code></td><td>2D: 지금 각도를 기억하고 바로 위(89°)로. 3D: 기억한 각도로(없으면 처음 각도). 눌린 쪽은 다시 눌러도 그대로. 기본 3D. <code>aria-pressed</code> 400ms 마다 맞춤</td><td class="ref">879-912</td></tr>
+          <tr><th>B3 / B4</th><td><code>data-map-floor</code></td><td>층 전환(10장). M1 기본 B4. 로봇이 있는 층에 6px 파란 점(<code>.has-robot</code>)</td><td class="ref">mission-scope.js:167-230</td></tr>
+        </tbody>
+      </table></div>
+      <div class="scroll" style="margin-top: 12px;"><table class="grid">
+        <thead><tr><th>스타일</th><th>다크</th><th>라이트</th><th>근거</th></tr></thead>
+        <tbody>
+          <tr><th>도구 상자</th><td>세로 · gap 8 · padding 4 · radius 8 · 유리 rgb(44 52 67/55%) + blur 10 + 위 테 inset 1px rgb(255 255 255/14%) + 그림자 0 14 30 −18 rgb(7 10 16/55%)</td><td>#F0F1F5 / 80%</td><td class="ref">monitor.css:1948-1969 · v6.css:982</td></tr>
+          <tr><th>아이콘 버튼</th><td colspan="2">36×36 · radius 4 · 색 <code>--text-secondary</code> · 호버 bg <code>--state-hover</code>(다크 #373F4E) · 포커스 2px <code>--border-focus</code> offset 1</td><td class="ref">app-shell.css:1146</td></tr>
+          <tr><th>2D · 3D 글자</th><td colspan="2">13px / 20 · 500 · 눌림 색 <code>--status-info-icon</code></td><td class="ref">v7.css:137 · 1260</td></tr>
+          <tr><th>층 버튼</th><td colspan="2">높이 24 · radius 4 · 13/18 · 500 · mono · 묶음 padding 2 · bg <code>--bg-map-chip</code> · 선택 = secondary 버튼 스타일</td><td class="ref">v7.css:1109-1119</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 04 -->
+    <section class="part" id="model">
+      <h2><span class="no">04</span>지도 모델 · 재질</h2>
+      <p class="lead">모델은 <code>assets/model/apro-4f.glb</code> 하나에 B4 · B3 두 층이 들어 있고, 층마다 <code>00_floor / 01_wall / 02_equipment / 03_stairs</code> 네 레이어로 나뉩니다. 덩이는 색으로 가르고, 외곽선은 어디서나 같은 색·같은 굵기입니다(기술 도면 톤). 면은 모두 불투명이며, 가린 것만 골라 비치게 합니다(5장).</p>
+      <div class="scroll"><table class="grid">
+        <thead><tr><th>레이어</th><th>면 — 다크</th><th>면 — 라이트</th><th>외곽선 진하기 (기본 → 보는 중)</th><th>자체 밝힘(emissive)</th></tr></thead>
+        <tbody>
+          <tr><th>floor 바닥</th><td><span class="sw" style="background:#18202e"></span>#18202E</td><td><span class="sw" style="background:#bfc4cc"></span>#BFC4CC</td><td>0.25 → 0.25 (올리지 않음)</td><td>0</td></tr>
+          <tr><th>wall 벽</th><td><span class="sw" style="background:#3a475f"></span>#3A475F</td><td><span class="sw" style="background:#dfe2e6"></span>#DFE2E6</td><td>0.7 → 0.9</td><td>0.55</td></tr>
+          <tr><th>equipment 설비</th><td><span class="sw" style="background:#41506a"></span>#41506A</td><td><span class="sw" style="background:#e1e4e8"></span>#E1E4E8</td><td>0.7 → 1</td><td>0.4</td></tr>
+          <tr><th>stairs 계단</th><td><span class="sw" style="background:#34405a"></span>#34405A</td><td><span class="sw" style="background:#d8dbdf"></span>#D8DBDF</td><td>0.32 → 0.5</td><td>0.45</td></tr>
+          <tr><th>other (모르는 이름)</th><td><span class="sw" style="background:#36435a"></span>#36435A</td><td><span class="sw" style="background:#dfe2e6"></span>#DFE2E6</td><td>0.7 → 0.95</td><td>0.4</td></tr>
+        </tbody>
+      </table></div>
+      <p class="cap">라이트 자체 밝힘은 일괄 0.18. 근거 map-v6.js:114-120 · 192-197</p>
+      <div class="scroll" style="margin-top: 12px;"><table class="grid">
+        <thead><tr><th>항목</th><th>다크</th><th>라이트</th><th>메모 · 근거</th></tr></thead>
+        <tbody>
+          <tr><th>외곽선 EDGE</th><td><span class="sw" style="background:#7b8fb4"></span>#7B8FB4</td><td><span class="sw" style="background:#868c93"></span>#868C93</td><td>EdgesGeometry 25° · 벽 이음 선은 지운다 <span class="ref">165 · 1056 · 1144</span></td></tr>
+          <tr><th>비칠 때 향하는 색 GHOST</th><td>#6A7890</td><td>#F2F4F5</td><td><span class="ref">166</span></td></tr>
+          <tr><th>바닥 격자</th><td>#1F2A3C · 투명 0.3</td><td>#C4C9D1</td><td>칸 10m · 건물 폭의 약 2.1배 · 바닥 판 바로 아래 <span class="ref">1535-1555</span></td></tr>
+          <tr><th>지도 바탕(건물 밖)</th><td>#070A10 (<code>--bg-page</code>, 캔버스 투명)</td><td>#D6DAE1</td><td><span class="ref">v6.css:1003</span></td></tr>
+          <tr><th>설비 선택</th><td>면 #AFB7C8 · 선 #E0E3E9</td><td>면 #CFE0FF · 선 #1D5FD6</td><td>외곽선 두 겹: 폭 6/α0.14 + 폭 2/α0.85. 지금 층 설비만 선택 가능</td></tr>
+          <tr><th>설비 호버</th><td>선 #9AA1AE</td><td>선 #5B6577</td><td>폭 1.6 · α1 · 가려진 구간은 α0.28 유령선</td></tr>
+          <tr><th>재질</th><td colspan="2">MeshStandardMaterial · roughness 0.85(fx 켜짐 0.8) · metalness 0.05 · polygonOffset 1/1 · 그림자 주고받음</td><td><span class="ref">1041-1054</span></td></tr>
+        </tbody>
+      </table></div>
+      <h3>조명 · 후처리 (map-fx-v6.js)</h3>
+      <div class="scroll"><table class="grid">
+        <thead><tr><th>항목</th><th>다크</th><th>라이트</th><th>근거</th></tr></thead>
+        <tbody>
+          <tr><th>Ambient</th><td>0.25</td><td>0.95</td><td class="ref">map-v6.js:5139-5148</td></tr>
+          <tr><th>Hemisphere</th><td>하늘 #E4EDFB · 땅 #05070C · 1.25</td><td>#FFFFFF · #E4E6EA · 1.6</td><td class="ref">6870</td></tr>
+          <tr><th>주광(Directional)</th><td>1 · 위치 층중심 + (0.62, 0.8, −0.62)·2·span</td><td>1.5</td><td class="ref">6872</td></tr>
+          <tr><th>그림자</th><td colspan="2">PCFSoft · 맵 2048 · radius 5 (fx 끔: 1024 · 3) · bias −0.0008 · normalBias 0.15</td><td class="ref">fx:39</td></tr>
+          <tr><th>톤 매핑</th><td colspan="2">none · exposure 0.9 (AgX 는 경로 색을 빼서 안 씀)</td><td class="ref">fx:34</td></tr>
+          <tr><th>환경광</th><td colspan="2">RoomEnvironment · 0.1</td><td class="ref">fx:35</td></tr>
+          <tr><th>구운 AO (운영)</th><td>반경 1.6m · 세기 1.4</td><td>세기 ×0.7</td><td class="ref">fx:42 · 288-459</td></tr>
+          <tr><th>Bloom</th><td>0.4 · radius 0.15 · threshold 0.51</td><td>없음</td><td class="ref">fx:37</td></tr>
+          <tr><th>비네트</th><td>0.3 · smoothstep(0.35, 1.05)</td><td>없음</td><td class="ref">fx:38</td></tr>
+          <tr><th>해상도</th><td colspan="2">MSAA 4 · HalfFloat · 픽셀 비율 min(max(dpr, 2), 2)</td><td class="ref">fx:40 · map-v6.js:7012</td></tr>
+          <tr><th>GTAO</th><td colspan="2">끔 (실험용)</td><td class="ref">fx:36</td></tr>
+        </tbody>
+      </table></div>
+      <p class="cap"><code>?fx=off</code> 면 후처리 없이 기본 렌더로 떨어진다(저사양 대비 경로).</p>
+    </section>
+
+    <!-- 05 -->
+    <section class="part" id="occl">
+      <h2><span class="no">05</span>가림 처리 — 대상 앞만 비친다</h2>
+      <p class="lead">로봇과 Focus Point(사용자가 누르거나 확대한 자리)는 늘 "대상"입니다. 카메라와 대상 사이에 낀 구조물만 반투명이 되고, 외곽선은 거의 그대로 둬서 "벽이 사라졌다"가 아니라 "벽 너머가 비친다"로 읽히게 합니다.</p>
+      <div class="scroll"><table class="grid">
+        <thead><tr><th>설정</th><th>값</th><th>뜻</th></tr></thead>
+        <tbody>
+          <tr><th>radius</th><td>32px</td><td>대상 둘레 판정 영역</td></tr>
+          <tr><th>samples</th><td>48</td><td>영역에 뿌리는 광선 수</td></tr>
+          <tr><th>enter / leave</th><td>20% / 12%</td><td>이만큼 가리면 비치고, 이 밑으로 내려가야 돌아온다(문턱 깜빡임 방지)</td></tr>
+          <tr><th>fadeTo · fadeSoft</th><td>면 불투명도 35%</td><td>직접 가린 것 · 일부 가린 것 모두. 설비는 이 밑으로 내리지 않는다</td></tr>
+          <tr><th>topPitch</th><td>75°</td><td>이보다 위에서 보면 영역 판정을 쉰다(탑뷰에선 벽이 가리지 않음)</td></tr>
+          <tr><th>robotTarget</th><td>켜짐</td><td>로봇을 가린 구조물은 누르지 않아도 비친다</td></tr>
+          <tr><th>routeGhost</th><td>켜짐</td><td>벽 뒤로 들어간 경로를 옅게 비쳐 그린다(깊이 GreaterDepth)</td></tr>
+        </tbody>
+      </table></div>
+      <p class="cap">근거 map-v6.js:122-163. 경로 재판정은 최대 150ms 마다(4037-4041).</p>
+    </section>
+
+    <!-- 06 -->
+    <section class="part" id="route">
+      <h2><span class="no">06</span>경로</h2>
+      <p class="lead">경로는 DOCK → WP-01 … WP-20 → DOCK 의 닫힌 길입니다. 세 토막으로 나눠 그립니다 — <b>지나온 길</b>(점선) · <b>지금 구간</b>(로봇 → 다음 지점, 가장 굵음) · <b>앞길</b>(다음 지점 → 마지막, 실선). 마지막 지점 → DOCK 의 <b>귀환 길</b>은 앞길과 같은 모양입니다.</p>
+      <h3>색 — 로봇 상태에서 온다</h3>
+      <p class="lead" style="margin-bottom: 12px;">경로 색은 로봇 카드의 상태 배지 글자(수행중 · 완료 · 대기 · 끊김)로 정합니다. M1 의 Robot 01 은 "수행중"이라 앞길이 파랑입니다.</p>
+      <div class="scroll"><table class="grid">
+        <thead><tr><th>로봇 상태</th><th>지나온 길 (다크 / 라이트)</th><th>앞길 · 지금 구간 (다크 / 라이트)</th><th>로봇 · DOCK 표식</th></tr></thead>
+        <tbody>
+          <tr><th>수행중 (M1)</th><td><span class="sw" style="background:#9ea8bb"></span>#9EA8BB / <span class="sw" style="background:#4b5563"></span>#4B5563</td><td><span class="sw" style="background:#4db2ff"></span><b>#4DB2FF</b> / <span class="sw" style="background:#138deb"></span><b>#138DEB</b></td><td>#F7F8FA / #2B2F36</td></tr>
+          <tr><th>완료</th><td>#34C759 / #1DA67F</td><td>#1DA67F / #34C759</td><td>= 지나온 길</td></tr>
+          <tr><th>대기</th><td>#8894AA / #5D6675</td><td>#5D6675 / #8894AA</td><td>= 지나온 길</td></tr>
+          <tr><th>끊김</th><td>#667085 / #4E576A</td><td>#4E576A / #667085</td><td>= 지나온 길</td></tr>
+        </tbody>
+      </table></div>
+      <p class="cap">근거 map-v6.js:3353-3381. 이미 끝난 미션의 지나온 길은 수행중 회색을 쓰고 불투명도 ×0.4.</p>
+
+      <h3>굵기 · 모양 — 미션 진행 상태별</h3>
+      <p class="lead" style="margin-bottom: 12px;">굵기 = 기준 px × <b>k 2.85</b>. 표의 "불투명도"는 실제로는 바닥색(다크 #181D28 / 라이트 #D3D9E1)과 미리 섞은 <b>불투명 색</b>입니다(아래 14장 참고).</p>
+      <div class="scroll"><table class="grid">
+        <thead><tr><th>진행 상태</th><th>지나온 길</th><th>지금 구간</th><th>앞길</th><th>그 밖</th></tr></thead>
+        <tbody>
+          <tr><th>run 이동 · inspect 측정 · alert 알림</th><td>길 색 · 0.8 · 2×k · <b>둥근 점선</b></td><td>길 색 · 1 · 4×k · 실선 + 흰 테</td><td>길 색 · 다크 0.38 / 라이트 0.7 · 4×k · 실선</td><td>흐르는 빛(이동 중만) · 시야 부채 · 귀환 길 보임</td></tr>
+          <tr><th>pause · estop · lost</th><td>길 색 · 0.8 · 2×k · 점선</td><td>#9EA8BB · 0.55 (lost 0.35)</td><td>#9EA8BB · 0.45</td><td>흐르는 빛 끔 · 부채는 pause 때만</td></tr>
+          <tr><th>return 귀환</th><td>중립색(다크 #E4E8EF / 라이트 #2B3445) · 0.75 · 3.4×k ≈ 9.7px 실선 "도로"</td><td>숨김</td><td>숨김</td><td>도로가 1800ms(ease-out-cubic) 동안 펼쳐지고, 위로 DOCK 방향 흐름 점선</td></tr>
+          <tr><th>done 완료</th><td>#9EA8BB · 0.6 · 2×k · 점선</td><td>숨김</td><td>숨김</td><td>처음 한 번 경로 전체를 3200ms 훑는 빛</td></tr>
+        </tbody>
+      </table></div>
+      <p class="cap">근거 map-v6.js:3923-3979 · 3555(RR 설정). 10/30 v6 결정: 지나온 길 = 점선, 앞길 = 실선.</p>
+
+      <div class="scroll" style="margin-top: 12px;"><table class="grid">
+        <thead><tr><th>세부</th><th>값</th><th>근거</th></tr></thead>
+        <tbody>
+          <tr><th>실선 그리기</th><td>바닥에 눕힌 리본(마이터 이음). 반폭 = lw/2 × 1.35(보정) × 화면 1px 크기. 카메라 쪽으로 span×0.0025 당김</td><td class="ref">3807-3900</td></tr>
+          <tr><th>흰 테</th><td>반폭 +1.2px · 지금 구간 흰색 90% · 나머지 55% (미리 섞음). done · return 때 없음</td><td class="ref">3907-3920</td></tr>
+          <tr><th>점선</th><td>점 2px · 간격 6px · 폭 2 — 우측 레일 타임라인 점과 같은 리듬. 바닥에 눕힌 타원(납작함 = max(0.3, |카메라 y|))</td><td class="ref">2422 · 2442-2469</td></tr>
+          <tr><th>점선 밑 띠</th><td>다크 #343E53 / 라이트 #E6E9EE</td><td class="ref">3918</td></tr>
+          <tr><th>겹친 길</th><td>"stack" — 되돌아오는 점선이 실선 한가운데에 얹힌다</td><td class="ref">3559</td></tr>
+          <tr><th>흐르는 빛(comet)</th><td>지금 구간만 · 30fps · 꼬리 span×0.07 · 속도 span×0.11/s · 한 바퀴 뒤 0.4s 쉼 · 꼭짓점 14개, 길 색 → 흰색(f²) · 투명 0.15 → 1 · 머리는 길에 직각으로 자름</td><td class="ref">3687-3734</td></tr>
+          <tr><th>귀환 흐름 점선</th><td>대시 8×1.3 · 주기 14×1.3 · 31×1.3 px/s · 굵기 3.9 · 투명 0.7 · 다크 #0A0F18 / 라이트 #EEF0F3 — 우측 레일 <code>.rr-homebar</code> 와 같다</td><td class="ref">3991-4015</td></tr>
+          <tr><th>동작 줄이기</th><td><code>prefers-reduced-motion</code> 이면 흐르는 빛 · 부채 흔들기 · 맥박 모두 끈다</td><td class="ref">3556</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 07 -->
+    <section class="part" id="wp">
+      <h2><span class="no">07</span>웨이포인트 — 바닥 점과 번호 핀</h2>
+      <p class="lead">웨이포인트는 두 겹입니다. 바닥에 눕힌 <b>점(3D)</b>은 늘 있고, 그 위로 막대와 동그라미 머리의 <b>번호 핀(HTML)</b>이 섭니다. 핀 번호는 정해진 경우에만 보입니다.</p>
+      <h3>번호 핀 표시 규칙 (11/04 · 11/05 디자이너 결정)</h3>
+      <div class="scroll"><table class="grid">
+        <thead><tr><th>상황</th><th>번호 핀</th></tr></thead>
+        <tbody>
+          <tr><th>평소(기본)</th><td><b>문제 지점</b>(위험 · 주의 · 건너뜀 · 해결됨) + <b>지금 지점</b>만 보인다. 지나온 정상 · 앞으로 갈 지점은 숨기고(<code>.is-quiet</code>) 바닥 점만 남긴다</td></tr>
+          <tr><th>우측 레일 줄 호버 · 포커스</th><td>그 지점 번호만 잠깐 보인다(<code>.is-hot</code>) — 솎기보다 앞선다</td></tr>
+          <tr><th>좌측 알림 줄 호버</th><td><code>.is-hot.is-point</code> — 머리 1.4배 + 1.2s 퍼지는 링(흰 2px + 핀 색 14px), 다른 핀은 0.35 로 흐려짐(<code>.has-point</code>)</td></tr>
+          <tr><th>알림 팝오버 열림</th><td>그 지점이 계속 "가리킴" 상태로 남는다</td></tr>
+          <tr><th>미션 설정 · 사전 점검 화면</th><td>점검 순서라 전부 보인다(<code>body.sian</code>)</td></tr>
+        </tbody>
+      </table></div>
+      <p class="cap">근거 map-v6.js:4464-4466 · 4538-4619 · v6.css:1283-1288 · 1828-1833</p>
+
+      <h3>번호 핀 머리 — v7 색</h3>
+      <div class="scroll"><table class="grid">
+        <thead><tr><th>경우</th><th>속</th><th>테 · 막대</th><th>번호</th><th>근거</th></tr></thead>
+        <tbody>
+          <tr><th>위험</th><td>다크 #0A0F18 / 라이트 #FFFFFF</td><td><span class="sw" style="background:#ff383c"></span>#FF383C</td><td>#FF383C</td><td class="ref" rowspan="2">map-v6.js:4478</td></tr>
+          <tr><th>주의</th><td>다크 #0A0F18 / 라이트 #FFFFFF</td><td><span class="sw" style="background:#ffcc00"></span>#FFCC00 / <span class="sw" style="background:#f2a900"></span>#F2A900</td><td>#FFCC00 / <b>#8A6100</b> (흰 바탕 대비)</td></tr>
+          <tr><th>지금 지점 (다음)</th><td>#FFFFFF</td><td>길 색 #4DB2FF / #138DEB</td><td>길 색</td><td class="ref">4476</td></tr>
+          <tr><th>측정 중</th><td>길 색</td><td>#FFFFFF</td><td>#FFFFFF</td><td class="ref">4475</td></tr>
+          <tr><th>지나온 정상 (호버 때)</th><td>바탕(다크 #0A0F18 / 라이트 #F2F4F5)</td><td>길 색</td><td>길 색</td><td class="ref">4477</td></tr>
+          <tr><th>해결됨 (조치 완료)</th><td>다크 #0A0F18 / 라이트 #FFFFFF</td><td>#9EA8BB</td><td>#9EA8BB / #5E6675</td><td class="ref">4473</td></tr>
+          <tr><th>기본 · 예정 (호버 때)</th><td>바탕</td><td><code>--pin-plain</code> 다크 #4E576A(gray-600) / 라이트 #E0E3E9(gray-200)</td><td><code>--text-secondary</code></td><td class="ref">4480 · v7.css:205</td></tr>
+          <tr><th>방금 정상 측정</th><td>#34C759 (1400ms 뒤 숨김)</td><td>바탕</td><td>#0A0F18</td><td class="ref">4472 · 4386</td></tr>
+        </tbody>
+      </table></div>
+      <div class="scroll" style="margin-top: 12px;"><table class="grid">
+        <thead><tr><th>핀 치수</th><th>값</th><th>근거</th></tr></thead>
+        <tbody>
+          <tr><th>머리</th><td>20×20 · 테 2px · 원 · 번호 JetBrains Mono 700 9px · 자간 −0.4</td><td class="ref">route-rules.css:318-345 · v6.css:1939</td></tr>
+          <tr><th>막대</th><td>폭 2.25 · 높이 20 (설비에 묻힌 자리 44) · 머리와 잇는 목 8×4 마스크 · v7 불투명 1</td><td class="ref">v7.css:1309-1314</td></tr>
+          <tr><th>배율 따라 크기</th><td><code>--pz = clamp(zoom^0.75, 0.8, 2.2)</code></td><td class="ref">map-v6.js:4435</td></tr>
+          <tr><th>지금 지점</th><td>scale 1.2 · 링 rgba(137,185,237,.35)</td><td class="ref">route-rules.css</td></tr>
+          <tr><th>솎기</th><td>26·pz px 안에서 겹치면 우선순위로 남김: 다음 0 › 위험·주의 1(솎지 않음) › 마지막 2 › ×10번 3 › ×5번 4 › 나머지 5 › 지나온 정상 7</td><td class="ref">4488-4508</td></tr>
+          <tr><th>가장자리</th><td>좌우 끝에서 핀 전체가 흐려지고, 위 끝에선 막대가 짧아진다(모자라면 <code>.is-low</code>)</td><td class="ref">4515-4533</td></tr>
+          <tr><th>클릭 영역 <span class="tag v7">v7</span></th><td>바닥 점 반경 14px + 핀 머리 사방 +4px + 막대 좌우 ±6px</td><td class="ref">2374 · 2382-2402</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>바닥 점</h3>
+      <div class="scroll"><table class="grid">
+        <thead><tr><th>상태</th><th>모양 · 크기(px)</th><th>색 (다크 / 라이트)</th></tr></thead>
+        <tbody>
+          <tr><th>지나온 정상</th><td>원판 7 (미션 완료 시 5)</td><td>길 색 (완료 시 #9EA8BB)</td></tr>
+          <tr><th>위험 · 주의 <span class="tag v7">v7</span></th><td>원판 7 — 삼각형 대신. 단계는 번호 핀이 말한다</td><td>#FF383C · #FFCC00 / #F2A900</td></tr>
+          <tr><th>지금</th><td>꽉 찬 원 15 + 바닥 글로우 52 (투명 0.6 / 0.45)</td><td>#4DB2FF / #138DEB</td></tr>
+          <tr><th>예정</th><td>고리 12</td><td>#8894AA</td></tr>
+          <tr><th>건너뜀</th><td>점선 고리 11</td><td>#4E576A</td></tr>
+          <tr><th>선택</th><td>흰 후광 28</td><td>#FFFFFF</td></tr>
+        </tbody>
+      </table></div>
+      <p class="cap">위험 · 주의 지점엔 바닥 글로우를 두지 않는다(10/30 클라이언트). 귀환 중엔 바닥 점 없음. 크기 배율 = clamp(zoom^0.75, 0.8, 2.2). 근거 map-v6.js:2098-2110 · 2301-2342</p>
+
+      <h3>웨이포인트 팝오버 · 설비 카드</h3>
+      <ul class="list">
+        <li><b>공통 틀</b> — 최소 폭 200 · 최대 280(v6 값) · padding 14 · gap 10 · radius 8 · 머리 bg <code>--bg-raised</code> · 몸 <code>--fac-bg</code>(다크 #2C3443 92% / 라이트 <code>--bg-raised</code> 92%) + blur 12 · 꼬리 14×8 · 지점 14px 위.</li>
+        <li><b>그림자</b> — 다크 <code>inset 0 0 0 1px rgb(255 255 255/8%), 0 6px 16px rgb(0 0 0/35%)</code> · 라이트 <code>inset … rgb(0 0 0/6%), 0 6px 16px rgb(0 0 0/14%)</code>.</li>
+        <li><b>상태 칩 문구</b> — 정상 · 주의 · 위험 · 측정 중 · 예정 · 다음 지점. v7 은 조치 진행 두 단계(<code>.mwp-steps</code>: 현장 응답 대기 → 현장 조치 중 → 조치 완료)를 더한다.</li>
+        <li><b>설비 카드</b> — 사진 220×132 · 점검 결과 / 최근 점검 / 담당 로봇. 설비 위면 가운데에 붙고 칸 안 8px 로 자른다.</li>
+        <li><b>설비 이름 라벨</b> — 배율 1.35 이상에서 윗면 가운데에 뜬다.</li>
+      </ul>
+      <p class="cap">근거 monitor.css:2610-2760 · v6.css:1702-1912 · v7.css:1340 · map-v6.js:2996-3149 · 4388-4412</p>
+    </section>
+
+    <!-- 08 -->
+    <section class="part" id="robot">
+      <h2><span class="no">08</span>로봇</h2>
+      <p class="lead">지도 위 로봇은 3D 로봇개(SPOT) 모델이고 늘 맨 위에 그립니다(설비에 가리지 않음). 바닥에는 상태를 말하는 호(arc)와 시야 부채가 깔립니다.</p>
+      <div class="scroll"><table class="grid">
+        <thead><tr><th>항목</th><th>값</th><th>근거</th></tr></thead>
+        <tbody>
+          <tr><th>모델</th><td><code>robot-spot.js</code> (<code>data-type="mobed"</code> 카드는 바퀴 로봇)</td><td class="ref">map-v6.js:2613-2627</td></tr>
+          <tr><th>크기</th><td>배율 1 에서 높이 약 46px, 배율 따라 커진다</td><td class="ref">2622 · 2754</td></tr>
+          <tr><th>방향</th><td>경로상 span×0.01 앞 점을 본다 → <code>aprism:robot-heading</code></td><td class="ref">2753 · 4016-4035</td></tr>
+          <tr><th>동작</th><td>걷기: run · return / 서기: inspect · alert · pause · lost / 앉기: estop · done. lost 는 마지막 자세로 멈추고 0.4 로 흐려짐</td><td class="ref">2623 · 2788</td></tr>
+          <tr><th>바닥 호 <span class="tag v7">v7</span></th><td>4방향 호. 앞 호 폭 14 · ±44° · blur 12 / 옆 호 3개 폭 12 · ±32° · 30%. 걷는 동안 앞 호만 2.4s 주기 35% ↔ 100% 깜빡임. 측정 중엔 앞 호가 부채와 함께 sin(t/650)·0.42 rad 흔들리고 1.8s 숨쉬기 0.45 ↔ 1</td><td class="ref">2640-2727</td></tr>
+          <tr><th>호 색</th><td><span class="sw" style="background:#3be07a"></span>기본 #3BE07A · <span class="sw" style="background:#ff383c"></span>alert · estop #FF383C · <span class="sw" style="background:#ffb020"></span>pause #FFB020 · <span class="sw" style="background:#9ea8bb"></span>return #9EA8BB. lost · DOCK 안 · 바퀴 로봇은 숨김</td><td class="ref">2640-2727</td></tr>
+          <tr><th>시야 부채</th><td>길이 span×0.17 · 펼침 100° · 방사 그라데이션 1 / 0.55@60% / 0 · SPOT 은 초록 #3BE07A 0.55 (pause 0.45, #FFB020) · 바닥에서 span×0.002 위</td><td class="ref">1806-1860 · 3968-3971</td></tr>
+          <tr><th>DOM 표식</th><td>누르는 자리 52×52(<code>.map-bot-hit</code>) · 배율 <code>clamp(zoom^0.7, 1, 2.8)</code> · 선택 시 후광 0.3 (160ms)</td><td class="ref">app-shell.css:1411-1474 · map-v6.js:2837</td></tr>
+          <tr><th>DOCK</th><td>바닥 둥근 사각 판 · "DOCK" 이탤릭 800 · 로봇이 들어 있으면 초록(다크 #3BE07A / 라이트 #1FA35A), 아니면 회색(#9EA8BB / #8A94A6) · 글자는 나가는 방향으로</td><td class="ref">4739-4787</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 09 -->
+    <section class="part" id="alert">
+      <h2><span class="no">09</span>알림 지점</h2>
+      <p class="lead">위험도 정책(UI_99)에 따라 위험 · 주의만 지도에 색으로 올라옵니다. 지도 위 표현은 번호 핀의 색 테가 주인공이고, 바닥 점은 같은 색 7px 원판으로 물러납니다.</p>
+      <div class="scroll"><table class="grid">
+        <thead><tr><th>요소</th><th>값</th><th>근거</th></tr></thead>
+        <tbody>
+          <tr><th>빨간 바닥 링 (alert 상태)</th><td>알림 지점 바닥 · 방사 채움 rgba(255,56,60,0→.22) · 테 #FF383C 6 · blur 16 · 1600ms 코사인 숨쉬기 0.55 ↔ 1</td><td class="ref">map-v6.js:4677-4708</td></tr>
+          <tr><th>알림 팝오버 <span class="tag v7">v7</span></th><td>고정 위치 — 왼쪽 = Delta 왼쪽 끝, 아래 = 우측 패널 아래 끝. 폭 295 · padding 3 · 사진 높이 187 · radius 8 · 제목 16/24 bold · 꼬리 없음(<code>is-fixed is-no-tail</code>) · 높이 330 미만이면 접힘(<code>.is-folded</code>) · z 6</td><td class="ref">2958-2989 · 3159-3191 · v7.css:346-559</td></tr>
+          <tr><th>팝오버 내용</th><td>판정 칩 · 감지 종류 · 제목 · 시각 · ⋮(크게 보기 / 패널에 고정) · 사진 + 위치·감지·로봇 · DELTA 조치 제안 · [진단 상세] [조치 요청(accent)]</td><td class="ref">main-v7.html:481-555</td></tr>
+          <tr><th>지점 라벨</th><td>열린 알림의 지점 바닥 링 아래 두 줄 — 1줄 장소 · 2줄 감지 시각 (층은 안 씀)</td><td class="ref">4555-4572</td></tr>
+          <tr><th>카메라</th><td>알림 지점으로 갈 때 배율 max(지금, 2.4), 지점을 칸 중심보다 30px 위에 둔다</td><td class="ref">3255-3286</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 10 -->
+    <section class="part" id="floor">
+      <h2><span class="no">10</span>층 전환</h2>
+      <p class="lead">한 번에 한 층만 보입니다. M1 은 B4 한 층 미션이라 평소 전환이 없지만, 층 버튼을 누르거나 계단을 클릭하면 아래처럼 넘어갑니다. 넘어간 뒤엔 도착 층 전체를 한눈에 담습니다.</p>
+      <div class="scroll"><table class="grid">
+        <thead><tr><th>구간(0~1)</th><th>층 버튼 900ms</th><th>계단 클릭 1400ms</th></tr></thead>
+        <tbody>
+          <tr><th>계단으로 다가감</th><td>—</td><td>0 – 0.3</td></tr>
+          <tr><th>떠나는 층 100→20% · 오는 층 0→40%</th><td>0 – 0.45</td><td>0.22 – 0.48</td></tr>
+          <tr><th>카메라 올라감(격자도 같이)</th><td>0.15 – 0.75</td><td>0.34 – 0.74</td></tr>
+          <tr><th>오는 층 40→100% · 떠난 층 → 0</th><td>0.55 – 1</td><td>0.62 – 1</td></tr>
+          <tr><th>도착 전체 보기</th><td>320ms</td><td>520ms</td></tr>
+        </tbody>
+      </table></div>
+      <p class="cap">구간마다 smoothstep. 전환 중 누른 층은 줄을 세운다. 위층 계단 구멍은 셰이더로 뚫는다. 근거 map-v6.js:5365-5431 · 5881-5896.</p>
+      <div class="note warn"><b>지금 숨겨 둔 것</b> — 계단 입구 "↓ B4" 칩(<code>.stair-tag</code>), 층 이동 알약 · 배지(<code>.tr-pill</code> · <code>.tr-badge</code> · <code>.tr-chip</code>)는 코드는 살아 있지만 <code>route-rules.css:114</code> 에서 <code>display:none !important</code> 로 숨겨 두었습니다. 구현하지 않아도 됩니다.</div>
+    </section>
+
+    <!-- 11 -->
+    <section class="part" id="state">
+      <h2><span class="no">11</span>상태 · 이벤트</h2>
+      <p class="lead">지도는 로봇의 진행 상태 하나(<code>mode</code>)와 경로 위 거리(<code>s</code>) 하나로 움직입니다. 실제 연동에선 이 두 값을 로봇 데이터로 넣으면 됩니다.</p>
+      <div class="scroll"><table class="grid">
+        <thead><tr><th>mode</th><th>로봇</th><th>바닥 호 · 부채</th><th>경로</th></tr></thead>
+        <tbody>
+          <tr><th>run 이동</th><td>걷기</td><td>초록 · 앞 호 깜빡</td><td>지금 구간 흐르는 빛</td></tr>
+          <tr><th>inspect 측정</th><td>서기</td><td>초록 · 부채 흔들기</td><td>흐르는 빛 없음</td></tr>
+          <tr><th>alert 알림</th><td>서기</td><td>빨강 + 빨간 바닥 링</td><td>그대로</td></tr>
+          <tr><th>pause 일시정지</th><td>서기</td><td>주황 #FFB020</td><td>지금 · 앞길 회색</td></tr>
+          <tr><th>estop 비상정지</th><td>앉기</td><td>빨강 · 부채 없음</td><td>지금 · 앞길 회색</td></tr>
+          <tr><th>lost 연결 끊김</th><td>멈춘 자세 · 0.4</td><td>숨김</td><td>지금 구간 0.35</td></tr>
+          <tr><th>return 귀환</th><td>걷기(DOCK 로)</td><td>회색</td><td>중립색 도로 + 흐름 점선</td></tr>
+          <tr><th>done 완료</th><td>앉기 · DOCK 안이면 숨김</td><td>숨김</td><td>회색 점선 · 한 번 훑는 빛 · 우측 목록 접힘</td></tr>
+        </tbody>
+      </table></div>
+      <div class="scroll" style="margin-top: 12px;"><table class="grid">
+        <thead><tr><th>이벤트</th><th>방향</th><th>뜻</th></tr></thead>
+        <tbody>
+          <tr><th><code>aprism:waypoint</code></th><td>주고받음</td><td>지도 ↔ 우측 레일 지점 선택</td></tr>
+          <tr><th><code>aprism:map-alert</code></th><td>지도 → 밖</td><td>알림 팝오버 열림</td></tr>
+          <tr><th><code>aprism:robot-heading</code></th><td>지도 → 밖</td><td>로봇 방향 (우측 패널 2D 로봇이 따른다)</td></tr>
+          <tr><th><code>aprism:rr-mode</code></th><td>지도 → 밖</td><td>done 들어가고 나갈 때 — 목록 접기</td></tr>
+          <tr><th><code>aprism:mission</code> · <code>aprism:scope</code></th><td>밖 → 지도</td><td>미션 탭 바뀜 — 경로 다시 깔고 run 으로</td></tr>
+          <tr><th><code>aprism:wp-marks</code> · <code>aprism:requested</code></th><td>밖 → 지도</td><td>지점 결과 · 조치 요청 상태 반영</td></tr>
+        </tbody>
+      </table></div>
+      <p class="cap">근거 map-v6.js:3736-3741 · 3972-3976 · 2601 · 3044 · 3301-3329</p>
+    </section>
+
+    <!-- 12 -->
+    <section class="part" id="data">
+      <h2><span class="no">12</span>M1 데이터 (시안 값)</h2>
+      <p class="lead">미션 "정기 순회 점검" · Robot 01 · B4 · 웨이포인트 20개 · 화면 시각 2026-11-02 10:20. 숫자는 임시 값입니다.</p>
+      <div class="two">
+        <div class="scroll"><table class="grid">
+          <thead><tr><th>WP</th><th>이름</th><th>상태 · 결과</th></tr></thead>
+          <tbody>
+            <tr><th>01</th><td>FFU-01 토출구</td><td>완료 · 정상</td></tr>
+            <tr><th>02</th><td>HEPA Filter 차압계</td><td>완료 · 정상</td></tr>
+            <tr><th>03</th><td>냉각수 배관 밸브</td><td>완료 · <span style="color:#FFCC00">주의</span></td></tr>
+            <tr><th>04</th><td>N₂ 배관 압력계</td><td>완료 · <span style="color:#FF6B72">위험</span></td></tr>
+            <tr><th>05</th><td>냉각 펌프 P-2</td><td>완료 · <span style="color:#FFCC00">주의 ×2</span></td></tr>
+            <tr><th>06</th><td>수배전반 MCC-1</td><td>완료 · <span style="color:#FFCC00">주의</span></td></tr>
+            <tr><th>07</th><td>고소 작업 발판</td><td>완료 · <span style="color:#FF6B72">위험</span></td></tr>
+            <tr><th>08</th><td>냉각수 열교환기 HX-1</td><td>지금 · 이동 중</td></tr>
+            <tr><th>09–20</th><td>설비 NN</td><td>예정</td></tr>
+          </tbody>
+        </table></div>
+        <div class="scroll"><table class="grid">
+          <thead><tr><th>알림</th><th>WP</th><th>감지 · 값</th><th>시각</th></tr></thead>
+          <tbody>
+            <tr><th style="color:#FF6B72">위험</th><td>04</td><td>계기인식 · 압력 0.86 MPa</td><td>10:12</td></tr>
+            <tr><th style="color:#FF6B72">위험</th><td>07</td><td>안전감지 · 안전모 미착용 1명</td><td>10:16</td></tr>
+            <tr><th style="color:#FFCC00">주의</th><td>03</td><td>누출감지 · 누출 의심도 62%</td><td>10:11</td></tr>
+            <tr><th style="color:#FFCC00">주의</th><td>05</td><td>이상음향 · 20.4</td><td>10:13</td></tr>
+            <tr><th style="color:#FFCC00">주의</th><td>05</td><td>온도감지 · 최고 48.6 ℃</td><td>10:14</td></tr>
+            <tr><th style="color:#FFCC00">주의</th><td>06</td><td>부분방전 · CH1 9.05</td><td>10:15</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <p class="cap">근거 screen.js:837-933 · alert-data-v7.js:17-189 · mini-routes.js:3</p>
+      <div class="note"><b>시뮬레이터(<code>route-sim.js</code>)는 시안 시연용입니다.</b> 처음엔 멈춰 있고(WP-07→08 55% 지점), [재생]을 누르면 전체 경로를 70초에 돌며 지점마다 3.6초 측정하고, 끝나면 done 으로 멈춥니다(반복 없음). 실제 구현에선 로봇 위치·상태 데이터가 이 자리를 대신합니다. 화면 아래 시뮬레이터 바(<code>.rsim</code>)는 제품 UI 가 아닙니다.</div>
+    </section>
+
+    <!-- 13 -->
+    <section class="part" id="color">
+      <h2><span class="no">13</span>색 토큰 — 지도에서 쓰는 것</h2>
+      <div class="scroll"><table class="grid">
+        <thead><tr><th>위험도</th><th>아이콘 · 지도 (다크 / 라이트)</th><th>글자</th><th>배경</th><th>테</th></tr></thead>
+        <tbody>
+          <tr><th>위험 critical</th><td><span class="sw" style="background:#ff383c"></span>#FF383C / #FF383C</td><td>#FFA69A / #B92B18</td><td>#421A13 / #FBEBE9</td><td>#B92B18 / #FF6B72</td></tr>
+          <tr><th>주의 warning</th><td><span class="sw" style="background:#ffcc00"></span>#FFCC00 / <span class="sw" style="background:#e1ab13"></span>#E1AB13 (지도 핀 #F2A900)</td><td>#EEDA6B / #C28E0E</td><td>#383116 / #FDF8DF</td><td>#8C7400 / #EEDA6B</td></tr>
+          <tr><th>안전 safe</th><td><span class="sw" style="background:#34c759"></span>#34C759 / #14C552</td><td>#34C759 / #10AF48</td><td>#19382D / #E6F6EE</td><td>#0E7258 / #34C759</td></tr>
+          <tr><th>정보 info</th><td><span class="sw" style="background:#6aa7e7"></span>#6AA7E7 / #0D8DF9</td><td>#C7DDF8 / #1B64DE</td><td>#2E539F / #A8CBF3</td><td>#6AA7E7 / #6AA7E7</td></tr>
+        </tbody>
+      </table></div>
+      <div class="scroll" style="margin-top: 12px;"><table class="grid">
+        <thead><tr><th>토큰</th><th>다크</th><th>라이트</th><th>토큰</th><th>다크</th><th>라이트</th></tr></thead>
+        <tbody>
+          <tr><th>bg-page</th><td>#070A10</td><td>#E8EBEF</td><th>text-primary</th><td>#F7F8FA</td><td>#0B0E13</td></tr>
+          <tr><th>bg-panel</th><td>#202838</td><td>#F7F8FA</td><th>text-secondary</th><td>#AFB7C8</td><td>#262A30</td></tr>
+          <tr><th>bg-cell</th><td>#2C3443</td><td>#E8EBEF</td><th>text-tertiary</th><td>#9EA8BB</td><td>#63686F</td></tr>
+          <tr><th>bg-raised</th><td>#373F4E</td><td>#FFFFFF</td><th>text-disabled</th><td>#4E576A</td><td>#A4A9B0</td></tr>
+          <tr><th>bg-map-chip</th><td>rgb(10 14 21/50%)</td><td>#D5D7DB</td><th>border-default</th><td>#3F485C</td><td>rgb(11 14 19/14%)</td></tr>
+          <tr><th>bg-glass</th><td>rgb(44 52 67/55%)</td><td>rgb(255 255 255/92%)</td><th>border-focus</th><td>#3B79D5</td><td>#6AA7E7</td></tr>
+        </tbody>
+      </table></div>
+      <p class="cap">라이트 값은 <code>v5.css:197-243</code> 덮어쓰기까지 반영한 최종값. 다크 <code>bg-glass</code> 는 <code>monitor.css:1948</code>. radius — container 8 · card 4 · control 4 · pill 9999.</p>
+    </section>
+
+    <!-- 14 -->
+    <section class="part" id="dev">
+      <h2><span class="no">14</span>구현 메모</h2>
+      <ol class="list">
+        <li><b>"투명도"는 미리 섞은 불투명 색입니다.</b> 반투명 선을 겹쳐 그리면 이음새가 두 번 칠해져 진해집니다. 그래서 경로 색은 <code>mix(색, 바닥색, 1−op)</code> 로 미리 섞어 불투명으로 칠합니다(바닥색 다크 #181D28 / 라이트 #D3D9E1). <span class="ref">map-v6.js:3746-3760</span></li>
+        <li><b>경로 색은 로봇 상태 배지 글자에서 읽습니다.</b> 로봇 데이터 기본값(#4990E0 등)은 상태 색이 덮어쓰므로, 수행 중 로봇의 앞길은 늘 #4DB2FF(다크) / #138DEB(라이트)입니다. 실제 구현에선 상태 코드로 바로 고르면 됩니다.</li>
+        <li><b>경로 모양은 시안에선 길찾기로 만듭니다.</b> A*(0.5m 칸 · 로봇 반경 0.4 · 여유 0.2 · 꺾임 비용 45° 0.6 / 90° 1.4 / 135° 4 · U턴 금지) + 모서리 둥글리기. 웨이포인트는 경로 위에 고르게 놓은 임시 자리입니다. 실제 로봇 경로·지점 좌표가 있으면 그 값을 씁니다. <span class="ref">6199-6501</span></li>
+        <li><b>우측 미니맵 경로</b>(웨이포인트 [지도] 탭)는 관제 경로에서 뽑은 <code>mini-routes.js</code> 를 씁니다. 지도 경로를 바꾸면 <code>tools/export-mini-routes.mjs</code> 로 다시 뽑아야 둘이 맞습니다.</li>
+        <li><b>DOM 위치는 기기 픽셀에 맞춰 반올림합니다</b>(<code>snapPx</code>) — 핀·팝오버가 흐려지지 않게. <span class="ref">146-149</span></li>
+        <li><b>v7 은 v6 코드 위에 덮어쓴 판입니다.</b> body 에 <code>ver-6 ver-7</code> 이 함께 붙고, 지도 JS 는 <code>map-v6.js</code> 하나가 <code>body.ver-7</code> 분기로 갈립니다. 이 문서의 <span class="tag v7">v7</span> 표시가 그 분기입니다.</li>
+        <li><b>꺼 둔 실험 설정</b> — 겹침 솎기(prune), 경로 가림(occl), GTAO, 계단 칩은 기본 꺼짐입니다. 구현 범위에서 빼도 됩니다.</li>
+        <li><b>동작 줄이기</b> — OS 의 동작 줄이기 설정을 따라 흐르는 빛 · 흔들기 · 맥박을 끕니다. 제품에서도 지켜 주세요.</li>
+      </ol>
+    </section>
+  </main>
+</body>
+</html>
