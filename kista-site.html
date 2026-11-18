@@ -73,6 +73,18 @@
     .stepbar button.is-now::after { background: var(--text-primary); border-color: var(--text-primary); }
     .stepbar .prog { position: absolute; left: 0; bottom: 0; height: 3px; border-radius: 0 0 0 8px; background: var(--text-primary); width: 0; }
     .stepbar-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-tertiary); }
+
+    /* ===== 합친 영상(작업현장 + 관제실) — 슬라이드 두 칸(870×795 · 사이 20) 그대로. 칩 · 단계 바는 슬라이드에 있어 뺀다 ===== */
+    .combo { position: fixed; left: 0; top: 0; z-index: 50; display: flex; gap: 20px; width: 1760px; height: 795px; background: #fff; }
+    .combo[hidden] { display: none; }
+    .combo-l, .combo-r { position: relative; width: 870px; height: 795px; overflow: hidden; background: #F0F3F6; }
+    .combo-l canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; }
+    .combo-r .hw { position: absolute; left: 40px; top: 210px; width: 791px; height: 446px; }
+    .combo-r .stand { position: absolute; left: 333px; top: 654px; width: 215px; height: 141px; }
+    .combo-r .ctl { position: absolute; left: 53px; top: 216px; width: 770px; height: 433px; overflow: hidden; border-radius: 3px; background: #0A0F18; }
+    .combo-r .ctl iframe { width: 1920px; height: 1080px; border: 0; transform: scale(calc(770 / 1920)); transform-origin: 0 0; }
+    .combo-bar { position: fixed; left: 0; top: 807px; z-index: 51; display: flex; gap: 8px; align-items: center; padding: 8px 12px; background: var(--bg-raised); border: 1px solid var(--border-default); border-radius: 8px; font-size: 13px; }
+    .combo-bar[hidden] { display: none; }
     body.clean .site-header, body.clean .panel, body.clean .stepbar, body.clean .stepbar-row { display: none; }
     body.clean .stage-col { width: auto; }
     body.clean .site-main { padding: 0; }
@@ -143,6 +155,9 @@
             <button class="btn primary" id="btnRec" type="button">영상 녹화</button>
             <button class="btn" id="btnPng" type="button">정지 화면 PNG</button>
           </div>
+          <div class="row" style="margin-top:8px">
+            <button class="btn" id="btnCombo" type="button">합친 영상 모드 (작업현장 + 관제실)</button>
+          </div>
           <p class="note" id="recNote" style="margin-top:8px"></p>
         </div>
 
@@ -159,6 +174,25 @@
       </aside>
     </div>
   </main>
+
+  <!-- 합친 영상 모드 — 왼쪽 작업현장(3D) · 오른쪽 관제실(모니터 안 v7 관제 화면). 이 1760×795 만 잘라 녹화한다 -->
+  <div class="combo" id="combo" hidden>
+    <div class="combo-l" id="comboL"></div>
+    <div class="combo-r">
+      <img class="stand" src="./assets/img/kista/monitor-stand.png" alt="">
+      <img class="hw" src="./assets/img/kista/monitor-hw.png" alt="">
+      <div class="ctl"><iframe id="ctlFrame" title="관제 화면" loading="eager"></iframe></div>
+    </div>
+  </div>
+  <div class="combo-bar" id="comboBar" hidden>
+    <b>합친 영상</b>
+    <span id="comboScene"></span>
+    <label class="field">범위 <select id="comboRange"></select></label>
+    <button class="btn" id="comboPlay" type="button">▶ 미리 보기</button>
+    <button class="btn primary" id="comboRec" type="button">합친 영상 녹화</button>
+    <button class="btn" id="comboExit" type="button">닫기</button>
+    <span class="note" id="comboNote">녹화를 누르면 '이 탭 공유'를 묻는다 — 탭 오디오도 공유하면 음성이 들어간다</span>
+  </div>
 
   <script src="./assets/js/robot-spot.js?v=16205c28"></script>
   <script type="importmap">
@@ -1508,6 +1542,7 @@
     const rr = document.getElementById("recRange");
     rr.innerHTML = `<option value="all">전체 ${SEG.dur}초</option>` + cur.steps.map((s, i) => `<option value="${i}">${i + 1}단계 · ${s}</option>`).join("");
     applyCam(cur); seek(0);
+    if (typeof comboOn !== "undefined" && comboOn) { comboFill(); ctlMode = null; }
     dispShown = null; { const id = cur.id; loadDisp(id).then(() => { if (cur.id === id) { dispShown = null; poseAll(curT); } }); }
     try { localStorage.setItem("kista-site-scene", cur.id); } catch (e) {}
     history.replaceState(null, "", "?" + new URLSearchParams({ ...Object.fromEntries(qs), scene: cur.id }).toString());
@@ -1634,6 +1669,7 @@
         curT = nt;
         if (dt > 0.2) seek(curT); else { stepRobot(curT, dt); poseAll(curT); showT(); }
         if (curT >= end) { playing = false; playEnd = null; setPlayBtn(); }
+        comboAfterTick();
       }
       lastTs = now ?? performance.now();
       if (controls.enabled) controls.update();   // 감속 중이면 change 가 와서 dirty
@@ -1688,6 +1724,98 @@
     }
     return oc.startRendering();
   }
+
+  /* ================= 합친 영상(작업현장 + 관제실) =================
+   * 관제실 칸 = Figma 시나리오 상세 페이지 오른쪽 칸(모니터 목업 · 화면 770×433) 안에 v7 관제 화면(screens/main-v7.html)을 띄운다.
+   * 장면 시간표에 맞춰 관제 화면 상태를 바꾼다 — 관제 화면의 시뮬레이션 버튼(.rsim [data-m])을 눌러서(같은 사이트라 iframe 안을 만질 수 있다).
+   * 녹화는 사용자 브라우저에서 이 탭을 공유받아(getDisplayMedia · 이 탭) 두 칸 영역만 잘라(Region Capture) 실제 시간으로 찍는다.
+   * 3D 두 개를 그래픽카드로 그리니 PC 가 멈추지 않는다. 탭 오디오를 같이 공유하면 로봇 음성이 들어간다.
+   * CTRL: 장면 → [시각, 관제 상태] — run 이동 중 · inspect 지점 측정 중 · alert 위험 감지 · pause 일시정지 · return 자동복귀 · done 미션 완료
+   */
+  const CTRL = {
+    "1-2": [[0, "run"], [4.8, "pause"], [9.6, "run"]],          // 3. 감속·접근 예고에 정지 대기 → 5. 임무재개
+    "2-2": [[0, "inspect"], [2.8, "alert"], [11.2, "run"]],     // 1. 정밀 확인(측정) → 2. 이상 감지(위험) → 5. 임무 복귀
+  };
+  var comboOn = false, ctlMode = null, comboRec = null;   // var — 장면을 처음 고를 때(이 줄보다 먼저) 읽혀도 오류 나지 않게
+  const ctlFrame = document.getElementById("ctlFrame");
+  function ctlDoc() { try { return ctlFrame.contentDocument; } catch (e) { return null; } }
+  function ctlApply(t, force) {
+    if (!comboOn) return;
+    const tl = CTRL[cur.id]; if (!tl) return;
+    let m = tl[0][1]; for (const [ts, mm] of tl) if (t >= ts) m = mm;
+    if (m === ctlMode && !force) return;
+    const d = ctlDoc(), b = d && d.querySelector(`.rsim [data-m="${m}"]`);
+    if (b) { b.click(); ctlMode = m; }
+  }
+  function ctlReady() {
+    const d = ctlDoc(); if (!d || !d.querySelector(".rsim")) return false;
+    if (!d.getElementById("kista-hide")) { const st = d.createElement("style"); st.id = "kista-hide"; st.textContent = ".rsim{display:none!important}"; d.head.appendChild(st); }   // 시뮬레이션 리모콘은 화면에서 숨김(누르기만)
+    return true;
+  }
+  function comboFill() {
+    document.getElementById("comboScene").textContent = `${cur.id}. ${cur.title}` + (CTRL[cur.id] ? "" : " — 관제 시간표 없음(이동 중 그대로)");
+    const rr = document.getElementById("comboRange");
+    rr.innerHTML = `<option value="all">전체 ${SEG.dur}초</option>` + cur.steps.map((s, i) => `<option value="${i}">${i + 1}단계 · ${s}</option>`).join("");
+  }
+  function comboEnter() {
+    comboOn = true; ctlMode = null;
+    document.getElementById("combo").hidden = false; document.getElementById("comboBar").hidden = false;
+    document.getElementById("comboL").appendChild(renderer.domElement);
+    if (!ctlFrame.src) ctlFrame.src = "./screens/main-v7.html";
+    comboFill(); seek(curT);
+    const wait = () => { if (ctlReady()) ctlApply(curT, true); else if (comboOn) setTimeout(wait, 400); }; wait();
+    window.scrollTo(0, 0);
+  }
+  function comboExit() {
+    comboOn = false; stopPlay();
+    document.getElementById("combo").hidden = true; document.getElementById("comboBar").hidden = true;
+    stage.prepend(renderer.domElement); dirty = true;
+  }
+  function comboRangeT() {
+    const rv = document.getElementById("comboRange").value;
+    return rv === "all" ? [0, SEG.dur, ""] : [SEG.st[+rv], SEG.st[+rv + 1] ?? SEG.dur, "_" + (+rv + 1) + "단계"];
+  }
+  function comboPreview() {
+    if (playing) { stopPlay(); return; }
+    const [tA, tB] = comboRangeT(); playEnd = tB; seek(tA); ctlApply(tA, true); startPlay();
+  }
+  async function comboRecord() {
+    if (comboRec || recording) return;
+    const note = document.getElementById("comboNote");
+    if (!ctlReady()) { note.textContent = "관제 화면을 불러오는 중이에요 — 잠시 뒤 다시 눌러 주세요"; return; }
+    await loadDisp(cur.id); await loadVoices();
+    let stream;
+    try {
+      stream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "browser", cursor: "never", frameRate: 30 }, audio: true,
+        preferCurrentTab: true, selfBrowserSurface: "include", surfaceSwitching: "exclude", systemAudio: "exclude" });
+    } catch (e) { note.textContent = "탭 공유를 취소했어요"; return; }
+    const [track] = stream.getVideoTracks();
+    if (window.CropTarget && track.cropTo) { try { await track.cropTo(await CropTarget.fromElement(document.getElementById("combo"))); } catch (e) { console.warn("영역 자르기 실패", e); } }
+    const mime = ["video/mp4;codecs=avc1.640028,mp4a.40.2", "video/mp4", "video/webm;codecs=vp9,opus", "video/webm"].find(m => MediaRecorder.isTypeSupported(m));
+    const mr = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 16e6 });
+    const chunks = []; mr.ondataavailable = e => e.data.size && chunks.push(e.data);
+    const [tA, tB, tag] = comboRangeT();
+    stopPlay(); seek(tA); ctlApply(tA, true);
+    await new Promise(r => setTimeout(r, 900));   // 관제 화면이 상태를 바꿔 그릴 틈
+    document.getElementById("comboBar").style.visibility = "hidden";
+    comboRec = { mr, stream, name: `KISTA_합친영상_${cur.id}${tag}_${stamp()}.${mime.startsWith("video/mp4") ? "mp4" : "webm"}` };
+    mr.onstop = () => {
+      stream.getTracks().forEach(t => t.stop());
+      download(new Blob(chunks, { type: mime }), comboRec.name);
+      note.textContent = mime.startsWith("video/mp4") ? "저장했어요(MP4)" : "저장했어요(WebM — 이 브라우저는 MP4 녹화가 안 돼요)";
+      comboRec = null; document.getElementById("comboBar").style.visibility = "";
+    };
+    mr.start(); playEnd = tB; startPlay();
+  }
+  // 재생이 끝나면 녹화를 마친다(tick 에서 부름)
+  function comboAfterTick() {
+    if (comboOn) ctlApply(curT);
+    if (comboRec && !playing && comboRec.mr.state === "recording") { const r = comboRec; setTimeout(() => r.mr.state === "recording" && r.mr.stop(), 300); r.mr.requestData?.(); comboRec = { ...r, stopping: true }; }
+  }
+  document.getElementById("btnCombo").onclick = comboEnter;
+  document.getElementById("comboExit").onclick = comboExit;
+  document.getElementById("comboPlay").onclick = comboPreview;
+  document.getElementById("comboRec").onclick = comboRecord;
   function setPlayBtn() { const b = document.getElementById("btnPlay"); if (b) b.textContent = playing ? "❚❚ 멈춤" : "▶ 재생"; }
   tick();
   window.__ksReady = true;
