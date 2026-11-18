@@ -679,7 +679,7 @@
 .ac-memo-box {
   padding: 10px var(--space-12);
   border: var(--border-width-thin) solid var(--border-divider);
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-4);
   background-color: var(--bg-inset);
   color: var(--text-secondary);
 }
@@ -894,7 +894,7 @@
   width: 300px;
   height: 170px;
   border: var(--border-width-thin) solid var(--border-default);
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-4);
   background-color: var(--bg-frame);
   overflow: hidden;
 }
@@ -1248,7 +1248,7 @@ body.ver-6 .ac-dl-lead {
 body.ver-6 .ac-dl .ma-checks {
   display: flex;
   flex-direction: column;
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-4);
   background-color: var(--bg-map-chip);
   overflow: hidden;
 }

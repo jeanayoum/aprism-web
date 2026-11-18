@@ -361,7 +361,7 @@ body.ver-6 .sf .dl.is-light-scope .hh .dlogo { margin: 0; background-color: var(
 body.ver-6 .sf .dl.is-light-scope .hh span:last-child { color: var(--text-secondary); }
 body.ver-6 .sf .dl.is-light-scope .hh b { color: var(--status-safe-text); font-weight: 400; }
 body.ver-6 .sf .dl.is-light-scope .ti { font-size: var(--font-size-14); line-height: var(--font-line-height-22); font-weight: 700; word-break: keep-all; margin-top: calc(var(--space-4) * -1); }
-body.ver-6 .sf .dl.is-light-scope .cks { border: 0; border-radius: var(--radius-6); background-color: var(--bg-map-chip); overflow: hidden; }
+body.ver-6 .sf .dl.is-light-scope .cks { border: 0; border-radius: var(--radius-4); background-color: var(--bg-map-chip); overflow: hidden; }
 body.ver-6 .sf .dl.is-light-scope .c1x { padding: var(--space-4) 6px var(--space-4) 10px; min-height: 32px; border-bottom-color: var(--border-divider); }
 body.ver-6 .sf .dl.is-light-scope .c1x input { width: 18px; height: 18px; accent-color: var(--comp-gnb-brand); }
 body.ver-6 .sf .dl.is-light-scope .c1x b { font-size: var(--font-size-14); line-height: var(--font-line-height-22); font-weight: 400; color: var(--text-primary); }

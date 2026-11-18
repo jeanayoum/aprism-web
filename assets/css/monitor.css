@@ -2224,7 +2224,7 @@ a.map-floor {
 .ma-checks {
   display: flex;
   flex-direction: column;
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-4);
   background-color: var(--bg-map-chip);
   overflow: hidden;
 }
