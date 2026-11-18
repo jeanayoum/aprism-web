@@ -341,7 +341,7 @@ button {
 .signal-bars {
   display: flex;
   align-items: flex-end;
-  gap: 2px;
+  gap: var(--space-2);
   height: 14px;
 }
 
@@ -3344,7 +3344,7 @@ input.field-box { outline: 0; }
   flex: none;
   width: 36px;
   height: 20px;
-  padding: 0 2px;
+  padding: 0 var(--space-2);
   border: 0;
   border-radius: var(--radius-pill);
   background-color: var(--color-gray-650);
