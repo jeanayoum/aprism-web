@@ -574,25 +574,33 @@
   }
 
   /* ================= 로봇 등 디스플레이 =================
-   * 실물 사진(11/18) 눈대중: 몸 위 뒤쪽 절반(뒤 관절 앞)에 세운 검은 상자, 화면은 몸 옆을 본다. 7인치 800×480.
-   * 모델 단위(몸길이 0.85, 위판 y 0.60, 앞 = -z, 폭 ±0.111) — 1.3배 키우면 상자 약 22×17cm, 화면 약 17.5×10.5cm.
-   * DISPLAY_SIDE  1 = 로봇 오른쪽(+x), -1 = 왼쪽. 사진의 비상정지 버튼 위치로 오른쪽이라 봤다 — 반대면 이 값만 바꾼다.
+   * 실물(11/18): 몸 위 뒤쪽 절반(뒤 관절 앞)에 화면 두 장을 A 자로 세운다 — 양옆을 보는 판 두 장이 안쪽으로 기울어
+   * 위 모서리가 몸 가운데에서 맞붙는다. 화면은 바깥 · 살짝 위를 본다. 7인치 800×480 두 장에 같은 표지가 뜬다.
+   * 모델 단위(몸길이 0.85, 위판 y 0.60, 앞 = -z, 폭 ±0.111) — 1.3배 키우면 판 약 22×17cm, 화면 약 17.5×10.5cm.
+   * DISPLAY_TILT  판이 수직에서 안쪽으로 기우는 각. 위가 맞붙으려면 아래 바깥 모서리가 몸 폭(±0.111) 안에 들어와야 해 32° 미만.
    * 화면 표지는 SPOT 디스플레이 A안(spot-display.html) 색 · 문구를 줄여 그린 것. 장면 SCRIPT 의 sign 시간표를 따른다.
    */
-  const DISPLAY_SIDE = 1;
+  const DISPLAY_TILT = 22 * Math.PI / 180;
   let screenMat = null, signNow = null;
   function addDisplay(body) {
-    const TOP = 0.60, Wd = 0.17, Hd = 0.13, Dd = 0.055, ZC = 0.215, s = DISPLAY_SIDE;
+    const TOP = 0.60, Wd = 0.17, Hd = 0.13, Dd = 0.03, ZC = 0.215, th = DISPLAY_TILT;
     const black = new THREE.MeshStandardMaterial({ color: 0x15171A, roughness: 0.55, metalness: 0.1 });
-    const g = new THREE.Group(); g.position.set(s * (0.09 - Dd / 2), TOP + 0.012, ZC); body.add(g);
-    const base = new THREE.Mesh(new THREE.BoxGeometry(Dd + 0.03, 0.012, Wd + 0.01), black); base.position.y = 0.0; g.add(base);
-    // 상자 — 아래가 조금 더 두꺼운 쐐기꼴(사진처럼 화면이 살짝 위를 본다)
-    const house = new THREE.Mesh(new RoundedBoxGeometry(Dd, Hd, Wd, 3, 0.01), black);
-    house.position.y = 0.006 + Hd / 2; house.rotation.z = s * 0.10; g.add(house);
+    const g = new THREE.Group(); g.position.set(0, TOP + 0.006, ZC); body.add(g);
+    const foot = 2 * (Math.sin(th) * Hd + Math.cos(th) * Dd);   // 두 판 아래 바깥 모서리 사이
+    const base = new THREE.Mesh(new THREE.BoxGeometry(foot + 0.012, 0.012, Wd + 0.012), black); g.add(base);
     screenMat = new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false });
-    const scr = new THREE.Mesh(new THREE.PlaneGeometry(0.135, 0.081), screenMat);
-    scr.position.set(s * (Dd / 2 + 0.0008), 0.012, 0); scr.rotation.y = s * Math.PI / 2; house.add(scr);
-    g.traverse(o => { if (o.isMesh && o !== scr) { o.castShadow = true; o.receiveShadow = true; } });
+    const screens = [];
+    for (const s of [-1, 1]) {
+      // 판 중심 — 위 안쪽 모서리가 x = 0 에 오도록. 회전 z = s·θ 면 판 위가 몸 가운데로 기운다
+      const panel = new THREE.Mesh(new RoundedBoxGeometry(Dd, Hd, Wd, 3, 0.006), black);
+      panel.position.set(s * (Math.sin(th) * Hd / 2 + Math.cos(th) * Dd / 2), 0.006 + Math.cos(th) * Hd / 2 + Math.sin(th) * Dd / 2, 0);
+      panel.rotation.z = s * th; g.add(panel);
+      const scr = new THREE.Mesh(new THREE.PlaneGeometry(0.135, 0.081), screenMat);
+      scr.position.set(s * (Dd / 2 + 0.0008), 0.008, 0); scr.rotation.y = s * Math.PI / 2; panel.add(scr); screens.push(scr);
+    }
+    // 위 맞붙는 자리 — 꼭대기 이음 막대
+    const ridge = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.012, Wd), black); ridge.position.y = 0.006 + Math.cos(th) * Hd + 0.002; g.add(ridge);
+    g.traverse(o => { if (o.isMesh && !screens.includes(o)) { o.castShadow = true; o.receiveShadow = true; } });
     setSign("standby");
   }
 
