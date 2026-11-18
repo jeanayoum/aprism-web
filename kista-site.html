@@ -1045,35 +1045,37 @@
     const f = fitPts(pts); return f.D > cap ? fitPts(pts, cap).p : f.p;
   }
   const _acc = new THREE.Vector3();
-  function followCam(t) {   // 앞뒤 0.6초 평균으로 한 번 더 다듬는다
+  function followCam(t) {   // 앞뒤 0.7초를 삼각 가중 평균(가운데 무겁게)으로 다듬는다 — 단순 평균보다 속도 꺾임이 매끈하다
     _d.copy(camBase.target).sub(camBase.pos).normalize();
     _r.crossVectors(_d, new THREE.Vector3(0, 1, 0)).normalize(); _u.crossVectors(_r, _d);
     _acc.set(0, 0, 0); let n = 0;
-    for (let k = -3; k <= 3; k++) { _acc.add(fitAt(Math.min(SEG.dur, Math.max(0, t + k * 0.2)))); n++; }
+    for (let k = -14; k <= 14; k++) { const w = 15 - Math.abs(k); _acc.addScaledVector(fitAt(Math.min(SEG.dur, Math.max(0, t + k * 0.05))), w); n += w; }   // 0.05초 간격 — 성기면 표본을 지날 때마다 툭툭 걸린다
     _acc.divideScalar(n);
     camera.position.copy(_acc); camera.lookAt(_acc.clone().add(_d));
   }
+  /*
+   * 맞추기 — 카메라는 배우 범위의 가운데를 곧장 보고, 거리 D 만 고른다. 거리가 멀수록 화면 속 크기가 늘 줄어드니(단조)
+   * 이분 탐색이 한 값으로 모인다. (11/18 고침: 예전엔 가운데로 옮기는 계산이 카메라를 아래로 내리며 거리별 판정이
+   * 들쭉날쭉해, 2-1 에서 카메라가 한 프레임에 수십 cm 씩 튀었다)
+   * 안전 구역이 위아래로 조금 비대칭이라(위 칩 · 아래 진행 바) 판정은 좁은 쪽(위 0.77)으로 위아래 같게 잡는다.
+   */
+  const HX = Math.min(-SAFE.x0, SAFE.x1), HY = Math.min(-SAFE.y0, SAFE.y1);
   function fitPts(pts, fixedD) {
     const c = new THREE.Box3().setFromPoints(pts).getCenter(new THREE.Vector3());
     const tx = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * camera.aspect, ty = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
-    // 거리 D 에서 자리를 옆 · 위로 옮겨(sx, sy) 범위를 안전 구역 가운데에 — 거리는 이분 탐색
-    const fit = (D) => {
-      let sx = 0, sy = 0, ok = true;
-      for (let it = 0; it < 4; it++) {
-        const p = c.clone().addScaledVector(_d, -D).addScaledVector(_r, sx).addScaledVector(_u, sy);
-        let xa = Infinity, xb = -Infinity, ya = Infinity, yb = -Infinity, dep = 0;
-        for (const q of pts) { _v.copy(q).sub(p); const z = _v.dot(_d); if (z < 0.3) { ok = false; break; } const nx = _v.dot(_r) / (z * tx), ny = _v.dot(_u) / (z * ty); xa = Math.min(xa, nx); xb = Math.max(xb, nx); ya = Math.min(ya, ny); yb = Math.max(yb, ny); dep += z; }
-        if (!ok) return { ok, p };
-        dep /= pts.length;
-        sx += ((xa + xb) / 2 - (SAFE.x0 + SAFE.x1) / 2) * dep * tx; sy += ((ya + yb) / 2 - (SAFE.y0 + SAFE.y1) / 2) * dep * ty;
-        ok = xb - xa <= SAFE.x1 - SAFE.x0 && yb - ya <= SAFE.y1 - SAFE.y0;
+    const fits = (D) => {
+      for (const q of pts) {
+        _v.copy(q).sub(c); const z = _v.dot(_d) + D; if (z < 0.5) return false;
+        if (Math.abs(_v.dot(_r)) > HX * z * tx || Math.abs(_v.dot(_u)) > HY * z * ty) return false;
       }
-      return { ok, p: c.clone().addScaledVector(_d, -D).addScaledVector(_r, sx).addScaledVector(_u, sy) };
+      return true;
     };
-    if (fixedD) return { D: fixedD, p: fit(fixedD).p };
-    let lo = MIN_DIST, hi = 40, best = fit(hi), D = hi;
-    const f0 = fit(lo); if (f0.ok) { best = f0; D = lo; } else { for (let i = 0; i < 16; i++) { const mid = (lo + hi) / 2, f = fit(mid); if (f.ok) { hi = mid; best = f; D = mid; } else lo = mid; } }
-    return { D, p: best.p };
+    const at = (D) => c.clone().addScaledVector(_d, -D);
+    if (fixedD) return { D: fixedD, p: at(fixedD) };
+    if (fits(MIN_DIST)) return { D: MIN_DIST, p: at(MIN_DIST) };
+    let lo = MIN_DIST, hi = 40;
+    for (let i = 0; i < 20; i++) { const mid = (lo + hi) / 2; if (fits(mid)) hi = mid; else lo = mid; }
+    return { D: hi, p: at(hi) };
   }
   // 카메라 놓기 — 직접 돌리는 중이면 손대지 않는다
   function placeCam(t) {
