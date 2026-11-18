@@ -961,8 +961,8 @@ body.ver-7 .ma-ins-pt { fill: var(--bg-inset); }
 body.ver-7 .dchat-orb { transition: transform .2s ease, opacity .2s ease, visibility 0s linear 0s; transform-origin: 100% 100%; }
 body.ver-7.dchat-orb-off .dchat-orb { opacity: 0; transform: scale(.5); visibility: hidden; pointer-events: none; transition: transform .2s ease, opacity .16s ease, visibility 0s linear .2s; }
 @media (prefers-reduced-motion: reduce) { body.ver-7 .dchat-orb, body.ver-7.dchat-orb-off .dchat-orb { transition: none; } }
-/* 말풍선 상태(닫힘) — 오브 아래 DELTA 워드마크(52 × 8, 사이 6). 그만큼 오브를 올리고 말풍선도 오브 아래 끝에 맞춰 같이 올린다 */
-body.ver-7 .dchat-logo { position: absolute; left: 50%; top: calc(100% + 6px); width: 52px; height: 8px; transform: translateX(-50%); pointer-events: none;
+/* 말풍선 상태(닫힘) — 오브 아래 DELTA 워드마크(52 × 8, 사이 8 — 11/18 여백 정리 6 → 8, 아래 여백 16 안에 꼭 맞는다). 그만큼 오브를 올리고 말풍선도 오브 아래 끝에 맞춰 같이 올린다 */
+body.ver-7 .dchat-logo { position: absolute; left: 50%; top: calc(100% + var(--space-8)); width: 52px; height: 8px; transform: translateX(-50%); pointer-events: none;
   background-color: var(--text-primary); -webkit-mask: var(--ic-brand-delta) center / contain no-repeat; mask: var(--ic-brand-delta) center / contain no-repeat; }
 body.ver-7.dchat-open .dchat-logo { display: none; }
 body.ver-7:not(.dchat-open) .dchat { padding-bottom: var(--space-16); }
@@ -1091,7 +1091,7 @@ body.ver-7 [data-timeline] .timeline-item.is-running .step-times-foot { display:
 body.ver-7 [data-timeline] .timeline-item:has(.rr-st) .step-times-foot { display: none; }
 body.ver-7 [data-timeline] .timeline-item:has(.rr-st.is-measure) .step-no { position: relative; }
 body.ver-7 [data-timeline] .timeline-item:has(.rr-st.is-measure) .step-no::after {
-  content: ""; position: absolute; inset: -3px; border-radius: 50%; pointer-events: none;
+  content: ""; position: absolute; inset: calc(var(--space-4) * -1);   /* [11/18] 여백 정리 -3 → -4 */ border-radius: 50%; pointer-events: none;
   background: conic-gradient(#1E7BE6 calc(var(--rr-pct, 0) * 1%), color-mix(in srgb, #1E7BE6 22%, transparent) 0);
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2px)); mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2px));
 }
