@@ -1828,10 +1828,28 @@
     const tl = CTRL[cur.id]; if (!tl) return;
     let e = tl[0]; for (const x of tl) if (t >= x[0]) e = x;
     const d = ctlDoc(); if (!d) return;
-    if (e[1] !== ctlMode || force) { const b = d.querySelector(`.rsim [data-m="${e[1]}"]`); if (b) { b.click(); ctlMode = e[1]; } }
+    if (cur.id + "" !== ctlApply.scene || force) ctlPlace(d);
+    if (e[1] !== ctlMode || force) { const b =d.querySelector(`.rsim [data-m="${e[1]}"]`); if (b) { b.click(); ctlMode = e[1]; } }
     // 덧입힘은 0.3초마다 다시 얹는다 — 관제 화면이 배지 · 배터리 글을 제 박자로 다시 써도 덮이게
     const key = cur.id + "@" + e[0], now = performance.now();
     if (key !== ctlKey || force || now - (ctlApply.last || 0) > 300) { if (cur.id + "" !== ctlApply.scene || force) { deltaKeep(d); ctlApply.scene = cur.id; } ctlOverlay(d, e[2] || {}); ctlKey = key; ctlApply.last = now; }
+  }
+  /* 관제 지도 · 웨이포인트 목록의 로봇 자리 — 로봇 디스플레이 · 관제 글과 같은 지점으로(11/18).
+   *   [k, f] = k 번째 지점(0부터)과 다음 지점 사이 f. k = -1 은 첫 지점 앞(출발 전).
+   *   1-2: 디스플레이 'WP-04로 이동' → WP-03 과 WP-04 사이 / 1-1: '1번 지점으로 이동' → 첫 지점 앞
+   *   나머지 장면은 v7 기본 자리(WP-07 과 WP-08 사이 · route-sim.js 시작값)
+   *   모드 버튼(inspect 는 가장 가까운 앞 지점에 선다)보다 먼저 옮긴다 */
+  const CTRL_POS = { "1-1": [-1, 0.4], "1-2": [2, 0.55] }, CTRL_POS_BASE = [6, 0.55];
+  function ctlPlace(d) {
+    const rr = d.defaultView && d.defaultView.APRISM_RR;
+    try {
+      // route-sim.js 가 제 시작 자리를 잡기 전(.rsim.is-ready 전)이면 그 뒤에 다시 — 안 그러면 시작값(WP-08)이 덮는다
+      if (!rr || !rr.ready() || !d.querySelector(".rsim.is-ready")) { clearTimeout(ctlPlace.tm); ctlPlace.tm = setTimeout(() => comboOn && ctlApply(curT, true), 400); return; }
+      const st = rr.stops(), [k, f] = CTRL_POS[cur.id] || CTRL_POS_BASE;
+      if (st.length < 8) return;
+      const a = k < 0 ? 0 : st[k], b = st[k + 1];
+      rr.mode("run"); rr.set(a + (b - a) * f);
+    } catch (err) { console.warn("관제 로봇 자리", err); }
   }
   // v7 에 없는 상태 · 알림을 이 영상에서만 덧입힌다 — 글은 속성(data-k)으로 얹어 관제 화면이 글을 다시 써도 유지된다
   function ctlOverlay(d, o) {
