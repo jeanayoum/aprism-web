@@ -22,7 +22,8 @@
     @media (max-width: 960px) { .ks { grid-template-columns: 1fr; } }
 
     .stage-wrap { display: flex; justify-content: center; }
-    .stage { position: relative; aspect-ratio: 870 / 795; width: min(100%, calc((100vh - 120px) * 870 / 795)); background: #A7ABAD; border-radius: 4px; overflow: hidden; }
+    .stage-col { width: min(100%, calc((100vh - 200px) * 870 / 795)); display: flex; flex-direction: column; gap: 12px; }
+    .stage { position: relative; aspect-ratio: 870 / 795; width: 100%; background: #A7ABAD; border-radius: 4px; overflow: hidden; }
     .stage canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; display: block; }
 
     /* 슬라이드 위에서 가려지는 자리 — 화면에만 보이고 녹화에는 안 들어간다 */
@@ -62,7 +63,18 @@
     .field input { width: 64px; }
     .note { font-size: 12px; color: var(--text-tertiary); line-height: 1.55; margin: 0; }
     .cam-out { font-family: ui-monospace, Consolas, monospace; font-size: 11px; color: var(--text-secondary); word-break: break-all; }
-    body.clean .site-header, body.clean .panel { display: none; }
+    /* 단계 바 — PPT 진행 바(대기 · 주변감지 …)와 같은 꼴. 누르면 그 단계만 재생하고 멈춘다 */
+    .stepbar { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); padding: 12px 8px 14px; border-radius: 8px; background: var(--bg-raised); box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+    .stepbar::before { content: ""; position: absolute; left: 10%; right: 10%; bottom: 21px; height: 1px; background: var(--border-default); }
+    .stepbar button { position: relative; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 0 4px; border: 0; background: none; font: inherit; font-size: 14px; color: var(--text-tertiary); cursor: pointer; }
+    .stepbar button::after { content: ""; width: 9px; height: 9px; border-radius: 50%; border: 1px solid var(--text-tertiary); background: var(--bg-raised); box-sizing: border-box; }
+    .stepbar button:hover { color: var(--text-primary); }
+    .stepbar button.is-now { color: var(--text-primary); font-weight: 700; }
+    .stepbar button.is-now::after { background: var(--text-primary); border-color: var(--text-primary); }
+    .stepbar .prog { position: absolute; left: 0; bottom: 0; height: 3px; border-radius: 0 0 0 8px; background: var(--text-primary); width: 0; }
+    .stepbar-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-tertiary); }
+    body.clean .site-header, body.clean .panel, body.clean .stepbar, body.clean .stepbar-row { display: none; }
+    body.clean .stage-col { width: auto; }
     body.clean .site-main { padding: 0; }
     body.clean .ks { display: block; }
     body.clean .stage { width: 100vw; height: 100vh; aspect-ratio: auto; border-radius: 0; }
@@ -79,14 +91,16 @@
 
   <main class="site-main">
     <div class="ks">
-      <div class="stage-wrap">
+      <div class="stage-wrap"><div class="stage-col">
         <div class="stage" id="stage">
           <div class="guide g-safe"></div>
           <div class="guide g-chip">작업현장</div>
           <div class="guide g-steps"></div>
           <span class="rec-badge" id="recBadge">녹화 중</span>
         </div>
-      </div>
+        <nav class="stepbar" id="stepbar" aria-label="장면 단계 — 누르면 그 단계만 재생"></nav>
+        <div class="stepbar-row"><span id="stepNote">단계를 누르면 그 단계만 재생하고, 녹화 범위도 그 단계로 바뀐다</span><span id="tRead2"></span></div>
+      </div></div>
 
       <aside class="panel">
         <div>
@@ -972,6 +986,17 @@
     const el = document.getElementById("tRead"); if (el) el.textContent = `${curT.toFixed(1)} / ${SEG.dur.toFixed(1)}초`;
     const n = SEG.st.filter(x => curT >= x - 1e-6).length - 1;
     [...document.querySelectorAll("#steps li")].forEach((li, i) => li.classList.toggle("is-now", i === n));
+    [...document.querySelectorAll("#stepbar button")].forEach((b, i) => b.classList.toggle("is-now", i === n));
+    const pg = document.getElementById("stepProg"); if (pg) pg.style.width = (curT / SEG.dur * 100).toFixed(2) + "%";
+    const t2 = document.getElementById("tRead2"); if (t2) t2.textContent = `${curT.toFixed(1)} / ${SEG.dur.toFixed(1)}초`;
+  }
+  // 단계 하나만 — 그 단계 시작으로 가서 다음 단계 시작(마지막은 장면 끝)까지 재생하고 멈춘다. 녹화 범위도 그 단계로
+  let playEnd = null;
+  function playStep(i) {
+    if (recording) return;
+    playEnd = SEG.st[i + 1] ?? SEG.dur;
+    seek(SEG.st[i]); playing = true; lastTs = performance.now(); setPlayBtn();
+    const rr = document.getElementById("recRange"); if (rr) rr.value = String(i);
   }
 
   /* ================= 장면 · 카메라 ================= */
@@ -996,7 +1021,10 @@
     [...scenesEl.children].forEach(b => b.setAttribute("aria-pressed", String(b.dataset.id === cur.id)));
     buildScene(cur.id); playing = false; setPlayBtn();
     stepsEl.innerHTML = cur.steps.map((s, i) => `<li data-i="${i}">${s}<small>${SEG.st[i].toFixed(1)}초~</small></li>`).join("");
-    [...stepsEl.children].forEach(li => li.onclick = () => { playing = false; setPlayBtn(); seek(SEG.st[+li.dataset.i]); });
+    [...stepsEl.children].forEach(li => li.onclick = () => playStep(+li.dataset.i));
+    const bar = document.getElementById("stepbar");
+    bar.innerHTML = cur.steps.map((s, i) => `<button type="button" data-i="${i}">${s}</button>`).join("") + `<span class="prog" id="stepProg"></span>`;
+    [...bar.querySelectorAll("button")].forEach(b => b.onclick = () => playStep(+b.dataset.i));
     const rr = document.getElementById("recRange");
     rr.innerHTML = `<option value="all">전체 ${SEG.dur}초</option>` + cur.steps.map((s, i) => `<option value="${i}">${i + 1}단계 · ${s}</option>`).join("");
     applyCam(cur); seek(0);
@@ -1089,7 +1117,7 @@
   // 재생 중에만 매 프레임 그린다(1배 크기). 멈추면 바뀐 게 있을 때만
   $("btnPlay").onclick = () => {
     if (recording) return;
-    playing = !playing;
+    playing = !playing; playEnd = null;
     if (playing && curT >= SEG.dur - 0.05) seek(0);
     lastTs = performance.now(); setPlayBtn();
   };
@@ -1099,9 +1127,10 @@
     if (!recording) {   // 녹화 중에는 녹화 루프가 직접 그린다
       if (playing) {
         const dt = Math.min(0.05, ((now ?? performance.now()) - lastTs) / 1000);
-        curT = Math.min(SEG.dur, curT + dt);
+        const end = playEnd ?? SEG.dur;
+        curT = Math.min(end, curT + dt);
         stepRobot(curT, dt); poseAll(curT); showT();
-        if (curT >= SEG.dur) { playing = false; setPlayBtn(); }
+        if (curT >= end) { playing = false; playEnd = null; setPlayBtn(); }
       }
       lastTs = now ?? performance.now();
       if (controls.enabled) controls.update();   // 감속 중이면 change 가 와서 dirty
