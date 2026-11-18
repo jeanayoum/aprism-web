@@ -1736,7 +1736,7 @@
    * 관제 상태: run 이동 중 · inspect 지점 측정 중(멈춤) · alert 위험 감지 · pause 일시정지 · return 자동복귀 · done 미션 완료
    * 덧입힘(v7 에 아직 없는 화면을 이 영상에서만 덧입힌다 — v7 화면 파일은 그대로):
    *   badge [글, 색(info · normal · idle · warning · danger)] 로봇 카드 Mission 배지 / bat 배터리 % /
-   *   title · left 진행 막대 두 줄 / card 지도 위 알림 카드 { sev(info · safe · warn · danger), title, lines[], btns[](*=주 버튼), mosaic 비식별 썸네일, mic }
+   *   title · left 진행 막대 두 줄 / 알림은 아래 POP(관제 화면의 원래 알림 팝오버)
    */
   const CTRL = {
     "1-1": [
@@ -1748,50 +1748,33 @@
     "1-2": [
       [0, "run", { title: "지하 4층 미션 수행 중", left: "N₂ 배관 압력계 판독 · WP-04로 이동" }],
       [2.4, "run", { badge: ["사람 감지", "info"], title: "전방 근로자 감지", left: "감속하며 통행 확인 중" }],
-      [4.8, "pause", { badge: ["정지 대기", "warning"], title: "정지하여 대기 중입니다", left: "근로자 통행 대기",
-        card: { sev: "info", title: "Robot 01 · 근로자 통행 대기", lines: ["전방 1명 · 로봇이 먼저 길을 양보했어요"] } }],
+      [4.8, "pause", { badge: ["정지 대기", "warning"], title: "정지하여 대기 중입니다", left: "근로자 통행 대기" }],
       [7.2, "pause", { badge: ["출발 예고", "warning"], title: "이동을 재개하겠습니다", left: "통행 확인 완료 · 곧 출발" }],
       [9.6, "run", { title: "WP-04로 이동 중", left: "지하 4층 정기 순회 점검" }]],
     "2-1": [
-      [0, "run", { badge: ["주의 감지", "warning"], title: "안전모 미착용 근로자 감지", left: "B4 고소 작업 발판 · 1명",
-        card: { sev: "warn", title: "주의 · 안전모 미착용 1명", lines: ["B4 고소 작업 발판 근처", "근로자 얼굴은 비식별 처리돼요"], mosaic: true } }],
-      [2.8, "pause", { badge: ["정지 · 안내", "warning"], title: "안전모 착용 안내 중", left: "로봇 정지 · 착용 요청",
-        card: { sev: "warn", title: "주의 · 안전모 미착용 1명", lines: ["로봇이 착용을 안내하고 있어요", "근로자 얼굴은 비식별 처리돼요"], mosaic: true, btns: ["로봇 음성 연결*"] } }],
-      [8.4, "pause", { badge: ["음성 연결", "info"], title: "관제실 음성 연결 중", left: "현장 작업자와 대화 중",
-        card: { sev: "info", title: "로봇 음성 연결 중", lines: ["관제사 ↔ 현장 작업자", "작업자 목소리가 관제사에게 전달돼요"], mic: true, btns: ["연결 종료"] } }],
-      [12.0, "pause", { badge: ["착용 확인", "normal"], title: "안전모 착용 확인", left: "조치 내용 기록",
-        card: { sev: "safe", title: "안전모 착용 확인됨", lines: ["조치 내용을 기록했어요"] } }],
+      [0, "run", { badge: ["주의 감지", "warning"], title: "안전모 미착용 근로자 감지", left: "B4 고소 작업 발판 · 1명" }],
+      [2.8, "pause", { badge: ["정지 · 안내", "warning"], title: "안전모 착용 안내 중", left: "로봇 정지 · 착용 요청" }],
+      [8.4, "pause", { badge: ["음성 연결", "info"], title: "관제실 음성 연결 중", left: "현장 작업자와 대화 중" }],
+      [12.0, "pause", { badge: ["착용 확인", "normal"], title: "안전모 착용 확인", left: "조치 내용 기록" }],
       [15.9, "run", { title: "이동 재개", left: "다음 점검 지점으로" }]],
     "2-2": [
       [0, "inspect", { title: "N₂ 배관 압력계 판독 중", left: "이상 징후 확인 중" }],
-      [2.8, "alert", { badge: ["위험 감지", "danger"], title: "배관 이상 감지", left: "N₂ 배관 압력계 · 접근 금지 안내",
-        card: { sev: "danger", title: "위험 · N₂ 배관 압력 이상", lines: ["압력 0.86 MPa · 정상 범위 초과", "로봇이 근로자에게 접근 금지를 안내해요"], btns: ["로봇 정지", "현장 점검 요청*", "도크로 복귀"] } }],
-      [5.6, "alert", { badge: ["위험 감지", "danger"], title: "작업자 우회 안내 중", left: "위험 구역 주변 접근 금지",
-        card: { sev: "danger", title: "위험 · N₂ 배관 압력 이상", lines: ["근로자 1명 · 우회 통로로 안내 중"], btns: ["로봇 정지", "현장 점검 요청*", "도크로 복귀"] } }],
-      [8.4, "alert", { badge: ["점검 요청", "danger"], title: "현장 점검 요청됨", left: "로봇은 현장에서 대기",
-        card: { sev: "danger", title: "현장 점검 요청됨", lines: ["담당자 배정 · 로봇은 위험 구역 앞에서 대기"] } }],
-      [11.2, "run", { title: "다음 점검 지점으로 이동", left: "알람 처리 완료 · 정상 운영",
-        card: { sev: "safe", title: "조치 완료", lines: ["배관 이상 알람을 처리했어요"] } }]],
+      [2.8, "alert", { badge: ["위험 감지", "danger"], title: "배관 이상 감지", left: "N₂ 배관 압력계 · 접근 금지 안내" }],
+      [5.6, "alert", { badge: ["위험 감지", "danger"], title: "작업자 우회 안내 중", left: "위험 구역 주변 접근 금지" }],
+      [8.4, "alert", { badge: ["점검 요청", "danger"], title: "현장 점검 요청됨", left: "로봇은 현장에서 대기" }],
+      [11.2, "run", { title: "다음 점검 지점으로 이동", left: "알람 처리 완료 · 정상 운영" }]],
     "3-1": [
-      [0, "pause", { badge: ["점검 중단", "warning"], bat: 20, title: "배터리 부족 · 점검 중단", left: "안정 자세로 대기",
-        card: { sev: "warn", title: "배터리 20% · 점검 중단", lines: ["Robot 01 · 지하 4층"] } }],
-      [3.0, "pause", { badge: ["복귀 대기", "warning"], bat: 20, title: "자율 복귀 가능 · 지시 대기", left: "복귀 예상 2분 · 복귀 후 15%",
-        card: { sev: "warn", title: "배터리 부족 · 자율복귀 가능", lines: ["현재 20% · 도크 02까지 2분 · 복귀 후 15%"], btns: ["임무 중단 후 복귀*"] } }],
+      [0, "pause", { badge: ["점검 중단", "warning"], bat: 20, title: "배터리 부족 · 점검 중단", left: "안정 자세로 대기" }],
+      [3.0, "pause", { badge: ["복귀 대기", "warning"], bat: 20, title: "자율 복귀 가능 · 지시 대기", left: "복귀 예상 2분 · 복귀 후 15%" }],
       [7.3, "return", { badge: ["복귀 예정", "idle"], bat: 19, title: "도크 02로 복귀 예정", left: "이동 경로를 비워 주세요" }],
       [12.6, "return", { badge: ["복귀 중", "idle"], bat: 18, title: "도크 02로 자율 복귀 중", left: "저속 이동" }],
-      [21.0, "return", { badge: ["충전 중", "normal"], bat: 18, title: "충전 중", left: "진행 정보 유지 · 충전 후 재개 여부 확인",
-        card: { sev: "safe", title: "복귀 완료 · 충전 중", lines: ["중단된 임무의 진행 정보는 유지돼요"] } }]],
+      [21.0, "return", { badge: ["충전 중", "normal"], bat: 18, title: "충전 중", left: "진행 정보 유지 · 충전 후 재개 여부 확인" }]],
     "3-2": [
-      [0, "alert", { badge: ["복귀 불가", "danger"], bat: 18, title: "배터리 부족 · 자율 복귀 불가", left: "점검 · 주행 중단",
-        card: { sev: "danger", title: "위험 · 자율복귀 불가", lines: ["배터리 18% · 도크까지 갈 수 없어요"], btns: ["회수 담당자 호출*"] } }],
-      [6.4, "alert", { badge: ["회수 대기", "danger"], bat: 18, title: "정지 완료 · 회수 대기", left: "통로 가장자리 정지 · 잔량 18%",
-        card: { sev: "danger", title: "회수 요청됨", lines: ["정지 위치 B4 통로 · 잔량 18%", "회수 담당자 배정 중"] } }],
-      [11.6, "alert", { badge: ["회수 대기", "danger"], bat: 18, title: "접근 금지 안내 중", left: "정지 위치 · 잔량 18%",
-        card: { sev: "danger", title: "회수 요청됨", lines: ["근로자 접근 시 접근 금지를 안내해요"] } }],
-      [16.0, "alert", { badge: ["회수 중", "info"], bat: 18, title: "회수 담당자 도착 · 가이드 확인 중", left: "전원 종료 → 운반 → 인계",
-        card: { sev: "info", title: "회수 담당자 도착", lines: ["태블릿에서 회수 가이드 확인 중"] } }],
-      [22.0, "done", { badge: ["회수 완료", "normal"], bat: 18, title: "회수 완료", left: "충전 · 점검 후 운영 재개",
-        card: { sev: "safe", title: "회수가 완료되었습니다", lines: ["로봇은 충전 · 점검 후 운영을 재개해요"] } }]],
+      [0, "alert", { badge: ["복귀 불가", "danger"], bat: 18, title: "배터리 부족 · 자율 복귀 불가", left: "점검 · 주행 중단" }],
+      [6.4, "alert", { badge: ["회수 대기", "danger"], bat: 18, title: "정지 완료 · 회수 대기", left: "통로 가장자리 정지 · 잔량 18%" }],
+      [11.6, "alert", { badge: ["회수 대기", "danger"], bat: 18, title: "접근 금지 안내 중", left: "정지 위치 · 잔량 18%" }],
+      [16.0, "alert", { badge: ["회수 중", "info"], bat: 18, title: "회수 담당자 도착 · 가이드 확인 중", left: "전원 종료 → 운반 → 인계" }],
+      [22.0, "done", { badge: ["회수 완료", "normal"], bat: 18, title: "회수 완료", left: "충전 · 점검 후 운영 재개" }]],
   };
   /* Delta 기본 상태(11/18 디자이너) — 이 장면들은 Delta 를 위험 · 주의가 아닌 기본(파랑)으로, 두 줄은 아래 글로.
    *   관제 화면은 알림 목록을 다시 그릴 때마다 Delta 단계를 다시 보낸다(monitor.js tellAi) — 바뀌는 즉시 되돌린다(MutationObserver) */
@@ -1828,18 +1811,19 @@
     const tl = CTRL[cur.id]; if (!tl) return;
     let e = tl[0]; for (const x of tl) if (t >= x[0]) e = x;
     const d = ctlDoc(); if (!d) return;
-    if (cur.id + "" !== ctlApply.scene || force) ctlPlace(d);
+    if (cur.id + "" !== ctlApply.scene || force) { ctlPlace(d); (POP[cur.id] || []).forEach(([, x]) => x && x.shot != null && shot3d(x.shot)); }
     if (e[1] !== ctlMode || force) { const b =d.querySelector(`.rsim [data-m="${e[1]}"]`); if (b) { b.click(); ctlMode = e[1]; } }
     // 덧입힘은 0.3초마다 다시 얹는다 — 관제 화면이 배지 · 배터리 글을 제 박자로 다시 써도 덮이게
     const key = cur.id + "@" + e[0], now = performance.now();
-    if (key !== ctlKey || force || now - (ctlApply.last || 0) > 300) { if (cur.id + "" !== ctlApply.scene || force) { deltaKeep(d); ctlApply.scene = cur.id; } ctlOverlay(d, e[2] || {}); ctlKey = key; ctlApply.last = now; }
+    if (key !== ctlKey || force || now - (ctlApply.last || 0) > 300) { if (cur.id + "" !== ctlApply.scene || force) { deltaKeep(d); ctlApply.scene = cur.id; } ctlOverlay(d, e[2] || {}); ctlPop(d, popAt(t)); ctlKey = key; ctlApply.last = now; }
   }
   /* 관제 지도 · 웨이포인트 목록의 로봇 자리 — 로봇 디스플레이 · 관제 글과 같은 지점으로(11/18).
    *   [k, f] = k 번째 지점(0부터)과 다음 지점 사이 f. k = -1 은 첫 지점 앞(출발 전).
    *   1-2: 디스플레이 'WP-04로 이동' → WP-03 과 WP-04 사이 / 1-1: '1번 지점으로 이동' → 첫 지점 앞
+   *   2-1: 안전모 알림 WP-07 바로 앞 / 2-2: N₂ 배관 압력계 WP-04 에 선다(측정)
    *   나머지 장면은 v7 기본 자리(WP-07 과 WP-08 사이 · route-sim.js 시작값)
    *   모드 버튼(inspect 는 가장 가까운 앞 지점에 선다)보다 먼저 옮긴다 */
-  const CTRL_POS = { "1-1": [-1, 0.4], "1-2": [2, 0.55] }, CTRL_POS_BASE = [6, 0.55];
+  const CTRL_POS = { "1-1": [-1, 0.4], "1-2": [2, 0.55], "2-1": [5, 0.8], "2-2": [3, 0] }, CTRL_POS_BASE = [6, 0.55];
   function ctlPlace(d) {
     const rr = d.defaultView && d.defaultView.APRISM_RR;
     try {
@@ -1850,6 +1834,102 @@
       const a = k < 0 ? 0 : st[k], b = st[k + 1];
       rr.mode("run"); rr.set(a + (b - a) * f);
     } catch (err) { console.warn("관제 로봇 자리", err); }
+  }
+
+  /* 알림 팝오버(11/18 디자이너) — 지도 위에 따로 그린 카드 대신 관제 화면의 원래 알림 팝오버(왼쪽 패널 뒤에서 나오는 판)를 연다.
+   *   key  알림 목록에서 열 알림(글에 든 말) — 2-1 안전모(WP-07) · 2-2 N₂ 배관 압력계(WP-04). 배터리 장면은 목록에 배터리 알림이 없어
+   *        로봇 가까운 안전모 알림 판을 열고 글 · 사진을 바꾼다(사진 = 작업현장 3D 의 한 장면, shot 초)
+   *   sev crit · warn / kind 감지 이름 / title / place 위치 글 / lead DELTA 권고 / checks 조치 체크(첫째 = AI 추천) / primary 주 버튼 글
+   *   fp false 면 오탐 가능성 숨김 / req { to, acts[], ok } — '조치 요청됨' 판(관제 화면과 같은 꼴). ok 면 초록(완료)
+   *   null = 팝오버 닫음. 요청은 관제 화면의 진짜 요청 기록(localStorage)을 건드리지 않고 판만 바꾼다(되감아도 처음 그대로)
+   */
+  const POP_HELMET = { key: "안전모", sev: "warn" };
+  const POP_PIPE = { key: "N₂ 배관", sev: "crit" };
+  const POP_BAT1 = { key: "안전모", sev: "warn", kind: "배터리", place: "B4 통로", shot: 1.5, fp: false };
+  const POP_BAT2 = { key: "안전모", sev: "crit", kind: "배터리", title: "자율 복귀 불가 · 잔량 18%", place: "B4 통로", shot: 3.0, fp: false };
+  const POP = {
+    "2-1": [
+      [0, { ...POP_HELMET, lead: "고소 작업 발판 근처 근로자 1명이 안전모를 쓰지 않았어요. 로봇이 착용을 안내할게요.",
+        checks: ["로봇 음성 연결", "현장 관리자에게 알림"], primary: "로봇 음성 연결" }],
+      [8.4, { ...POP_HELMET, req: { to: "현장 작업자와 음성 연결 중", acts: ["관제사 ↔ 현장 작업자", "작업자 목소리가 관제사에게 전달돼요"] } }],
+      [12.0, { ...POP_HELMET, req: { to: "안전모 착용 확인됨", acts: ["조치 내용을 기록했어요"], ok: true } }],
+      [15.9, null]],
+    "2-2": [
+      [0, null],
+      [2.8, { ...POP_PIPE, lead: "N₂ 배관 압력이 정상 범위를 넘었어요. 로봇이 근로자에게 접근 금지를 안내하고 있어요.",
+        checks: ["현장 점검 요청", "로봇 정지", "도크로 복귀"], primary: "현장 점검 요청" }],
+      [5.6, { ...POP_PIPE, lead: "근로자 1명을 우회 통로로 안내하고 있어요. 현장 점검을 요청해 주세요.",
+        checks: ["현장 점검 요청", "로봇 정지", "도크로 복귀"], primary: "현장 점검 요청" }],
+      [8.4, { ...POP_PIPE, req: { to: "설비 담당자에게 현장 점검 요청됨", acts: ["담당자 배정 중", "로봇은 위험 구역 앞에서 대기"] } }],
+      [11.2, { ...POP_PIPE, req: { to: "조치 완료", acts: ["배관 이상 알람을 처리했어요"], ok: true } }]],
+    "3-1": [
+      [0, { ...POP_BAT1, title: "배터리 20% · 점검 중단", lead: "Robot 01 배터리가 20%예요. 점검을 멈추고 안정 자세로 대기하고 있어요.",
+        checks: ["임무 중단 후 도크 02로 복귀", "현재 위치에서 대기"], primary: "임무 중단 후 복귀" }],
+      [3.0, { ...POP_BAT1, title: "배터리 부족 · 자율 복귀 가능", lead: "도크 02까지 2분, 복귀 후 15%가 남아요. 복귀를 지시해 주세요.",
+        checks: ["임무 중단 후 도크 02로 복귀", "현재 위치에서 대기"], primary: "임무 중단 후 복귀" }],
+      [7.3, { ...POP_BAT1, title: "배터리 부족 · 자율 복귀 가능", req: { to: "도크 02로 복귀 지시됨", acts: ["임무 중단 후 복귀", "이동 경로를 비워 달라고 안내해요"] } }],
+      [12.6, null]],
+    "3-2": [
+      [0, { ...POP_BAT2, lead: "배터리가 부족해 도크까지 갈 수 없어요. 통로 가장자리에 정지해 회수를 기다려요.",
+        checks: ["회수 담당자 호출", "주변 근로자 접근 금지 안내"], primary: "회수 담당자 호출" }],
+      [6.4, { ...POP_BAT2, req: { to: "회수 담당자에게 회수 요청됨", acts: ["정지 위치 B4 통로 · 잔량 18%", "회수 담당자 배정 중"] } }],
+      [11.6, { ...POP_BAT2, req: { to: "회수 담당자에게 회수 요청됨", acts: ["근로자 접근 시 접근 금지를 안내해요"] } }],
+      [16.0, { ...POP_BAT2, req: { to: "회수 담당자 도착", acts: ["태블릿에서 회수 가이드 확인 중"] } }],
+      [22.0, { ...POP_BAT2, req: { to: "회수 완료", acts: ["로봇은 충전 · 점검 후 운영을 재개해요"], ok: true } }]],
+  };
+  function popAt(t) { const tl = POP[cur.id]; if (!tl) return null; let sp = null; for (const [ts, x] of tl) if (t >= ts) sp = x; return sp; }
+  // 작업현장 3D 의 한 장면(머리 위 디스플레이 판 없이) — 장면마다 한 번 구워 둔다
+  const shotCache = {};
+  function shot3d(T) {
+    const k = cur.id + "@" + T; if (shotCache[k]) return shotCache[k];
+    const t0 = curT; seek(T); renderer.render(scene, camera);
+    const url = renderer.domElement.toDataURL("image/jpeg", 0.86);
+    seek(t0); dirty = true;
+    return (shotCache[k] = url);
+  }
+  function ctlPop(d, sp) {
+    const box = d.querySelector("[data-map-alert]"); if (!box) return;
+    if (!sp) {
+      if (box.dataset.kbase) { box.dataset.kbase = ""; box.dataset.kpop = ""; popReq(d, box, null); if (!box.hidden) box.querySelector("[data-ma-close]")?.click(); }
+      return;
+    }
+    if (box.hidden || box.dataset.kbase !== sp.key) {
+      const it = [...d.querySelectorAll("[data-ah-list] .ah-item")].find(n => n.textContent.includes(sp.key));
+      if (!it) return;   // 목록이 아직이면 다음 덧입힘(0.3초)에 다시
+      it.click(); box.dataset.kbase = sp.key; box.dataset.kpop = "";
+    }
+    const sig = JSON.stringify(sp);
+    if (box.dataset.kpop === sig) return;
+    box.dataset.kpop = sig;
+    const $b = q => box.querySelector(q);
+    const chip = $b("[data-ma-badge]");
+    if (sp.sev && chip) { chip.classList.toggle("is-crit", sp.sev === "crit"); chip.classList.toggle("is-warn", sp.sev !== "crit"); box.classList.toggle("is-critical", sp.sev === "crit"); $b("[data-ma-sev]").textContent = sp.sev === "crit" ? "위험" : "주의"; }
+    if (sp.kind && $b("[data-ma-kind]")) $b("[data-ma-kind]").textContent = sp.kind;
+    if (sp.title) $b("[data-ma-title]").textContent = sp.title;
+    if (sp.place) { const pl = $b(".ma-st-place"), pin = $b(".ma-stamp .mbt-pin"); if (pl) pl.textContent = sp.place; if (pin) pin.style.display = "none"; }
+    if (sp.shot != null) { const img = $b("[data-ma-img]"); img.src = shot3d(sp.shot); img.alt = "작업현장"; img.hidden = false; box.classList.remove("no-snap"); }
+    const fp = $b("[data-ma-fp]"); if (fp) fp.style.visibility = sp.fp === false ? "hidden" : "";
+    if (sp.lead) $b("[data-ma-lead]").textContent = sp.lead;
+    if (sp.checks) {
+      $b("[data-ma-options]").innerHTML = sp.checks.map((c, i) => `<button type="button" class="ma-check" role="checkbox" data-act="${c}" aria-checked="${i === 0}"><span class="ma-check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span><span class="ma-check-label">${c}</span>${i === 0 ? '<span class="ma-check-tag">AI 추천</span>' : ""}</button>`).join("");
+    }
+    const cf = $b("[data-ma-confirm]"); if (cf && sp.primary) { cf.textContent = sp.primary; cf.disabled = false; }
+    popReq(d, box, sp.req || null);
+  }
+  // '조치 요청됨' 판 — 관제 화면(monitor.js reqShow7)과 같은 꼴 · 같은 class. 진짜 요청 기록은 쓰지 않는다
+  function popReq(d, box, r) {
+    let el = d.getElementById("kista-req");
+    if (!r) { if (el) el.hidden = true; box.classList.remove("is-requested"); return; }
+    if (!el) {
+      el = d.createElement("div"); el.id = "kista-req"; el.className = "ma-req";
+      el.innerHTML = '<div class="ma-req-head" role="status"><p class="ma-req-to"></p><ul class="ma-req-acts"></ul></div>' +
+        '<div class="ma-req-actions"><button type="button" class="btn btn-secondary">진단 상세</button><button type="button" class="btn btn-primary">확인함</button></div>';
+    }
+    const lower = box.querySelector(".ma-lower"); if (el.parentNode !== lower) lower.appendChild(el);
+    el.querySelector(".ma-req-to").textContent = r.to;
+    el.querySelector(".ma-req-acts").innerHTML = (r.acts || []).map(x => `<li>${x}</li>`).join("");
+    el.classList.toggle("is-ok", !!r.ok);
+    el.hidden = false; box.classList.add("is-requested");
   }
   // v7 에 없는 상태 · 알림을 이 영상에서만 덧입힌다 — 글은 속성(data-k)으로 얹어 관제 화면이 글을 다시 써도 유지된다
   function ctlOverlay(d, o) {
@@ -1862,19 +1942,8 @@
         .badge[data-kc="idle"] { color: var(--text-secondary) !important; } .badge[data-kc="warning"] { color: var(--status-warning-text) !important; }
         .badge[data-kc="danger"] { color: var(--status-critical-text) !important; }
         .badge[data-kc] .badge-dot { background: currentColor !important; }
-        #kista-card { position: absolute; left: 50%; top: 16px; transform: translateX(-50%); z-index: 60; width: 380px; display: flex; gap: 12px; align-items: flex-start;
-          padding: 12px 16px 12px 12px; border-radius: 8px; background: var(--bg-raised, #1b2130); border: 1px solid var(--border-divider, #2a3242);
-          box-shadow: 0 8px 24px rgb(0 0 0 / 35%); color: var(--text-primary); font-family: inherit; pointer-events: none; }
-        #kista-card[hidden] { display: none; }
-        #kista-card .kc-bar { flex: none; width: 4px; align-self: stretch; border-radius: 2px; background: var(--kc); }
-        #kista-card .kc-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-        #kista-card .kc-title { font-size: 14px; line-height: 20px; font-weight: 700; color: var(--kc); }
-        #kista-card .kc-line { font-size: 12px; line-height: 18px; color: var(--text-secondary); }
-        #kista-card .kc-btns { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
-        #kista-card .kc-side { flex: none; width: 64px; height: 64px; border-radius: 4px; overflow: hidden; }
-        #kista-card .kc-mic { display: grid; place-items: center; background: color-mix(in srgb, var(--kc) 18%, transparent); }
-        #kista-card .kc-mic i { display: block; width: 14px; height: 24px; border-radius: 7px; background: var(--kc); animation: kcmic 0.9s ease-in-out infinite; }
-        @keyframes kcmic { 50% { transform: scaleY(0.6); opacity: 0.6; } }`;
+        #kista-req.is-ok .ma-req-head { border-color: var(--status-safe-border); background-color: var(--status-safe-bg); }
+        #kista-req.is-ok .ma-req-to, #kista-req.is-ok .ma-req-acts { color: var(--status-safe-text); }`;
       d.head.appendChild(st);
     }
     const setK = (el, txt) => { if (!el) return; if (txt == null) { el.removeAttribute("data-k"); return; }
@@ -1896,24 +1965,6 @@
     // 진행 막대 두 줄
     setK(d.querySelector("[data-progress-title]"), o.title ?? null);
     setK(d.querySelector("[data-progress-left]"), o.left ?? null);
-    // 지도 위 알림 카드
-    const host = d.querySelector(".map-canvas") || d.querySelector("[data-map]");
-    let card = d.getElementById("kista-card");
-    if (!card && host) { card = d.createElement("div"); card.id = "kista-card"; host.appendChild(card); }
-    if (!card) return;
-    if (!o.card) { card.hidden = true; card.dataset.kcard = ""; return; }
-    if (card.dataset.kcard === JSON.stringify(o.card) && !card.hidden) return;   // 같은 카드면 다시 그리지 않는다(움직임이 끊기지 않게)
-    card.dataset.kcard = JSON.stringify(o.card);
-    const c = o.card, kc = { info: "var(--status-info-text)", safe: "var(--status-safe-text)", warn: "var(--status-warning-text)", danger: "var(--status-critical-text)" }[c.sev] || "var(--text-primary)";
-    card.style.setProperty("--kc", kc);
-    const side = c.mosaic ? `<canvas class="kc-side" width="8" height="8" style="image-rendering:pixelated"></canvas>` : c.mic ? `<span class="kc-side kc-mic"><i></i></span>` : "";
-    card.innerHTML = `<span class="kc-bar"></span><div class="kc-body"><div class="kc-title">${c.title}</div>${(c.lines || []).map(l => `<div class="kc-line">${l}</div>`).join("")}
-      ${c.btns ? `<div class="kc-btns">${c.btns.map(b => `<span class="btn is-xs ${b.endsWith("*") ? "btn-primary" : "btn-secondary"}">${b.replace("*", "")}</span>`).join("")}</div>` : ""}</div>${side}`;
-    if (c.mosaic) {   // 비식별 썸네일 — 8×8 모자이크(사람 실루엣 색 대충)
-      const g = card.querySelector("canvas").getContext("2d"), pal = ["#3a4252", "#4b5568", "#c98a5a", "#e07a2e", "#2d3a4f", "#5d6678", "#b7bcc6", "#e6eaf0"];
-      for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) { const cx = Math.abs(x - 3.5), k = y < 3 && cx < 1.6 ? 2 : (y >= 3 && y < 6 && cx < 2.2 ? 3 : (y >= 6 && cx < 1.8 ? 4 : (x + y * 3) % 2)); g.fillStyle = pal[k]; g.fillRect(x, y, 1, 1); }
-    }
-    card.hidden = false;
   }
   function ctlReady() {
     const d = ctlDoc(); if (!d || !d.querySelector(".rsim")) return false;
