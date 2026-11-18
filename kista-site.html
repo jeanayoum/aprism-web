@@ -49,6 +49,9 @@
     .scenes button small { display: block; color: var(--text-tertiary); font-size: 12px; margin-top: 2px; }
     .scenes button[aria-pressed="true"] { border-color: var(--text-primary); box-shadow: inset 0 0 0 1px var(--text-primary); }
     .steps { margin: 0; padding: 0 0 0 18px; font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+    .steps li { cursor: pointer; }
+    .steps li small { color: var(--text-tertiary); margin-left: 6px; }
+    .steps li.is-now { color: var(--text-primary); font-weight: 700; }
     .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .btn { padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border-default); background: var(--bg-raised); color: var(--text-primary); font: inherit; font-size: 14px; cursor: pointer; }
     .btn.primary { background: var(--text-primary); color: var(--text-on-inverse); border-color: var(--text-primary); }
@@ -97,15 +100,19 @@
         </div>
 
         <div>
-          <p class="grp-label">이 장면의 단계 (PPT 진행 바)</p>
+          <p class="grp-label">이 장면의 단계 (PPT 진행 바) — 누르면 그 시점으로</p>
           <ol class="steps" id="steps"></ol>
+          <div class="row" style="margin-top:8px">
+            <button class="btn" id="btnPlay" type="button">▶ 재생</button>
+            <span class="note" id="tRead">0.0 / 0.0초</span>
+          </div>
         </div>
 
         <div>
           <p class="grp-label">보기</p>
           <div style="display:grid;gap:6px">
             <label class="chk"><input type="checkbox" id="optGuide" checked> 슬라이드에서 가려지는 자리 표시</label>
-            <label class="chk"><input type="checkbox" id="optActors" checked> 크기 참고용 로봇 · 근로자</label>
+            <label class="chk"><input type="checkbox" id="optActors" checked> 로봇 · 근로자 보이기</label>
             <label class="chk"><input type="checkbox" id="optOrbit"> 카메라 직접 돌려 보기</label>
           </div>
         </div>
@@ -113,7 +120,7 @@
         <div>
           <p class="grp-label">녹화</p>
           <div class="row" style="margin-bottom:8px">
-            <label class="field">길이 <input type="number" id="recSec" min="2" max="60" value="8">초</label>
+            <label class="field">범위 <select id="recRange"></select></label>
             <label class="field"><select id="recFps"><option value="30">30fps</option><option value="60" selected>60fps</option></select></label>
           </div>
           <label class="chk" style="margin-bottom:8px"><input type="checkbox" id="optDrift" checked> 카메라 천천히 밀기(달리)</label>
@@ -133,7 +140,7 @@
           </div>
         </div>
 
-        <p class="note">로봇은 관제 지도와 같은 SPOT 모델(robot-spot.js), 근로자는 크기 참고용 임시 인형이다. 장면별 동작은 다음 단계에서 붙인다. 출처: Figma KISTA-2026 <a href="https://www.figma.com/design/6jlcnuP9HDFNNHwaAhX5vz/KISTA-2026?node-id=905-2677">시나리오</a> · 2026-11-18</p>
+        <p class="note">로봇은 관제 지도와 같은 SPOT 모델(robot-spot.js), 근로자는 Mixamo 작업자(Ch17)와 Mixamo 동작 11개. 장면마다 동선 · 동작 시간표(SCRIPT)를 따른다. 출처: Figma KISTA-2026 <a href="https://www.figma.com/design/6jlcnuP9HDFNNHwaAhX5vz/KISTA-2026?node-id=905-2677">시나리오</a> · 2026-11-18</p>
       </aside>
     </div>
   </main>
@@ -603,7 +610,7 @@
    *   worker.glb   FBX → GLB(three.js FBXLoader → GLTFExporter, 뼈대 · 스킨 유지) → 정점 양자화. 4.6MB
    *   텍스처        FBX 안의 4096 PNG 를 1024 로: 1001 = 몸 · 옷 · 안전모, 1002 = 머리카락(투명도 → PNG)
    * 안전모는 따로 된 부품(Ch17_Helmet)이라 2-1 '안전모 미착용' 근로자는 그것만 숨긴다.
-   * 받은 모델은 T 자세라 팔만 내려 선 자세로 둔다 — 걷기 · 손짓은 Mixamo 동작 파일을 받아 붙일 다음 단계.
+   * 받은 모델은 T 자세라 팔만 내려 둔다(동작 파일을 못 불러올 때의 자세). 동작은 anims.glb — 장면 SCRIPT 가 고른다.
    */
   loadMixamoWorker().catch(e => console.warn("작업자 모델을 못 불러와 임시 인형을 쓴다", e));
   async function loadMixamoWorker() {
@@ -612,9 +619,11 @@
     const base = "./assets/model/worker/", tl = new THREE.TextureLoader();
     // 텍스처는 FBX UV 기준이라 TextureLoader 기본(flipY true) 그대로 맞는다
     const tex = (f, srgb) => new Promise((res, rej) => tl.load(base + f, t => { if (srgb) t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = MAX_ANISO; res(t); }, undefined, rej));
-    const [gltf, d1, n1, d2, n2] = await Promise.all([
+    const [gltf, d1, n1, d2, n2, animGltf] = await Promise.all([
       new GLTFLoader().loadAsync(base + "worker.glb?v=1"),
       tex("worker_1001_diffuse.jpg", true), tex("worker_1001_normal.jpg"), tex("worker_1002_diffuse.png", true), tex("worker_1002_normal.jpg"),
+      // Mixamo 동작 11개를 한 파일로 묶은 것(assets/source/animation/*.fbx → anims.glb, 뼈 이름 mixamorig1 로 모델과 같다)
+      new GLTFLoader().loadAsync(base + "anims.glb?v=1").catch(e => { console.warn("동작 파일을 못 불러왔다", e); return { animations: [] }; }),
     ]);
     const matBody = new THREE.MeshStandardMaterial({ name: "body", map: d1, normalMap: n1, roughness: 0.78 });
     const matHair = new THREE.MeshStandardMaterial({ name: "hair", map: d2, normalMap: n2, roughness: 0.7, alphaTest: 0.45, side: THREE.DoubleSide });
@@ -643,34 +652,162 @@
         fores.forEach(b => rotWorld(b, new V(1, 0, 0), -0.28));
       }
     }
+    // 엉덩이 위치 트랙에서 수평으로 쭉 나아가는 몫(처음→끝 직선)만 뺀다 — 몸의 흔들림은 남는다. 이동은 SCRIPT 가 맡는다
+    function stripRootMotion(clip) {
+      if (clip.userData?.stripped) return; (clip.userData ||= {}).stripped = true;
+      const tr = clip.tracks.find(t => /Hips\.position$/.test(t.name)); if (!tr) return;
+      const v = tr.values, n = v.length / 3, tm = tr.times, T = tm[n - 1] - tm[0] || 1;
+      const dx = v[3 * n - 3] - v[0], dz = v[3 * n - 1] - v[2];
+      if (Math.hypot(dx, dz) < 20) return;   // 20cm 미만이면 제자리 동작
+      for (let i = 0; i < n; i++) { const k = (tm[i] - tm[0]) / T; v[3 * i] -= dx * k; v[3 * i + 2] -= dz * k; }
+    }
     const h = new THREE.Box3().setFromObject(src).getSize(new V()).y;
-    for (const [holder, helmet] of [[wkA, true], [wkB, false]]) {
+    for (const holder of [wkA, wkB]) {
       const m = SkeletonUtils.clone(src);
-      relax(m);
-      if (!helmet) m.traverse(o => { if (o.isMesh && /helmet/i.test(o.name)) o.visible = false; });
+      relax(m);   // 동작이 없을 때의 자세
+      const helmets = []; m.traverse(o => { if (o.isMesh && /helmet/i.test(o.name)) helmets.push(o); });
+      const mixer = new THREE.AnimationMixer(m), actions = {};
+      for (const clip of animGltf.animations) { stripRootMotion(clip); const a = mixer.clipAction(clip); a.play(); a.setEffectiveWeight(0); actions[clip.name] = a; }
+      holder.userData = { mixer: animGltf.animations.length ? mixer : null, actions, helmets };
       const wrap = new THREE.Group(); wrap.add(m);
       wrap.scale.setScalar(1.75 / h);   // 키 1.75m
-      wrap.rotation.y = Math.PI;        // 얼굴을 -z 로 — 로봇(SPOT)과 같은 앞 방향, POSE 각도를 그대로 쓴다
+      wrap.rotation.y = Math.PI;        // 얼굴을 -z 로 — 로봇(SPOT)과 같은 앞 방향, SCRIPT 방향각을 그대로 쓴다
       const b = new THREE.Box3().setFromObject(wrap); wrap.position.y = -b.min.y;
       holder.clear(); holder.add(wrap);
     }
+    if (SEG) seek(curT);
     dirty = true;
   }
-  // 장면마다 배우 자리 — 크기 · 거리 감만 보는 용도. 실제 동작은 다음 단계에서
-  const POSE = {
-    "1-1": { robot: [-14.1, -5.0, Math.PI, "sit"], a: [-12.2, -1.2, -2.4], b: null },
-    "1-2": { robot: [-8.6, 0.2, -Math.PI / 2, "idle"], a: [-3.6, -0.4, Math.PI / 2], b: null },
-    "2-1": { robot: [-2.4, 0.0, -Math.PI / 2, "idle"], a: null, b: [-5.0, -4.6, 0.3] },
-    "2-2": { robot: [9.4, -0.6, -Math.PI / 2 + 0.3, "inspect"], a: [12.6, 0.6, Math.PI * 0.85], b: null },
-    "3-1": { robot: [-8.0, -0.3, Math.PI / 2, "walk"], a: null, b: null },
-    "3-2": { robot: [2.4, -1.15, -Math.PI / 2, "sit"], a: [6.8, 0.8, Math.PI / 2], b: null },
+  /* ================= 장면 시간표(SCRIPT) =================
+   * 장면마다 로봇 · 근로자 A(안전모) · 근로자 B(2-1 은 안전모 없이 시작)의 구간 목록. 단위 초 · m.
+   *   start [x, z]  처음 자리,  face  처음 방향(라디안, 0 = -z 를 봄)
+   *   구간 { d 길이, to [x, z] 가면 그리로 걷는다(등속), faceAt [x, z] 그 점을 본다, face 각, back 뒤로 걷기,
+   *          로봇: mode walk|idle|sit|inspect,  근로자: clip(Mixamo 동작 이름), off 동작 시작 위치(초), turn 도는 시간 }
+   *   st   PPT 진행 바 5단계가 시작하는 시각 — 단계별 녹화 범위
+   * 근로자 동작 이름: idle walk walkBack lookAround kneelDown kneel nod react phone turnLeft turnRight
+   * 방향각: 앞이 -z 인 배우가 (dx, dz) 쪽을 보면 θ = atan2(-dx, -dz). 서쪽(-x) = π/2, 동쪽(+x) = -π/2, 남쪽(+z) = π
+   */
+  const W_ = Math.PI / 2, E_ = -Math.PI / 2;
+  const SCRIPT = {
+    // 대기 → 주변감지 → 사전 예고 → 저속 기립 → 기립완료. 도킹 앞을 지나던 근로자가 카운트다운에 물러나 지켜본다
+    "1-1": { dur: 12, st: [0, 2, 4, 7, 10],
+      robot: { start: [-14.1, -5.0], face: Math.PI, segs: [{ d: 7, mode: "sit" }, { d: 5, mode: "idle" }] },
+      a: { start: [-16.8, -2.2], helmet: true, segs: [
+        { d: 3.0, clip: "walk", to: [-14.7, -3.4] }, { d: 1.4, clip: "idle", faceAt: [-14.1, -5.0] },
+        { d: 1.6, clip: "walkBack", to: [-14.9, -1.9], back: true }, { d: 6.0, clip: "idle", faceAt: [-14.1, -5.0] }] } },
+    // 근로자와 만남 → 전방 근로자 감지 → 감속 및 접근 예고 → 정지 후 이동 의사 표현 → 임무재개
+    "1-2": { dur: 12, st: [0, 2.4, 4.8, 7.2, 9.6],
+      robot: { start: [-11.4, 0.5], face: E_, segs: [
+        { d: 4.8, mode: "walk", to: [-8.9, 0.5] }, { d: 1.8, mode: "walk", to: [-8.2, 0.5] },
+        { d: 1.0, mode: "walk", to: [-7.9, 1.1], face: E_ }, { d: 3.2, mode: "idle", face: E_ }, { d: 1.2, mode: "walk", to: [-7.3, 1.1] }] },
+      a: { start: [-1.6, -0.5], face: W_, helmet: true, segs: [
+        { d: 3.0, clip: "walk", to: [-5.2, -0.5] }, { d: 4.4, clip: "idle" }, { d: 1.4, clip: "nod" },
+        { d: 3.2, clip: "walk", to: [-9.8, -0.6] }] } },
+    // 미착용 근로자 감지 → 감속·정지 및 착용 안내 → 착용대기(못 듣고 작업 계속) → 미조치 시 연결(관제 통화) → 확인 후 임무 재개(안전모 씀)
+    "2-1": { dur: 14, st: [0, 2.8, 5.6, 8.4, 11.2],
+      robot: { start: [1.2, 0.2], face: W_, segs: [
+        { d: 2.8, mode: "walk", to: [-1.6, -0.4] }, { d: 1.4, mode: "walk", to: [-2.6, -1.6] },
+        { d: 7.0, mode: "idle", faceAt: [-5.0, -5.2] }, { d: 2.8, mode: "walk", to: [-6.2, -0.6] }] },
+      b: { start: [-5.0, -5.2], face: 0, helmet: false, ev: [[11.2, true]], segs: [
+        { d: 3.6, clip: "idle" }, { d: 2.0, clip: "idle", faceAt: [-2.6, -1.6], turn: 0.9 }, { d: 2.8, clip: "idle", face: 0, turn: 0.9 },
+        { d: 2.8, clip: "phone", off: 2.0 }, { d: 1.4, clip: "nod", faceAt: [-2.6, -1.6], turn: 0.6 }, { d: 1.4, clip: "idle", face: 0 }] } },
+    // 정지 및 정밀 확인 → 이상 감지 및 판단 → 작업자 우회 안내 → 현장 조치 및 상태 안내 → 임무 복귀
+    "2-2": { dur: 14, st: [0, 2.8, 5.6, 8.4, 11.2],
+      robot: { start: [9.0, -0.9], segs: [{ d: 11.2, mode: "inspect", faceAt: [13.0, -4.0] }, { d: 2.8, mode: "walk", to: [7.0, -0.2] }] },
+      a: { start: [17.6, 3.4], helmet: true, segs: [
+        { d: 5.6, clip: "walk", to: [12.8, -1.2] }, { d: 1.6, clip: "react", faceAt: [9.0, -0.9] },
+        { d: 1.2, clip: "walkBack", to: [13.2, 0.4], back: true }, { d: 1.0, clip: "idle", faceAt: [9.0, -0.9] },
+        { d: 1.4, clip: "walk", to: [12.6, 2.6] }, { d: 3.2, clip: "walk", to: [8.4, 2.6] }] } },
+    // 배터리 부족 → 복귀 가능성 계산 → 복귀 의사 예고 → 저속 자율 복귀 → 충전 시작(도킹 02)
+    "3-1": { dur: 18, st: [0, 2.4, 4.8, 7.2, 15.6],
+      robot: { start: [-8.6, 0.2], face: W_, segs: [
+        { d: 7.2, mode: "idle" }, { d: 4.4, mode: "walk", to: [-11.6, -1.2] }, { d: 4.0, mode: "walk", to: [-11.6, -4.9] }, { d: 2.4, mode: "sit" }] } },
+    // 배터리 20% 이하 → 통로 가장자리 이동 후 정지 → 접근금지 우회 안내(지나는 근로자 A) → 회수 담당자 호출(B 통화) → 회수 완료 처리(B 가 옆에 앉아 확인)
+    "3-2": { dur: 18, st: [0, 3, 6, 9, 12],
+      robot: { start: [6.2, 0.3], face: W_, segs: [
+        { d: 3.0, mode: "walk", to: [4.0, 0.3] }, { d: 2.2, mode: "walk", to: [2.6, -1.1] }, { d: 0.8, mode: "idle", face: W_ }, { d: 12, mode: "sit" }] },
+      a: { start: [-6.5, 0.4], helmet: true, segs: [
+        { d: 6.2, clip: "walk", to: [1.0, 0.5] }, { d: 1.4, clip: "walk", to: [3.0, 1.4] }, { d: 2.6, clip: "walk", to: [6.2, 1.3] },
+        { d: 4.4, clip: "walk", to: [11.5, 0.8] }, { d: 3.4, clip: "idle" }] },
+      b: { start: [-1.8, 2.8], face: E_, helmet: true, segs: [
+        { d: 9.0, clip: "idle" }, { d: 2.0, clip: "phone", off: 1.0 }, { d: 3.6, clip: "walk", to: [2.2, -0.2] },
+        { d: 2.4, clip: "kneelDown", faceAt: [2.6, -1.1] }, { d: 1.0, clip: "kneel" }] } },
   };
-  let robotMotion = "idle";
-  function placeActors(id) {
-    const p = POSE[id];
-    if (spot) { const [x, z, ry, m] = p.robot; spot.group.position.set(x, 0, z); spot.group.rotation.y = ry; robotMotion = m; for (let i = 0; i < 120; i++) spot.update(1 / 30, m); }
+
+  const yawTo = (dx, dz) => Math.atan2(-dx, -dz);
+  const smooth = x => x * x * (3 - 2 * x);
+  const lerpAng = (a, b, k) => { const d = ((b - a + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI; return a + d * k; };
+  // 구간 목록 → 시각 · 출발/도착 자리 · 방향이 붙은 구간
+  function build(spec) {
+    let t = 0, p = spec.start.slice(), yaw = spec.face ?? 0; const out = [];
+    for (const s of spec.segs) {
+      const from = p.slice(), to = s.to ? s.to.slice() : p.slice();
+      const dx = to[0] - from[0], dz = to[1] - from[1];
+      let y = yaw;
+      if (s.faceAt) y = yawTo(s.faceAt[0] - to[0], s.faceAt[1] - to[1]);
+      else if (s.face !== undefined) y = s.face;
+      else if (Math.hypot(dx, dz) > 1e-3) y = yawTo(dx, dz) + (s.back ? Math.PI : 0);
+      out.push({ ...s, t0: t, from, to, yaw0: yaw, yaw1: y });
+      t += s.d; p = to; yaw = y;
+    }
+    return out;
+  }
+  function segAt(segs, t) { let i = 0; while (i < segs.length - 1 && t >= segs[i + 1].t0) i++; return i; }
+  function placeOn(obj, segs, t, turn) {
+    const s = segs[segAt(segs, t)], u = Math.min(1, Math.max(0, (t - s.t0) / s.d));
+    obj.position.set(s.from[0] + (s.to[0] - s.from[0]) * u, 0, s.from[1] + (s.to[1] - s.from[1]) * u);
+    obj.rotation.y = lerpAng(s.yaw0, s.yaw1, smooth(Math.min(1, (t - s.t0) / (s.turn || turn))));
+    return s;
+  }
+
+  // 근로자 — 동작은 시각만으로 정해진다(되감기 · 단계 건너뛰기 가능). 구간이 바뀌면 0.3초 겹쳐 넘긴다
+  const LOOP = new Set(["idle", "walk", "walkBack", "lookAround", "kneel", "phone"]);
+  // 동작 원래 걸음 속도(m/s) — 받은 걷기 · 뒤로 걷기는 In Place 가 아니라 한 바퀴에 1.69m · 1.25m 나아간다(1.03초 · 1.20초).
+  // 나아가는 몫은 불러올 때 빼고(stripRootMotion), 실제 이동 속도에 맞춰 재생 속도를 바꿔 발이 덜 미끄러지게 한다
+  const NATURAL = { walk: 1.64, walkBack: 1.04 };
+  function setAct(ud, s, t, w) {
+    const a = ud.actions[s.clip]; if (!a) return;
+    const dur = a.getClip().duration, dist = Math.hypot(s.to[0] - s.from[0], s.to[1] - s.from[1]);
+    const rate = NATURAL[s.clip] && dist > 0 ? dist / s.d / NATURAL[s.clip] : 1;
+    const ct = Math.max(0, (t - s.t0) * rate + (s.off || 0));
+    a.time = LOOP.has(s.clip) ? ct % dur : Math.min(ct, dur - 1e-3);
+    a.setEffectiveWeight(a.getEffectiveWeight() + w);
+  }
+  function poseWorker(holder, w, t) {
+    const segs = w.segs, i = segAt(segs, t), s = placeOn(holder, segs, t, 0.45);
+    const ud = holder.userData;
+    if (ud.helmets) { let on = w.helmet; for (const [et, v] of (w.ev || [])) if (t >= et) on = v; ud.helmets.forEach(m => { m.visible = on; }); }
+    if (!ud.mixer) return;
+    for (const a of Object.values(ud.actions)) a.setEffectiveWeight(0);
+    const prev = segs[i - 1], k = prev ? Math.min(1, (t - s.t0) / 0.3) : 1;
+    setAct(ud, s, t, k);
+    if (prev && k < 1 && prev.clip !== s.clip) setAct(ud, prev, t, 1 - k);
+    else if (prev && k < 1) ud.actions[s.clip]?.setEffectiveWeight(1);
+    ud.mixer.update(0);
+  }
+
+  // 로봇 — SPOT 다리는 상태를 쌓아 가며 움직인다. 되감을 땐 처음부터 1/30초씩 다시 돌린다(가볍다)
+  let SEG = null, curT = 0, playing = false;
+  function buildScene(id) {
+    const sc = SCRIPT[id];
+    SEG = { dur: sc.dur, st: sc.st, robot: build(sc.robot) };
+    for (const k of ["a", "b"]) SEG[k] = sc[k] ? { ...sc[k], segs: build(sc[k]) } : null;
+  }
+  function stepRobot(t, dt) { if (!spot) return; const s = placeOn(spot.group, SEG.robot, t, 0.8); spot.update(dt, s.mode || "idle"); }
+  function poseAll(t) {
+    for (const [h, k] of [[wkA, "a"], [wkB, "b"]]) { const w = SEG[k]; h.visible = !!w; if (w) poseWorker(h, w, t); }
     dirty = true;
-    for (const [wk, k] of [[wkA, "a"], [wkB, "b"]]) { const v = p[k]; wk.visible = !!v; if (v) { wk.position.set(v[0], 0, v[1]); wk.rotation.y = v[2]; } }
+  }
+  function seek(t) {
+    curT = Math.max(0, Math.min(SEG.dur, t));
+    if (spot) { placeOn(spot.group, SEG.robot, 0, 0.8); for (let i = 0; i < 120; i++) spot.update(1 / 30, SEG.robot[0].mode || "idle"); }
+    for (let s = 0; s < curT; s += 1 / 30) stepRobot(s, 1 / 30);
+    stepRobot(curT, 0); poseAll(curT); showT();
+  }
+  function showT() {
+    const el = document.getElementById("tRead"); if (el) el.textContent = `${curT.toFixed(1)} / ${SEG.dur.toFixed(1)}초`;
+    const n = SEG.st.filter(x => curT >= x - 1e-6).length - 1;
+    [...document.querySelectorAll("#steps li")].forEach((li, i) => li.classList.toggle("is-now", i === n));
   }
 
   /* ================= 장면 · 카메라 ================= */
@@ -693,8 +830,12 @@
   function selectScene(id) {
     cur = SCENES.find(s => s.id === id) || SCENES[0];
     [...scenesEl.children].forEach(b => b.setAttribute("aria-pressed", String(b.dataset.id === cur.id)));
-    stepsEl.innerHTML = cur.steps.map(s => `<li>${s}</li>`).join("");
-    applyCam(cur); placeActors(cur.id);
+    buildScene(cur.id); playing = false; setPlayBtn();
+    stepsEl.innerHTML = cur.steps.map((s, i) => `<li data-i="${i}">${s}<small>${SEG.st[i].toFixed(1)}초~</small></li>`).join("");
+    [...stepsEl.children].forEach(li => li.onclick = () => { playing = false; setPlayBtn(); seek(SEG.st[+li.dataset.i]); });
+    const rr = document.getElementById("recRange");
+    rr.innerHTML = `<option value="all">전체 ${SEG.dur}초</option>` + cur.steps.map((s, i) => `<option value="${i}">${i + 1}단계 · ${s}</option>`).join("");
+    applyCam(cur); seek(0);
     try { localStorage.setItem("kista-site-scene", cur.id); } catch (e) {}
     history.replaceState(null, "", "?" + new URLSearchParams({ ...Object.fromEntries(qs), scene: cur.id }).toString());
   }
@@ -736,7 +877,11 @@
 
   $("btnRec").onclick = async () => {
     if (recording) return;
-    const fps = +$("recFps").value, sec = Math.max(2, Math.min(60, +$("recSec").value || 8));
+    const fps = +$("recFps").value, rv = $("recRange").value;
+    playing = false; setPlayBtn();
+    // 범위 — 전체, 또는 PPT 단계 하나(그 단계 시작 ~ 다음 단계 시작)
+    const tA = rv === "all" ? 0 : SEG.st[+rv], tB = rv === "all" ? SEG.dur : (SEG.st[+rv + 1] ?? SEG.dur);
+    const sec = tB - tA;
     const cfg = await pickCodec(fps); if (!cfg) return;
     const { Muxer, ArrayBufferTarget } = await import("https://cdn.jsdelivr.net/npm/mp4-muxer@5.1.3/+esm");
     recording = true; controls.enabled = false; $("optOrbit").checked = false; applyCam(cur);
@@ -747,10 +892,13 @@
     const enc = new VideoEncoder({ output: (chunk, meta) => muxer.addVideoChunk(chunk, meta), error: e => { err = e; } });
     enc.configure(cfg);
     const frames = Math.round(sec * fps), dtUs = 1e6 / fps, drift = $("optDrift").checked;
+    seek(tA);
     for (let i = 0; i < frames && !err; i++) {
-      const t = i / Math.max(1, frames - 1);
-      if (drift) driftAt(t); else applyCam(cur);
-      if (spot) spot.update(1 / fps, robotMotion);
+      const tt = tA + i / fps;
+      // 달리는 장면 전체 길이 기준 — 단계별로 나눠 녹화해도 이어 붙이면 카메라가 끊기지 않는다
+      if (drift) driftAt(tt / SEG.dur); else applyCam(cur);
+      if (i > 0) stepRobot(tt, 1 / fps);
+      poseAll(tt);
       renderer.render(scene, camera);
       const vf = new VideoFrame(renderer.domElement, { timestamp: Math.round(i * dtUs), duration: Math.round(dtUs) });
       enc.encode(vf, { keyFrame: i % (fps * 2) === 0 }); vf.close();
@@ -765,19 +913,33 @@
     applyCam(cur);
     if (err) { $("recNote").textContent = "녹화 실패: " + err.message; return; }
     muxer.finalize();
-    download(new Blob([muxer.target.buffer], { type: "video/mp4" }), `KISTA_작업현장_${cur.id}_${stamp()}.mp4`);
+    seek(tA);
+    download(new Blob([muxer.target.buffer], { type: "video/mp4" }), `KISTA_작업현장_${cur.id}${rv === "all" ? "" : "_" + (+rv + 1) + "단계"}_${stamp()}.mp4`);
   };
   $("btnPng").onclick = () => {
     renderer.setSize(W, H, false); renderer.render(scene, camera);
     renderer.domElement.toBlob(b => { download(b, `KISTA_작업현장_${cur.id}_${stamp()}.png`); renderer.setSize(PW, PH, false); dirty = true; });
   };
 
-  /* ================= 돌리기 ================= */
+  /* ================= 재생 · 돌리기 ================= */
+  // 재생 중에만 매 프레임 그린다(1배 크기). 멈추면 바뀐 게 있을 때만
+  $("btnPlay").onclick = () => {
+    if (recording) return;
+    playing = !playing;
+    if (playing && curT >= SEG.dur - 0.05) seek(0);
+    lastTs = performance.now(); setPlayBtn();
+  };
   const camOut = $("camOut");
-  let lastCamTxt = "";
-  function tick() {
-    // 미리보기는 바뀐 게 있을 때만 그린다 — 가만히 있으면 GPU 를 쓰지 않는다. 로봇 걸음은 녹화 때만 움직인다
+  let lastCamTxt = "", lastTs = performance.now();
+  function tick(now) {
     if (!recording) {   // 녹화 중에는 녹화 루프가 직접 그린다
+      if (playing) {
+        const dt = Math.min(0.05, ((now ?? performance.now()) - lastTs) / 1000);
+        curT = Math.min(SEG.dur, curT + dt);
+        stepRobot(curT, dt); poseAll(curT); showT();
+        if (curT >= SEG.dur) { playing = false; setPlayBtn(); }
+      }
+      lastTs = now ?? performance.now();
       if (controls.enabled) controls.update();   // 감속 중이면 change 가 와서 dirty
       if (dirty) {
         renderer.render(scene, camera); dirty = false;
@@ -786,6 +948,7 @@
     }
     requestAnimationFrame(tick);
   }
+  function setPlayBtn() { const b = document.getElementById("btnPlay"); if (b) b.textContent = playing ? "❚❚ 멈춤" : "▶ 재생"; }
   tick();
   window.__ksReady = true;
   </script>
