@@ -2162,6 +2162,7 @@
       document.body.classList.remove("combo-hq");
       if (terr || !dcfg || !chunks.length) { note.textContent = "관제 화면 찍기 실패" + (terr ? ": " + terr.message : ""); return; }
       // 2단계 — 3D 두 배 + 관제 프레임을 모니터 칸에
+      note.textContent = `2/2 준비 중 — 관제 프레임 ${chunks.length}장`;
       await hqCompose(chunks, dcfg, ocfg, tA, tB, tag, note, devW);
     } catch (e) {
       console.error(e); note.textContent = "고화질 녹화 실패: " + e.message;
@@ -2180,17 +2181,21 @@
     const q = []; let fed = 0, flushed = false, derr = null;
     const dec = new VideoDecoder({ output: f => q.push(f), error: e => { derr = e; } });
     dec.configure(dcfg);
+    // 지난 프레임은 바로바로 닫는다 — 디코더는 열어 둔 프레임 수에 한도가 있어, 쌓아 두면 더 내놓지 않고 멈춘다(11/18 저장 안 됨)
+    const drop = tt => { while (q.length > 1 && q[1].timestamp <= tt) q.shift().close(); };
+    let lastGood = 0;
     async function ctlAt(t) {
-      const tt = Math.round(t * 1e6);
-      for (let guard = 0; guard < 4000 && !derr; guard++) {
+      const tt = Math.round(t * 1e6), t0 = performance.now();
+      while (!derr) {
+        drop(tt);
         if (q.some(f => f.timestamp > tt) || flushed) break;
-        if (fed < chunks.length) {
-          if (dec.decodeQueueSize < 6) { const c = chunks[fed++]; dec.decode(new EncodedVideoChunk({ type: c.type, timestamp: c.timestamp, data: c.data })); }
-          else await sleep(2);
-        } else { await dec.flush(); flushed = true; }
-        if (guard % 4 === 3) await sleep(0);
+        if (performance.now() - t0 > 3000) { console.warn("관제 프레임 기다림 초과", t, fed, chunks.length, q.length, dec.decodeQueueSize); break; }
+        if (fed < chunks.length && dec.decodeQueueSize < 3) { const c = chunks[fed++]; dec.decode(new EncodedVideoChunk({ type: c.type, timestamp: c.timestamp, data: c.data })); continue; }
+        if (fed >= chunks.length && dec.decodeQueueSize === 0) { await dec.flush(); flushed = true; continue; }
+        await sleep(1);
       }
-      while (q.length > 1 && q[1].timestamp <= tt) q.shift().close();
+      drop(tt);
+      if (q[0]) lastGood = t;
       return q[0] || null;
     }
     // 음성
@@ -2241,7 +2246,8 @@
     await enc.flush(); enc.close();
     q.forEach(f => f.close()); try { dec.close(); } catch (e) {}
     recording = false; renderer.setSize(PW, PH, false); dirty = true; seek(tA);
-    if (err || derr) { note.textContent = "굽기 실패: " + (err || derr).message; return; }
+    if (err || derr) { note.textContent = "굽기 실패: " + (err || derr).message; console.error(err || derr); return; }
+    note.textContent = "파일 만드는 중…";
     muxer.finalize();
     download(new Blob([muxer.target.buffer], { type: "video/mp4" }), `KISTA_합친영상_${cur.id}${tag}_고화질_${stamp()}.mp4`);
     note.textContent = `저장했어요 — 3520×1590${audioBuf ? " · 음성 포함" : ""}` + (devW < HQ.CW ? ` · 관제 화면은 창이 작아 ${devW}px 로 찍혀 조금 흐릴 수 있어요(창을 키우거나 F11)` : "");
