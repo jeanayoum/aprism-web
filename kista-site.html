@@ -128,6 +128,7 @@
             <label class="chk"><input type="checkbox" id="optGuide" checked> 슬라이드에서 가려지는 자리 표시</label>
             <label class="chk"><input type="checkbox" id="optActors" checked> 로봇 · 근로자 보이기</label>
             <label class="chk"><input type="checkbox" id="optFollow" checked> 카메라가 로봇 · 근로자를 따라가며 크게</label>
+            <label class="chk"><input type="checkbox" id="optHud" checked> 오른쪽 위에 로봇 디스플레이 크게(영상에도 들어감)</label>
             <label class="chk"><input type="checkbox" id="optOrbit"> 카메라 직접 돌려 보기</label>
           </div>
         </div>
@@ -625,6 +626,33 @@
    * DISPLAY_TILT  판이 수직에서 안쪽으로 기우는 각. 위가 맞붙으려면 아래 바깥 모서리가 몸 폭(±0.111) 안에 들어와야 해 32° 미만.
    * 화면 표지는 SPOT 디스플레이 A안(spot-display.html) 색 · 문구를 줄여 그린 것. 장면 SCRIPT 의 sign 시간표를 따른다.
    */
+  /*
+   * 오른쪽 위 디스플레이 크게(11/18) — 로봇 등 화면이 영상에서 작아, 같은 표지를 원본 비율(800×480)로 고정해 띄운다.
+   * HTML 이 아니라 같은 캔버스에 두 번째 장면(화면 고정 직교 카메라)으로 그려 녹화 · PNG 에도 들어간다.
+   * 좌표는 칸 단위(870×795) — 녹화 때 두 배로 그려도 자리가 같다. 오른쪽 · 위 여백 24, 테두리 포함 약 308×193.
+   */
+  const hudScene = new THREE.Scene(), hudCam = new THREE.OrthographicCamera(0, 870, 795, 0, -10, 10);
+  let hudScreenMat = null;
+  {
+    const SW = 288, SH = 172.8, PAD = 10, BW = SW + PAD * 2, BH = SH + PAD * 2, M_ = 24;
+    const cx = 870 - M_ - BW / 2, cy = 795 - M_ - BH / 2;
+    const rrShape = (w, h, r) => { const sh = new THREE.Shape(), x = -w / 2, y = -h / 2; sh.moveTo(x + r, y); sh.lineTo(x + w - r, y); sh.quadraticCurveTo(x + w, y, x + w, y + r); sh.lineTo(x + w, y + h - r); sh.quadraticCurveTo(x + w, y + h, x + w - r, y + h); sh.lineTo(x + r, y + h); sh.quadraticCurveTo(x, y + h, x, y + h - r); sh.lineTo(x, y + r); sh.quadraticCurveTo(x, y, x + r, y); return sh; };
+    // 그림자 — 흐린 둥근 사각
+    const shTex = canvasTex(256, 192, (g, w, h) => { g.filter = "blur(14px)"; g.fillStyle = "rgba(0,0,0,0.55)"; g.beginPath(); g.roundRect(28, 30, w - 56, h - 56, 18); g.fill(); }, { repeat: [1, 1] });
+    shTex.wrapS = shTex.wrapT = THREE.ClampToEdgeWrapping;
+    const shadow = new THREE.Mesh(new THREE.PlaneGeometry(BW * 1.28, BH * 1.38), new THREE.MeshBasicMaterial({ map: shTex, transparent: true, depthTest: false, toneMapped: false }));
+    shadow.position.set(cx, cy - 6, 0); shadow.renderOrder = 0; hudScene.add(shadow);
+    const bezel = new THREE.Mesh(new THREE.ShapeGeometry(rrShape(BW, BH, 12)), new THREE.MeshBasicMaterial({ color: 0x15171A, depthTest: false, toneMapped: false }));
+    bezel.position.set(cx, cy, 1); bezel.renderOrder = 1; hudScene.add(bezel);
+    hudScreenMat = new THREE.MeshBasicMaterial({ color: 0xffffff, depthTest: false, toneMapped: false });
+    const scr = new THREE.Mesh(new THREE.PlaneGeometry(SW, SH), hudScreenMat); scr.position.set(cx, cy, 2); scr.renderOrder = 2; hudScene.add(scr);
+  }
+  function renderFrame() {
+    renderer.render(scene, camera);
+    if (!hudScene.visible || !hudScreenMat.map) return;
+    renderer.autoClear = false; renderer.clearDepth(); renderer.render(hudScene, hudCam); renderer.autoClear = true;
+  }
+
   const DISPLAY_TILT = 22 * Math.PI / 180;
   let screenMat = null, signNow = null;
   function addDisplay(body) {
@@ -719,6 +747,7 @@
   function setSign(key) {
     if (!screenMat || key === signNow || !SIGNS[key]) return;
     screenMat.map = signTex(key); screenMat.needsUpdate = true; signNow = key; dirty = true;
+    if (hudScreenMat) { hudScreenMat.map = screenMat.map; hudScreenMat.needsUpdate = true; }
   }
   if (spot) addDisplay(spot.group.children[0]);   // 몸 묶음(robot-spot.js 가 맨 처음 넣는다) — 걸음 · 앉기에 같이 움직인다
   function worker({ vest = 0xF07A1A, helmet = true }) {
@@ -1070,13 +1099,16 @@
    * 안전 구역이 위아래로 조금 비대칭이라(위 칩 · 아래 진행 바) 판정은 좁은 쪽(위 0.77)으로 위아래 같게 잡는다.
    */
   const HX = Math.min(-SAFE.x0, SAFE.x1), HY = Math.min(-SAFE.y0, SAFE.y1);
+  const HUD_NDC = { x: 2 * (870 - 24 - 308 - 12) / 870 - 1, y: 1 - 2 * (24 + 193 + 12) / 795 };   // 오른쪽 위 디스플레이(+여유 12) 왼쪽 아래 모서리
   function fitPts(pts, fixedD) {
     const c = new THREE.Box3().setFromPoints(pts).getCenter(new THREE.Vector3());
     const tx = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * camera.aspect, ty = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
     const fits = (D) => {
       for (const q of pts) {
         _v.copy(q).sub(c); const z = _v.dot(_d) + D; if (z < 0.5) return false;
-        if (Math.abs(_v.dot(_r)) > HX * z * tx || Math.abs(_v.dot(_u)) > HY * z * ty) return false;
+        const nx = _v.dot(_r) / (z * tx), ny = _v.dot(_u) / (z * ty);
+        if (Math.abs(nx) > HX || Math.abs(ny) > HY) return false;
+        if (hudScene.visible && nx > HUD_NDC.x && ny > HUD_NDC.y) return false;   // 오른쪽 위 디스플레이 자리는 비운다
       }
       return true;
     };
@@ -1126,6 +1158,7 @@
   if (qs.get("actors") === "0") { actors.visible = false; $("optActors").checked = false; }
   $("optOrbit").onchange = e => { controls.enabled = e.target.checked; if (!e.target.checked) { applyCam(cur); placeCam(curT); } };
   $("optFollow").onchange = () => { placeCam(curT); dirty = true; };
+  $("optHud").onchange = e => { hudScene.visible = e.target.checked; dirty = true; };
   $("btnCamReset").onclick = () => { applyCam(cur); placeCam(curT); };
   const camStr = () => `pos: [${camera.position.toArray().map(v => v.toFixed(2)).join(", ")}], target: [${controls.target.toArray().map(v => v.toFixed(2)).join(", ")}], fov: ${camera.fov}`;
   $("btnCamCopy").onclick = () => navigator.clipboard?.writeText(`{ ${camStr()} }`);
@@ -1170,7 +1203,7 @@
       // 달리는 장면 전체 길이 기준 — 단계별로 나눠 녹화해도 이어 붙이면 카메라가 끊기지 않는다
       if (i > 0) stepRobot(tt, 1 / fps);
       poseAll(tt);
-      renderer.render(scene, camera);
+      renderFrame();
       const vf = new VideoFrame(renderer.domElement, { timestamp: Math.round(i * dtUs), duration: Math.round(dtUs) });
       enc.encode(vf, { keyFrame: i % (fps * 2) === 0 }); vf.close();
       if (enc.encodeQueueSize > 4 || i % 6 === 0) {
@@ -1188,7 +1221,7 @@
     download(new Blob([muxer.target.buffer], { type: "video/mp4" }), `KISTA_작업현장_${cur.id}${rv === "all" ? "" : "_" + (+rv + 1) + "단계"}_${stamp()}.mp4`);
   };
   $("btnPng").onclick = () => {
-    renderer.setSize(W, H, false); renderer.render(scene, camera);
+    renderer.setSize(W, H, false); renderFrame();
     renderer.domElement.toBlob(b => { download(b, `KISTA_작업현장_${cur.id}_${stamp()}.png`); renderer.setSize(PW, PH, false); dirty = true; });
   };
 
@@ -1214,7 +1247,7 @@
       lastTs = now ?? performance.now();
       if (controls.enabled) controls.update();   // 감속 중이면 change 가 와서 dirty
       if (dirty) {
-        renderer.render(scene, camera); dirty = false;
+        renderFrame(); dirty = false;
         const txt = camStr(); if (txt !== lastCamTxt) { camOut.textContent = txt; lastCamTxt = txt; }
       }
     }
