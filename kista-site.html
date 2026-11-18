@@ -1732,20 +1732,143 @@
    * 3D 두 개를 그래픽카드로 그리니 PC 가 멈추지 않는다. 탭 오디오를 같이 공유하면 로봇 음성이 들어간다.
    * CTRL: 장면 → [시각, 관제 상태] — run 이동 중 · inspect 지점 측정 중 · alert 위험 감지 · pause 일시정지 · return 자동복귀 · done 미션 완료
    */
+  /* 장면 → [시각, 관제 상태, 덧입힘] — Figma 시나리오 표(929:2294) '관제화면' 줄.
+   * 관제 상태: run 이동 중 · inspect 지점 측정 중(멈춤) · alert 위험 감지 · pause 일시정지 · return 자동복귀 · done 미션 완료
+   * 덧입힘(v7 에 아직 없는 화면을 이 영상에서만 덧입힌다 — v7 화면 파일은 그대로):
+   *   badge [글, 색(info · normal · idle · warning · danger)] 로봇 카드 Mission 배지 / bat 배터리 % /
+   *   title · left 진행 막대 두 줄 / card 지도 위 알림 카드 { sev(info · safe · warn · danger), title, lines[], btns[](*=주 버튼), mosaic 비식별 썸네일, mic }
+   */
   const CTRL = {
-    "1-2": [[0, "run"], [4.8, "pause"], [9.6, "run"]],          // 3. 감속·접근 예고에 정지 대기 → 5. 임무재개
-    "2-2": [[0, "inspect"], [2.8, "alert"], [11.2, "run"]],     // 1. 정밀 확인(측정) → 2. 이상 감지(위험) → 5. 임무 복귀
+    "1-1": [
+      [0, "inspect", { badge: ["대기 중", "idle"], bat: 86, title: "도크 01 · 충전 완료", left: "미션 시작 대기 중" }],
+      [2, "inspect", { badge: ["대기 중", "idle"], bat: 86, title: "주변 확인 중", left: "작업자 1명 감지 · 안전거리 확인" }],
+      [4, "inspect", { badge: ["기립 예고", "warning"], bat: 86, title: "곧 기립합니다", left: "3초 후 저속 기립" }],
+      [7, "inspect", { badge: ["기립 중", "info"], bat: 86, title: "저속 기립 중", left: "주변 안전 확인 완료" }],
+      [10, "run", { badge: ["수행중", "info"], bat: 86, title: "기립 완료 · 미션 시작", left: "1번 지점으로 이동" }]],
+    "1-2": [
+      [0, "run", { title: "지하 4층 미션 수행 중", left: "N₂ 배관 압력계 판독 · WP-04로 이동" }],
+      [2.4, "run", { badge: ["사람 감지", "info"], title: "전방 근로자 감지", left: "감속하며 통행 확인 중" }],
+      [4.8, "pause", { badge: ["정지 대기", "warning"], title: "정지하여 대기 중입니다", left: "근로자 통행 대기",
+        card: { sev: "info", title: "Robot 01 · 근로자 통행 대기", lines: ["전방 1명 · 로봇이 먼저 길을 양보했어요"] } }],
+      [7.2, "pause", { badge: ["출발 예고", "warning"], title: "이동을 재개하겠습니다", left: "통행 확인 완료 · 곧 출발" }],
+      [9.6, "run", { title: "WP-04로 이동 중", left: "지하 4층 정기 순회 점검" }]],
+    "2-1": [
+      [0, "run", { badge: ["주의 감지", "warning"], title: "안전모 미착용 근로자 감지", left: "B4 고소 작업 발판 · 1명",
+        card: { sev: "warn", title: "주의 · 안전모 미착용 1명", lines: ["B4 고소 작업 발판 근처", "근로자 얼굴은 비식별 처리돼요"], mosaic: true } }],
+      [2.8, "pause", { badge: ["정지 · 안내", "warning"], title: "안전모 착용 안내 중", left: "로봇 정지 · 착용 요청",
+        card: { sev: "warn", title: "주의 · 안전모 미착용 1명", lines: ["로봇이 착용을 안내하고 있어요", "근로자 얼굴은 비식별 처리돼요"], mosaic: true, btns: ["로봇 음성 연결*"] } }],
+      [8.4, "pause", { badge: ["음성 연결", "info"], title: "관제실 음성 연결 중", left: "현장 작업자와 대화 중",
+        card: { sev: "info", title: "로봇 음성 연결 중", lines: ["관제사 ↔ 현장 작업자", "작업자 목소리가 관제사에게 전달돼요"], mic: true, btns: ["연결 종료"] } }],
+      [12.0, "pause", { badge: ["착용 확인", "normal"], title: "안전모 착용 확인", left: "조치 내용 기록",
+        card: { sev: "safe", title: "안전모 착용 확인됨", lines: ["조치 내용을 기록했어요"] } }],
+      [15.9, "run", { title: "이동 재개", left: "다음 점검 지점으로" }]],
+    "2-2": [
+      [0, "inspect", { title: "N₂ 배관 압력계 판독 중", left: "이상 징후 확인 중" }],
+      [2.8, "alert", { badge: ["위험 감지", "danger"], title: "배관 이상 감지", left: "N₂ 배관 압력계 · 접근 금지 안내",
+        card: { sev: "danger", title: "위험 · N₂ 배관 압력 이상", lines: ["압력 0.86 MPa · 정상 범위 초과", "로봇이 근로자에게 접근 금지를 안내해요"], btns: ["로봇 정지", "현장 점검 요청*", "도크로 복귀"] } }],
+      [5.6, "alert", { badge: ["위험 감지", "danger"], title: "작업자 우회 안내 중", left: "위험 구역 주변 접근 금지",
+        card: { sev: "danger", title: "위험 · N₂ 배관 압력 이상", lines: ["근로자 1명 · 우회 통로로 안내 중"], btns: ["로봇 정지", "현장 점검 요청*", "도크로 복귀"] } }],
+      [8.4, "alert", { badge: ["점검 요청", "danger"], title: "현장 점검 요청됨", left: "로봇은 현장에서 대기",
+        card: { sev: "danger", title: "현장 점검 요청됨", lines: ["담당자 배정 · 로봇은 위험 구역 앞에서 대기"] } }],
+      [11.2, "run", { title: "다음 점검 지점으로 이동", left: "알람 처리 완료 · 정상 운영",
+        card: { sev: "safe", title: "조치 완료", lines: ["배관 이상 알람을 처리했어요"] } }]],
+    "3-1": [
+      [0, "pause", { badge: ["점검 중단", "warning"], bat: 20, title: "배터리 부족 · 점검 중단", left: "안정 자세로 대기",
+        card: { sev: "warn", title: "배터리 20% · 점검 중단", lines: ["Robot 01 · 지하 4층"] } }],
+      [3.0, "pause", { badge: ["복귀 대기", "warning"], bat: 20, title: "자율 복귀 가능 · 지시 대기", left: "복귀 예상 2분 · 복귀 후 15%",
+        card: { sev: "warn", title: "배터리 부족 · 자율복귀 가능", lines: ["현재 20% · 도크 02까지 2분 · 복귀 후 15%"], btns: ["임무 중단 후 복귀*"] } }],
+      [7.3, "return", { badge: ["복귀 예정", "idle"], bat: 19, title: "도크 02로 복귀 예정", left: "이동 경로를 비워 주세요" }],
+      [12.6, "return", { badge: ["복귀 중", "idle"], bat: 18, title: "도크 02로 자율 복귀 중", left: "저속 이동" }],
+      [21.0, "return", { badge: ["충전 중", "normal"], bat: 18, title: "충전 중", left: "진행 정보 유지 · 충전 후 재개 여부 확인",
+        card: { sev: "safe", title: "복귀 완료 · 충전 중", lines: ["중단된 임무의 진행 정보는 유지돼요"] } }]],
+    "3-2": [
+      [0, "alert", { badge: ["복귀 불가", "danger"], bat: 18, title: "배터리 부족 · 자율 복귀 불가", left: "점검 · 주행 중단",
+        card: { sev: "danger", title: "위험 · 자율복귀 불가", lines: ["배터리 18% · 도크까지 갈 수 없어요"], btns: ["회수 담당자 호출*"] } }],
+      [6.4, "alert", { badge: ["회수 대기", "danger"], bat: 18, title: "정지 완료 · 회수 대기", left: "통로 가장자리 정지 · 잔량 18%",
+        card: { sev: "danger", title: "회수 요청됨", lines: ["정지 위치 B4 통로 · 잔량 18%", "회수 담당자 배정 중"] } }],
+      [11.6, "alert", { badge: ["회수 대기", "danger"], bat: 18, title: "접근 금지 안내 중", left: "정지 위치 · 잔량 18%",
+        card: { sev: "danger", title: "회수 요청됨", lines: ["근로자 접근 시 접근 금지를 안내해요"] } }],
+      [16.0, "alert", { badge: ["회수 중", "info"], bat: 18, title: "회수 담당자 도착 · 가이드 확인 중", left: "전원 종료 → 운반 → 인계",
+        card: { sev: "info", title: "회수 담당자 도착", lines: ["태블릿에서 회수 가이드 확인 중"] } }],
+      [22.0, "done", { badge: ["회수 완료", "normal"], bat: 18, title: "회수 완료", left: "충전 · 점검 후 운영 재개",
+        card: { sev: "safe", title: "회수가 완료되었습니다", lines: ["로봇은 충전 · 점검 후 운영을 재개해요"] } }]],
   };
-  var comboOn = false, ctlMode = null, comboRec = null;   // var — 장면을 처음 고를 때(이 줄보다 먼저) 읽혀도 오류 나지 않게
+  var comboOn = false, ctlMode = null, ctlKey = null, comboRec = null;   // var — 장면을 처음 고를 때(이 줄보다 먼저) 읽혀도 오류 나지 않게
   const ctlFrame = document.getElementById("ctlFrame");
   function ctlDoc() { try { return ctlFrame.contentDocument; } catch (e) { return null; } }
   function ctlApply(t, force) {
     if (!comboOn) return;
     const tl = CTRL[cur.id]; if (!tl) return;
-    let m = tl[0][1]; for (const [ts, mm] of tl) if (t >= ts) m = mm;
-    if (m === ctlMode && !force) return;
-    const d = ctlDoc(), b = d && d.querySelector(`.rsim [data-m="${m}"]`);
-    if (b) { b.click(); ctlMode = m; }
+    let e = tl[0]; for (const x of tl) if (t >= x[0]) e = x;
+    const d = ctlDoc(); if (!d) return;
+    if (e[1] !== ctlMode || force) { const b = d.querySelector(`.rsim [data-m="${e[1]}"]`); if (b) { b.click(); ctlMode = e[1]; } }
+    // 덧입힘은 0.3초마다 다시 얹는다 — 관제 화면이 배지 · 배터리 글을 제 박자로 다시 써도 덮이게
+    const key = cur.id + "@" + e[0], now = performance.now();
+    if (key !== ctlKey || force || now - (ctlApply.last || 0) > 300) { ctlOverlay(d, e[2] || {}); ctlKey = key; ctlApply.last = now; }
+  }
+  // v7 에 없는 상태 · 알림을 이 영상에서만 덧입힌다 — 글은 속성(data-k)으로 얹어 관제 화면이 글을 다시 써도 유지된다
+  function ctlOverlay(d, o) {
+    if (!d.getElementById("kista-ov-css")) {
+      const st = d.createElement("style"); st.id = "kista-ov-css";
+      st.textContent = `
+        [data-k] { font-size: 0 !important; }
+        [data-k]::after { content: attr(data-k); font-size: var(--k-fs, 12px); }
+        .badge[data-kc="info"] { color: var(--status-info-text) !important; } .badge[data-kc="normal"] { color: var(--status-safe-text) !important; }
+        .badge[data-kc="idle"] { color: var(--text-secondary) !important; } .badge[data-kc="warning"] { color: var(--status-warning-text) !important; }
+        .badge[data-kc="danger"] { color: var(--status-critical-text) !important; }
+        .badge[data-kc] .badge-dot { background: currentColor !important; }
+        #kista-card { position: absolute; left: 50%; top: 16px; transform: translateX(-50%); z-index: 60; width: 380px; display: flex; gap: 12px; align-items: flex-start;
+          padding: 12px 16px 12px 12px; border-radius: 8px; background: var(--bg-raised, #1b2130); border: 1px solid var(--border-divider, #2a3242);
+          box-shadow: 0 8px 24px rgb(0 0 0 / 35%); color: var(--text-primary); font-family: inherit; pointer-events: none; }
+        #kista-card[hidden] { display: none; }
+        #kista-card .kc-bar { flex: none; width: 4px; align-self: stretch; border-radius: 2px; background: var(--kc); }
+        #kista-card .kc-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+        #kista-card .kc-title { font-size: 14px; line-height: 20px; font-weight: 700; color: var(--kc); }
+        #kista-card .kc-line { font-size: 12px; line-height: 18px; color: var(--text-secondary); }
+        #kista-card .kc-btns { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+        #kista-card .kc-side { flex: none; width: 64px; height: 64px; border-radius: 4px; overflow: hidden; }
+        #kista-card .kc-mic { display: grid; place-items: center; background: color-mix(in srgb, var(--kc) 18%, transparent); }
+        #kista-card .kc-mic i { display: block; width: 14px; height: 24px; border-radius: 7px; background: var(--kc); animation: kcmic 0.9s ease-in-out infinite; }
+        @keyframes kcmic { 50% { transform: scaleY(0.6); opacity: 0.6; } }`;
+      d.head.appendChild(st);
+    }
+    const setK = (el, txt) => { if (!el) return; if (txt == null) { el.removeAttribute("data-k"); return; }
+      if (!el.style.getPropertyValue("--k-fs")) { const prev = el.getAttribute("data-k"); el.removeAttribute("data-k"); el.style.setProperty("--k-fs", getComputedStyle(el).fontSize); if (prev != null) el.setAttribute("data-k", prev); }
+      el.setAttribute("data-k", txt); };
+    const card0 = d.querySelector('.robot-strip .robot-card[aria-pressed="true"]') || d.querySelector(".robot-strip .robot-card");
+    // 배지
+    const badge = card0 && card0.querySelector(".robot-lists .badge");
+    if (badge) {
+      const dot = badge.querySelector(".badge-dot");
+      if (o.badge) { if (!badge.dataset.kOrig) badge.dataset.kOrig = badge.lastChild.textContent; badge.lastChild.textContent = o.badge[0]; badge.setAttribute("data-kc", o.badge[1]); }
+      else if (badge.dataset.kOrig) { badge.lastChild.textContent = badge.dataset.kOrig; badge.removeAttribute("data-kc"); }
+      if (dot && badge.firstChild !== dot) badge.prepend(dot);
+    }
+    // 배터리
+    const fill = card0 && card0.querySelector(".battery-fill"), num = card0 && card0.querySelector(".battery .num");
+    if (fill) { if (!fill.dataset.kOrig) fill.dataset.kOrig = fill.style.width; fill.style.width = o.bat != null ? o.bat + "%" : fill.dataset.kOrig; }
+    if (num) setK(num, o.bat != null ? o.bat + "%" : null);
+    // 진행 막대 두 줄
+    setK(d.querySelector("[data-progress-title]"), o.title ?? null);
+    setK(d.querySelector("[data-progress-left]"), o.left ?? null);
+    // 지도 위 알림 카드
+    const host = d.querySelector(".map-canvas") || d.querySelector("[data-map]");
+    let card = d.getElementById("kista-card");
+    if (!card && host) { card = d.createElement("div"); card.id = "kista-card"; host.appendChild(card); }
+    if (!card) return;
+    if (!o.card) { card.hidden = true; card.dataset.kcard = ""; return; }
+    if (card.dataset.kcard === JSON.stringify(o.card) && !card.hidden) return;   // 같은 카드면 다시 그리지 않는다(움직임이 끊기지 않게)
+    card.dataset.kcard = JSON.stringify(o.card);
+    const c = o.card, kc = { info: "var(--status-info-text)", safe: "var(--status-safe-text)", warn: "var(--status-warning-text)", danger: "var(--status-critical-text)" }[c.sev] || "var(--text-primary)";
+    card.style.setProperty("--kc", kc);
+    const side = c.mosaic ? `<canvas class="kc-side" width="8" height="8" style="image-rendering:pixelated"></canvas>` : c.mic ? `<span class="kc-side kc-mic"><i></i></span>` : "";
+    card.innerHTML = `<span class="kc-bar"></span><div class="kc-body"><div class="kc-title">${c.title}</div>${(c.lines || []).map(l => `<div class="kc-line">${l}</div>`).join("")}
+      ${c.btns ? `<div class="kc-btns">${c.btns.map(b => `<span class="btn is-xs ${b.endsWith("*") ? "btn-primary" : "btn-secondary"}">${b.replace("*", "")}</span>`).join("")}</div>` : ""}</div>${side}`;
+    if (c.mosaic) {   // 비식별 썸네일 — 8×8 모자이크(사람 실루엣 색 대충)
+      const g = card.querySelector("canvas").getContext("2d"), pal = ["#3a4252", "#4b5568", "#c98a5a", "#e07a2e", "#2d3a4f", "#5d6678", "#b7bcc6", "#e6eaf0"];
+      for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) { const cx = Math.abs(x - 3.5), k = y < 3 && cx < 1.6 ? 2 : (y >= 3 && y < 6 && cx < 2.2 ? 3 : (y >= 6 && cx < 1.8 ? 4 : (x + y * 3) % 2)); g.fillStyle = pal[k]; g.fillRect(x, y, 1, 1); }
+    }
+    card.hidden = false;
   }
   function ctlReady() {
     const d = ctlDoc(); if (!d || !d.querySelector(".rsim")) return false;
