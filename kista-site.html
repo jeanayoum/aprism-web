@@ -1581,6 +1581,16 @@
   function download(blob, name) { const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }
   const stamp = () => new Date().toISOString().slice(0, 16).replace(/[-:T]/g, "");
   const CODECS = ["avc1.640034", "avc1.640033", "avc1.4d0034"];
+  /* 색 범위(11/18) — 이 PC 의 Chrome H.264 인코더는 캔버스를 전체 범위(0~255)로 굽는데 파일엔 범위 표시가 없어,
+   * PPT · 재생기가 방송 범위(16~235)로 읽고 235 위를 흰색으로 잘랐다(관제실 칸 #F0F3F6 이 흰색으로 보임 · 밝은 곳 날아감).
+   * 굽기 직전 RGB 를 16 + v × 219/255 로 줄여 넣는다 — 방송 범위로 읽혀 원래 색으로 돌아온다 */
+  function toVideoRange(g, w, h) {
+    g.save();
+    g.globalCompositeOperation = "multiply"; g.fillStyle = "rgb(219,219,219)"; g.fillRect(0, 0, w, h);
+    g.globalCompositeOperation = "lighter"; g.fillStyle = "rgb(16,16,16)"; g.fillRect(0, 0, w, h);
+    g.restore();
+  }
+  let recCv = null;   // 3D 영상 녹화 — WebGL 캔버스를 여기 옮겨 범위를 줄인 뒤 굽는다
   async function pickCodec(fps) {
     if (!window.VideoEncoder) return null;
     for (const codec of CODECS) {
@@ -1635,7 +1645,9 @@
       poseAll(tt);
       await ensureDisp(tt);
       renderFrame();
-      const vf = new VideoFrame(renderer.domElement, { timestamp: Math.round(i * dtUs), duration: Math.round(dtUs) });
+      if (!recCv) { recCv = document.createElement("canvas"); recCv.width = W; recCv.height = H; }
+      const rg = recCv.getContext("2d"); rg.drawImage(renderer.domElement, 0, 0, W, H); toVideoRange(rg, W, H);
+      const vf = new VideoFrame(recCv, { timestamp: Math.round(i * dtUs), duration: Math.round(dtUs) });
       enc.encode(vf, { keyFrame: i % (fps * 2) === 0 }); vf.close();
       if (enc.encodeQueueSize > 4 || i % 6 === 0) {
         $("recBadge").textContent = `굽는 중 ${Math.round((i + 1) / frames * 100)}%`;
@@ -2239,6 +2251,7 @@
       o.fillStyle = "#0A0F18"; o.fillRect(RX + 53 * X2, 216 * X2, 770 * X2, 433 * X2);
       if (cf) o.drawImage(cf, RX + 53 * X2, 216 * X2, 770 * X2, 433 * X2);
       o.restore();
+      toVideoRange(o, HQ.W, HQ.H);
       const vf = new VideoFrame(out, { timestamp: Math.round(i * dtUs), duration: Math.round(dtUs) });
       enc.encode(vf, { keyFrame: i % (fps * 2) === 0 }); vf.close();
       if (enc.encodeQueueSize > 4 || i % 6 === 0) { note.textContent = `2/2 굽는 중 ${Math.round((i + 1) / frames * 100)}%`; await sleep(0); }
