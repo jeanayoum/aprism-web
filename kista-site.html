@@ -1870,8 +1870,8 @@
    */
   const POP_HELMET = { key: "안전모", sev: "warn" };
   const POP_PIPE = { key: "N₂ 배관", sev: "crit" };
-  const POP_BAT1 = { key: "안전모", sev: "warn", kind: "배터리", place: "B4 통로", shot: 1.5, fp: false };
-  const POP_BAT2 = { key: "안전모", sev: "crit", kind: "배터리", title: "자율 복귀 불가 · 잔량 18%", place: "B4 통로", shot: 3.0, fp: false };
+  const POP_BAT1 = { key: "안전모", solo: true, sev: "warn", kind: "배터리", place: "B4 통로", shot: 1.5, fp: false };
+  const POP_BAT2 = { key: "안전모", solo: true, sev: "crit", kind: "배터리", title: "자율 복귀 불가 · 잔량 18%", place: "B4 통로", shot: 3.0, fp: false };
   const POP = {
     "2-1": [
       [0, { ...POP_HELMET, lead: "고소 작업 발판 근처 근로자 1명이 안전모를 쓰지 않았어요. 로봇이 착용을 안내할게요.",
@@ -1922,7 +1922,9 @@
       const it = [...d.querySelectorAll("[data-ah-list] .ah-item")].find(n => n.textContent.includes(sp.key));
       if (!it) return;   // 목록이 아직이면 다음 덧입힘(0.3초)에 다시
       it.click(); box.dataset.kbase = sp.key; box.dataset.kpop = "";
+      if (sp.solo) popSolo(d, box);
     }
+    if (sp.solo) d.querySelectorAll('[data-ah-list] .ah-item[aria-pressed="true"]').forEach(n => n.setAttribute("aria-pressed", "false"));   // 목록이 다시 그려져도 고른 줄 없이
     const sig = JSON.stringify(sp);
     if (box.dataset.kpop === sig) return;
     box.dataset.kpop = sig;
@@ -1940,6 +1942,16 @@
     }
     const cf = $b("[data-ma-confirm]"); if (cf && sp.primary) { cf.textContent = sp.primary; cf.disabled = false; }
     popReq(d, box, sp.req || null);
+  }
+  /* solo(배터리 장면) — 판만 빌린 알림이라 그 웨이포인트(WP-07)를 고른 채 두지 않는다(11/18 디자이너): 지도 · 우측 목록 고름을 풀고 로봇에게 간다.
+   *   지도는 팝오버의 data-wp 가 고른 지점과 다르면 팝오버를 닫는다(map-v6.js tellWaypoint) — data-wp 를 먼저 지워 null 끼리 같게 둔다 */
+  function popSolo(d, box) {
+    const w = d.defaultView;
+    box.removeAttribute("data-wp");
+    const tl = d.querySelector("[data-timeline]");
+    if (tl) { tl.removeAttribute("data-selected-waypoint"); tl.querySelectorAll("[data-waypoint]").forEach(n => { n.classList.remove("is-selected"); n.removeAttribute("data-wp-selected"); }); }
+    d.dispatchEvent(new w.CustomEvent("aprism:waypoint", { detail: { id: null, from: "panel" } }));
+    d.querySelector("[data-map-robot]")?.click();
   }
   // '조치 요청됨' 판 — 관제 화면(monitor.js reqShow7)과 같은 꼴 · 같은 class. 진짜 요청 기록은 쓰지 않는다
   function popReq(d, box, r) {
