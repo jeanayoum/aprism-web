@@ -630,23 +630,15 @@
   /*
    * 오른쪽 위 디스플레이 크게(11/18) — 로봇 등 화면이 영상에서 작아, 같은 표지를 원본 비율(800×480)로 고정해 띄운다.
    * HTML 이 아니라 같은 캔버스에 두 번째 장면(화면 고정 직교 카메라)으로 그려 녹화 · PNG 에도 들어간다.
-   * 좌표는 칸 단위(870×795) — 녹화 때 두 배로 그려도 자리가 같다. 오른쪽 · 위 여백 24, 테두리 포함 약 308×193.
+   * 좌표는 칸 단위(870×795) — 녹화 때 두 배로 그려도 자리가 같다. 오른쪽 · 위 여백 24, 308×185.
    */
   const hudScene = new THREE.Scene(), hudCam = new THREE.OrthographicCamera(0, 870, 795, 0, -10, 10);
   let hudScreenMat = null;
   {
-    const SW = 288, SH = 172.8, PAD = 10, BW = SW + PAD * 2, BH = SH + PAD * 2, M_ = 24;
-    const cx = 870 - M_ - BW / 2, cy = 795 - M_ - BH / 2;
-    const rrShape = (w, h, r) => { const sh = new THREE.Shape(), x = -w / 2, y = -h / 2; sh.moveTo(x + r, y); sh.lineTo(x + w - r, y); sh.quadraticCurveTo(x + w, y, x + w, y + r); sh.lineTo(x + w, y + h - r); sh.quadraticCurveTo(x + w, y + h, x + w - r, y + h); sh.lineTo(x + r, y + h); sh.quadraticCurveTo(x, y + h, x, y + h - r); sh.lineTo(x, y + r); sh.quadraticCurveTo(x, y, x + r, y); return sh; };
-    // 그림자 — 흐린 둥근 사각
-    const shTex = canvasTex(256, 192, (g, w, h) => { g.filter = "blur(14px)"; g.fillStyle = "rgba(0,0,0,0.55)"; g.beginPath(); g.roundRect(28, 30, w - 56, h - 56, 18); g.fill(); }, { repeat: [1, 1] });
-    shTex.wrapS = shTex.wrapT = THREE.ClampToEdgeWrapping;
-    const shadow = new THREE.Mesh(new THREE.PlaneGeometry(BW * 1.28, BH * 1.38), new THREE.MeshBasicMaterial({ map: shTex, transparent: true, depthTest: false, toneMapped: false }));
-    shadow.position.set(cx, cy - 6, 0); shadow.renderOrder = 0; hudScene.add(shadow);
-    const bezel = new THREE.Mesh(new THREE.ShapeGeometry(rrShape(BW, BH, 12)), new THREE.MeshBasicMaterial({ color: 0x15171A, depthTest: false, toneMapped: false }));
-    bezel.position.set(cx, cy, 1); bezel.renderOrder = 1; hudScene.add(bezel);
+    // (11/18) 원본 그대로 — 검은 테두리 · 그림자 · 표지 바깥 검은 여백 없이 표지 색이 화면을 가득 채운다(SPOT 디스플레이 A안 800×480)
+    const SW = 308, SH = 184.8, M_ = 24, cx = 870 - M_ - SW / 2, cy = 795 - M_ - SH / 2;
     hudScreenMat = new THREE.MeshBasicMaterial({ color: 0xffffff, depthTest: false, toneMapped: false });
-    const scr = new THREE.Mesh(new THREE.PlaneGeometry(SW, SH), hudScreenMat); scr.position.set(cx, cy, 2); scr.renderOrder = 2; hudScene.add(scr);
+    const scr = new THREE.Mesh(new THREE.PlaneGeometry(SW, SH), hudScreenMat); scr.position.set(cx, cy, 2); hudScene.add(scr);
   }
   function renderFrame() {
     renderer.render(scene, camera);
@@ -702,13 +694,14 @@
     recovered: { c: "G", ic: "check",   k: ["회수", "완료"],     sub: "처리됨" },
   };
   const signTexCache = {};
-  function signTex(key) {
-    if (signTexCache[key]) return signTexCache[key];
+  function signTex(key, bare) {   // bare = 원본 그대로(검은 여백 없이 꽉 채움) — 오른쪽 위 고정 화면용
+    const ck = key + (bare ? ":bare" : "");
+    if (signTexCache[ck]) return signTexCache[ck];
     const sp = SIGNS[key], bg = SC[sp.c], ink = sp.c === "Y" ? "#111111" : "#FFFFFF";
     const t = canvasTex(800, 480, (g, w, h) => {
-      g.fillStyle = "#0A0B0D"; g.fillRect(0, 0, w, h);
       const rr = (x, y, ww, hh, r) => { g.beginPath(); g.roundRect(x, y, ww, hh, r); };
-      g.fillStyle = bg; rr(14, 14, w - 28, h - 28, 22); g.fill();
+      if (bare) { g.fillStyle = bg; g.fillRect(0, 0, w, h); }
+      else { g.fillStyle = "#0A0B0D"; g.fillRect(0, 0, w, h); g.fillStyle = bg; rr(14, 14, w - 28, h - 28, 22); g.fill(); }
       // 왼쪽 기호 원
       const cx = 190, cy = 240, R = 128;
       g.fillStyle = sp.c === "Y" ? "#111111" : "#FFFFFF"; g.beginPath(); g.arc(cx, cy, R, 0, 7); g.fill();
@@ -724,7 +717,7 @@
       g.font = `700 50px "Noto Sans KR"`; g.fillText(sp.sub, x0, 392);
     }, { repeat: [1, 1] });
     t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
-    return (signTexCache[key] = t);
+    return (signTexCache[ck] = t);
   }
   function drawIcon(g, ic, cx, cy, R, col) {
     g.lineWidth = 26;
@@ -748,7 +741,7 @@
   function setSign(key) {
     if (!screenMat || key === signNow || !SIGNS[key]) return;
     screenMat.map = signTex(key); screenMat.needsUpdate = true; signNow = key; dirty = true;
-    if (hudScreenMat) { hudScreenMat.map = screenMat.map; hudScreenMat.needsUpdate = true; }
+    if (hudScreenMat) { hudScreenMat.map = signTex(key, true); hudScreenMat.needsUpdate = true; }
   }
   if (spot) addDisplay(spot.group.children[0]);   // 몸 묶음(robot-spot.js 가 맨 처음 넣는다) — 걸음 · 앉기에 같이 움직인다
   function worker({ vest = 0xF07A1A, helmet = true }) {
@@ -1272,7 +1265,7 @@
    * 안전 구역이 위아래로 조금 비대칭이라(위 칩 · 아래 진행 바) 판정은 좁은 쪽(위 0.77)으로 위아래 같게 잡는다.
    */
   const HX = Math.min(-SAFE.x0, SAFE.x1), HY = Math.min(-SAFE.y0, SAFE.y1);
-  const HUD_NDC = { x: 2 * (870 - 24 - 308 - 12) / 870 - 1, y: 1 - 2 * (24 + 193 + 12) / 795 };   // 오른쪽 위 디스플레이(+여유 12) 왼쪽 아래 모서리
+  const HUD_NDC = { x: 2 * (870 - 24 - 308 - 12) / 870 - 1, y: 1 - 2 * (24 + 185 + 12) / 795 };   // 오른쪽 위 디스플레이(+여유 12) 왼쪽 아래 모서리
   function fitPts(pts, fixedD) {
     const c = new THREE.Box3().setFromPoints(pts).getCenter(new THREE.Vector3());
     const tx = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * camera.aspect, ty = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
