@@ -190,7 +190,7 @@
       cam: { pos: [-11.8, 2.9, 4.6], target: [-4.0, 0.7, -0.4], fov: 40, view: { from: [0.5, 0.87], pitch: 28 } } },
     { id: "2-1", title: "주의 · 안전모 미착용", zone: "통로 · MCC 반 앞",
       steps: ["미착용 근로자 감지", "감속·정지 및 착용 안내", "착용대기", "미조치 시 연결", "확인 후 임무 재개"],
-      cam: { pos: [0.6, 3.2, 5.6], target: [-4.4, 0.8, -2.2], fov: 40, view: { from: [-0.73, 0.69], pitch: 30 } } },
+      cam: { pos: [0.6, 3.2, 5.6], target: [-4.4, 0.8, -2.2], fov: 40, view: { from: [-0.73, 0.69], pitch: 30 }, near: 8, maxK: 1.15 } },   // near · maxK: 근로자가 감지 대상 — 멀어도 늘 화면에(처음엔 넓게, 다가가며 당김)
     { id: "2-2", title: "위험 · 위험 구역 접근", zone: "위험 구역",
       steps: ["정지 및 정밀 확인", "이상 감지 및 판단", "작업자 우회 안내", "현장 조치 및 상태 안내", "임무 복귀"],
       cam: { pos: [6.2, 4.4, 6.4], target: [13.2, 1.0, -3.0], fov: 42, view: { from: [0.38, 0.93], pitch: 32 } } },
@@ -965,8 +965,9 @@
     // (11/18 음성) 관제 통화 · 착용 확인 · 이동 재개 음성이 겹치지 않게 14 → 18초. 안전모 쓰는 때 11.2 → 12.0
     "2-1": { dur: 18, st: [0, 2.8, 5.6, 8.4, 12.0], sign: [[0, "patrol"], [2.8, "helmet"], [8.4, "call"], [12.0, "checked"]],
       voice: [[0.3, "2-1-a"], [3.0, "2-1-b"], [8.5, "2-1-d"], [12.1, "2-1-c"], [15.9, "2-1-e"]],
-      robot: { start: [1.2, 0.2], face: W_, segs: [
-        { d: 2.8, mode: "walk", to: [-1.6, -0.4] }, { d: 1.4, mode: "walk", to: [-2.6, -1.6] },
+      // (11/18) 감지 때 근로자가 한 화면에 들도록 로봇이 근로자 쪽 가까이서 출발(감지 순간 거리 약 5m → 멈춘 뒤 3.6m)
+      robot: { start: [-0.9, -0.9], face: W_, segs: [
+        { d: 2.8, mode: "walk", to: [-1.8, -1.6] }, { d: 1.4, mode: "walk", to: [-2.6, -2.4] },
         { d: 11.6, mode: "idle", faceAt: [-5.0, -5.2] }, { d: 2.2, mode: "walk", to: [-5.6, -0.6] }] },
       b: { start: [-5.0, -5.2], face: 0, helmet: false, ev: [[12.0, true]], segs: [
         { d: 3.6, clip: "idle" }, { d: 2.0, clip: "idle", faceAt: [-2.6, -1.6], turn: 0.9 }, { d: 2.8, clip: "idle", face: 0, turn: 0.9 },
@@ -1298,13 +1299,14 @@
       const tt = Math.min(SEG.dur, Math.max(0, t + k * 0.3));
       const [rx, rz] = posAt(SEG.robot, tt);
       if (spot) boxAt(rx, rz, 0.62, 0.98);
-      for (const key of ["a", "b"]) if (SEG[key]) { let [x, z] = posAt(SEG[key].segs, tt); const dd = Math.hypot(x - rx, z - rz); if (dd > NEAR) { x = rx + (x - rx) * NEAR / dd; z = rz + (z - rz) * NEAR / dd; } boxAt(x, z, 0.32, 1.86); }
+      const nr = cur?.cam?.near ?? NEAR;
+      for (const key of ["a", "b"]) if (SEG[key]) { let [x, z] = posAt(SEG[key].segs, tt); const dd = Math.hypot(x - rx, z - rz); if (dd > nr) { x = rx + (x - rx) * nr / dd; z = rz + (z - rz) * nr / dd; } boxAt(x, z, 0.32, 1.86); }
     }
     return pts;
   }
   const _r = new THREE.Vector3(), _u = new THREE.Vector3(), _d = new THREE.Vector3(), _v = new THREE.Vector3();
   function fitAt(t) {   // 거리 상한 = 장면 구도 거리의 75%
-    const cap = camBase.pos.distanceTo(camBase.target) * MAX_K, pts = actorPoints(t);
+    const cap = camBase.pos.distanceTo(camBase.target) * (cur?.cam?.maxK ?? MAX_K), pts = actorPoints(t);
     const f = fitPts(pts); return f.D > cap ? fitPts(pts, cap).p : f.p;
   }
   const _acc = new THREE.Vector3();
