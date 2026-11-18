@@ -1013,48 +1013,40 @@
    *          icon  바닥 그림(helmet · check · warn, fwd = 로봇 앞 거리)   fan  로봇에서 근로자 쪽 부채꼴   beam  로봇에서 한 점으로 빛줄기
    *          c2 가 있으면 구간 동안 c → c2 로 색이 바뀐다
    */
-  const LC = { G: 0x2EE07A, B: 0x2F8BFF, Y: 0xFFC21A, R: 0xFF3B30, T: 0x19E3C2, S: 0x55C8FF, W: 0xFFFFFF };
+  const LC = { G: 0x3BE07A, B: 0x2F8BFF, Y: 0xFFC21A, R: 0xFF383C, T: 0x19E3C2, S: 0x55C8FF, W: 0xFFFFFF, N: 0x9EA8BB };   // G · R · N 은 v7 관제 지도 호 색(HALO_GX · 위험 · 복귀 회색)
   const LIGHT = {
-    // 1. 대기 [상태] Green 상시 / 2. 주변감지 [투사] Green 원형이 천천히 확장 / 3. 사전 예고 [투사] 1m 기립반경 원이 카운트다운에 맞춰 켜짐
-    // 4. 저속기립 [투사] 1m 반경 유지 · 밝기 점진 상승 / 5. 기립완료 [투사] 반경 유지 · 느리게 점멸
-    "1-1": { body: [[0, 12, "G"]], fx: [
-      { t: [2, 4], k: "ring", at: "robot", r: [0.5, 1.6], c: "G", ramp: [0.3, 0.9] },
-      { t: [4, 7], k: "ring", at: "robot", r: [1.0, 1.0], c: "G", arcs: 3, arcT0: 4 },
-      { t: [7, 10], k: "ring", at: "robot", r: [1.0, 1.0], c: "G", ramp: [0.35, 1] },
-      { t: [7, 12], k: "glow", at: "robot", r: 1.1, c: "G", ramp: [0.15, 0.4] },
-      { t: [10, 12], k: "ring", at: "robot", r: [1.0, 1.0], c: "G", blink: 1.6 }] },
-    // 1. [투사] 푸른색 / 2. [상태] 황색 점등 · [바닥] 푸른색 → 황색 / 3. [투사] 로봇 주변 황색 원 + 사람 주행에 초록 화살표 길
-    // 4. [투사] 황색 → 푸른색, 이동 방향 화살표 / 5. [투사] 청록색, 이동 방향 화살표
-    "1-2": { body: [[0, 2.4, "B"], [2.4, 7.2, "Y"], [7.2, 9.6, "B"], [9.6, 12, "T"]], fx: [
-      { t: [0, 2.4], k: "arrows", fwd: 2.6, c: "B" },
-      { t: [2.4, 4.8], k: "arrows", fwd: 2.4, c: "B", c2: "Y" },
-      { t: [4.8, 7.2], k: "ring", at: "robot", r: [0.95, 0.95], c: "Y" },
-      { t: [4.8, 7.2], k: "arrows", worker: "a", dir: [-1, 0], len: 3.6, c: "G" },
-      { t: [7.2, 9.6], k: "ring", at: "robot", r: [0.95, 0.95], c: "Y", c2: "B" },
-      { t: [7.2, 9.6], k: "arrows", fwd: 2.2, c: "B" },
-      { t: [9.6, 12], k: "arrows", fwd: 2.6, c: "T" }] },
-    // 1. [상태] 작업자 방향으로 황색 조명 / 2. [상태][투사] 황색 바닥 안전모 픽토그램 / 3-1. 확인되면 하늘색으로
-    // 3-2. [상태][투사] 황색 아이콘 유지 / 4. [상태][투사] 황색 → 청록, 이동 방향 표시
-    "2-1": { body: [[0, 12.0, "Y"], [12.0, 15.8, "S"], [15.8, 18, "T"]], fx: [
-      { t: [0, 2.8], k: "fan", toward: "b", c: "Y" },
+    /*
+     * halo = 로봇 둘레 바닥 라이팅 — v7 관제 지도와 같은 '4방위 호'(map-v6.js rrHalo · v7 분기, 11/12 디자이너).
+     *   반지름 1m. 앞 호(반각 44° · 굵고 빛 번짐) + 좌 · 우 · 뒤 호(반각 32° · 30%). 상태색: 평소 초록 · 위험 빨강 · 자동복귀 회색 · 일시정지 노랑.
+     *   mode  walk 앞 호만 2.4초 35↔100% 점멸 / stand 켠 채 / inspect 앞 호가 좌우로 둘러보며(±0.42rad) 1.8초 숨 / ring 대기 고리 12%
+     *         grow 호 넷이 반지름 0.5 → 1m 로 퍼짐 / count 카운트다운에 맞춰 좌 · 우 · 뒤 호가 1초마다 켜짐 / rise 호 넷 밝기 상승 / blink 호 넷 느린 점멸
+     *   aim   앞 호가 향할 곳 — 근로자('a' · 'b') 또는 [x, z]. 없으면 로봇 앞
+     * fx = 그 밖의 바닥 투사(시나리오 표 [투사]): 근로자 화살표 길 · 바닥 그림 · 이상 지점 빛 · 감지 반경 · 우회 · 복귀 경로
+     */
+    "1-1": { body: [[0, 12, "G"]],
+      halo: [[0, 2, "G", "ring"], [2, 4, "G", "grow"], [4, 7, "G", "count"], [7, 10, "G", "rise"], [10, 12, "G", "blink"]], fx: [] },
+    "1-2": { body: [[0, 2.4, "B"], [2.4, 7.2, "Y"], [7.2, 9.6, "B"], [9.6, 12, "T"]],
+      halo: [[0, 2.4, "B", "walk"], [2.4, 4.8, "B", "walk", { c2: "Y" }], [4.8, 7.2, "Y", "stand"], [7.2, 9.6, "Y", "walk", { c2: "B" }], [9.6, 12, "T", "walk"]], fx: [
+      { t: [4.8, 7.2], k: "arrows", worker: "a", dir: [-1, 0], len: 3.6, c: "G" }] },
+    "2-1": { body: [[0, 12.0, "Y"], [12.0, 15.8, "S"], [15.8, 18, "T"]],
+      halo: [[0, 2.8, "Y", "walk", { aim: "b" }], [2.8, 12.0, "Y", "stand", { aim: "b" }], [12.0, 15.8, "S", "stand", { aim: "b" }], [15.8, 18, "T", "walk"]], fx: [
       { t: [2.8, 12.0], k: "icon", icon: "helmet", fwd: 1.3, size: 1.3, c: "Y" },
-      { t: [12.0, 15.8], k: "icon", icon: "check", fwd: 1.3, size: 1.3, c: "S" },
-      { t: [15.8, 18], k: "arrows", fwd: 2.4, c: "T" }] },
-    // 1. [투사] 흰색으로 이상 지점 점등 / 2. [투사][상태] 붉은색으로 이상 지점 주변 감지 반경 / 3. 적색 지속 + 근로자 우회 통로 초록
-    // 4. - / 5. [상태] 적색 해제 후 청록 정상
-    "2-2": { body: [[0, 2.8, "W"], [2.8, 11.2, "R"], [11.2, 14, "T"]], fx: [
+      { t: [12.0, 15.8], k: "icon", icon: "check", fwd: 1.3, size: 1.3, c: "S" }] },
+    "2-2": { body: [[0, 2.8, "W"], [2.8, 11.2, "R"], [11.2, 14, "T"]],
+      halo: [[0, 2.8, "W", "inspect", { aim: [12.6, -4.4] }], [2.8, 11.2, "R", "stand", { aim: [12.6, -4.4] }], [11.2, 14, "T", "walk"]], fx: [
       { t: [0, 2.8], k: "beam", to: [12.6, 1.6, -4.4], c: "W" },
       { t: [0, 2.8], k: "glow", at: [12.6, -4.4], r: 0.8, c: "W", ramp: [0.5, 0.8] },
       { t: [2.8, 11.2], k: "ring", at: [12.6, -4.4], r: [1.9, 1.9], c: "R", blink: 1.0 },
       { t: [2.8, 11.2], k: "glow", at: [12.6, -4.4], r: 2.0, c: "R", ramp: [0.35, 0.35] },
       { t: [2.8, 5.6], k: "icon", icon: "warn", fwd: 1.1, size: 0.9, c: "R" },
-      { t: [5.6, 8.4], k: "arrows", path: [[13.2, 0.4], [12.6, 2.6], [8.4, 2.6]], c: "G" },
-      { t: [11.2, 14], k: "arrows", fwd: 2.4, c: "T" }] },
-    // 조명 1~4. 앞쪽 배터리 표기 황색 / 5. 배터리 잔량만큼. 라이팅 3 · 4. [투사] 이동경로 화살표 / 5. 복귀 중 황색 점멸 종료
-    "3-1": { body: [[0, 12.6, "Y"], [12.6, 21.0, "Y", "blink"], [21.0, 24, "G", "level", 0.4]], fx: [
+      { t: [5.6, 8.4], k: "arrows", path: [[13.2, 0.4], [12.6, 2.6], [8.4, 2.6]], c: "G" }] },
+    // 자율 복귀는 v7 처럼 회색. 도킹해 앉으면(21초) 끈다 — v7 도 도킹 중엔 호를 숨긴다
+    "3-1": { body: [[0, 12.6, "Y"], [12.6, 21.0, "Y", "blink"], [21.0, 24, "G", "level", 0.4]],
+      halo: [[0, 7.3, "Y", "stand"], [7.3, 12.6, "Y", "stand", { aim: [-11.6, -1.4] }], [12.6, 21.0, "N", "walk"]], fx: [
       { t: [7.3, 21.0], k: "arrows", path: [[-8.6, 0.2], [-11.6, -1.4], [-11.6, -3.3], [-11.6, -4.5]], c: "T" }] },
-    // 조명 1~4. 앞쪽 배터리 표기 적색 / 5. off. 라이팅 '-'
-    "3-2": { body: [[0, 22.0, "R"]], fx: [] },   // 5단계 22초 = 디스플레이 '전원 꺼짐'과 같이 끔
+    // 위험(자율복귀 불가)은 빨강 — 걷는 동안 점멸, 멈추면 켠 채. 5단계 22초 '전원 꺼짐'에 같이 끈다
+    "3-2": { body: [[0, 22.0, "R"]],
+      halo: [[0, 1.6, "R", "walk"], [1.6, 6.4, "R", "stand"], [6.4, 9.4, "R", "walk"], [9.4, 22.0, "R", "stand"]], fx: [] },
   };
 
   // --- 바닥 투사 그리기 재료(흰 그림 + 재질 색) ---
@@ -1102,16 +1094,68 @@
   if (spot) addBodyLight(spot.group.children[0]);
 
   const _c1 = new THREE.Color(), _c2 = new THREE.Color();
+  // --- 4방위 호(v7 관제 지도 rrHalo 와 같은 그림: 시안 R=120 이 1m, 캔버스 반폭 1.22R) ---
+  function haloArc(halfDeg, width, glow, full) {
+    const R = 120, half = R * 1.22, k = 2, n = Math.round(half * 2 * k);
+    return canvasTex(n, n, (g) => {
+      g.setTransform(k, 0, 0, k, half * k, half * k);
+      g.strokeStyle = "#fff"; g.lineWidth = width; g.lineCap = "round";
+      if (glow) { g.shadowColor = "#fff"; g.shadowBlur = glow * k; }
+      g.beginPath();
+      if (full) g.arc(0, 0, R, 0, Math.PI * 2); else g.arc(0, 0, R - 10, -halfDeg * Math.PI / 180, halfDeg * Math.PI / 180);
+      g.stroke();
+    }, { repeat: [1, 1] });
+  }
+  const HALO_SIZE = 2 * 1.22;   // 판 한 변(m) — 반지름 1m 호를 담는다
+  const haloTex = { front: haloArc(44, 14, 12), side: haloArc(32, 12, 0), ring: haloArc(0, 12, 0, true) };
+  for (const t of Object.values(haloTex)) t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
+  const HALO = {};
+  for (const [k, tex, rot] of [["front", "front", 0], ["left", "side", -Math.PI / 2], ["right", "side", Math.PI / 2], ["back", "side", Math.PI], ["ring", "ring", 0]]) {
+    const m = flat(new THREE.PlaneGeometry(1, 1), fxMat(haloTex[tex]));
+    m.userData.off = rot; m.renderOrder = 4; HALO[k] = m;
+  }
+  function drawHalo(t, rp) {
+    for (const m of Object.values(HALO)) m.visible = false;
+    const L = LIGHT[cur.id]; if (!L || !L.halo) return;
+    let h = null; for (const x of L.halo) if (t >= x[0] && t < x[1]) h = x; if (!h) return;
+    const [t0, t1, c, mode, o = {}] = h, u = (t - t0) / (t1 - t0), e = t - t0;
+    _c1.setHex(LC[c]); if (o.c2) _c1.lerpHSL(_c2.setHex(LC[o.c2]), smooth(Math.min(1, e / 0.6)));   // 단계 시작 0.6초 안에 바뀐다(중간색이 탁해지지 않게 색상환으로)
+    // 앞 방향 — aim(근로자 · 점)이 있으면 그쪽, 없으면 로봇 앞
+    let ax = rp.fx, az = rp.fz;
+    if (o.aim) { let tx, tz; if (typeof o.aim === "string") { const w = SEG[o.aim]; if (w) [tx, tz] = posAt(w.segs, t); } else [tx, tz] = o.aim;
+      if (tx !== undefined) { const dx = tx - rp.x, dz = tz - rp.z, dd = Math.hypot(dx, dz); if (dd > 0.01) { ax = dx / dd; az = dz / dd; } } }
+    let yaw = Math.atan2(-az, ax);   // 판 +x(캔버스 앞 호)를 그 방향으로
+    const wave = (per, lo) => lo + (1 - lo) * (0.5 - 0.5 * Math.cos(t / per * Math.PI * 2));
+    let sc = HALO_SIZE, op = { front: 1, left: 0.3, right: 0.3, back: 0.3, ring: 0 };
+    if (mode === "walk") op.front = wave(2.4, 0.35);
+    else if (mode === "inspect") { yaw += Math.sin(t * 1000 / 650) * 0.42; op.front = wave(1.8, 0.45); }
+    else if (mode === "ring") op = { front: 0, left: 0, right: 0, back: 0, ring: 0.18 };
+    else if (mode === "grow") { sc *= 0.5 + 0.5 * smooth(u); op = { front: 0.6, left: 0.6, right: 0.6, back: 0.6, ring: 0 }; }
+    else if (mode === "count") { op = { front: 0.3, left: e >= 0 ? 1 : 0.15, right: e >= 1 ? 1 : 0.15, back: e >= 2 ? 1 : 0.15, ring: 0 }; }
+    else if (mode === "rise") { const k = 0.35 + 0.65 * u; op = { front: k, left: k, right: k, back: k, ring: 0 }; }
+    else if (mode === "blink") { const k = wave(1.6, 0.3); op = { front: k, left: k, right: k, back: k, ring: 0 }; }
+    // 앞뒤 구간이 이어지면 경계에서 꺼졌다 켜지지 않는다 — 처음 켤 때 · 마지막에 끌 때만 0.25초 들고 난다
+    const prevCont = L.halo.some(x => Math.abs(x[1] - t0) < 1e-6), nextCont = L.halo.some(x => Math.abs(x[0] - t1) < 1e-6);
+    const fade = Math.min(prevCont ? 1 : e / 0.25, nextCont ? 1 : (t1 - t) / 0.25, 1);
+    for (const [k, m] of Object.entries(HALO)) {
+      if (!op[k]) continue;
+      m.visible = true; m.position.set(rp.x, 0.016, rp.z); m.scale.set(sc, sc, 1);
+      m.rotation.set(-Math.PI / 2, yaw + m.userData.off, 0, "YXZ");
+      m.material.color.copy(_c1); m.material.opacity = op[k] * fade;
+    }
+  }
+
   function robotPose(t) {
     const segs = SEG.robot, s = segs[segAt(segs, t)], [x, z] = posAt(segs, t);
     const yaw = lerpAng(s.yaw0, s.yaw1, smooth(Math.min(1, (t - s.t0) / (s.turn || 0.8))));
     return { x, z, yaw, fx: -Math.sin(yaw), fz: -Math.cos(yaw) };
   }
-  function lightColor(f, u) { _c1.setHex(LC[f.c]); if (f.c2) _c1.lerp(_c2.setHex(LC[f.c2]), smooth(u)); return _c1; }
+  function lightColor(f, u, e) { _c1.setHex(LC[f.c]); if (f.c2) _c1.lerpHSL(_c2.setHex(LC[f.c2]), smooth(Math.min(1, e / 0.6))); return _c1; }
   function applyLights(t) {
     for (const k in POOL) POOL[k].forEach(m => { m.visible = false; });
     beam.visible = false;
     const L = LIGHT[cur.id] || { body: [], fx: [] }, rp = robotPose(t);
+    drawHalo(t, rp);
     // 몸 불빛
     let b = null; for (const x of L.body) if (t >= x[0] && t < x[1]) b = x;
     bodyLeds.forEach((m, i) => {
@@ -1130,7 +1174,7 @@
       let a = Math.min(1, (t - f.t[0]) / 0.3, (f.t[1] - t) / 0.3);   // 0.3초 들고 나기
       if (f.ramp) a *= f.ramp[0] + (f.ramp[1] - f.ramp[0]) * u;
       if (f.blink) a *= 0.35 + 0.65 * (0.5 + 0.5 * Math.cos((t - f.t[0]) * Math.PI * 2 / f.blink));
-      const col = lightColor(f, u);
+      const col = lightColor(f, u, t - f.t[0]);
       const at = f.at === "robot" || !f.at ? [rp.x, rp.z] : f.at;
       // 바닥 판: 회전은 바닥 위에서 도는 각(yaw) — 판의 +x 가 그 방향의 오른쪽, 판의 -y(화면 아래)가 앞
       const put = (m, x, z, sx, sz, yaw = 0, opa = a) => { if (!m) return null; m.visible = true; m.position.set(x, 0.014, z); m.scale.set(sx, sz, 1); m.rotation.set(-Math.PI / 2, yaw, 0, "YXZ"); m.material.color.copy(col); m.material.opacity = opa; return m; };
