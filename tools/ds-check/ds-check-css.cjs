@@ -48,7 +48,7 @@ for (const f of files) {
       }
       if (/^(height|min-height)$/.test(prop) && (CHIP_SEL.test(sel) || BTN_SEL.test(sel))) {
         const m = val.match(/^(\d+(?:\.\d+)?)px$/); if (!m) continue; const h = +m[1];
-        const ok = CHIP_SEL.test(sel) ? H_CHIP.has(h) : H_BTN.has(h);
+        const ok = H_CHIP.has(h) || H_BTN.has(h); // 코드 이름만으로 칩과 버튼을 가르기 어려워 두 단계 중 하나면 통과
         if (!ok) add('높이', `칩과 버튼 높이 단계 밖 (${h}px)`);
       }
     }

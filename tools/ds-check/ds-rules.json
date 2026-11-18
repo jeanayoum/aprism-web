@@ -40,7 +40,7 @@
       "Large": 12,
       "faceless": 4
     },
-    "paddingY": 4,
+    "paddingY": "0 (높이 고정, 세로 가운데)",
     "innerGap": 4,
     "between": 4,
     "exceptions": {
@@ -49,8 +49,8 @@
   },
   "button": {
     "heights": {
-      "XSmall": 22,
-      "Small": 26,
+      "XSmall": 20,
+      "Small": 24,
       "Medium": 32,
       "Large": 40
     },
@@ -59,10 +59,9 @@
       "Small": 8,
       "Medium": 12,
       "Large": 16,
-      "faceless": 4,
-      "panelEdge": 0
+      "faceless": 4
     },
-    "paddingY": 4,
+    "paddingY": "0 (높이 고정, 세로 가운데)",
     "innerGap": 4,
     "between": 8,
     "iconOnly": {
@@ -72,12 +71,8 @@
     },
     "exceptions": {
       "알림 센터 >": "아이콘 간격 --space-2"
-    }
+    },
+    "bleed": "면 없는 글자 버튼이 끝선이나 정보 줄 안에 붙을 때: 패딩은 그대로, 패딩만큼 바깥으로 뺌(음수 마진)"
   },
-  "lineHeight": {
-    "22": 14,
-    "26": 18,
-    "32": 24,
-    "40": 32
-  }
+  "lineHeight": "칩과 버튼은 따로 정하지 않음. 글자 스타일(Caption 12/18, Label 1 14/20, Title 2 16/24)의 줄 높이를 씀"
 }
