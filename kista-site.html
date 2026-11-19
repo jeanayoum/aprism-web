@@ -2012,15 +2012,14 @@
         .badge[data-kc="danger"] { color: var(--status-critical-text) !important; }
         .badge[data-kc] .badge-dot { background: currentColor !important; }
         #kista-req.is-ok .ma-req-head { border-color: var(--status-safe-border); background-color: var(--status-safe-bg); }
-        #kista-req.is-ok .ma-req-to, #kista-req.is-ok .ma-req-acts { color: var(--status-safe-text); }
-        body.kista-quiet .rr-banner { display: none !important; }`;
+        #kista-req.is-ok .ma-req-to, #kista-req.is-ok .ma-req-acts { color: var(--status-safe-text); }`;
       d.head.appendChild(st);
     }
     const setK = (el, txt) => { if (!el) return; if (txt == null) { el.removeAttribute("data-k"); return; }
       if (!el.style.getPropertyValue("--k-fs")) { const prev = el.getAttribute("data-k"); el.removeAttribute("data-k"); el.style.setProperty("--k-fs", getComputedStyle(el).fontSize); if (prev != null) el.setAttribute("data-k", prev); }
       el.setAttribute("data-k", txt); };
-    d.body.classList.toggle("kista-quiet", !!o.quiet);
-    if (o.quiet) { const rail = d.querySelector("[data-timeline]"); if (rail) rail.classList.remove("rr-estop", "rr-frozen"); }
+    // quiet — 띠를 숨기면(display none) 진행 제목이 :has(.rr-banner) 로 계속 가려져, 띠를 아예 뺀다(모드가 바뀔 때만 다시 생긴다)
+    if (o.quiet) { d.querySelectorAll(".rr-banner").forEach(b => b.remove()); const rail = d.querySelector("[data-timeline]"); if (rail) rail.classList.remove("rr-estop", "rr-frozen"); }
     const card0 = d.querySelector('.robot-strip .robot-card[aria-pressed="true"]') || d.querySelector(".robot-strip .robot-card");
     // 배지
     const badge = card0 && card0.querySelector(".robot-lists .badge");
