@@ -50,6 +50,8 @@ body.ver-7 {
   --ds-chip-font-size: var(--font-size-12);
   --ds-chip-line-height: var(--font-line-height-18);
   --ds-chip-font-weight: var(--font-weight-medium);
+  --ds-chip-shadow: 0 1px 2px var(--color-alpha-gray-950-8);                                                     /* 꺼진 칩만 은은하게 떠 있음, 버튼은 그림자 없음 (11/19) */
+  --ds-chip-shadow-dark: 0 1px 2px var(--color-alpha-gray-950-55), inset 0 1px 0 var(--color-alpha-white-8);     /* 다크: 검정 그림자가 거의 안 보여 윗변 흰 빛을 더함 */
   /* --ds-chip-bg: var(--comp-button-secondary-bg-default); */
   /* --ds-chip-border: var(--comp-button-secondary-border-default); */
   /* --ds-chip-fg: var(--comp-button-secondary-text-default); */
@@ -189,7 +191,7 @@ body.ver-7 .ds-floor {
 :where(body.ver-7) .ds-chip { display: inline-flex; align-items: center; flex: none; box-sizing: border-box; margin: 0; font-family: inherit; white-space: nowrap; cursor: pointer; }
 body.ver-7 .ds-chip {
   gap: var(--ds-chip-gap) !important; height: var(--ds-chip-h) !important; min-height: var(--ds-chip-h) !important; padding: 0 var(--ds-chip-pad-x) !important;
-  border: var(--ds-chip-border-width) solid var(--ds-chip-border, var(--comp-button-secondary-border-default)) !important; border-radius: var(--ds-chip-radius) !important; box-shadow: none !important;
+  border: var(--ds-chip-border-width) solid var(--ds-chip-border, var(--comp-button-secondary-border-default)) !important; border-radius: var(--ds-chip-radius) !important; box-shadow: var(--ds-chip-shadow) !important;
   background-color: var(--ds-chip-bg, var(--comp-button-secondary-bg-default)) !important; color: var(--ds-chip-fg, var(--comp-button-secondary-text-default)) !important;
   font-size: var(--ds-chip-font-size) !important; line-height: var(--ds-chip-line-height) !important; font-weight: var(--ds-chip-font-weight) !important;
 }
@@ -202,6 +204,9 @@ body.ver-7 .ds-chip:is(:disabled, .is-disabled) { border-color: var(--comp-butto
 /* 체크형 거르기 (알림센터): 면과 테 없음, 체크 상자와 글자 사이 */
 body.ver-7 .ds-chip.is-check { border-color: transparent !important; background-color: transparent !important; padding: 0 var(--ds-chip-check-pad-x) !important; gap: var(--ds-chip-check-gap) !important; }
 body.ver-7 .ds-chip.is-check:is([aria-pressed="true"], [aria-checked="true"], .is-on) { border-color: transparent !important; background-color: transparent !important; color: var(--text-primary) !important; }
+/* 그림자: 꺼진 칩만. 켜짐, 누름, 못 누름, 체크형은 평평 */
+:root[data-theme="dark"] body.ver-7 .ds-chip { box-shadow: var(--ds-chip-shadow-dark) !important; }
+:root body.ver-7 .ds-chip:is([aria-pressed="true"], .is-on, :active, :disabled, .is-disabled, .is-check) { box-shadow: none !important; }
 /* 칩 묶음 */
 :where(body.ver-7) .ds-chips { display: flex; flex-wrap: wrap; align-items: center; }
 body.ver-7 .ds-chips { gap: var(--ds-chip-between) !important; column-gap: var(--ds-chip-between) !important; }
