@@ -155,6 +155,11 @@ body.ver-7 .ds-badge.is-plain.is-safe { color: var(--status-safe-text); }
 body.ver-7 .ds-badge.is-icon { width: var(--ds-badge-h); padding: 0; justify-content: center; }
 /* 번호 (로봇 번호): 최소 너비 = 높이, 글자 가운데 */
 body.ver-7 .ds-badge.is-num { min-width: var(--ds-badge-h); justify-content: center; font-variant-numeric: tabular-nums; }
+/* 지도 위 배지 (전체 미션 지도 로봇 번호): 크기, 여백, 모서리, 글자는 배지 규칙, 색은 지금 그대로(11/19 정함)
+ * 지도 위에 놓여 반투명 기본 면은 지도와 섞임(면/지도 대비 1.03~1.09). 불투명 면 --bg-panel 유지, 수행중은 진한 글자, 표시된 로봇은 반전 */
+body.ver-7 .ds-badge.is-onmap { background-color: var(--bg-panel); color: var(--text-secondary); }
+body.ver-7 .ds-badge.is-onmap.is-strong { color: var(--text-primary); }
+body.ver-7 .ds-badge.is-onmap.is-marked { background-color: var(--text-primary); color: var(--bg-page); }
 /* 표 칸 안 배지 + 글자 */
 body.ver-7 .ds-badge-row { display: inline-flex; align-items: center; gap: var(--ds-badge-row-gap); white-space: nowrap; font-size: var(--ds-badge-font-size); line-height: var(--ds-badge-line-height); }
 

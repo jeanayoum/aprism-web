@@ -9,15 +9,19 @@
 :root body.ver-7 .ac-count-badge:not(.z1):not(.z2):not(.z3),
 :root body.ver-7 .ac-chip-done:not(.z1):not(.z2):not(.z3),
 :root body.ver-7 .ma-check-tag:not(.z1):not(.z2):not(.z3),
-:root body.ver-7 .sf .cv:not(.z1):not(.z2):not(.z3),
-:root body.ver-7 .bld-bot-name:not(.z1):not(.z2):not(.z3) {
+:root body.ver-7 .sf .cv:not(.z1):not(.z2):not(.z3) {
   display: inline-flex !important; align-items: center !important; gap: var(--ds-badge-gap) !important; box-sizing: border-box !important;
   height: var(--ds-badge-h) !important; min-height: var(--ds-badge-h) !important; padding: 0 var(--ds-badge-pad-x) !important;
   border: 0 !important; box-shadow: none !important; border-radius: var(--ds-badge-radius) !important;
   background-color: var(--ds-badge-neutral-bg, var(--bg-map-chip)) !important; color: var(--text-secondary) !important;
   font-size: var(--ds-badge-font-size) !important; line-height: var(--ds-badge-line-height) !important; font-weight: var(--ds-badge-font-weight) !important;
 }
-:root body.ver-7 .bld-bot-name:not(.z1):not(.z2):not(.z3) { width: auto !important; min-width: var(--ds-badge-h) !important; justify-content: center !important; }
+/* 로봇 번호(지도 위 배지): 크기, 여백, 모서리, 글자만 배지 규칙. 색은 지금 그대로(--bg-panel 면, 상태 글자색) */
+:root body.ver-7 .bld-bot-name:not(.z1):not(.z2):not(.z3) {
+  display: inline-flex !important; align-items: center !important; justify-content: center !important; box-sizing: border-box !important;
+  width: auto !important; min-width: var(--ds-badge-h) !important; height: var(--ds-badge-h) !important; padding: 0 var(--ds-badge-pad-x) !important; border-radius: var(--ds-badge-radius) !important;
+  font-size: var(--ds-badge-font-size) !important; line-height: var(--ds-badge-line-height) !important; font-weight: var(--ds-badge-font-weight) !important;
+}
 :root body.ver-7 .verdict-chip.is-crit:not(.z1):not(.z2):not(.z3),
 :root body.ver-7 .sf .cv.crit:not(.z1):not(.z2):not(.z3) { background-color: var(--status-critical-bg) !important; color: var(--status-critical-text) !important; }
 :root body.ver-7 .verdict-chip.is-warn:not(.z1):not(.z2):not(.z3),
