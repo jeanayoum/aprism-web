@@ -1878,7 +1878,7 @@
     } catch (err) { console.warn("관제 로봇 자리", err); }
   }
   /* 지도를 로봇에 맞춰 더 당긴다(11/19) — [로봇 위치로](확대 2.2 이상, 로봇을 가운데) 뒤 [확대]를 n 번. 1-1 은 도크에서 지도가 멀어 비어 보였다 */
-  const CTRL_FOCUS = { "1-1": 2 };
+  const CTRL_FOCUS = { "1-1": 1 };
   function ctlFocus(d) {
     const n = CTRL_FOCUS[cur.id]; if (!n) return;
     clearTimeout(ctlFocus.tm);
@@ -2026,6 +2026,7 @@
         #kista-req.is-ok .ma-req-head { border-color: var(--status-safe-border); background-color: var(--status-safe-bg); }
         #kista-req.is-ok .ma-req-to, #kista-req.is-ok .ma-req-acts { color: var(--status-safe-text); }
         .rr-banner.is-quiet .rr-dot { display: none !important; }
+        body.kista-quiet .rr-st { display: none !important; }
         /* 로봇 카드 2D 로봇(robot-2d.js) — kseat 처음부터 앉음, krise 앉은 데서 일어섬(앉기 애니메이션을 거꾸로) */
         [data-r2="kseat"] .r2-all { animation: r2-sit-all 1ms both; } [data-r2="kseat"] .r2-hip { animation: r2-sit-hip 1ms both; }
         [data-r2="kseat"] .r2-knee { animation: r2-sit-knee 1ms both; } [data-r2="kseat"] .r2-foot { animation: r2-sit-foot 1ms both; }
@@ -2039,6 +2040,7 @@
       if (!el.style.getPropertyValue("--k-fs")) { const prev = el.getAttribute("data-k"); el.removeAttribute("data-k"); el.style.setProperty("--k-fs", getComputedStyle(el).fontSize); if (prev != null) el.setAttribute("data-k", prev); }
       el.setAttribute("data-k", txt); };
     // quiet — 띠는 지도가 계속 다시 만들어 뺄 수 없다. 띠 글을 진행 제목으로 바꾸고(ban) 기호 점만 숨겨 평소(run) 제목처럼 보인다
+    d.body.classList.toggle("kista-quiet", !!o.quiet);   // 지금 지점 카드의 상태 줄(긴급정지 · 일시정지 [재개])도 숨긴다
     if (o.quiet) { const rail = d.querySelector("[data-timeline]"); if (rail) rail.classList.remove("rr-estop", "rr-frozen"); }
     const card0 = d.querySelector('.robot-strip .robot-card[aria-pressed="true"]') || d.querySelector(".robot-strip .robot-card");
     // 로봇 카드 2D 로봇 자세(o.r2) — 없으면 우리가 바꿔 둔 것만 원래 규칙(수행중 배지 = 걷기, 나머지 앉기)으로 돌린다
