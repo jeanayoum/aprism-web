@@ -89,17 +89,15 @@
     .combo[hidden] { display: none; }
     .combo-l, .combo-r { position: relative; width: 870px; height: 795px; overflow: hidden; background: #F0F3F6; }
     .combo-l canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; }
-    .combo-r .hw { position: absolute; left: 40px; top: 210px; width: 791px; height: 446px; }
-    .combo-r .stand { position: absolute; left: 333px; top: 654px; width: 215px; height: 141px; }
-    .combo-r .ctl { position: absolute; left: 53px; top: 216px; width: 770px; height: 433px; overflow: hidden; border-radius: 3px; background: #0A0F18; }
-    .combo-r .ctl iframe { width: 1920px; height: 1080px; border: 0; transform: scale(calc(770 / 1920)); transform-origin: 0 0; }
+    /* 관제 창(11/19) — 모니터 목업 대신 창 하나에 관제 화면 일부를 키워 보인다(카메라 CAM). 창 822×693, 위아래는 clip-path 로 줄인다 */
+    .combo-r .ctl { position: absolute; left: 24px; top: 24px; width: 822px; height: 693px; overflow: hidden; background: #0A0F18; clip-path: inset(0 round 8px); }
+    .combo-r .ctl iframe { width: 1920px; height: 1080px; border: 0; transform-origin: 0 0; }
     .combo-bar { position: fixed; left: 0; top: 862px; z-index: 51; display: flex; gap: 8px; align-items: center; padding: 8px 12px; background: var(--bg-raised); border: 1px solid var(--border-default); border-radius: 8px; font-size: 13px; }
     .combo-bar[hidden] { display: none; }
     /* 고화질 녹화 1단계 — 관제 화면만 화면 왼쪽 위에 크게(1920×1080 을 창에 맞춰) 띄워 찍는다. --hq = 창에 맞춘 배율 */
     body.combo-hq .combo { z-index: 300; }
     body.combo-hq .combo-r { overflow: visible; }
-    body.combo-hq .combo-r .ctl { position: fixed; left: 0; top: 0; z-index: 10; width: calc(1920px * var(--hq, 1)); height: calc(1080px * var(--hq, 1)); border-radius: 0; }
-    body.combo-hq .combo-r .ctl iframe { transform: scale(var(--hq, 1)); }
+    body.combo-hq .combo-r .ctl { position: fixed; left: 0; top: 0; z-index: 10; width: calc(822px * var(--hq, 1)); height: calc(693px * var(--hq, 1)); clip-path: none !important; }
     body.combo-hq .combo-bar { visibility: hidden; }
     body.clean .site-header, body.clean .panel, body.clean .stepbar, body.clean .stepbar-row { display: none; }
     body.clean .stage-col { width: auto; }
@@ -196,8 +194,6 @@
     <div class="combo-steps" id="comboSteps" aria-label="장면 단계"></div>
     <div class="combo-l" id="comboL"></div>
     <div class="combo-r">
-      <img class="stand" src="./assets/img/kista/monitor-stand.png" alt="">
-      <img class="hw" src="./assets/img/kista/monitor-hw.png" alt="">
       <div class="ctl"><iframe id="ctlFrame" title="관제 화면" loading="eager"></iframe></div>
     </div>
   </div>
@@ -1426,7 +1422,7 @@
     stepRobot(curT, 0); poseAll(curT); showT();
   }
   function showT() {
-    if (typeof comboOn !== "undefined" && comboOn) comboStepsAt(curT);
+    if (typeof comboOn !== "undefined" && comboOn) { comboStepsAt(curT); camApply(curT); }
     const el = document.getElementById("tRead"); if (el) el.textContent = `${curT.toFixed(1)} / ${SEG.dur.toFixed(1)}초`;
     const n = SEG.st.filter(x => curT >= x - 1e-6).length - 1;
     [...document.querySelectorAll("#steps li")].forEach((li, i) => li.classList.toggle("is-now", i === n));
@@ -2055,6 +2051,40 @@
     return true;
   }
   /* 아래 단계 바 — 슬라이드 Steps(899:2165): 점 중심 104 + 251k · 점 줄 y 56, 글자 20/28 아래끝 = 점 위 12. 지금 단계 하나만 진하게 */
+  /* 관제 카메라(11/19) — 발표 슬라이드에서 관제 화면이 작다는 의견. 반반 칸은 두고, 장면마다 필요한 부분만 키운다.
+   *   CAMP 자리 = [가운데 x, 가운데 y, 보이는 폭] (관제 1920×1080 좌표). 창 822×693 에 폭을 맞추고, 높이가 1080 을 넘으면 창 위아래를 줄인다(full).
+   *   full 전체 / map 알림 팝오버 · Delta · 지도 로봇(x 400~1560) / side 지도 로봇 · 오른쪽 로봇 상태 · 웨이포인트(x 740~1900) / wide 1-2 용(로봇이 왼쪽)
+   *   CAM 장면마다 [시각, 자리] — 시각부터 CAM_DUR 초 동안 부드럽게 옮긴다. 미리보기 · 고화질 녹화 둘 다 이 표를 쓴다 */
+  const CAM_WIN = { x: 24, y: 24, w: 822, h: 693, r: 8 };
+  const CAMP = { full: [960, 540, 1920], map: [980, 587, 1160], side: [1320, 587, 1160], wide: [1200, 560, 1400] };
+  const CAM = {
+    "1-1": [[0, "full"], [1.2, "side"]],
+    "1-2": [[0, "full"], [1.2, "wide"]],
+    "2-1": [[0, "full"], [1.2, "map"], [15.9, "side"]],
+    "2-2": [[0, "full"], [1.2, "side"], [2.8, "map"]],
+    "3-1": [[0, "full"], [1.2, "map"], [12.6, "side"]],
+    "3-2": [[0, "full"], [1.2, "map"]],
+  };
+  const CAM_DUR = 1.0;
+  let camHQ = 1;   // 고화질 1단계에서 창을 키운 배율(--hq)
+  function camAt(id, t) {
+    const ks = CAM[id] || [[0, "full"]];
+    let i = 0; while (i + 1 < ks.length && ks[i + 1][0] <= t) i++;
+    const b = CAMP[ks[i][1]], a = i ? CAMP[ks[i - 1][1]] : b;
+    let p = Math.min(1, Math.max(0, (t - ks[i][0]) / CAM_DUR)); p = p * p * (3 - 2 * p);
+    const w = Math.exp(Math.log(a[2]) + (Math.log(b[2]) - Math.log(a[2])) * p);
+    const cx = a[0] + (b[0] - a[0]) * p, cy = a[1] + (b[1] - a[1]) * p;
+    const k = CAM_WIN.w / w, visH = Math.min(1080, CAM_WIN.h / k), bh = visH * k;
+    const x0 = Math.min(1920 - w, Math.max(0, cx - w / 2));
+    const yc = Math.min(1080 - visH / 2, Math.max(visH / 2, cy));
+    return { k, x0, y0: yc - CAM_WIN.h / 2 / k, bh, ins: (CAM_WIN.h - bh) / 2 };
+  }
+  function camApply(t) {
+    const box = document.querySelector(".combo-r .ctl"), fr = box && box.firstElementChild; if (!fr) return;
+    const c = camAt(cur.id, t);
+    fr.style.transform = `scale(${(c.k * camHQ).toFixed(5)}) translate(${(-c.x0).toFixed(2)}px, ${(-c.y0).toFixed(2)}px)`;
+    box.style.clipPath = `inset(${c.ins.toFixed(2)}px 0 round ${CAM_WIN.r}px)`;
+  }
   const STEP_X = k => 104 + 251 * k;
   function stepsNow(t) { return Math.max(0, SEG.st.filter(x => t >= x - 1e-6).length - 1); }
   function comboStepsFill() {
@@ -2158,12 +2188,12 @@
 
   /* ================= 고화질 합친 영상(3520×1700) =================
    * 빠른 녹화는 화면에 보이는 픽셀 그대로라(1760×795, 관제 화면은 1920×1080 을 0.4배로 줄여 그려 글자가 뭉갠다) 낮다. 두 번에 나눠 굽는다.
-   *   1) 관제 화면만 창에 맞춰 크게 띄우고(1920×1080 × --hq) 이 탭을 공유받아 실제 시간으로 찍는다. 프레임마다 그때의 장면 시각을 붙여
-   *      1540×866(모니터 화면 칸 770×433 의 두 배)으로 줄여 H.264 로 메모리에 담는다(MediaStreamTrackProcessor → VideoEncoder).
+   *   1) 관제 창(822×693, 카메라 CAM 이 키운 그대로)만 창에 맞춰 크게 띄우고(× --hq) 이 탭을 공유받아 실제 시간으로 찍는다. 프레임마다 그때의 장면 시각을 붙여
+   *      1644×1386(창의 두 배)으로 H.264 로 메모리에 담는다(MediaStreamTrackProcessor → VideoEncoder).
    *   2) 작업현장 3D 를 영상 녹화처럼 한 프레임씩 두 배(1740×1590)로 그리고, 같은 시각의 관제 프레임을 차례로 풀어(VideoDecoder — 되감기 없음)
-   *      모니터 목업 칸에 붙여 3520×1700 MP4(H.264 + AAC 음성)로 굽는다(아래 단계 바 포함). 두 칸 · 사이 20 · 모니터 자리는 합친 영상 모드(1760×795)의 두 배 그대로.
+   *      관제 창 자리에 붙여 3520×1700 MP4(H.264 + AAC 음성)로 굽는다(아래 단계 바 포함). 두 칸 · 사이 20 · 관제 창 자리는 합친 영상 모드(1760×795)의 두 배 그대로.
    */
-  const HQ = { W: 3520, H: 1700, fps: 30, CW: 1540, CH: 866 };   // 850 × 2 — 아래 단계 바까지
+  const HQ = { W: 3520, H: 1700, fps: 30, CW: 1644, CH: 1386 };   // CW · CH = 관제 창 822×693 의 두 배   // 850 × 2 — 아래 단계 바까지
   let hqBusy = false;
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   async function hqCodec(w, h, fps, bitrate) {
@@ -2173,7 +2203,7 @@
     }
     return null;
   }
-  function hqFit() { document.body.style.setProperty("--hq", Math.min(innerWidth / 1920, innerHeight / 1080).toFixed(4)); }
+  function hqFit() { camHQ = +Math.min(innerWidth / CAM_WIN.w, innerHeight / CAM_WIN.h).toFixed(4); document.body.style.setProperty("--hq", camHQ); }
   async function comboRecordHQ() {
     if (hqBusy || comboRec || recording) return;
     const note = document.getElementById("comboNote");
@@ -2195,9 +2225,9 @@
       const ctlBox = document.querySelector(".combo-r .ctl");
       await sleep(400);
       if (window.CropTarget && track.cropTo) { try { await track.cropTo(await CropTarget.fromElement(ctlBox)); } catch (e) { console.warn("영역 자르기 실패", e); } }
-      const devW = Math.round(1920 * parseFloat(getComputedStyle(document.body).getPropertyValue("--hq")) * devicePixelRatio);
+      const devW = Math.round(CAM_WIN.w * camHQ * devicePixelRatio);
       const [tA, tB, tag] = comboRangeT();
-      stopPlay(); seek(tA); ctlApply(tA, true);
+      stopPlay(); seek(tA); ctlApply(tA, true); camApply(tA);
       await sleep(1200);   // 관제 화면이 상태 · 팝오버를 다 그릴 틈
       const cv = new OffscreenCanvas(HQ.CW, HQ.CH), g = cv.getContext("2d");
       const chunks = []; let dcfg = null, terr = null, tsPrev = -1, n = 0, started = false, stop = false;
@@ -2223,7 +2253,7 @@
       stream.getTracks().forEach(t => t.stop());
       await pump.catch(() => {});
       await tenc.flush(); tenc.close();
-      document.body.classList.remove("combo-hq");
+      document.body.classList.remove("combo-hq"); camHQ = 1; camApply(curT);
       if (terr || !dcfg || !chunks.length) { note.textContent = "관제 화면 찍기 실패" + (terr ? ": " + terr.message : ""); return; }
       // 2단계 — 3D 두 배 + 관제 프레임을 모니터 칸에
       note.textContent = `2/2 준비 중 — 관제 프레임 ${chunks.length}장`;
@@ -2231,7 +2261,7 @@
     } catch (e) {
       console.error(e); note.textContent = "고화질 녹화 실패: " + e.message;
     } finally {
-      hqBusy = false; document.body.classList.remove("combo-hq");
+      hqBusy = false; document.body.classList.remove("combo-hq"); camHQ = 1; if (comboOn) camApply(curT);
       if (recording) { recording = false; renderer.setSize(PW, PH, false); dirty = true; }
     }
   }
@@ -2241,7 +2271,6 @@
     const out = document.createElement("canvas"); out.width = HQ.W; out.height = HQ.H;
     const o = out.getContext("2d"); o.imageSmoothingQuality = "high";
     try { await Promise.all([document.fonts.load('700 20px Pretendard'), document.fonts.load('400 20px Pretendard')]); } catch (e) {}
-    const hw = document.querySelector(".combo-r .hw"), stand = document.querySelector(".combo-r .stand");
     // 관제 프레임을 차례로 푼다 — 장면 시각 t 이하에서 가장 늦은 프레임
     const q = []; let fed = 0, flushed = false, derr = null;
     const dec = new VideoDecoder({ output: f => q.push(f), error: e => { derr = e; } });
@@ -2297,12 +2326,12 @@
       o.fillStyle = "#fff"; o.fillRect(0, 0, HQ.W, HQ.H);
       o.drawImage(renderer.domElement, 0, 0, 870 * X2, 795 * X2);
       o.fillStyle = "#F0F3F6"; o.fillRect(RX, 0, 870 * X2, 795 * X2);
-      o.drawImage(stand, RX + 333 * X2, 654 * X2, 215 * X2, 141 * X2);
-      o.drawImage(hw, RX + 40 * X2, 210 * X2, 791 * X2, 446 * X2);
-      const cf = await ctlAt(tt);
-      o.save(); o.beginPath(); o.roundRect(RX + 53 * X2, 216 * X2, 770 * X2, 433 * X2, 3 * X2); o.clip();
-      o.fillStyle = "#0A0F18"; o.fillRect(RX + 53 * X2, 216 * X2, 770 * X2, 433 * X2);
-      if (cf) o.drawImage(cf, RX + 53 * X2, 216 * X2, 770 * X2, 433 * X2);
+      const cf = await ctlAt(tt), cm = camAt(cur.id, tt);
+      const wx = RX + CAM_WIN.x * X2, wy = (CAM_WIN.y + cm.ins) * X2, ww = CAM_WIN.w * X2, wh = cm.bh * X2;
+      o.save(); o.beginPath(); o.roundRect(wx, wy, ww, wh, CAM_WIN.r * X2); o.clip();
+      o.fillStyle = "#0A0F18"; o.fillRect(wx, wy, ww, wh);
+      // 1단계는 창 전체(822×693)를 찍었다 — 그중 위아래를 줄인 띠만
+      if (cf) { const fh = cf.displayHeight; o.drawImage(cf, 0, cm.ins / CAM_WIN.h * fh, cf.displayWidth, cm.bh / CAM_WIN.h * fh, wx, wy, ww, wh); }
       o.restore();
       drawSteps(o, X2, tt);
       toVideoRange(o, HQ.W, HQ.H);
@@ -2317,7 +2346,7 @@
     note.textContent = "파일 만드는 중…";
     muxer.finalize();
     download(new Blob([muxer.target.buffer], { type: "video/mp4" }), `KISTA_합친영상_${cur.id}${tag}_고화질_${stamp()}.mp4`);
-    note.textContent = `저장했어요 — 3520×1700${audioBuf ? " · 음성 포함" : ""}` + (devW < HQ.CW ? ` · 관제 화면은 창이 작아 ${devW}px 로 찍혀 조금 흐릴 수 있어요(창을 키우거나 F11)` : "");
+    note.textContent = `저장했어요 — 3520×1700${audioBuf ? " · 음성 포함" : ""}` + (devW < CAM_WIN.w * 1.2 ? ` · 관제 화면은 창이 작아 ${devW}px 로 찍혀 조금 흐릴 수 있어요(창을 키우거나 F11)` : "");
   }
   document.getElementById("comboHQ").onclick = comboRecordHQ;
   function setPlayBtn() { const b = document.getElementById("btnPlay"); if (b) b.textContent = playing ? "❚❚ 멈춤" : "▶ 재생"; }
