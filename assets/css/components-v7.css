@@ -199,8 +199,8 @@ body.ver-7 .ds-badge.ds-i-power { --ds-i: var(--ic-power); }
 body.ver-7 .ds-badge.ds-i-check { --ds-i: var(--ic-check); }
 body.ver-7 .ds-badge.ds-i-clock { --ds-i: var(--ic-clock); }
 /* 점은 마스크 없이 원. 작은 점 지름 6, 큰 점 10을 상자 12 가운데에 (앞뒤 여백은 상자 안 여백, 간격 토큰이 아님) */
-body.ver-7 .ds-badge.ds-i-dot::before { width: 6px !important; height: 6px !important; margin: 0 calc((12px - 6px) / 2) !important; border-radius: var(--radius-pill) !important; -webkit-mask: none !important; mask: none !important; }
-body.ver-7 .ds-badge:is(.ds-i-big, .is-ok:not([class*="ds-i-"]))::before { width: 10px !important; height: 10px !important; margin: 0 calc((12px - 10px) / 2) !important; border-radius: var(--radius-pill) !important; -webkit-mask: none !important; mask: none !important; }
+body.ver-7 .ds-badge.ds-i-dot:not(.ds-i-none)::before { width: 6px !important; height: 6px !important; margin: 0 calc((12px - 6px) / 2) !important; border-radius: var(--radius-pill) !important; -webkit-mask: none !important; mask: none !important; }
+body.ver-7 .ds-badge:is(.ds-i-big, .is-ok:not([class*="ds-i-"])):not(.ds-i-none)::before { width: 10px !important; height: 10px !important; margin: 0 calc((12px - 10px) / 2) !important; border-radius: var(--radius-pill) !important; -webkit-mask: none !important; mask: none !important; }
 /* 출처 AI 추천 (A안, 11/19): 회색 면 + Delta 스펙트럼 색 Delta 아이콘 */
 body.ver-7 .ds-badge.ds-i-delta { --ds-i: var(--ic-delta); }
 body.ver-7 .ds-badge.ds-i-delta::before { background: linear-gradient(135deg, var(--ds-ai-ramp)) !important; }
