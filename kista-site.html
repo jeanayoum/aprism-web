@@ -10,6 +10,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <!-- 현장 표지 글자(바닥 · 벽 표지)는 Noto Sans KR — 캔버스에 그린다 -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700;900&display=swap">
+  <!-- 합친 영상 아래 단계 바 = 발표 슬라이드와 같은 Pretendard -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
   <link rel="stylesheet" href="./assets/css/tokens.css?v=b64812bd" />
   <link rel="stylesheet" href="./assets/css/base.css?v=5ccd4bb3" />
   <style>
@@ -22,7 +24,8 @@
     @media (max-width: 960px) { .ks { grid-template-columns: 1fr; } }
 
     .stage-wrap { display: flex; justify-content: center; }
-    .stage { position: relative; aspect-ratio: 870 / 795; width: min(100%, calc((100vh - 120px) * 870 / 795)); background: #C9CDCC; border-radius: 4px; overflow: hidden; }
+    .stage-col { width: min(100%, calc((100vh - 200px) * 870 / 795)); display: flex; flex-direction: column; gap: 12px; }
+    .stage { position: relative; aspect-ratio: 870 / 795; width: 100%; background: #A7ABAD; border-radius: 4px; overflow: hidden; }
     .stage canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; display: block; }
 
     /* 슬라이드 위에서 가려지는 자리 — 화면에만 보이고 녹화에는 안 들어간다 */
@@ -31,8 +34,6 @@
     .g-chip { left: calc(20 / 870 * 100%); top: calc(20 / 795 * 100%); width: calc(100 / 870 * 100%); height: calc(44 / 795 * 100%);
       background: rgba(255,255,255,.92); border-radius: 999px; align-items: center; justify-content: center; font-size: clamp(9px, 1.2vw, 15px); color: #111; }
     .stage.show-guide .g-chip { display: flex; }
-    .g-steps { left: calc(274 / 870 * 100%); right: 0; bottom: 0; height: calc(54 / 795 * 100%); background: rgba(255,255,255,.88); border-top-left-radius: 6px; box-shadow: 0 -2px 10px rgba(0,0,0,.12); }
-    .g-safe { inset: calc(84 / 795 * 100%) calc(24 / 870 * 100%) calc(64 / 795 * 100%); border: 1px dashed rgba(255,255,255,.75); border-radius: 4px; }
     .rec-badge { position: absolute; top: 10px; right: 10px; display: none; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: rgba(0,0,0,.6); color: #fff; font-size: 13px; pointer-events: none; }
     .rec-badge::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #FF383C; }
     .stage.recording .rec-badge { display: inline-flex; }
@@ -62,7 +63,44 @@
     .field input { width: 64px; }
     .note { font-size: 12px; color: var(--text-tertiary); line-height: 1.55; margin: 0; }
     .cam-out { font-family: ui-monospace, Consolas, monospace; font-size: 11px; color: var(--text-secondary); word-break: break-all; }
-    body.clean .site-header, body.clean .panel { display: none; }
+    /* 단계 바 — PPT 진행 바(대기 · 주변감지 …)와 같은 꼴. 누르면 그 단계만 재생하고 멈춘다 */
+    .stepbar { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); padding: 12px 8px 14px; border-radius: 8px; background: var(--bg-raised); box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+    .stepbar::before { content: ""; position: absolute; left: 10%; right: 10%; bottom: 21px; height: 1px; background: var(--border-default); }
+    .stepbar button { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 10px; padding: 0 4px; border: 0; background: none; font: inherit; font-size: 14px; line-height: 1.35; text-align: center; color: var(--text-tertiary); cursor: pointer; }
+    .stepbar button:focus { outline: none; }
+    .stepbar button:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; border-radius: 4px; }   /* 글이 두 줄이어도 점은 아래 한 줄(justify-content: flex-end) */
+    .stepbar button::after { content: ""; width: 9px; height: 9px; border-radius: 50%; border: 1px solid var(--text-tertiary); background: var(--bg-raised); box-sizing: border-box; }
+    .stepbar button:hover { color: var(--text-primary); }
+    .stepbar button.is-now { color: var(--text-primary); font-weight: 700; }
+    .stepbar button.is-now::after { background: var(--text-primary); border-color: var(--text-primary); }
+    .stepbar .prog { position: absolute; left: 0; bottom: 0; height: 3px; border-radius: 0 0 0 8px; background: var(--text-primary); width: 0; }
+    .stepbar-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-tertiary); }
+
+    /* ===== 합친 영상(작업현장 + 관제실) — 슬라이드 두 칸(870×795 · 사이 20) 그대로. 칩 · 단계 바는 슬라이드에 있어 뺀다 ===== */
+    /* 높이 850 = 두 칸 795 + 아래 단계 바(슬라이드 Steps 899:2165 — 칸 기준 274, 741 · 1212×76)가 칸 밖으로 내려온 몫 + 그림자 */
+    .combo { position: fixed; left: 0; top: 0; z-index: 50; display: flex; align-items: flex-start; gap: 20px; width: 1760px; height: 850px; background: #fff; }
+    .combo-steps { position: absolute; left: 274px; top: 741px; width: 1212px; height: 76px; z-index: 5; background: #fff; border-radius: 8px; box-shadow: 0 12px 20px rgb(0 0 0 / 10%);
+      font-family: Pretendard, "Pretendard Variable", "Noto Sans KR", sans-serif; }
+    .combo-steps .cs-l { position: absolute; top: 56px; height: 1px; margin-top: -0.5px; background: rgb(17 18 23 / 70%); }
+    .combo-steps .cs-d { position: absolute; top: 52px; width: 8px; height: 8px; margin-left: -4px; border-radius: 50%; box-sizing: border-box; border: 1px solid #747985; }
+    .combo-steps .cs-d.on { top: 50px; width: 12px; height: 12px; margin-left: -6px; border: 0; background: #111217; }
+    .combo-steps .cs-t { position: absolute; top: 12px; transform: translateX(-50%); font-size: 20px; line-height: 28px; letter-spacing: -0.6px; white-space: nowrap; color: #747985; font-weight: 400; }
+    .combo-steps .cs-t.on { color: #111217; font-weight: 700; }
+    .combo[hidden] { display: none; }
+    .combo-l, .combo-r { position: relative; width: 870px; height: 795px; overflow: hidden; background: #F0F3F6; }
+    .combo-l canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; }
+    /* 관제 창(11/19) — 모니터 목업 대신 창 하나에 관제 화면 일부를 키워 보인다(카메라 CAM). 창 822×693, 위아래는 clip-path 로 줄인다 */
+    .combo-r .ctl { position: absolute; left: 24px; top: 24px; width: 822px; height: 693px; overflow: hidden; background: #0A0F18; clip-path: inset(0 round 8px); }
+    .combo-r .ctl iframe { width: 1920px; height: 1080px; border: 0; transform-origin: 0 0; }
+    .combo-bar { position: fixed; left: 0; top: 862px; z-index: 51; display: flex; gap: 8px; align-items: center; padding: 8px 12px; background: var(--bg-raised); border: 1px solid var(--border-default); border-radius: 8px; font-size: 13px; }
+    .combo-bar[hidden] { display: none; }
+    /* 고화질 녹화 1단계 — 관제 화면만 화면 왼쪽 위에 크게(1920×1080 을 창에 맞춰) 띄워 찍는다. --hq = 창에 맞춘 배율 */
+    body.combo-hq .combo { z-index: 300; }
+    body.combo-hq .combo-r { overflow: visible; }
+    body.combo-hq .combo-r .ctl { position: fixed; left: 0; top: 0; z-index: 10; width: calc(822px * var(--hq, 1)); height: calc(693px * var(--hq, 1)); clip-path: none !important; }
+    body.combo-hq .combo-bar { visibility: hidden; }
+    body.clean .site-header, body.clean .panel, body.clean .stepbar, body.clean .stepbar-row { display: none; }
+    body.clean .stage-col { width: auto; }
     body.clean .site-main { padding: 0; }
     body.clean .ks { display: block; }
     body.clean .stage { width: 100vw; height: 100vh; aspect-ratio: auto; border-radius: 0; }
@@ -79,14 +117,14 @@
 
   <main class="site-main">
     <div class="ks">
-      <div class="stage-wrap">
+      <div class="stage-wrap"><div class="stage-col">
         <div class="stage" id="stage">
-          <div class="guide g-safe"></div>
           <div class="guide g-chip">작업현장</div>
-          <div class="guide g-steps"></div>
           <span class="rec-badge" id="recBadge">녹화 중</span>
         </div>
-      </div>
+        <nav class="stepbar" id="stepbar" aria-label="장면 단계 — 누르면 그 단계만 재생"></nav>
+        <div class="stepbar-row"><span id="stepNote">단계를 누르면 그 단계만 재생하고, 녹화 범위도 그 단계로 바뀐다</span><span id="tRead2"></span></div>
+      </div></div>
 
       <aside class="panel">
         <div>
@@ -111,8 +149,11 @@
         <div>
           <p class="grp-label">보기</p>
           <div style="display:grid;gap:6px">
-            <label class="chk"><input type="checkbox" id="optGuide" checked> 슬라이드에서 가려지는 자리 표시</label>
+            <label class="chk"><input type="checkbox" id="optGuide" checked> 슬라이드의 '작업현장' 칩 자리 표시</label>
             <label class="chk"><input type="checkbox" id="optActors" checked> 로봇 · 근로자 보이기</label>
+            <label class="chk"><input type="checkbox" id="optFollow" checked> 카메라가 로봇 · 근로자를 따라가며 크게</label>
+            <label class="chk"><input type="checkbox" id="optHud" checked> 오른쪽 위에 로봇 디스플레이 크게(영상에도 들어감)</label>
+            <label class="chk"><input type="checkbox" id="optVoice" checked> 로봇 안내 음성(재생 · 녹화 MP4 에 들어감)</label>
             <label class="chk"><input type="checkbox" id="optOrbit"> 카메라 직접 돌려 보기</label>
           </div>
         </div>
@@ -123,10 +164,13 @@
             <label class="field">범위 <select id="recRange"></select></label>
             <label class="field"><select id="recFps"><option value="30">30fps</option><option value="60" selected>60fps</option></select></label>
           </div>
-          <label class="chk" style="margin-bottom:8px"><input type="checkbox" id="optDrift" checked> 카메라 천천히 밀기(달리)</label>
+          <label class="chk" style="margin-bottom:8px"><input type="checkbox" id="optDrift" checked> 카메라 천천히 밀기(달리) — 따라가기를 끈 때만</label>
           <div class="row">
             <button class="btn primary" id="btnRec" type="button">영상 녹화</button>
             <button class="btn" id="btnPng" type="button">정지 화면 PNG</button>
+          </div>
+          <div class="row" style="margin-top:8px">
+            <button class="btn" id="btnCombo" type="button">합친 영상 모드 (작업현장 + 관제실)</button>
           </div>
           <p class="note" id="recNote" style="margin-top:8px"></p>
         </div>
@@ -144,6 +188,25 @@
       </aside>
     </div>
   </main>
+
+  <!-- 합친 영상 모드 — 왼쪽 작업현장(3D) · 오른쪽 관제실(모니터 안 v7 관제 화면). 이 1760×850(두 칸 + 아래 단계 바)만 잘라 녹화한다 -->
+  <div class="combo" id="combo" hidden>
+    <div class="combo-steps" id="comboSteps" aria-label="장면 단계"></div>
+    <div class="combo-l" id="comboL"></div>
+    <div class="combo-r">
+      <div class="ctl"><iframe id="ctlFrame" title="관제 화면" loading="eager"></iframe></div>
+    </div>
+  </div>
+  <div class="combo-bar" id="comboBar" hidden>
+    <b>합친 영상</b>
+    <span id="comboScene"></span>
+    <label class="field">범위 <select id="comboRange"></select></label>
+    <button class="btn" id="comboPlay" type="button">▶ 미리 보기</button>
+    <button class="btn primary" id="comboHQ" type="button">고화질 녹화 (3520×1700)</button>
+    <button class="btn" id="comboRec" type="button">빠른 녹화</button>
+    <button class="btn" id="comboExit" type="button">닫기</button>
+    <span class="note" id="comboNote">고화질: '이 탭' 공유 → 관제 화면만 크게 떠 실제 시간으로 찍고, 이어서 3D 와 합쳐 굽는다(음성 자동) · 빠른 녹화: 보이는 그대로(탭 오디오 공유 시 음성)</span>
+  </div>
 
   <script src="./assets/js/robot-spot.js?v=16205c28"></script>
   <script type="importmap">
@@ -171,22 +234,22 @@
   const SCENES = [
     { id: "1-1", title: "도킹스테이션에서 기립", zone: "도킹 구역",
       steps: ["대기", "주변감지", "사전 예고", "저속 기립", "기립완료"],
-      cam: { pos: [-8.4, 3.2, 1.6], target: [-13.0, 0.6, -4.6], fov: 40 } },
+      cam: { pos: [-8.4, 3.2, 1.6], target: [-13.0, 0.6, -4.6], fov: 40, view: { from: [0.75, 0.66], pitch: 30 } } },
     { id: "1-2", title: "통로에서 근로자와 마주침", zone: "통로",
       steps: ["근로자와 만남", "전방 근로자 감지", "감속 및 접근 예고", "정지 후 이동 의사 표현", "임무재개"],
-      cam: { pos: [-11.8, 2.9, 4.6], target: [-4.0, 0.7, -0.4], fov: 40 } },
+      cam: { pos: [-11.8, 2.9, 4.6], target: [-4.0, 0.7, -0.4], fov: 40, view: { from: [0.5, 0.87], pitch: 28 } } },
     { id: "2-1", title: "주의 · 안전모 미착용", zone: "통로 · MCC 반 앞",
       steps: ["미착용 근로자 감지", "감속·정지 및 착용 안내", "착용대기", "미조치 시 연결", "확인 후 임무 재개"],
-      cam: { pos: [0.6, 3.2, 5.6], target: [-4.4, 0.8, -2.2], fov: 40 } },
+      cam: { pos: [0.6, 3.2, 5.6], target: [-4.4, 0.8, -2.2], fov: 40, view: { from: [-0.73, 0.69], pitch: 30 }, near: 8, maxK: 1.15 } },   // near · maxK: 근로자가 감지 대상 — 멀어도 늘 화면에(처음엔 넓게, 다가가며 당김)
     { id: "2-2", title: "위험 · 위험 구역 접근", zone: "위험 구역",
       steps: ["정지 및 정밀 확인", "이상 감지 및 판단", "작업자 우회 안내", "현장 조치 및 상태 안내", "임무 복귀"],
-      cam: { pos: [6.2, 4.4, 6.4], target: [13.2, 1.0, -3.0], fov: 42 } },
+      cam: { pos: [6.2, 4.4, 6.4], target: [13.2, 1.0, -3.0], fov: 42, view: { from: [0.38, 0.93], pitch: 32 } } },
     { id: "3-1", title: "배터리 부족 · 자율복귀 가능", zone: "통로 → 도킹 구역",
       steps: ["배터리 부족", "복귀 가능성 계산", "복귀 의사 예고", "저속 자율 복귀", "충전 시작"],
-      cam: { pos: [-4.6, 3.4, 4.2], target: [-12.4, 0.6, -3.0], fov: 40 } },
+      cam: { pos: [-4.6, 3.4, 4.2], target: [-12.4, 0.6, -3.0], fov: 40, view: { from: [0.45, 0.89], pitch: 32 } } },
     { id: "3-2", title: "배터리 부족 · 자율복귀 불가", zone: "통로 가장자리",
       steps: ["배터리 20% 이하 도달", "통로 가장자리 이동 후 정지", "접근금지 우회 안내", "회수 담당자 호출", "담당자 회수 완료 처리"],
-      cam: { pos: [8.8, 3.1, 5.4], target: [3.0, 0.5, -1.0], fov: 40 } },
+      cam: { pos: [8.8, 3.1, 5.4], target: [3.0, 0.5, -1.0], fov: 40, view: { from: [0.34, 0.94], pitch: 35 }, focus: { a: [9.5, 17.0], b: [15.5, 26] }, minD: 5 } },   // focus: 그 시간에만 근로자를 함께 잡음(그 밖엔 로봇 중심 — 초반 로봇이 가장자리로 밀리던 것)
   ];
 
   const W = 1740, H = 1590;   // 칸 870×795 의 두 배 — 녹화 · PNG 때만 이 크기로 그린다
@@ -208,8 +271,8 @@
   stage.prepend(renderer.domElement);
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xC9CDCC);
-  scene.fog = new THREE.Fog(0xC9CDCC, 34, 80);
+  scene.background = new THREE.Color(0xA7ABAD);
+  scene.fog = new THREE.Fog(0xA7ABAD, 34, 80);
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
 
@@ -248,9 +311,9 @@
 
   // 에폭시 바닥 — 국내 공장에 흔한 회녹색. 얼룩 · 긁힘 · 바퀴 자국
   const floorMap = canvasTex(1024, 1024, (g, w, h) => {
-    g.fillStyle = "#5F7769"; g.fillRect(0, 0, w, h);
-    blotch(g, w, h, 40, "rgba(40,55,45,0.10)", 60, 220);
-    blotch(g, w, h, 30, "rgba(200,215,205,0.07)", 40, 160);
+    g.fillStyle = "#9A9EA0"; g.fillRect(0, 0, w, h);
+    blotch(g, w, h, 40, "rgba(45,48,50,0.10)", 60, 220);
+    blotch(g, w, h, 30, "rgba(215,218,220,0.08)", 40, 160);
     speckle(g, w, h, 9000, ["rgba(30,40,35,.18)", "rgba(220,230,225,.12)"], 2);
     g.strokeStyle = "rgba(30,35,32,0.10)"; g.lineWidth = 1;
     for (let i = 0; i < 60; i++) { g.beginPath(); const x = rnd() * w, y = rnd() * h; g.moveTo(x, y); g.lineTo(x + (rnd() - .5) * 140, y + (rnd() - .5) * 30); g.stroke(); }
@@ -265,7 +328,7 @@
 
   // 벽 아래 — 칠한 콘크리트 블록
   const blockMap = canvasTex(512, 256, (g, w, h) => {
-    g.fillStyle = "#8E9893"; g.fillRect(0, 0, w, h);
+    g.fillStyle = "#7C8185"; g.fillRect(0, 0, w, h);
     speckle(g, w, h, 4000, ["rgba(0,0,0,.08)", "rgba(255,255,255,.08)"], 2);
     g.strokeStyle = "rgba(40,45,42,.35)"; g.lineWidth = 3;
     for (let r = 0; r < 4; r++) { const y = r * 64; g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke();
@@ -273,7 +336,7 @@
   }, { repeat: [20, 1] });
   // 벽 위 — 골 진 샌드위치 패널
   const panelMap = canvasTex(256, 256, (g, w, h) => {
-    g.fillStyle = "#CDD1D2"; g.fillRect(0, 0, w, h);
+    g.fillStyle = "#6C7176"; g.fillRect(0, 0, w, h);
     for (let x = 0; x < w; x += 64) { g.fillStyle = "rgba(0,0,0,.10)"; g.fillRect(x, 0, 6, h); g.fillStyle = "rgba(255,255,255,.35)"; g.fillRect(x + 6, 0, 3, h); g.fillStyle = "rgba(0,0,0,.04)"; g.fillRect(x + 30, 0, 4, h); }
     blotch(g, w, h, 6, "rgba(90,90,80,0.05)", 30, 90);
   }, { repeat: [40, 3] });
@@ -312,24 +375,24 @@
     block: new THREE.MeshStandardMaterial({ map: blockMap, roughness: 0.9 }),
     panel: new THREE.MeshStandardMaterial({ map: panelMap, bumpMap: panelMap, bumpScale: 0.6, roughness: 0.6, metalness: 0.15 }),
     steel: new THREE.MeshStandardMaterial({ color: 0x8C939A, roughness: 0.45, metalness: 0.6 }),
-    steelDark: new THREE.MeshStandardMaterial({ color: 0x3E444A, roughness: 0.55, metalness: 0.5 }),
+    steelDark: new THREE.MeshStandardMaterial({ color: 0x2E3236, roughness: 0.55, metalness: 0.5 }),
     galv: new THREE.MeshStandardMaterial({ color: 0xA9AFB3, roughness: 0.35, metalness: 0.8 }),
-    column: new THREE.MeshStandardMaterial({ color: 0x5B6670, roughness: 0.6, metalness: 0.3 }),
+    column: new THREE.MeshStandardMaterial({ color: 0x3A3F44, roughness: 0.6, metalness: 0.3 }),
     yellow: new THREE.MeshStandardMaterial({ color: 0xF2C230, roughness: 0.5 }),
     lineY: new THREE.MeshStandardMaterial({ color: 0xF0BE1E, roughness: 0.6, polygonOffset: true, polygonOffsetFactor: -2 }),
     lineW: new THREE.MeshStandardMaterial({ color: 0xEDEFEE, roughness: 0.6, polygonOffset: true, polygonOffsetFactor: -2 }),
-    walk: new THREE.MeshStandardMaterial({ color: 0x2F8E58, roughness: 0.5, polygonOffset: true, polygonOffsetFactor: -1 }),
-    cabinet: new THREE.MeshStandardMaterial({ color: 0xD6D9D5, roughness: 0.5, metalness: 0.1 }),
-    rackUp: new THREE.MeshStandardMaterial({ color: 0x1F4E9A, roughness: 0.5, metalness: 0.2 }),
-    rackBeam: new THREE.MeshStandardMaterial({ color: 0xE0651B, roughness: 0.5, metalness: 0.2 }),
-    wood: new THREE.MeshStandardMaterial({ color: 0xB08A5B, roughness: 0.85 }),
-    box: new THREE.MeshStandardMaterial({ color: 0xBC915E, roughness: 0.9 }),
-    drum: new THREE.MeshStandardMaterial({ color: 0x1E57A3, roughness: 0.45, metalness: 0.3 }),
-    tank: new THREE.MeshStandardMaterial({ color: 0xE6E8E6, roughness: 0.35, metalness: 0.2 }),
-    motor: new THREE.MeshStandardMaterial({ color: 0x2B5FA8, roughness: 0.4, metalness: 0.4 }),
-    pipeG: new THREE.MeshStandardMaterial({ color: 0x3C8C55, roughness: 0.45, metalness: 0.3 }),
-    pipeY: new THREE.MeshStandardMaterial({ color: 0xD9A820, roughness: 0.45, metalness: 0.3 }),
-    pipeB: new THREE.MeshStandardMaterial({ color: 0x6F8FA8, roughness: 0.45, metalness: 0.3 }),
+    walk: new THREE.MeshStandardMaterial({ color: 0x7E8386, roughness: 0.5, polygonOffset: true, polygonOffsetFactor: -1 }),
+    cabinet: new THREE.MeshStandardMaterial({ color: 0x9FA4A8, roughness: 0.5, metalness: 0.1 }),
+    rackUp: new THREE.MeshStandardMaterial({ color: 0x3A3F44, roughness: 0.5, metalness: 0.2 }),
+    rackBeam: new THREE.MeshStandardMaterial({ color: 0xF2C230, roughness: 0.5, metalness: 0.2 }),
+    wood: new THREE.MeshStandardMaterial({ color: 0x4A4E52, roughness: 0.8 }),   // 플라스틱 팔레트
+    box: new THREE.MeshStandardMaterial({ color: 0x8C9093, roughness: 0.85 }),   // 회색 적재함
+    drum: new THREE.MeshStandardMaterial({ color: 0xC4262A, roughness: 0.45, metalness: 0.3 }),
+    tank: new THREE.MeshStandardMaterial({ color: 0xBCC1C4, roughness: 0.32, metalness: 0.75 }),   // 보온 알루미늄
+    motor: new THREE.MeshStandardMaterial({ color: 0x4A4F54, roughness: 0.4, metalness: 0.4 }),
+    pipeG: new THREE.MeshStandardMaterial({ color: 0xB4B9BC, roughness: 0.32, metalness: 0.75 }),
+    pipeY: new THREE.MeshStandardMaterial({ color: 0xA9AEB1, roughness: 0.35, metalness: 0.75 }),
+    pipeB: new THREE.MeshStandardMaterial({ color: 0xBEC3C6, roughness: 0.3, metalness: 0.75 }),
     red: new THREE.MeshStandardMaterial({ color: 0xD8262A, roughness: 0.45 }),
     black: new THREE.MeshStandardMaterial({ color: 0x1B1E22, roughness: 0.6 }),
     rubber: new THREE.MeshStandardMaterial({ color: 0x23262A, roughness: 0.9 }),
@@ -404,7 +467,8 @@
   // 통로 가운데 진행 방향 화살표
   const arrowTex = canvasTex(256, 128, (g, w, h) => { g.fillStyle = "rgba(240,190,30,.9)"; g.beginPath(); g.moveTo(10, 44); g.lineTo(160, 44); g.lineTo(160, 14); g.lineTo(246, 64); g.lineTo(160, 114); g.lineTo(160, 84); g.lineTo(10, 84); g.closePath(); g.fill();
     g.globalCompositeOperation = "destination-out"; speckle(g, w, h, 300, ["rgba(0,0,0,.4)"], 3); });
-  for (const x of [-12, -6, 6, 12]) { decal(arrowTex, 1.4, 0.7, x, -0.7, 0, 0.006); decal(arrowTex, 1.4, 0.7, x + 2, 0.7, Math.PI, 0.006); }
+  // 오른쪽 통행 — 북쪽 차선(z<0)은 서쪽, 남쪽 차선(z>0)은 동쪽(11/18: 반대로 칠해 로봇 · 근로자 진행 방향과 어긋났다)
+  for (const x of [-12, -6, 6, 12]) { decal(arrowTex, 1.4, 0.7, x, -0.7, Math.PI, 0.006); decal(arrowTex, 1.4, 0.7, x + 2, 0.7, 0, 0.006); }
   // 횡단보도 — 통로를 가로질러 MCC 반으로
   for (let i = 0; i < 6; i++) decal(null, 0.3, 3.0, -4.6 + i * 0.6 - 1.5, 0, 0, 0.006, M.lineW);
 
@@ -413,28 +477,54 @@
   const DOCKS = [{ x: -14.1, n: "01" }, { x: -11.6, n: "02" }];
   for (const d of DOCKS) {
     decal(dockBay, 1.8, 2.6, d.x, -5.1, 0, 0.006);
-    // 충전 패드 · 기둥형 충전기(벽에 붙음)
-    boxB(1.1, 0.06, 1.3, M.black, d.x, 0, -5.0);
-    for (const dx of [-0.18, 0.18]) boxB(0.08, 0.012, 0.9, new THREE.MeshStandardMaterial({ color: 0xC98A4B, metalness: 0.9, roughness: 0.3 }), d.x + dx, 0.06, -5.0);
-    const tower = new THREE.Group(); tower.position.set(d.x, 0, -6.55); world.add(tower);
-    boxB(0.8, 1.35, 0.45, M.cabinet, 0, 0, 0, tower);
-    boxB(0.66, 0.5, 0.02, M.black, 0, 0.62, 0.23, tower);                 // 작은 화면
-    boxB(0.5, 0.25, 0.01, lamp(0x3CC37A, 1.2), 0, 0.74, 0.245, tower);     // 화면 빛 — 충전 대기
-    boxB(0.7, 0.04, 0.02, lamp(0x35D07F, 3), 0, 1.22, 0.23, tower);        // 상태 LED 띠
-    boxB(0.8, 0.08, 0.5, M.steelDark, 0, 0, 0, tower);
+    /*
+     * 로봇 도킹 스테이션 — 실물 사진(11/18) 눈대중. 바닥판 위에 길쭉하게 세 덩어리가 앞뒤로 놓인다:
+     *   앞 낮은 블록(배 밑 충전 접점 · 초록 불) → 가운데 통풍 격자 → 뒤 높은 블록 위에 QR(피두셜) 판.
+     * 로봇은 QR 을 등지고(앞 = +z, 통로 쪽) 그 위에 앉는다. 앉은 몸 밑면이 바닥에서 약 18cm 라 배 밑 블록은 그보다 낮게.
+     */
+    const dk = new THREE.Group(); dk.position.set(d.x, 0, 0); world.add(dk);
+    const dkBlack = new THREE.MeshStandardMaterial({ color: 0x1E2124, roughness: 0.7, metalness: 0.05 });
+    const dkPlate = new THREE.MeshStandardMaterial({ color: 0x16181A, roughness: 0.85 });
+    boxB(0.36, 0.02, 2.1, dkPlate, 0, 0, -5.15, dk);                    // 바닥판 — 길게
+    boxB(0.95, 0.02, 0.42, dkPlate, 0, 0, -4.9, dk);                    // 가운데 넓은 판(로봇 발 자리)
+    boxB(0.6, 0.02, 0.3, dkPlate, 0, 0, -6.0, dk);
+    boxB(0.24, 0.15, 0.26, dkBlack, 0, 0.02, -4.62, dk);                // 앞 블록 — 배 밑
+    boxB(0.16, 0.012, 0.03, lamp(0x35D07F, 3.2), 0, 0.17, -4.62, dk);   // 충전 불(초록)
+    boxB(0.28, 0.1, 0.36, dkBlack, 0, 0.02, -5.05, dk);                 // 가운데 통풍 격자
+    for (let i = 0; i < 7; i++) boxB(0.012, 0.008, 0.3, M.rubber, -0.09 + i * 0.03, 0.12, -5.05, dk);
+    boxB(0.2, 0.13, 0.22, dkBlack, 0, 0.02, -5.42, dk);                 // 이음 블록
+    boxB(0.36, 0.34, 0.4, dkBlack, 0, 0.02, -5.95, dk);                 // 뒤 높은 블록
+    boxB(0.3, 0.02, 0.06, M.rubber, 0, 0.36, -5.95, dk);                // QR 판 받침
+    {
+      const fid = canvasTex(512, 512, (g, w, h) => {
+        g.fillStyle = "#F4F5F4"; g.fillRect(0, 0, w, h);
+        g.fillStyle = "#0E0F10"; g.fillRect(56, 56, 400, 400);
+        const bits = ["000000", "011010", "010110", "001100", "011110", "000000"];   // 사진 비슷한 무늬(임의)
+        g.fillStyle = "#F4F5F4"; const c = 400 / 8;
+        bits.forEach((row, r) => [...row].forEach((v, k) => { if (v === "1") g.fillRect(56 + c * (k + 1), 56 + c * (r + 1), c, c); }));
+        g.fillStyle = "#9AA0A6"; g.font = '600 18px "Noto Sans KR"'; g.fillText("DOCK " + d.n, 60, 490);
+      }, { repeat: [1, 1] });
+      const board = new THREE.Group(); board.position.set(0, 0.37, -5.97); board.rotation.x = -0.12; dk.add(board);
+      boxB(0.32, 0.33, 0.012, new THREE.MeshStandardMaterial({ color: 0xE9EBEA, roughness: 0.6 }), 0, 0, 0, board);
+      const face = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.3), new THREE.MeshStandardMaterial({ map: fid, roughness: 0.6 }));
+      face.position.set(0, 0.165, 0.0065); board.add(face);
+    }
+    dk.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+    // 전원선 — 뒤 블록에서 벽 콘센트로
+    pipeRun([[d.x + 0.12, 0.12, -6.15], [d.x + 0.25, 0.03, -6.5], [d.x + 0.3, 0.05, -6.84], [d.x + 0.3, 0.42, -6.86]], 0.012, M.rubber);
+    boxB(0.09, 0.12, 0.03, M.cabinet, d.x + 0.3, 0.4, -6.87);
     const numTex = canvasTex(256, 128, (g, w, h) => { g.fillStyle = "#1B1E22"; g.fillRect(0, 0, w, h); g.fillStyle = "#F2C230"; g.font = '900 84px "Noto Sans KR"'; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(d.n, w / 2, h / 2 + 4); });
-    wallSign(numTex, 0.5, 0.25, d.x, 1.75, -6.3);
-    pipeRun([[d.x + 0.3, 1.35, -6.6], [d.x + 0.3, 3.0, -6.75], [d.x + 0.3, 4.6, -6.75]], 0.035, M.steelDark);   // 전선관
+    wallSign(numTex, 0.5, 0.25, d.x, 1.5, -6.86);
   }
   // 충전 구역 벽 표지 · 분전반 · 소화기
-  const dockSign = canvasTex(1024, 256, (g, w, h) => { g.fillStyle = "#1F5FBF"; g.fillRect(0, 0, w, h); g.fillStyle = "#fff"; g.font = '900 120px "Noto Sans KR"'; g.textBaseline = "middle"; g.fillText("로봇 충전 구역", 60, h / 2 + 6); });
+  const dockSign = canvasTex(1024, 256, (g, w, h) => { g.fillStyle = "#2B2F33"; g.fillRect(0, 0, w, h); g.fillStyle = "#F2C230"; g.font = '900 120px "Noto Sans KR"'; g.textBaseline = "middle"; g.fillText("로봇 충전 구역", 60, h / 2 + 6); });
   wallSign(dockSign, 2.4, 0.6, -12.85, 2.6, -6.86);
   boxB(0.7, 0.9, 0.2, M.cabinet, -18.0, 1.2, -6.8);
   { cyl(0.09, 0.55, M.red, -17.2, 0.05, -6.75, 20); boxB(0.25, 0.05, 0.2, M.black, -17.2, 0, -6.75); }
 
   /* ================= MCC 반 (전동기 제어반) ================= */
   const mccTex = (label) => canvasTex(256, 640, (g, w, h) => {
-    g.fillStyle = "#D6D9D5"; g.fillRect(0, 0, w, h);
+    g.fillStyle = "#9FA4A8"; g.fillRect(0, 0, w, h);
     g.strokeStyle = "rgba(40,45,42,.55)"; g.lineWidth = 3;
     g.strokeRect(10, 10, w - 20, h * 0.48); g.strokeRect(10, h * 0.5, w - 20, h * 0.48);
     g.fillStyle = "rgba(40,45,42,.35)"; for (let i = 0; i < 6; i++) g.fillRect(70, h * 0.82 + i * 12, w - 140, 5);   // 통풍구
@@ -458,10 +548,10 @@
   for (let x = -9.8; x <= -2.6; x += 1.2) box(0.04, 0.9, 0.04, M.galv, x, 3.5, -6.3);
   // 벽 안전 현수막
   const safetyTex = canvasTex(2048, 360, (g, w, h) => {
-    g.fillStyle = "#FFFFFF"; g.fillRect(0, 0, w, h); g.fillStyle = "#1E8C45"; g.fillRect(0, 0, w, 18); g.fillRect(0, h - 18, w, 18);
-    g.fillStyle = "#1E8C45"; const cx = 200, cy = h / 2, a = 120, t = 44; g.fillRect(cx - t, cy - a, t * 2, a * 2); g.fillRect(cx - a, cy - t, a * 2, t * 2);
-    g.fillStyle = "#16301F"; g.font = '900 170px "Noto Sans KR"'; g.textBaseline = "middle"; g.fillText("안전제일", 380, h / 2 + 8);
-    g.fillStyle = "#555"; g.font = '700 70px "Noto Sans KR"'; g.fillText("보호구 착용 · 통로 확보", 1180, h / 2 + 6);
+    g.fillStyle = "#2B2F33"; g.fillRect(0, 0, w, h); g.fillStyle = "#F2C230"; g.fillRect(0, 0, w, 18); g.fillRect(0, h - 18, w, 18);
+    g.fillStyle = "#F2C230"; const cx = 200, cy = h / 2, a = 120, t = 44; g.fillRect(cx - t, cy - a, t * 2, a * 2); g.fillRect(cx - a, cy - t, a * 2, t * 2);
+    g.fillStyle = "#F4F5F4"; g.font = '900 170px "Noto Sans KR"'; g.textBaseline = "middle"; g.fillText("안전제일", 380, h / 2 + 8);
+    g.fillStyle = "#B8BDC0"; g.font = '700 70px "Noto Sans KR"'; g.fillText("보호구 착용 · 통로 확보", 1180, h / 2 + 6);
   }, { repeat: [1, 1] });
   wallSign(safetyTex, 7.2, 1.27, -5.4, 4.9, -6.89);
 
@@ -532,12 +622,16 @@
   });
   { const sx = 10.6, sz = -1.75; boxB(0.5, 0.04, 0.4, M.rubber, sx, 0, sz); boxB(0.04, 1.1, 0.04, M.steelDark, sx, 0.04, sz);
     const s = wallSign(warnTex, 0.6, 0.75, sx, 1.45, sz + 0.03); s.castShadow = true; }
-  { const bx = 18.6, bz = -2.0; boxB(0.16, 0.16, 0.16, M.black, bx, 0.97, bz); cyl(0.08, 0.16, lamp(0xFF8A1E, 3.2), bx, 1.13, bz, 20); }
+  { const bx = 18.6, bz = -2.0; boxB(0.16, 0.16, 0.16, M.black, bx, 0.97, bz); cyl(0.08, 0.16, lamp(0xFF3B30, 3.2), bx, 1.13, bz, 20); }
   // 벽 배관 묶음 — 도킹 구역부터 위험 구역까지
   pipeRun([[-20.4, 3.5, -6.72], [20.4, 3.5, -6.72]], 0.1, M.pipeG);
   pipeRun([[-20.4, 3.85, -6.68], [20.4, 3.85, -6.68]], 0.08, M.pipeY);
   pipeRun([[-20.4, 4.2, -6.7], [20.4, 4.2, -6.7]], 0.12, M.pipeB);
   for (let x = -18; x <= 18; x += 3) boxB(0.06, 0.9, 0.35, M.steelDark, x, 3.3, -6.72);
+  // 배관 빨간 띠 — 참고 사진처럼 은색 배관에 포인트로만
+  for (let x = -15; x <= 15; x += 7.5) for (const [y, z, r] of [[3.5, -6.72, 0.1], [4.2, -6.7, 0.12]]) {
+    const band = new THREE.Mesh(new THREE.CylinderGeometry(r + 0.006, r + 0.006, 0.22, 24), M.red); band.rotation.z = Math.PI / 2; band.position.set(x, y, z); world.add(band);
+  }
 
   /* ================= 남쪽(카메라 쪽) 소품 ================= */
   // 드럼통 · 팔레트 · 대차
@@ -551,7 +645,7 @@
   decal(grate, 3.0, 0.3, 9.0, 4.4, 0, 0.005);
 
   /* ================= 조명 ================= */
-  scene.add(new THREE.HemisphereLight(0xEEF3F6, 0x6B7A70, 0.9));
+  scene.add(new THREE.HemisphereLight(0xEEF1F3, 0x6E7276, 0.9));
   const sun = new THREE.DirectionalLight(0xFFF5E6, 2.1);   // 고천장 조명 전체를 한 덩어리 빛으로 — 그림자 담당
   sun.position.set(-6, 16, 9); sun.target.position.set(0, 0, -1);
   sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
@@ -574,25 +668,113 @@
   }
 
   /* ================= 로봇 등 디스플레이 =================
-   * 실물 사진(11/18) 눈대중: 몸 위 뒤쪽 절반(뒤 관절 앞)에 세운 검은 상자, 화면은 몸 옆을 본다. 7인치 800×480.
-   * 모델 단위(몸길이 0.85, 위판 y 0.60, 앞 = -z, 폭 ±0.111) — 1.3배 키우면 상자 약 22×17cm, 화면 약 17.5×10.5cm.
-   * DISPLAY_SIDE  1 = 로봇 오른쪽(+x), -1 = 왼쪽. 사진의 비상정지 버튼 위치로 오른쪽이라 봤다 — 반대면 이 값만 바꾼다.
+   * 실물(11/18): 몸 위 뒤쪽 절반(뒤 관절 앞)에 화면 두 장을 A 자로 세운다 — 양옆을 보는 판 두 장이 안쪽으로 기울어
+   * 위 모서리가 몸 가운데에서 맞붙는다. 화면은 바깥 · 살짝 위를 본다. 7인치 800×480 두 장에 같은 표지가 뜬다.
+   * 모델 단위(몸길이 0.85, 위판 y 0.60, 앞 = -z, 폭 ±0.111) — 1.3배 키우면 판 약 22×17cm, 화면 약 17.5×10.5cm.
+   * DISPLAY_TILT  판이 수직에서 안쪽으로 기우는 각. 위가 맞붙으려면 아래 바깥 모서리가 몸 폭(±0.111) 안에 들어와야 해 32° 미만.
    * 화면 표지는 SPOT 디스플레이 A안(spot-display.html) 색 · 문구를 줄여 그린 것. 장면 SCRIPT 의 sign 시간표를 따른다.
    */
-  const DISPLAY_SIDE = 1;
+  /*
+   * 오른쪽 위 디스플레이 크게(11/18) — 로봇 등 화면이 영상에서 작아, 같은 표지를 원본 비율(800×480)로 고정해 띄운다.
+   * HTML 이 아니라 같은 캔버스에 두 번째 장면(화면 고정 직교 카메라)으로 그려 녹화 · PNG 에도 들어간다.
+   * 좌표는 칸 단위(870×795) — 녹화 때 두 배로 그려도 자리가 같다. 오른쪽 · 위 여백 24, 308×185.
+   */
+  const hudScene = new THREE.Scene(), hudCam = new THREE.OrthographicCamera(0, 870, 795, 0, -10, 10);
+  let hudScreenMat = null;
+  {
+    // (11/18) 표지는 원본 그대로(색이 화면을 가득 채움, SPOT 디스플레이 A안 800×480) + 검은 테두리. 그림자는 없음
+    const SW = 288, SH = 288 * 86 / 155, PAD = 10, BW = SW + PAD * 2, BH = SH + PAD * 2, M_ = 24, cx = 870 - M_ - BW / 2, cy = 795 - M_ - BH / 2;
+    const rrShape = (w, h, r) => { const sh = new THREE.Shape(), x = -w / 2, y = -h / 2; sh.moveTo(x + r, y); sh.lineTo(x + w - r, y); sh.quadraticCurveTo(x + w, y, x + w, y + r); sh.lineTo(x + w, y + h - r); sh.quadraticCurveTo(x + w, y + h, x + w - r, y + h); sh.lineTo(x + r, y + h); sh.quadraticCurveTo(x, y + h, x, y + h - r); sh.lineTo(x, y + r); sh.quadraticCurveTo(x, y, x + r, y); return sh; };
+    const bezel = new THREE.Mesh(new THREE.ShapeGeometry(rrShape(BW, BH, 12)), new THREE.MeshBasicMaterial({ color: 0x15171A, depthTest: false, toneMapped: false }));
+    bezel.position.set(cx, cy, 1); bezel.renderOrder = 1; hudScene.add(bezel);
+    hudScreenMat = new THREE.MeshBasicMaterial({ color: 0xffffff, depthTest: false, toneMapped: false });
+    const scr = new THREE.Mesh(new THREE.PlaneGeometry(SW, SH), hudScreenMat); scr.position.set(cx, cy, 2); scr.renderOrder = 2; hudScene.add(scr);
+  }
+
+  /* ================= 디스플레이 원본 프레임 =================
+   * SPOT 디스플레이(spot-display.html A안) 화면을 장면 단계별로 찍어 둔 프레임(tools/capture-spot-display.mjs →
+   * assets/display/kista/<장면>.bin + .json, 576×320 = 실물 7인치 표시 영역 155:86, 15fps). 기호 · 글자 모션까지 원본 그대로.
+   * 로봇 등 화면 두 장 · 오른쪽 위 고정 화면이 같은 캔버스 하나를 쓴다. 프레임은 압축된 채로 두고 그때그때 풀어 그린다(메모리 아낌).
+   * 프레임을 못 불러오면 예전 표지(SIGNS)로 그린다.
+   */
+  const dispCanvas = document.createElement("canvas"); dispCanvas.width = 576; dispCanvas.height = 320;
+  const dispCtx = dispCanvas.getContext("2d");
+  const dispTex = new THREE.CanvasTexture(dispCanvas); dispTex.colorSpace = THREE.SRGBColorSpace; dispTex.anisotropy = MAX_ANISO;
+  const DISP = {};          // 장면 → { meta, bin } 또는 Promise
+  const dispBmp = new Map(); // 프레임 키 → ImageBitmap(최근 것만)
+  let dispShown = null, dispWant = null;
+  function loadDisp(id) {
+    if (DISP[id]) return DISP[id] instanceof Promise ? DISP[id] : Promise.resolve(DISP[id]);
+    return (DISP[id] = Promise.all([
+      fetch(`./assets/display/kista/${id}.json?v=1`).then(r => r.json()),
+      fetch(`./assets/display/kista/${id}.bin?v=1`).then(r => r.arrayBuffer()),
+    ]).then(([meta, bin]) => (DISP[id] = { meta, bin: new Uint8Array(bin) })).catch(e => { console.warn("디스플레이 프레임", id, e); DISP[id] = null; return null; }));
+  }
+  function dispIndexAt(d, t) {
+    const segs = d.meta.segs; let s = segs[0];
+    for (const x of segs) if (t >= x.t0 - 1e-6) s = x;
+    return s.first + Math.max(0, Math.min(s.count - 1, Math.floor((t - s.t0) * d.meta.fps + 1e-6)));
+  }
+  async function dispBitmap(id, d, idx) {
+    const key = id + ":" + idx; let bm = dispBmp.get(key);
+    if (!bm) {
+      const [o, l] = d.meta.frames[idx];
+      bm = await createImageBitmap(new Blob([d.bin.subarray(o, o + l)], { type: "image/webp" }));
+      dispBmp.set(key, bm);
+      if (dispBmp.size > 90) { const k0 = dispBmp.keys().next().value; dispBmp.get(k0).close?.(); dispBmp.delete(k0); }
+    }
+    return bm;
+  }
+  function drawDisp(key, bm) { dispCtx.drawImage(bm, 0, 0, 576, 320); dispTex.needsUpdate = true; dispShown = key; dirty = true; }
+  // 미리보기 — 원하는 프레임을 풀어 오면 그린다(늦게 온 옛 프레임은 버림)
+  function wantDisp(t) {
+    const d = DISP[cur.id];
+    if (!d || d instanceof Promise) return false;
+    const idx = dispIndexAt(d, t), key = cur.id + ":" + idx;
+    if (key === dispShown) return true;
+    dispWant = key;
+    const bm = dispBmp.get(key);
+    if (bm) drawDisp(key, bm); else dispBitmap(cur.id, d, idx).then(b => { if (dispWant === key) drawDisp(key, b); });
+    return true;
+  }
+  // 녹화 — 그 프레임이 그려질 때까지 기다린다
+  async function ensureDisp(t) {
+    const d = DISP[cur.id]; if (!d || d instanceof Promise) return;
+    const idx = dispIndexAt(d, t), key = cur.id + ":" + idx;
+    if (key !== dispShown) drawDisp(key, await dispBitmap(cur.id, d, idx));
+  }
+  function useDispTex() {
+    if (screenMat && screenMat.map !== dispTex) { screenMat.map = dispTex; screenMat.needsUpdate = true; }
+    if (hudScreenMat && hudScreenMat.map !== dispTex) { hudScreenMat.map = dispTex; hudScreenMat.needsUpdate = true; }
+  }
+
+  function renderFrame() {
+    renderer.render(scene, camera);
+    if (!hudScene.visible || !hudScreenMat.map) return;
+    renderer.autoClear = false; renderer.clearDepth(); renderer.render(hudScene, hudCam); renderer.autoClear = true;
+  }
+
+  const DISPLAY_TILT = 22 * Math.PI / 180;
   let screenMat = null, signNow = null;
   function addDisplay(body) {
-    const TOP = 0.60, Wd = 0.17, Hd = 0.13, Dd = 0.055, ZC = 0.215, s = DISPLAY_SIDE;
+    const TOP = 0.60, Wd = 0.17, Hd = 0.13, Dd = 0.03, ZC = 0.215, th = DISPLAY_TILT;
     const black = new THREE.MeshStandardMaterial({ color: 0x15171A, roughness: 0.55, metalness: 0.1 });
-    const g = new THREE.Group(); g.position.set(s * (0.09 - Dd / 2), TOP + 0.012, ZC); body.add(g);
-    const base = new THREE.Mesh(new THREE.BoxGeometry(Dd + 0.03, 0.012, Wd + 0.01), black); base.position.y = 0.0; g.add(base);
-    // 상자 — 아래가 조금 더 두꺼운 쐐기꼴(사진처럼 화면이 살짝 위를 본다)
-    const house = new THREE.Mesh(new RoundedBoxGeometry(Dd, Hd, Wd, 3, 0.01), black);
-    house.position.y = 0.006 + Hd / 2; house.rotation.z = s * 0.10; g.add(house);
+    const g = new THREE.Group(); g.position.set(0, TOP + 0.006, ZC); body.add(g);
+    const foot = 2 * (Math.sin(th) * Hd + Math.cos(th) * Dd);   // 두 판 아래 바깥 모서리 사이
+    const base = new THREE.Mesh(new THREE.BoxGeometry(foot + 0.012, 0.012, Wd + 0.012), black); g.add(base);
     screenMat = new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false });
-    const scr = new THREE.Mesh(new THREE.PlaneGeometry(0.135, 0.081), screenMat);
-    scr.position.set(s * (Dd / 2 + 0.0008), 0.012, 0); scr.rotation.y = s * Math.PI / 2; house.add(scr);
-    g.traverse(o => { if (o.isMesh && o !== scr) { o.castShadow = true; o.receiveShadow = true; } });
+    const screens = [];
+    for (const s of [-1, 1]) {
+      // 판 중심 — 위 안쪽 모서리가 x = 0 에 오도록. 회전 z = s·θ 면 판 위가 몸 가운데로 기운다
+      const panel = new THREE.Mesh(new RoundedBoxGeometry(Dd, Hd, Wd, 3, 0.006), black);
+      panel.position.set(s * (Math.sin(th) * Hd / 2 + Math.cos(th) * Dd / 2), 0.006 + Math.cos(th) * Hd / 2 + Math.sin(th) * Dd / 2, 0);
+      panel.rotation.z = s * th; g.add(panel);
+      const scr = new THREE.Mesh(new THREE.PlaneGeometry(0.135, 0.135 * 86 / 155), screenMat);   // 실물 표시 영역 155:86
+      scr.position.set(s * (Dd / 2 + 0.0008), 0.008, 0); scr.rotation.y = s * Math.PI / 2; panel.add(scr); screens.push(scr);
+    }
+    // 위 맞붙는 자리 — 꼭대기 이음 막대
+    const ridge = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.012, Wd), black); ridge.position.y = 0.006 + Math.cos(th) * Hd + 0.002; g.add(ridge);
+    g.traverse(o => { if (o.isMesh && !screens.includes(o)) { o.castShadow = true; o.receiveShadow = true; } });
     setSign("standby");
   }
 
@@ -620,13 +802,14 @@
     recovered: { c: "G", ic: "check",   k: ["회수", "완료"],     sub: "처리됨" },
   };
   const signTexCache = {};
-  function signTex(key) {
-    if (signTexCache[key]) return signTexCache[key];
+  function signTex(key, bare) {   // bare = 원본 그대로(검은 여백 없이 꽉 채움) — 오른쪽 위 고정 화면용
+    const ck = key + (bare ? ":bare" : "");
+    if (signTexCache[ck]) return signTexCache[ck];
     const sp = SIGNS[key], bg = SC[sp.c], ink = sp.c === "Y" ? "#111111" : "#FFFFFF";
     const t = canvasTex(800, 480, (g, w, h) => {
-      g.fillStyle = "#0A0B0D"; g.fillRect(0, 0, w, h);
       const rr = (x, y, ww, hh, r) => { g.beginPath(); g.roundRect(x, y, ww, hh, r); };
-      g.fillStyle = bg; rr(14, 14, w - 28, h - 28, 22); g.fill();
+      if (bare) { g.fillStyle = bg; g.fillRect(0, 0, w, h); }
+      else { g.fillStyle = "#0A0B0D"; g.fillRect(0, 0, w, h); g.fillStyle = bg; rr(14, 14, w - 28, h - 28, 22); g.fill(); }
       // 왼쪽 기호 원
       const cx = 190, cy = 240, R = 128;
       g.fillStyle = sp.c === "Y" ? "#111111" : "#FFFFFF"; g.beginPath(); g.arc(cx, cy, R, 0, 7); g.fill();
@@ -642,7 +825,7 @@
       g.font = `700 50px "Noto Sans KR"`; g.fillText(sp.sub, x0, 392);
     }, { repeat: [1, 1] });
     t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
-    return (signTexCache[key] = t);
+    return (signTexCache[ck] = t);
   }
   function drawIcon(g, ic, cx, cy, R, col) {
     g.lineWidth = 26;
@@ -666,6 +849,7 @@
   function setSign(key) {
     if (!screenMat || key === signNow || !SIGNS[key]) return;
     screenMat.map = signTex(key); screenMat.needsUpdate = true; signNow = key; dirty = true;
+    if (hudScreenMat) { hudScreenMat.map = signTex(key, true); hudScreenMat.needsUpdate = true; }
   }
   if (spot) addDisplay(spot.group.children[0]);   // 몸 묶음(robot-spot.js 가 맨 처음 넣는다) — 걸음 · 앉기에 같이 움직인다
   function worker({ vest = 0xF07A1A, helmet = true }) {
@@ -758,14 +942,40 @@
       if (Math.hypot(dx, dz) < 20) return;   // 20cm 미만이면 제자리 동작
       for (let i = 0; i < n; i++) { const k = (tm[i] - tm[0]) / T; v[3 * i] -= dx * k; v[3 * i + 2] -= dz * k; }
     }
+    /*
+     * 정수리 머리카락 — 받은 모델(Ch17)은 안전모 쓴 캐릭터라 머리카락이 옆 · 뒤 띠(높이 171cm 까지)뿐이고 정수리가 비어 있다.
+     * 두피를 재어(모델 cm 단위: 정수리 176.4, 171 높이 반폭 7.9, 앞뒤 -7.6~11.3) 타원 모자 꼴을 얹고 머리 뼈에 붙인다.
+     * 안전모를 쓴 동안엔 숨긴다(안전모 안쪽을 뚫지 않게).
+     */
+    const capGeo = new THREE.SphereGeometry(1, 40, 20, 0, Math.PI * 2, 0, 1.22);
+    const capTex = canvasTex(512, 512, (g, w, hh) => {
+      g.fillStyle = "#2A201A"; g.fillRect(0, 0, w, hh);
+      for (let i = 0; i < 2600; i++) {   // 정수리에서 퍼져 내려가는 결(구 UV 의 세로 = 위→아래)
+        const x = rnd() * w, y = rnd() * hh, len = 30 + rnd() * 70;
+        g.strokeStyle = rnd() < 0.5 ? "rgba(70,55,45,.55)" : "rgba(15,11,9,.6)"; g.lineWidth = 1 + rnd() * 1.5;
+        g.beginPath(); g.moveTo(x, y); g.lineTo(x + (rnd() - 0.5) * 8, y + len); g.stroke();
+      }
+    }, { repeat: [3, 1] });
+    const capMat = new THREE.MeshStandardMaterial({ map: capTex, roughness: 0.75 });
+    function addHairCap(m) {
+      let head = null; m.traverse(o => { if (!head && o.isBone && /Head$/.test(o.name) && o.parent?.name !== o.name) head = o; });
+      if (!head) return null;
+      const cap = new THREE.Mesh(capGeo, capMat);
+      // 두피 정점이 모두 안에 들도록(여유 1.5%) 고른 가장 작은 꼴 — 꼭대기 176.7(정수리 +3mm). 뒤로 살짝 눕혀 앞 이마선을 올린다
+      cap.scale.set(10.4, 13.8, 11.5); cap.position.set(0, 163.5, 2.5); cap.rotation.x = -0.3;
+      m.updateMatrixWorld(true); cap.updateMatrixWorld(true); head.attach(cap);
+      cap.castShadow = cap.receiveShadow = true; cap.frustumCulled = false; cap.visible = false;
+      return cap;
+    }
     const h = new THREE.Box3().setFromObject(src).getSize(new V()).y;
     for (const holder of [wkA, wkB]) {
       const m = SkeletonUtils.clone(src);
       relax(m);   // 동작이 없을 때의 자세
       const helmets = []; m.traverse(o => { if (o.isMesh && /helmet/i.test(o.name)) helmets.push(o); });
+      const hairCap = addHairCap(m);
       const mixer = new THREE.AnimationMixer(m), actions = {};
       for (const clip of animGltf.animations) { stripRootMotion(clip); const a = mixer.clipAction(clip); a.play(); a.setEffectiveWeight(0); actions[clip.name] = a; }
-      holder.userData = { mixer: animGltf.animations.length ? mixer : null, actions, helmets };
+      holder.userData = { mixer: animGltf.animations.length ? mixer : null, actions, helmets, hairCap };
       const wrap = new THREE.Group(); wrap.add(m);
       wrap.scale.setScalar(1.75 / h);   // 키 1.75m
       wrap.rotation.y = Math.PI;        // 얼굴을 -z 로 — 로봇(SPOT)과 같은 앞 방향, SCRIPT 방향각을 그대로 쓴다
@@ -788,12 +998,14 @@
   const SCRIPT = {
     // 대기 → 주변감지 → 사전 예고 → 저속 기립 → 기립완료. 도킹 앞을 지나던 근로자가 카운트다운에 물러나 지켜본다
     "1-1": { dur: 12, st: [0, 2, 4, 7, 10], sign: [[0, "standby"], [4, "cd3"], [5, "cd2"], [6, "cd1"], [7, "rising"], [10, "resume"]],
+      voice: [[4.1, "1-1-c"]],
       robot: { start: [-14.1, -5.0], face: Math.PI, segs: [{ d: 7, mode: "sit" }, { d: 5, mode: "idle" }] },
       a: { start: [-16.8, -2.2], helmet: true, segs: [
         { d: 3.0, clip: "walk", to: [-14.7, -3.4] }, { d: 1.4, clip: "idle", faceAt: [-14.1, -5.0] },
         { d: 1.6, clip: "walkBack", to: [-14.9, -1.9], back: true }, { d: 6.0, clip: "idle", faceAt: [-14.1, -5.0] }] } },
     // 근로자와 만남 → 전방 근로자 감지 → 감속 및 접근 예고 → 정지 후 이동 의사 표현 → 임무재개
-    "1-2": { dur: 12, st: [0, 2.4, 4.8, 7.2, 9.6], sign: [[0, "patrol"], [2.4, "person"], [7.6, "yield"], [10.8, "resume"]],
+    "1-2": { dur: 12, st: [0, 2.4, 4.8, 7.2, 9.6], sign: [[0, "patrol"], [2.4, "person"], [4.8, "yield"], [8.7, "resume"]],
+      voice: [[4.9, "1-2-c"], [8.7, "1-2-d"]],
       robot: { start: [-11.4, 0.5], face: E_, segs: [
         { d: 4.8, mode: "walk", to: [-8.9, 0.5] }, { d: 1.8, mode: "walk", to: [-8.2, 0.5] },
         { d: 1.0, mode: "walk", to: [-7.9, 1.1], face: E_ }, { d: 3.2, mode: "idle", face: E_ }, { d: 1.2, mode: "walk", to: [-7.3, 1.1] }] },
@@ -801,35 +1013,346 @@
         { d: 3.0, clip: "walk", to: [-5.2, -0.5] }, { d: 4.4, clip: "idle" }, { d: 1.4, clip: "nod" },
         { d: 3.2, clip: "walk", to: [-9.8, -0.6] }] } },
     // 미착용 근로자 감지 → 감속·정지 및 착용 안내 → 착용대기(못 듣고 작업 계속) → 미조치 시 연결(관제 통화) → 확인 후 임무 재개(안전모 씀)
-    "2-1": { dur: 14, st: [0, 2.8, 5.6, 8.4, 11.2], sign: [[0, "patrol"], [2.8, "helmet"], [8.4, "call"], [11.2, "checked"]],
-      robot: { start: [1.2, 0.2], face: W_, segs: [
-        { d: 2.8, mode: "walk", to: [-1.6, -0.4] }, { d: 1.4, mode: "walk", to: [-2.6, -1.6] },
-        { d: 7.0, mode: "idle", faceAt: [-5.0, -5.2] }, { d: 2.8, mode: "walk", to: [-6.2, -0.6] }] },
-      b: { start: [-5.0, -5.2], face: 0, helmet: false, ev: [[11.2, true]], segs: [
+    // (11/18 음성) 관제 통화 · 착용 확인 · 이동 재개 음성이 겹치지 않게 14 → 18초. 안전모 쓰는 때 11.2 → 12.0
+    "2-1": { dur: 18, st: [0, 2.8, 5.6, 8.4, 12.0], sign: [[0, "patrol"], [2.8, "helmet"], [8.4, "call"], [12.0, "checked"]],
+      voice: [[0.3, "2-1-a"], [3.0, "2-1-b"], [8.5, "2-1-d"], [12.1, "2-1-c"], [15.9, "2-1-e"]],
+      // (11/18) 감지 때 근로자가 한 화면에 들도록 로봇이 근로자 쪽 가까이서 출발(감지 순간 거리 약 5m → 멈춘 뒤 3.6m)
+      robot: { start: [-0.9, -0.9], face: W_, segs: [
+        { d: 2.8, mode: "walk", to: [-1.8, -1.6] }, { d: 1.4, mode: "walk", to: [-2.6, -2.4] },
+        { d: 11.6, mode: "idle", faceAt: [-5.0, -5.2] }, { d: 2.2, mode: "walk", to: [-5.6, -0.6] }] },
+      b: { start: [-5.0, -5.2], face: 0, helmet: false, ev: [[12.0, true]], segs: [
         { d: 3.6, clip: "idle" }, { d: 2.0, clip: "idle", faceAt: [-2.6, -1.6], turn: 0.9 }, { d: 2.8, clip: "idle", face: 0, turn: 0.9 },
-        { d: 2.8, clip: "phone", off: 2.0 }, { d: 1.4, clip: "nod", faceAt: [-2.6, -1.6], turn: 0.6 }, { d: 1.4, clip: "idle", face: 0 }] } },
+        { d: 3.6, clip: "phone", off: 2.0 }, { d: 1.4, clip: "nod", faceAt: [-2.6, -1.6], turn: 0.6 }, { d: 4.6, clip: "idle", face: 0 }] } },
     // 정지 및 정밀 확인 → 이상 감지 및 판단 → 작업자 우회 안내 → 현장 조치 및 상태 안내 → 임무 복귀
     "2-2": { dur: 14, st: [0, 2.8, 5.6, 8.4, 11.2], sign: [[0, "inspect"], [2.8, "danger"], [11.2, "resume"]],
+      voice: [[0.3, "2-2-a"], [5.7, "2-2-c"], [11.3, "2-2-e"]],
       robot: { start: [9.0, -0.9], segs: [{ d: 11.2, mode: "inspect", faceAt: [13.0, -4.0] }, { d: 2.8, mode: "walk", to: [7.0, -0.2] }] },
       a: { start: [17.6, 3.4], helmet: true, segs: [
         { d: 5.6, clip: "walk", to: [12.8, -1.2] }, { d: 1.6, clip: "react", faceAt: [9.0, -0.9] },
         { d: 1.2, clip: "walkBack", to: [13.2, 0.4], back: true }, { d: 1.0, clip: "idle", faceAt: [9.0, -0.9] },
         { d: 1.4, clip: "walk", to: [12.6, 2.6] }, { d: 3.2, clip: "walk", to: [8.4, 2.6] }] } },
     // 배터리 부족 → 복귀 가능성 계산 → 복귀 의사 예고 → 저속 자율 복귀 → 충전 시작(도킹 02)
-    "3-1": { dur: 18, st: [0, 2.4, 4.8, 7.2, 15.6], sign: [[0, "bat20"], [4.8, "goDock"], [15.6, "charging"]],
-      robot: { start: [-8.6, 0.2], face: W_, segs: [
-        { d: 7.2, mode: "idle" }, { d: 4.4, mode: "walk", to: [-11.6, -1.2] }, { d: 4.0, mode: "walk", to: [-11.6, -4.9] }, { d: 2.4, mode: "sit" }] } },
+    // (11/18 음성) 1 · 2 · 3단계 음성(2.6 · 4.2 · 5.2초)이 겹치지 않게 18 → 24초. 4단계 음성은 표에 '근로자가 가까울 때만' — 이 장면엔 없어 뺌
+    "3-1": { dur: 24, st: [0, 3.0, 7.3, 12.6, 21.0], sign: [[0, "bat20"], [7.3, "goDock"], [21.0, "charging"]],
+      voice: [[0.2, "3-1-a"], [3.0, "3-1-b"], [7.3, "3-1-c"], [21.1, "3-1-e"]],
+      robot: { start: [-8.6, -0.5], face: W_, segs: [
+        { d: 12.6, mode: "idle" }, { d: 4.0, mode: "walk", to: [-11.6, -1.4] }, { d: 1.8, mode: "walk", to: [-11.6, -3.3] },
+        // 도킹은 QR 을 등지고 앉는다 — 돌아선 뒤 뒤로 걸어 들어간다
+        { d: 1.0, mode: "idle", face: Math.PI, turn: 1.0 }, { d: 1.6, mode: "walk", to: [-11.6, -5.0], face: Math.PI }, { d: 3.0, mode: "sit" }] } },
     // 배터리 20% 이하 → 통로 가장자리 이동 후 정지 → 접근금지 우회 안내(지나는 근로자 A) → 회수 담당자 호출(B 통화) → 회수 완료 처리(B 가 옆에 앉아 확인)
-    "3-2": { dur: 18, st: [0, 3, 6, 9, 12], sign: [[0, "bat20"], [6, "noReturn"], [9, "calling"], [16.8, "recovered"]],
-      robot: { start: [6.2, 0.3], face: W_, segs: [
-        { d: 3.0, mode: "walk", to: [4.0, 0.3] }, { d: 2.2, mode: "walk", to: [2.6, -1.1] }, { d: 0.8, mode: "idle", face: W_ }, { d: 12, mode: "sit" }] },
+    // (11/18 음성) 1 · 2단계 음성(6.0 · 5.1초)이 길어 18 → 26초. 1단계에 주행을 멈추고, 2단계에 가장자리로 옮겨 앉는다.
+    // 3단계 음성은 표에 '사람이 접근할 때만' — 근로자 A 가 다가올 때. 4단계 음성은 회수 담당자 B 가 도착했을 때
+    "3-2": { dur: 26, st: [0, 6.4, 11.6, 16.0, 22.0], sign: [[0, "bat20"], [6.4, "noReturn"], [16.0, "calling"], [24.8, "recovered"]],
+      voice: [[0.2, "3-2-a"], [6.4, "3-2-b"], [11.7, "3-2-c"], [21.7, "3-2-d"]],
+      robot: { start: [6.4, -0.5], face: W_, segs: [
+        { d: 1.6, mode: "walk", to: [5.2, -0.5] }, { d: 4.8, mode: "idle", face: W_ }, { d: 3.0, mode: "walk", to: [2.6, -1.1] },
+        { d: 0.8, mode: "idle", face: W_ }, { d: 15.8, mode: "sit" }] },
       a: { start: [-6.5, 0.4], helmet: true, segs: [
-        { d: 6.2, clip: "walk", to: [1.0, 0.5] }, { d: 1.4, clip: "walk", to: [3.0, 1.4] }, { d: 2.6, clip: "walk", to: [6.2, 1.3] },
-        { d: 4.4, clip: "walk", to: [11.5, 0.8] }, { d: 3.4, clip: "idle" }] },
+        { d: 6.0, clip: "idle", face: E_ }, { d: 6.2, clip: "walk", to: [1.0, 0.5] }, { d: 1.4, clip: "walk", to: [3.0, 1.4] }, { d: 2.6, clip: "walk", to: [6.2, 1.3] },
+        { d: 4.4, clip: "walk", to: [11.5, 0.8] }, { d: 5.4, clip: "idle" }] },
       b: { start: [-1.8, 2.8], face: E_, helmet: true, segs: [
-        { d: 9.0, clip: "idle" }, { d: 2.0, clip: "phone", off: 1.0 }, { d: 3.6, clip: "walk", to: [2.2, -0.2] },
-        { d: 2.4, clip: "kneelDown", faceAt: [2.6, -1.1] }, { d: 1.0, clip: "kneel" }] } },
+        { d: 16.0, clip: "idle" }, { d: 2.0, clip: "phone", off: 1.0 }, { d: 3.6, clip: "walk", to: [2.2, -0.2] },
+        { d: 2.4, clip: "kneelDown", faceAt: [2.6, -1.1] }, { d: 2.0, clip: "kneel" }] } },
   };
+
+  /* ================= 조명 · 바닥 투사(LIGHT) =================
+   * 출처: Figma KISTA-2026 929:2294 시나리오 표의 '조명'(로봇 앞쪽 불빛) · '라이팅'([상태] 몸 불빛 / [투사] 바닥에 비추는 빛) 줄.
+   * 장면마다 body = 몸 앞 불빛 구간 [시작, 끝, 색, 방식], fx = 바닥 투사 구간. 시각만으로 정해져 되감기 · 단계 녹화가 맞는다.
+   * 색: G 초록 · B 파랑 · Y 황색 · R 적색 · T 청록 · S 하늘색 · W 흰색
+   * fx 종류  ring  원(at = robot 또는 [x, z], r = [시작 반지름, 끝 반지름], arcs = 카운트다운 칸 수, ramp = 밝기 [시작, 끝], blink = 주기)
+   *          glow  흐린 원판   arrows  흐르는 화살표 길(path 점들 / fwd = 로봇 앞으로 길이 / worker = 근로자에서 dir 쪽으로 len)
+   *          icon  바닥 그림(helmet · check · warn, fwd = 로봇 앞 거리)   fan  로봇에서 근로자 쪽 부채꼴   beam  로봇에서 한 점으로 빛줄기
+   *          c2 가 있으면 구간 동안 c → c2 로 색이 바뀐다
+   */
+  const LC = { G: 0x3BE07A, B: 0x2F8BFF, Y: 0xFFC21A, R: 0xFF383C, T: 0x19E3C2, S: 0x55C8FF, W: 0xFFFFFF, N: 0x9EA8BB };   // G · R · N 은 v7 관제 지도 호 색(HALO_GX · 위험 · 복귀 회색)
+  const LIGHT = {
+    /*
+     * halo = 로봇 둘레 바닥 라이팅 — v7 관제 지도와 같은 '4방위 호'(map-v6.js rrHalo · v7 분기, 11/12 디자이너).
+     *   반지름 1m. 앞 호(반각 44° · 굵고 빛 번짐) + 좌 · 우 · 뒤 호(반각 32° · 30%). 상태색: 평소 초록 · 위험 빨강 · 자동복귀 회색 · 일시정지 노랑.
+     *   mode  walk 앞 호만 2.4초 35↔100% 점멸 / stand 켠 채 / inspect 앞 호가 좌우로 둘러보며(±0.42rad) 1.8초 숨 / ring 대기 고리 12%
+     *         grow 호 넷이 반지름 0.5 → 1m 로 퍼짐 / count 카운트다운에 맞춰 좌 · 우 · 뒤 호가 1초마다 켜짐 / rise 호 넷 밝기 상승 / blink 호 넷 느린 점멸
+     *   aim   앞 호가 향할 곳 — 근로자('a' · 'b') 또는 [x, z]. 없으면 로봇 앞
+     * fx = 그 밖의 바닥 투사(시나리오 표 [투사]): 근로자 화살표 길 · 바닥 그림 · 이상 지점 빛 · 감지 반경 · 우회 · 복귀 경로
+     */
+    "1-1": { body: [[0, 12, "G"]],
+      halo: [[0, 2, "G", "ring"], [2, 4, "G", "grow"], [4, 7, "G", "count"], [7, 10, "G", "rise"], [10, 12, "G", "blink"]], fx: [] },
+    "1-2": { body: [[0, 2.4, "B"], [2.4, 7.2, "Y"], [7.2, 9.6, "B"], [9.6, 12, "T"]],
+      halo: [[0, 2.4, "B", "walk"], [2.4, 4.8, "B", "walk", { c2: "Y" }], [4.8, 7.2, "Y", "stand"], [7.2, 9.6, "Y", "walk", { c2: "B" }], [9.6, 12, "T", "walk"]], fx: [
+      // 3. 먼저 가세요 — 로봇에서 근로자 쪽 1.3m 에 → 화살표, 근로자가 지나갈 방향(서쪽)
+      { t: [4.8, 7.2], k: "band", near: "a", dir: [-1, 0], toward: [-9.8, -0.6], c: "G" }] },   // toward: 근로자가 지나 갈 곳 — 그쪽 끝으로 흐름
+    "2-1": { body: [[0, 12.0, "Y"], [12.0, 15.8, "S"], [15.8, 18, "T"]],
+      halo: [[0, 2.8, "Y", "walk", { aim: "b" }], [2.8, 12.0, "Y", "stand", { aim: "b" }], [12.0, 15.8, "S", "stand", { aim: "b" }], [15.8, 18, "T", "walk"]], fx: [
+      { t: [2.8, 12.0], k: "icon", icon: "helmet", fwd: 1.3, size: 1.3, c: "Y" },
+      { t: [12.0, 15.8], k: "icon", icon: "check", fwd: 1.3, size: 1.3, c: "S" }] },
+    // (11/18) 이상 지점 흰 빛줄기 · 빨간 감지 반경은 뺐다(디자이너) — 로봇 둘레 호 · 경고 표지 · 우회 화살표만
+    "2-2": { body: [[0, 2.8, "W"], [2.8, 11.2, "R"], [11.2, 14, "T"]],
+      halo: [[0, 2.8, "W", "inspect", { aim: [12.6, -4.4] }], [2.8, 11.2, "R", "stand", { aim: [12.6, -4.4] }], [11.2, 14, "T", "walk"]], fx: [
+      { t: [2.8, 5.6], k: "icon", icon: "warn", fwd: 1.1, size: 0.9, c: "R" },
+      // 3. 작업자 우회 안내 — 로봇에서 근로자 쪽 1.3m 에 우회 화살표, 근로자가 피해 갈 보행 통로 쪽
+      { t: [5.6, 8.4], k: "band", near: "a", dirTo: [12.6, 2.6], toward: [12.6, 2.6], c: "G" }] },
+    // 자율 복귀는 v7 처럼 회색. 도킹해 앉으면(21초) 끈다 — v7 도 도킹 중엔 호를 숨긴다
+    "3-1": { body: [[0, 12.6, "Y"], [12.6, 21.0, "Y", "blink"], [21.0, 24, "G", "level", 0.4]],
+      halo: [[0, 7.3, "Y", "stand"], [7.3, 12.6, "Y", "stand", { aim: [-11.6, -1.4] }], [12.6, 21.0, "N", "walk"]], fx: [
+      // 3. 복귀 의사 예고 — 로봇 앞 1.3m 에 회전 화살표, 복귀 방향 / 4. 저속 자율 복귀 — 로봇이 가는 쪽 1.3m 에 → 화살표(같이 움직임)
+      { t: [7.3, 12.6], k: "band", dirTo: [-11.6, -1.4], split: true, c: "T" },   // split: 가운데에서 양 끝으로 — 길을 비켜 주세요
+      { t: [12.6, 21.0], k: "band", dir: "move", split: true, c: "T" }] },
+    // 위험(자율복귀 불가)은 빨강 — 걷는 동안 점멸, 멈추면 켠 채. 5단계 22초 '전원 꺼짐'에 같이 끈다
+    "3-2": { body: [[0, 22.0, "R"]],
+      halo: [[0, 1.6, "R", "walk"], [1.6, 6.4, "R", "stand"], [6.4, 9.4, "R", "walk"], [9.4, 22.0, "R", "stand"]], fx: [] },
+  };
+
+  // --- 바닥 투사 그리기 재료(흰 그림 + 재질 색) ---
+  const fxTex = {
+    glow: canvasTex(256, 256, (g, w) => { const r = g.createRadialGradient(128, 128, 0, 128, 128, 128); r.addColorStop(0, "rgba(255,255,255,1)"); r.addColorStop(1, "rgba(255,255,255,0)"); g.fillStyle = r; g.fillRect(0, 0, w, w); }, { repeat: [1, 1] }),
+    chev: canvasTex(256, 128, (g) => { g.fillStyle = "#fff"; for (const x0 of [24, 152]) { g.beginPath(); g.moveTo(x0, 18); g.lineTo(x0 + 56, 64); g.lineTo(x0, 110); g.lineTo(x0 + 26, 110); g.lineTo(x0 + 82, 64); g.lineTo(x0 + 26, 18); g.closePath(); g.fill(); } }, { repeat: [1, 1] }),
+    fan: canvasTex(256, 256, (g) => { const r = g.createLinearGradient(0, 256, 0, 0); r.addColorStop(0, "rgba(255,255,255,0.9)"); r.addColorStop(1, "rgba(255,255,255,0)"); g.fillStyle = r; g.beginPath(); g.moveTo(128, 256); g.lineTo(20, 0); g.lineTo(236, 0); g.closePath(); g.fill(); }, { repeat: [1, 1] }),
+  };
+  function iconTex(kind) {
+    return canvasTex(256, 256, (g) => {
+      g.strokeStyle = "#fff"; g.fillStyle = "#fff"; g.lineWidth = 12; g.lineCap = g.lineJoin = "round";
+      g.beginPath(); g.arc(128, 128, 112, 0, 7); g.stroke();
+      if (kind === "helmet") { g.beginPath(); g.arc(128, 150, 62, Math.PI, 0); g.closePath(); g.fill(); g.fillRect(48, 150, 160, 18); g.fillRect(120, 78, 16, 30); }
+      else if (kind === "check") { g.lineWidth = 22; g.beginPath(); g.moveTo(74, 132); g.lineTo(112, 170); g.lineTo(184, 92); g.stroke(); }
+      else if (kind === "arrow") { g.beginPath(); g.moveTo(128, 46); g.lineTo(196, 124); g.lineTo(152, 124); g.lineTo(152, 206); g.lineTo(104, 206); g.lineTo(104, 124); g.lineTo(60, 124); g.closePath(); g.fill(); }   // 위(=진행 방향)를 가리킨다
+      else if (kind === "warn") { g.beginPath(); g.moveTo(128, 50); g.lineTo(206, 186); g.lineTo(50, 186); g.closePath(); g.fill(); g.globalCompositeOperation = "destination-out"; g.fillRect(118, 92, 20, 56); g.fillRect(118, 158, 20, 18); }
+    }, { repeat: [1, 1] });
+  }
+  for (const t of Object.values(fxTex)) t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
+  fxTex.chev.wrapS = THREE.RepeatWrapping;
+  /* 디스플레이(spot-display.html A안) 기호를 그대로 — 240 격자 SVG 경로를 동그라미 안에 그린다.
+   * right · detour 는 화살 머리가 오른쪽(+x), uturn 은 아래(+y)를 가리킨다 → sym 이 방향을 맞춰 돌린다 */
+  function symTex(paths) {
+    return canvasTex(256, 256, (g) => {
+      g.strokeStyle = "#fff"; g.fillStyle = "#fff"; g.lineWidth = 12;
+      g.beginPath(); g.arc(128, 128, 112, 0, 7); g.stroke();
+      g.save(); g.translate(128, 128); g.scale(0.72 * 256 / 240, 0.72 * 256 / 240); g.translate(-120, -120);
+      for (const [d, fill] of paths) { const p2 = new Path2D(d); if (fill) g.fill(p2, fill === "evenodd" ? "evenodd" : "nonzero"); else { g.lineWidth = 30; g.lineCap = "butt"; g.stroke(p2); } }
+      g.restore();
+    }, { repeat: [1, 1] });
+  }
+  const ICONS = {
+    // 안전모 = 디스플레이 안전모 아이콘(11/19, assets/img/kista/floor-helmet.svg 와 같은 모양)
+    helmet: symTex([["M210 140V160H30V140Z", true], ["M130 40V80H110V40Z", true],
+      ["M140 50.709C173.923 55.5613 200 84.7353 200 120V130H40V120C40 84.7353 66.0771 55.5613 100 50.709V80C100 85.5228 104.477 90 110 90H130C135.523 90 140 85.5258 140 80.0029V50.709ZM130 50V70C130 75.5228 125.523 80 120 80C114.477 80 110 75.5228 110 70V50H130Z", "evenodd"]]), check: iconTex("check"), warn: iconTex("warn"), arrow: iconTex("arrow"),
+    right: symTex([["M210 120L130 170V135H40V105H130V70Z", true]]),
+    detour: symTex([["M70 190V125C70 102.909 87.9086 85 110 85H145", false], ["M210 85.0875L130 135L130 36L210 85.0875Z", true]]),
+    uturn: symTex([["M170 190V90C170 67.9086 152.091 50 130 50H120C97.9086 50 80 67.9086 80 90V135", false], ["M80 200L130 120H30L80 200Z", true]]) };
+  const SYM_AXIS = { right: "x", detour: "x", uturn: "down" };
+  for (const t of Object.values(ICONS)) t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
+  const fxMat = (map, add) => new THREE.MeshBasicMaterial({ map, color: 0xffffff, transparent: true, opacity: 1, depthWrite: false, toneMapped: false,
+    blending: add ? THREE.AdditiveBlending : THREE.NormalBlending, polygonOffset: true, polygonOffsetFactor: -6 });
+  const FX = new THREE.Group(); scene.add(FX);
+  const flat = (geo, mat) => { const m = new THREE.Mesh(geo, mat); m.rotation.x = -Math.PI / 2; m.rotation.order = "YXZ"; m.renderOrder = 3; m.visible = false; FX.add(m); return m; };
+  // 미리 만든 조각을 다시 쓴다(매 프레임 새로 만들지 않음)
+  const POOL = { ring: [], arc: [], glow: [], strip: [], icon: [], fan: [] };
+  for (let i = 0; i < 3; i++) POOL.ring.push(flat(new THREE.RingGeometry(0.9, 1, 96), fxMat(null)));
+  for (let i = 0; i < 3; i++) POOL.arc.push(flat(new THREE.RingGeometry(0.9, 1, 32, 1, Math.PI / 2 - (i + 1) * 2 * Math.PI / 3 + 0.07, 2 * Math.PI / 3 - 0.14), fxMat(null)));
+  for (let i = 0; i < 3; i++) POOL.glow.push(flat(new THREE.PlaneGeometry(2, 2), fxMat(fxTex.glow, true)));
+  for (let i = 0; i < 6; i++) { const tx = fxTex.chev.clone(); tx.needsUpdate = true; POOL.strip.push(flat(new THREE.PlaneGeometry(1, 1), fxMat(tx))); }
+  for (let i = 0; i < 6; i++) POOL.icon.push(flat(new THREE.PlaneGeometry(1, 1), fxMat(ICONS.helmet)));
+  POOL.fan.push(flat(new THREE.PlaneGeometry(1, 1), fxMat(fxTex.fan, true)));
+  const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.32, 1, 24, 1, true), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.22, depthWrite: false, toneMapped: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
+  beam.visible = false; FX.add(beam);
+
+  // 몸 앞 불빛 — 앞면 아래쪽 배터리 표기 자리(앞 = -z)에 다섯 칸. level 이면 잔량만큼만 켠다
+  const bodyLeds = [];
+  function addBodyLight(body) {
+    for (let i = 0; i < 5; i++) {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.012, 0.006), new THREE.MeshBasicMaterial({ color: 0x222222, toneMapped: false }));
+      m.position.set(-0.05 + i * 0.025, 0.462, -(0.425 + 0.006)); body.add(m); bodyLeds.push(m);
+    }
+  }
+  if (spot) addBodyLight(spot.group.children[0]);
+
+  const _c1 = new THREE.Color(), _c2 = new THREE.Color();
+  // --- 호 띠 + 화살표 무늬(디자이너 스케치 11/18) — 캔버스 하나를 프레임마다 다시 그린다(띠가 보일 때만) ---
+  /*
+   * (11/18 디자이너 2차) 얇은 호 띠(0.25m · 끝은 자른 꼴) + 화살표가 호를 따라 왼쪽이나 오른쪽으로만 흐른다.
+   * 바깥에서 로봇 쪽을 가리키면 '로봇으로 돌진'처럼 읽혀, 호를 따라 돌게 했다 — 호를 따라 방향이 바뀌어 자연스럽다.
+   * 흐르는 쪽: toward(가야 할 곳)에 가까운 호 끝으로. split 이면 가운데에서 양 끝으로(길을 비켜 주세요).
+   */
+  const BAND = { ext: 2.0, rIn: 1.15, rOut: 1.4, half: 50 * Math.PI / 180, px: 512 };
+  const bandCv = document.createElement("canvas"); bandCv.width = bandCv.height = BAND.px;
+  const bandG = bandCv.getContext("2d");
+  const bandTex = new THREE.CanvasTexture(bandCv); bandTex.colorSpace = THREE.SRGBColorSpace;
+  const bandMesh = flat(new THREE.PlaneGeometry(1, 1), fxMat(bandTex)); bandMesh.renderOrder = 4;
+  function drawBand(t, rp, cx, cz, f, col, a) {
+    const S = BAND.px, k = S / (2 * BAND.ext), g = bandG;
+    const yaw = Math.atan2(-cz, cx);   // 캔버스 +x(띠 가운데)를 (cx, cz) 쪽으로
+    // 세계 방향 → 캔버스 각: 캔버스 +x ↔ (cos yaw, -sin yaw), +y ↔ (sin yaw, cos yaw)
+    const ang = (wx, wz) => Math.atan2(wx * Math.sin(yaw) + wz * Math.cos(yaw), wx * Math.cos(yaw) - wz * Math.sin(yaw));
+    let dir = 1;   // +1 = 캔버스 각이 커지는 쪽 끝으로
+    if (f.toward) { const at = ang(f.toward[0] - rp.x, f.toward[1] - rp.z); dir = at >= 0 ? 1 : -1; }
+    g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, S, S); g.translate(S / 2, S / 2);
+    const ro = BAND.rOut * k, ri = BAND.rIn * k, h = BAND.half, rm = (ro + ri) / 2;
+    const band = new Path2D(); band.arc(0, 0, ro, -h, h); band.arc(0, 0, ri, h, -h, true); band.closePath();
+    g.fillStyle = "rgba(255,255,255,0.22)"; g.fill(band);
+    g.lineWidth = 2.5; g.strokeStyle = "rgba(255,255,255,0.8)"; g.stroke(band);
+    g.save(); g.clip(band);
+    // 화살표 — 호 가운데 줄을 따라 같은 간격(0.34m), 초당 0.6m 로 흐른다
+    const gap = 0.34 / ((BAND.rIn + BAND.rOut) / 2), sp = 0.6 / ((BAND.rIn + BAND.rOut) / 2);
+    const ph = ((t * sp) % gap + gap) % gap;
+    g.strokeStyle = "#fff"; g.lineWidth = 0.07 * k; g.lineCap = "round"; g.lineJoin = "round";
+    const hw = 0.085 * k, dp = 0.07 * k;   // 화살표 반높이 · 깊이
+    for (let i = -12; i <= 12; i++) {
+      let phi, d;
+      if (f.split) { const base = (Math.abs(i) - 0.5) * gap + ph; if (i === 0) continue; phi = Math.sign(i) * base; d = Math.sign(i); }
+      else { phi = i * gap + dir * ph; d = dir; }
+      if (Math.abs(phi) > h + 0.05) continue;
+      g.save(); g.rotate(phi); g.translate(rm, 0); g.rotate(d > 0 ? Math.PI / 2 : -Math.PI / 2);   // 접선 방향으로
+      g.beginPath(); g.moveTo(-dp, -hw); g.lineTo(dp, 0); g.lineTo(-dp, hw); g.stroke(); g.restore();
+    }
+    g.restore();
+    bandTex.needsUpdate = true;
+    bandMesh.visible = true; bandMesh.position.set(rp.x, 0.017, rp.z); bandMesh.scale.set(2 * BAND.ext, 2 * BAND.ext, 1);
+    bandMesh.rotation.set(-Math.PI / 2, yaw, 0, "YXZ"); bandMesh.material.color.copy(col); bandMesh.material.opacity = a * 0.95;
+  }
+
+  // --- 4방위 호(v7 관제 지도 rrHalo 와 같은 그림: 시안 R=120 이 1m, 캔버스 반폭 1.22R) ---
+  function haloArc(halfDeg, width, glow, full) {
+    const R = 120, half = R * 1.22, k = 2, n = Math.round(half * 2 * k);
+    return canvasTex(n, n, (g) => {
+      g.setTransform(k, 0, 0, k, half * k, half * k);
+      g.strokeStyle = "#fff"; g.lineWidth = width; g.lineCap = "round";
+      if (glow) { g.shadowColor = "#fff"; g.shadowBlur = glow * k; }
+      g.beginPath();
+      if (full) g.arc(0, 0, R, 0, Math.PI * 2); else g.arc(0, 0, R - 10, -halfDeg * Math.PI / 180, halfDeg * Math.PI / 180);
+      g.stroke();
+    }, { repeat: [1, 1] });
+  }
+  const HALO_SIZE = 2 * 1.22;   // 판 한 변(m) — 반지름 1m 호를 담는다
+  const haloTex = { front: haloArc(44, 14, 12), side: haloArc(32, 12, 0), ring: haloArc(0, 12, 0, true) };
+  for (const t of Object.values(haloTex)) t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
+  const HALO = {};
+  for (const [k, tex, rot] of [["front", "front", 0], ["left", "side", -Math.PI / 2], ["right", "side", Math.PI / 2], ["back", "side", Math.PI], ["ring", "ring", 0]]) {
+    const m = flat(new THREE.PlaneGeometry(1, 1), fxMat(haloTex[tex]));
+    m.userData.off = rot; m.renderOrder = 4; HALO[k] = m;
+  }
+  // 지금 시각의 호 모양(색 · 호마다 밝기 · 크기 · 앞 호 흔들림 · 들고 남) — 작업현장(drawHalo)과 관제 지도(ctlKista) 둘 다 이걸 쓴다
+  function haloLook(t) {
+    const L = LIGHT[cur.id]; if (!L || !L.halo) return null;
+    let h = null; for (const x of L.halo) if (t >= x[0] && t < x[1]) h = x; if (!h) return null;
+    const [t0, t1, c, mode, o = {}] = h, u = (t - t0) / (t1 - t0), e = t - t0;
+    _c1.setHex(LC[c]); if (o.c2) _c1.lerpHSL(_c2.setHex(LC[o.c2]), smooth(Math.min(1, e / 0.6)));   // 단계 시작 0.6초 안에 바뀐다(중간색이 탁해지지 않게 색상환으로)
+    const wave = (per, lo) => lo + (1 - lo) * (0.5 - 0.5 * Math.cos(t / per * Math.PI * 2));
+    let sc = 1, sway = 0, op = { front: 1, left: 0.3, right: 0.3, back: 0.3, ring: 0 };
+    if (mode === "walk") op.front = wave(2.4, 0.35);
+    else if (mode === "inspect") { sway = Math.sin(t * 1000 / 650) * 0.42; op.front = wave(1.8, 0.45); }
+    else if (mode === "ring") op = { front: 0, left: 0, right: 0, back: 0, ring: 0.18 };
+    else if (mode === "grow") { sc = 0.5 + 0.5 * smooth(u); op = { front: 0.6, left: 0.6, right: 0.6, back: 0.6, ring: 0 }; }
+    else if (mode === "count") { op = { front: 0.3, left: e >= 0 ? 1 : 0.15, right: e >= 1 ? 1 : 0.15, back: e >= 2 ? 1 : 0.15, ring: 0 }; }
+    else if (mode === "rise") { const k = 0.35 + 0.65 * u; op = { front: k, left: k, right: k, back: k, ring: 0 }; }
+    else if (mode === "blink") { const k = wave(1.6, 0.3); op = { front: k, left: k, right: k, back: k, ring: 0 }; }
+    // 앞뒤 구간이 이어지면 경계에서 꺼졌다 켜지지 않는다 — 처음 켤 때 · 마지막에 끌 때만 0.25초 들고 난다
+    const prevCont = L.halo.some(x => Math.abs(x[1] - t0) < 1e-6), nextCont = L.halo.some(x => Math.abs(x[0] - t1) < 1e-6);
+    const fade = Math.min(prevCont ? 1 : e / 0.25, nextCont ? 1 : (t1 - t) / 0.25, 1);
+    return { o, color: _c1, op, sc, sway, fade };
+  }
+  function drawHalo(t, rp) {
+    for (const m of Object.values(HALO)) m.visible = false;
+    const hl = haloLook(t); if (!hl) return;
+    const { o, op, fade } = hl;
+    // 앞 방향 — aim(근로자 · 점)이 있으면 그쪽, 없으면 로봇 앞
+    let ax = rp.fx, az = rp.fz;
+    if (o.aim) { let tx, tz; if (typeof o.aim === "string") { const w = SEG[o.aim]; if (w) [tx, tz] = posAt(w.segs, t); } else [tx, tz] = o.aim;
+      if (tx !== undefined) { const dx = tx - rp.x, dz = tz - rp.z, dd = Math.hypot(dx, dz); if (dd > 0.01) { ax = dx / dd; az = dz / dd; } } }
+    const yaw = Math.atan2(-az, ax) + hl.sway;   // 판 +x(캔버스 앞 호)를 그 방향으로
+    const sc = HALO_SIZE * hl.sc;
+    for (const [k, m] of Object.entries(HALO)) {
+      if (!op[k]) continue;
+      m.visible = true; m.position.set(rp.x, 0.016, rp.z); m.scale.set(sc, sc, 1);
+      m.rotation.set(-Math.PI / 2, yaw + m.userData.off, 0, "YXZ");
+      m.material.color.copy(_c1); m.material.opacity = op[k] * fade;
+    }
+  }
+
+  function robotPose(t) {
+    const segs = SEG.robot, s = segs[segAt(segs, t)], [x, z] = posAt(segs, t);
+    const yaw = lerpAng(s.yaw0, s.yaw1, smooth(Math.min(1, (t - s.t0) / (s.turn || 0.8))));
+    return { x, z, yaw, fx: -Math.sin(yaw), fz: -Math.cos(yaw) };
+  }
+  function lightColor(f, u, e) { _c1.setHex(LC[f.c]); if (f.c2) _c1.lerpHSL(_c2.setHex(LC[f.c2]), smooth(Math.min(1, e / 0.6))); return _c1; }
+  function applyLights(t) {
+    for (const k in POOL) POOL[k].forEach(m => { m.visible = false; });
+    beam.visible = false; bandMesh.visible = false;
+    const L = LIGHT[cur.id] || { body: [], fx: [] }, rp = robotPose(t);
+    drawHalo(t, rp);
+    // 몸 불빛
+    let b = null; for (const x of L.body) if (t >= x[0] && t < x[1]) b = x;
+    bodyLeds.forEach((m, i) => {
+      if (!b) { m.material.color.setHex(0x1a1a1a); return; }
+      let k = 1;
+      if (b[3] === "blink") k = 0.25 + 0.75 * (0.5 + 0.5 * Math.cos(t * Math.PI * 2 / 1.0));
+      if (b[3] === "level" && i >= Math.round(b[4] * 5)) k = 0.08;
+      m.material.color.setHex(LC[b[2]]).multiplyScalar(k);
+    });
+    // 바닥 투사
+    const use = { ring: 0, arc: 0, glow: 0, strip: 0, icon: 0, fan: 0 };
+    const take = k => POOL[k][use[k]++];
+    for (const f of L.fx) {
+      if (t < f.t[0] || t >= f.t[1]) continue;
+      const u = (t - f.t[0]) / (f.t[1] - f.t[0]);
+      let a = Math.min(1, (t - f.t[0]) / 0.3, (f.t[1] - t) / 0.3);   // 0.3초 들고 나기
+      if (f.ramp) a *= f.ramp[0] + (f.ramp[1] - f.ramp[0]) * u;
+      if (f.blink) a *= 0.35 + 0.65 * (0.5 + 0.5 * Math.cos((t - f.t[0]) * Math.PI * 2 / f.blink));
+      const col = lightColor(f, u, t - f.t[0]);
+      const at = f.at === "robot" || !f.at ? [rp.x, rp.z] : f.at;
+      // 바닥 판: 회전은 바닥 위에서 도는 각(yaw) — 판의 +x 가 그 방향의 오른쪽, 판의 -y(화면 아래)가 앞
+      const put = (m, x, z, sx, sz, yaw = 0, opa = a) => { if (!m) return null; m.visible = true; m.position.set(x, 0.014, z); m.scale.set(sx, sz, 1); m.rotation.set(-Math.PI / 2, yaw, 0, "YXZ"); m.material.color.copy(col); m.material.opacity = opa; return m; };
+      if (f.k === "ring") {
+        const r = f.r[0] + (f.r[1] - f.r[0]) * smooth(u);
+        if (f.arcs) { for (let i = 0; i < f.arcs; i++) if (t >= f.arcT0 + i) put(take("arc"), at[0], at[1], r, r, rp.yaw, a); }
+        else put(take("ring"), at[0], at[1], r, r);
+      } else if (f.k === "glow") put(take("glow"), at[0], at[1], f.r, f.r, 0, a * 0.6);
+      else if (f.k === "icon") { const m = put(take("icon"), rp.x + rp.fx * f.fwd, rp.z + rp.fz * f.fwd, f.size, f.size, rp.yaw + Math.PI, a * 0.95); if (m) m.material.map = ICONS[f.icon]; }
+      else if (f.k === "fan") {
+        const w = SEG[f.toward]; if (!w) continue;
+        const [wx, wz] = posAt(w.segs, t), dx = wx - rp.x, dz = wz - rp.z, dd = Math.hypot(dx, dz), L2 = Math.max(0.5, Math.min(3.6, dd - 0.3));
+        put(take("fan"), rp.x + dx / dd * L2 / 2, rp.z + dz / dd * L2 / 2, L2 * 0.9, L2, Math.atan2(-dx, -dz), a * 0.55);
+      } else if (f.k === "beam") {
+        const A = new THREE.Vector3(rp.x, 0.95, rp.z), B = new THREE.Vector3(...f.to), D = B.clone().sub(A);
+        beam.visible = true; beam.position.copy(A).addScaledVector(D, 0.5); beam.scale.set(1, D.length(), 1);
+        beam.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), D.clone().normalize()); beam.material.color.copy(col); beam.material.opacity = 0.22 * a;
+      } else if (f.k === "band") {
+        // (11/18 디자이너) 호 띠 + 안에 화살표 무늬 — 4방위 호 바로 바깥(1.1~1.9m) 76° 띠. 놓는 쪽 = 근로자 쪽(near) 또는 가리키는 쪽
+        let dx, dz;
+        if (Array.isArray(f.dir)) [dx, dz] = f.dir;
+        else if (f.dir === "move") { const [x1, z1] = posAt(SEG.robot, Math.min(SEG.dur, t + 0.25)); dx = x1 - rp.x; dz = z1 - rp.z; if (Math.hypot(dx, dz) < 0.02) { dx = rp.fx; dz = rp.fz; } }
+        else if (f.dirTo) { let ox = rp.x, oz = rp.z; if (f.near && SEG[f.near]) [ox, oz] = posAt(SEG[f.near].segs, t); dx = f.dirTo[0] - ox; dz = f.dirTo[1] - oz; }
+        const dd = Math.hypot(dx, dz) || 1; dx /= dd; dz /= dd;
+        let cx = dx, cz = dz;
+        if (f.near && SEG[f.near]) { const [wx, wz] = posAt(SEG[f.near].segs, t), qx = wx - rp.x, qz = wz - rp.z, qd = Math.hypot(qx, qz) || 1; cx = qx / qd; cz = qz / qd; }
+        drawBand(t, rp, cx, cz, f, col, a);
+      } else if (f.k === "sym") {
+        // 로봇이 바닥에 비추는 표지 — 안전모 표지처럼 로봇 가까이(1.3m). 자리: near(근로자) 쪽 또는 가리키는 방향 쪽
+        let dx, dz;
+        if (Array.isArray(f.dir)) [dx, dz] = f.dir;
+        else if (f.dir === "move") { const [x1, z1] = posAt(SEG.robot, Math.min(SEG.dur, t + 0.25)); dx = x1 - rp.x; dz = z1 - rp.z; if (Math.hypot(dx, dz) < 0.02) { dx = rp.fx; dz = rp.fz; } }
+        else if (f.dirTo) { let ox = rp.x, oz = rp.z; if (f.near && SEG[f.near]) [ox, oz] = posAt(SEG[f.near].segs, t); dx = f.dirTo[0] - ox; dz = f.dirTo[1] - oz; }
+        const dd = Math.hypot(dx, dz) || 1; dx /= dd; dz /= dd;
+        let px = dx, pz = dz;   // 놓는 쪽
+        if (f.near && SEG[f.near]) { const [wx, wz] = posAt(SEG[f.near].segs, t), qx = wx - rp.x, qz = wz - rp.z, qd = Math.hypot(qx, qz) || 1; px = qx / qd; pz = qz / qd; }
+        const D = f.dist || 1.3, sz = f.size || 1.2;
+        const yaw = SYM_AXIS[f.icon] === "down" ? Math.atan2(dx, dz) : Math.atan2(-dz, dx);   // 그림의 화살 머리 쪽을 (dx, dz) 로
+        const m = put(take("icon"), rp.x + px * D, rp.z + pz * D, sz, sz, yaw, a * 0.95);
+        if (m) m.material.map = ICONS[f.icon];
+      } else if (f.k === "arrows") {
+        let pts;
+        if (f.fwd) pts = [[rp.x + rp.fx * 0.75, rp.z + rp.fz * 0.75], [rp.x + rp.fx * (0.75 + f.fwd), rp.z + rp.fz * (0.75 + f.fwd)]];
+        else if (f.worker) { const w = SEG[f.worker]; if (!w) continue; const [wx, wz] = posAt(w.segs, t); pts = [[wx + f.dir[0] * 0.6, wz + f.dir[1] * 0.6], [wx + f.dir[0] * (0.6 + f.len), wz + f.dir[1] * (0.6 + f.len)]]; }
+        else pts = f.path;
+        // (11/18) 길게 깐 화살표 대신 안전모 표지와 같은 꼴 — 동그라미 안 화살표. 근로자 쪽은 근로자 앞에 하나,
+        //   경로는 꺾이는 지점마다 하나씩 다음 지점을 가리킨다. 그림 위(화살 끝)가 진행 방향 → yaw = atan2(-dx, -dz)
+        const marks = f.worker ? [[pts[0][0] + f.dir[0] * 0.6, pts[0][1] + f.dir[1] * 0.6, f.dir[0], f.dir[1]]]
+          : pts.slice(0, -1).map((p, i) => { const q = pts[i + 1], dx = q[0] - p[0], dz = q[1] - p[1], d = Math.hypot(dx, dz) || 1, k = i === 0 ? 0.35 : 0;
+              return [p[0] + dx * k, p[1] + dz * k, dx / d, dz / d]; });
+        for (const [x, z, dx, dz] of marks) {
+          const m = put(take("icon"), x, z, f.size || 1.0, f.size || 1.0, Math.atan2(-dx, -dz), a * 0.95);
+          if (!m) break; m.material.map = ICONS.arrow;
+        }
+      }
+    }
+  }
 
   const yawTo = (dx, dz) => Math.atan2(-dx, -dz);
   const smooth = x => x * x * (3 - 2 * x);
@@ -873,7 +1396,7 @@
   function poseWorker(holder, w, t) {
     const segs = w.segs, i = segAt(segs, t), s = placeOn(holder, segs, t, 0.45);
     const ud = holder.userData;
-    if (ud.helmets) { let on = w.helmet; for (const [et, v] of (w.ev || [])) if (t >= et) on = v; ud.helmets.forEach(m => { m.visible = on; }); }
+    if (ud.helmets) { let on = w.helmet; for (const [et, v] of (w.ev || [])) if (t >= et) on = v; ud.helmets.forEach(m => { m.visible = on; }); if (ud.hairCap) ud.hairCap.visible = !on; }
     if (!ud.mixer) return;
     for (const a of Object.values(ud.actions)) a.setEffectiveWeight(0);
     const prev = segs[i - 1], k = prev ? Math.min(1, (t - s.t0) / 0.3) : 1;
@@ -884,16 +1407,19 @@
   }
 
   // 로봇 — SPOT 다리는 상태를 쌓아 가며 움직인다. 되감을 땐 처음부터 1/30초씩 다시 돌린다(가볍다)
-  let SEG = null, curT = 0, playing = false;
+  let SEG = null, curT = 0, playing = false, recording = false;
   function buildScene(id) {
     const sc = SCRIPT[id];
-    SEG = { dur: sc.dur, st: sc.st, sign: sc.sign || [], robot: build(sc.robot) };
+    SEG = { dur: sc.dur, st: sc.st, sign: sc.sign || [], voice: sc.voice || [], robot: build(sc.robot) };
     for (const k of ["a", "b"]) SEG[k] = sc[k] ? { ...sc[k], segs: build(sc[k]) } : null;
   }
   function stepRobot(t, dt) { if (!spot) return; const s = placeOn(spot.group, SEG.robot, t, 0.8); spot.update(dt, s.mode || "idle"); }
   function poseAll(t) {
     for (const [h, k] of [[wkA, "a"], [wkB, "b"]]) { const w = SEG[k]; h.visible = !!w; if (w) poseWorker(h, w, t); }
-    let sg = null; for (const [st, key] of SEG.sign) if (t >= st) sg = key; if (sg) setSign(sg);
+    placeCam(t);
+    if (wantDisp(t)) useDispTex();
+    else { let sg = null; for (const [st, key] of SEG.sign) if (t >= st) sg = key; if (sg) setSign(sg); }
+    applyLights(t);
     dirty = true;
   }
   function seek(t) {
@@ -903,16 +1429,38 @@
     stepRobot(curT, 0); poseAll(curT); showT();
   }
   function showT() {
+    if (typeof comboOn !== "undefined" && comboOn) { comboStepsAt(curT); camApply(curT); }
     const el = document.getElementById("tRead"); if (el) el.textContent = `${curT.toFixed(1)} / ${SEG.dur.toFixed(1)}초`;
     const n = SEG.st.filter(x => curT >= x - 1e-6).length - 1;
     [...document.querySelectorAll("#steps li")].forEach((li, i) => li.classList.toggle("is-now", i === n));
+    [...document.querySelectorAll("#stepbar button")].forEach((b, i) => b.classList.toggle("is-now", i === n));
+    const pg = document.getElementById("stepProg"); if (pg) pg.style.width = (curT / SEG.dur * 100).toFixed(2) + "%";
+    const t2 = document.getElementById("tRead2"); if (t2) t2.textContent = `${curT.toFixed(1)} / ${SEG.dur.toFixed(1)}초`;
+  }
+  // 단계 하나만 — 그 단계 시작으로 가서 다음 단계 시작(마지막은 장면 끝)까지 재생하고 멈춘다. 녹화 범위도 그 단계로
+  let playEnd = null;
+  function playStep(i) {
+    if (recording) return;
+    playEnd = SEG.st[i + 1] ?? SEG.dur;
+    seek(SEG.st[i]); startPlay();
+    const rr = document.getElementById("recRange"); if (rr) rr.value = String(i);
   }
 
   /* ================= 장면 · 카메라 ================= */
   let cur = SCENES[0];
   const camBase = { pos: new THREE.Vector3(), target: new THREE.Vector3() };
+  /*
+   * 디스플레이가 보이는 구도(11/18) — 화면은 몸 위에서 A 자로 양옆을 본다. 그래서 카메라는 로봇 옆(살짝 앞이나 뒤)에서
+   * 조금 내려다본다. view.from = 대상에서 카메라 쪽 수평 방향 [x, z], view.pitch = 내려다보는 각(도).
+   * 장면마다 로봇이 보는 방향 · 근로자 자리(로봇을 가리지 않는 쪽) · 벽과 랙(카메라를 막지 않는 쪽)으로 골랐다.
+   * 거리는 원래 구도 거리를 그대로 쓴다(따라가기의 상한 기준).
+   */
   function applyCam(s) {
-    camBase.pos.set(...s.cam.pos); camBase.target.set(...s.cam.target);
+    camBase.target.set(...s.cam.target);
+    if (s.cam.view) {
+      const L = new THREE.Vector3(...s.cam.pos).distanceTo(camBase.target), [fx, fz] = s.cam.view.from, h = Math.hypot(fx, fz), pr = THREE.MathUtils.degToRad(s.cam.view.pitch);
+      camBase.pos.set(camBase.target.x + fx / h * Math.cos(pr) * L, camBase.target.y + Math.sin(pr) * L, camBase.target.z + fz / h * Math.cos(pr) * L);
+    } else camBase.pos.set(...s.cam.pos);
     camera.fov = s.cam.fov; camera.updateProjectionMatrix();
     camera.position.copy(camBase.pos); controls.target.copy(camBase.target); camera.lookAt(camBase.target); controls.update();
     dirty = true;
@@ -924,16 +1472,103 @@
     camera.position.copy(camBase.pos).addScaledVector(dir, 0.06 * e).addScaledVector(side, 0.35 * (e - 0.5));
     camera.lookAt(camBase.target);
   }
+
+  /*
+   * 따라가기 — 장면 구도(카메라 방향 · 내려다보는 각)는 그대로 두고, 거리와 자리만 로봇 · 근로자에 맞춘다.
+   * 지금 앞뒤 1.2초 동안 배우들이 있는 범위(상자)를 모아 화면 안전 구역에 꽉 차게 넣는다 —
+   * 위 왼쪽 '작업현장' 칩, 아래 PPT 진행 바 자리는 비운다. 앞뒤를 같이 보니 카메라가 덜컥거리지 않고,
+   * 시각만으로 정해져 단계별로 끊어 녹화해도 이어 붙인 화면이 맞는다.
+   */
+  const SAFE = { x0: -0.86, x1: 0.86, y0: 1 - 2 * 760 / 795, y1: 1 - 2 * 92 / 795 };   // NDC — 아래 진행 바 · 위 칩 비움
+  const MIN_DIST = 3.2;   // 너무 붙지 않게(로봇 하나만 있을 때)
+  const MAX_K = 0.75, NEAR = 4.5;
+  function posAt(segs, t) { const s = segs[segAt(segs, t)], u = Math.min(1, Math.max(0, (t - s.t0) / s.d)); return [s.from[0] + (s.to[0] - s.from[0]) * u, s.from[1] + (s.to[1] - s.from[1]) * u]; }
+  function actorPoints(t) {   // 로봇에서 NEAR 보다 먼 근로자는 NEAR 원 위로 당겨 셈 — 다가올수록 이어서 화면에 들어온다(끊김 없음)
+    const pts = [];
+    const boxAt = (x, z, r, h) => { for (const dx of [-r, r]) for (const dz of [-r, r]) for (const y of [0, h]) pts.push(new THREE.Vector3(x + dx, y, z + dz)); };
+    for (let k = -4; k <= 4; k++) {
+      const tt = Math.min(SEG.dur, Math.max(0, t + k * 0.3));
+      const [rx, rz] = posAt(SEG.robot, tt);
+      if (spot) boxAt(rx, rz, 0.62, 0.98);
+      const nr = cur?.cam?.near ?? NEAR;
+      for (const key of ["a", "b"]) if (SEG[key]) { let [x, z] = posAt(SEG[key].segs, tt); const dd = Math.hypot(x - rx, z - rz);
+        if (dd > nr) { x = rx + (x - rx) * nr / dd; z = rz + (z - rz) * nr / dd; }   // NEAR 밖은 원 위로 당겨 셈
+        // focus 장면: 정한 시간에만 근로자를 함께 잡는다 — 들고 날 때 1.5초 동안 로봇 쪽에서 차츰 펼쳐져(이어져서 튀지 않음)
+        const fw = cur?.cam?.focus?.[key];
+        let hgt = 1.86;
+        if (cur?.cam?.focus) { const w = fw ? smooth(Math.max(0, Math.min(1, (tt - fw[0]) / 1.5, (fw[1] - tt) / 1.5))) : 0;
+          if (w <= 0) continue;   // 빠진 근로자는 아예 셈하지 않는다(로봇 자리에 사람 키 상자를 남기지 않게)
+          x = rx + (x - rx) * w; z = rz + (z - rz) * w; hgt = 0.98 + (1.86 - 0.98) * w; }
+        boxAt(x, z, 0.32, hgt); }
+    }
+    return pts;
+  }
+  const _r = new THREE.Vector3(), _u = new THREE.Vector3(), _d = new THREE.Vector3(), _v = new THREE.Vector3();
+  function fitAt(t) {   // 거리 상한 = 장면 구도 거리의 75%
+    const cap = camBase.pos.distanceTo(camBase.target) * (cur?.cam?.maxK ?? MAX_K), pts = actorPoints(t);
+    const f = fitPts(pts); return f.D > cap ? fitPts(pts, cap).p : f.p;
+  }
+  const _acc = new THREE.Vector3();
+  function followCam(t) {   // 앞뒤 0.7초를 삼각 가중 평균(가운데 무겁게)으로 다듬는다 — 단순 평균보다 속도 꺾임이 매끈하다
+    _d.copy(camBase.target).sub(camBase.pos).normalize();
+    _r.crossVectors(_d, new THREE.Vector3(0, 1, 0)).normalize(); _u.crossVectors(_r, _d);
+    _acc.set(0, 0, 0); let n = 0;
+    for (let k = -14; k <= 14; k++) { const w = 15 - Math.abs(k); _acc.addScaledVector(fitAt(Math.min(SEG.dur, Math.max(0, t + k * 0.05))), w); n += w; }   // 0.05초 간격 — 성기면 표본을 지날 때마다 툭툭 걸린다
+    _acc.divideScalar(n);
+    camera.position.copy(_acc); camera.lookAt(_acc.clone().add(_d));
+  }
+  /*
+   * 맞추기 — 카메라는 배우 범위의 가운데를 곧장 보고, 거리 D 만 고른다. 거리가 멀수록 화면 속 크기가 늘 줄어드니(단조)
+   * 이분 탐색이 한 값으로 모인다. (11/18 고침: 예전엔 가운데로 옮기는 계산이 카메라를 아래로 내리며 거리별 판정이
+   * 들쭉날쭉해, 2-1 에서 카메라가 한 프레임에 수십 cm 씩 튀었다)
+   * 안전 구역이 위아래로 조금 비대칭이라(위 칩 · 아래 진행 바) 판정은 좁은 쪽(위 0.77)으로 위아래 같게 잡는다.
+   */
+  const HX = Math.min(-SAFE.x0, SAFE.x1), HY = Math.min(-SAFE.y0, SAFE.y1);
+  const HUD_NDC = { x: 2 * (870 - 24 - 308 - 12) / 870 - 1, y: 1 - 2 * (24 + 180 + 12) / 795 };   // 오른쪽 위 디스플레이(+여유 12) 왼쪽 아래 모서리
+  function fitPts(pts, fixedD) {
+    const c = new THREE.Box3().setFromPoints(pts).getCenter(new THREE.Vector3());
+    const tx = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * camera.aspect, ty = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
+    const fits = (D) => {
+      for (const q of pts) {
+        _v.copy(q).sub(c); const z = _v.dot(_d) + D; if (z < 0.5) return false;
+        const nx = _v.dot(_r) / (z * tx), ny = _v.dot(_u) / (z * ty);
+        if (Math.abs(nx) > HX || Math.abs(ny) > HY) return false;
+        // 오른쪽 위 디스플레이 자리는 비운다 — 경계에서 높이 한도가 0.15 폭에 걸쳐 차츰 내려가(칼같이 나뉘면 카메라 거리가 튄다)
+        if (hudScene.visible) { const k = Math.max(0, Math.min(1, (nx - (HUD_NDC.x - 0.15)) / 0.15)); if (ny > HY + (HUD_NDC.y - HY) * k) return false; }
+      }
+      return true;
+    };
+    const at = (D) => c.clone().addScaledVector(_d, -D);
+    if (fixedD) return { D: fixedD, p: at(fixedD) };
+    const md = cur?.cam?.minD ?? MIN_DIST;   // 장면별 최소 거리(로봇 하나만 잡힐 때 과하게 당기지 않게)
+    if (fits(md)) return { D: md, p: at(md) };
+    let lo = md, hi = 40;
+    for (let i = 0; i < 20; i++) { const mid = (lo + hi) / 2; if (fits(mid)) hi = mid; else lo = mid; }
+    return { D: hi, p: at(hi) };
+  }
+  // 카메라 놓기 — 직접 돌리는 중이면 손대지 않는다
+  function placeCam(t) {
+    if (controls.enabled) return;
+    const fol = document.getElementById("optFollow");
+    if (!fol || fol.checked) followCam(t);
+    else if (recording && document.getElementById("optDrift")?.checked) driftAt(t / SEG.dur);
+    else { camera.position.copy(camBase.pos); camera.lookAt(camBase.target); }
+  }
   const scenesEl = document.getElementById("scenes"), stepsEl = document.getElementById("steps");
   function selectScene(id) {
     cur = SCENES.find(s => s.id === id) || SCENES[0];
     [...scenesEl.children].forEach(b => b.setAttribute("aria-pressed", String(b.dataset.id === cur.id)));
-    buildScene(cur.id); playing = false; setPlayBtn();
+    buildScene(cur.id); playing = false; playEnd = null; stopVoices(); setPlayBtn();
     stepsEl.innerHTML = cur.steps.map((s, i) => `<li data-i="${i}">${s}<small>${SEG.st[i].toFixed(1)}초~</small></li>`).join("");
-    [...stepsEl.children].forEach(li => li.onclick = () => { playing = false; setPlayBtn(); seek(SEG.st[+li.dataset.i]); });
+    [...stepsEl.children].forEach(li => li.onclick = () => playStep(+li.dataset.i));
+    const bar = document.getElementById("stepbar");
+    bar.innerHTML = cur.steps.map((s, i) => `<button type="button" data-i="${i}">${s}</button>`).join("") + `<span class="prog" id="stepProg"></span>`;
+    [...bar.querySelectorAll("button")].forEach(b => b.onclick = () => playStep(+b.dataset.i));
     const rr = document.getElementById("recRange");
     rr.innerHTML = `<option value="all">전체 ${SEG.dur}초</option>` + cur.steps.map((s, i) => `<option value="${i}">${i + 1}단계 · ${s}</option>`).join("");
     applyCam(cur); seek(0);
+    if (typeof comboOn !== "undefined" && comboOn) { comboFill(); ctlMode = null; }
+    dispShown = null; { const id = cur.id; loadDisp(id).then(() => { if (cur.id === id) { dispShown = null; poseAll(curT); } }); }
     try { localStorage.setItem("kista-site-scene", cur.id); } catch (e) {}
     history.replaceState(null, "", "?" + new URLSearchParams({ ...Object.fromEntries(qs), scene: cur.id }).toString());
   }
@@ -950,8 +1585,10 @@
   stage.classList.toggle("show-guide", $("optGuide").checked && !qs.has("clean"));
   $("optActors").onchange = e => { actors.visible = e.target.checked; dirty = true; };
   if (qs.get("actors") === "0") { actors.visible = false; $("optActors").checked = false; }
-  $("optOrbit").onchange = e => { controls.enabled = e.target.checked; if (!e.target.checked) applyCam(cur); };
-  $("btnCamReset").onclick = () => applyCam(cur);
+  $("optOrbit").onchange = e => { controls.enabled = e.target.checked; if (!e.target.checked) { applyCam(cur); placeCam(curT); } };
+  $("optFollow").onchange = () => { placeCam(curT); dirty = true; };
+  $("optHud").onchange = e => { hudScene.visible = e.target.checked; dirty = true; };
+  $("btnCamReset").onclick = () => { applyCam(cur); placeCam(curT); };
   const camStr = () => `pos: [${camera.position.toArray().map(v => v.toFixed(2)).join(", ")}], target: [${controls.target.toArray().map(v => v.toFixed(2)).join(", ")}], fov: ${camera.fov}`;
   $("btnCamCopy").onclick = () => navigator.clipboard?.writeText(`{ ${camStr()} }`);
 
@@ -959,10 +1596,19 @@
    * WebCodecs(VideoEncoder) 로 한 프레임씩 굽고 mp4-muxer 로 MP4 를 만든다.
    * 프레임마다 시각을 박아 넣으므로 렌더가 느려도 영상은 정확히 30/60fps — 실시간 녹화(MediaRecorder)처럼 느려지지 않는다.
    * H.264 High 5.2(avc1.640034) — 1740×1590 이 들어가는 단계. PPT 에 바로 넣을 수 있다. */
-  let recording = false;
   function download(blob, name) { const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }
   const stamp = () => new Date().toISOString().slice(0, 16).replace(/[-:T]/g, "");
   const CODECS = ["avc1.640034", "avc1.640033", "avc1.4d0034"];
+  /* 색 범위(11/18) — 이 PC 의 Chrome H.264 인코더는 캔버스를 전체 범위(0~255)로 굽는데 파일엔 범위 표시가 없어,
+   * PPT · 재생기가 방송 범위(16~235)로 읽고 235 위를 흰색으로 잘랐다(관제실 칸 #F0F3F6 이 흰색으로 보임 · 밝은 곳 날아감).
+   * 굽기 직전 RGB 를 16 + v × 219/255 로 줄여 넣는다 — 방송 범위로 읽혀 원래 색으로 돌아온다 */
+  function toVideoRange(g, w, h) {
+    g.save();
+    g.globalCompositeOperation = "multiply"; g.fillStyle = "rgb(219,219,219)"; g.fillRect(0, 0, w, h);
+    g.globalCompositeOperation = "lighter"; g.fillStyle = "rgb(16,16,16)"; g.fillRect(0, 0, w, h);
+    g.restore();
+  }
+  let recCv = null;   // 3D 영상 녹화 — WebGL 캔버스를 여기 옮겨 범위를 줄인 뒤 굽는다
   async function pickCodec(fps) {
     if (!window.VideoEncoder) return null;
     for (const codec of CODECS) {
@@ -976,17 +1622,36 @@
   $("btnRec").onclick = async () => {
     if (recording) return;
     const fps = +$("recFps").value, rv = $("recRange").value;
-    playing = false; setPlayBtn();
+    stopPlay();
     // 범위 — 전체, 또는 PPT 단계 하나(그 단계 시작 ~ 다음 단계 시작)
     const tA = rv === "all" ? 0 : SEG.st[+rv], tB = rv === "all" ? SEG.dur : (SEG.st[+rv + 1] ?? SEG.dur);
     const sec = tB - tA;
     const cfg = await pickCodec(fps); if (!cfg) return;
+    await loadDisp(cur.id);   // 디스플레이 원본 프레임이 다 온 뒤 굽는다
     const { Muxer, ArrayBufferTarget } = await import("https://cdn.jsdelivr.net/npm/mp4-muxer@5.1.3/+esm");
     recording = true; controls.enabled = false; $("optOrbit").checked = false; applyCam(cur);
     renderer.setSize(W, H, false);
     stage.classList.add("recording"); $("btnRec").disabled = true;
-    const muxer = new Muxer({ target: new ArrayBufferTarget(), video: { codec: "avc", width: W, height: H, frameRate: fps }, fastStart: "in-memory" });
+    // 음성 — 이 구간에 음성이 있고 AAC 를 구울 수 있으면 MP4 에 음성 트랙을 넣는다
+    let audioBuf = null, acfg = { codec: "mp4a.40.2", sampleRate: 48000, numberOfChannels: 2, bitrate: 128000 };
+    if ($("optVoice").checked && SEG.voice.some(([ts, k]) => ts < tB && ts + (vbuf[k]?.duration ?? 6) > tA) && window.AudioEncoder) {
+      try { if ((await AudioEncoder.isConfigSupported(acfg)).supported) audioBuf = await mixVoices(tA, tB); } catch (e) { console.warn("음성 굽기 불가", e); }
+    }
+    const muxer = new Muxer({ target: new ArrayBufferTarget(), video: { codec: "avc", width: W, height: H, frameRate: fps },
+      ...(audioBuf ? { audio: { codec: "aac", sampleRate: 48000, numberOfChannels: 2 } } : {}), fastStart: "in-memory" });
     let err = null;
+    if (audioBuf) {
+      const aenc = new AudioEncoder({ output: (chunk, meta) => muxer.addAudioChunk(chunk, meta), error: e => { err = e; } });
+      aenc.configure(acfg);
+      const L = audioBuf.getChannelData(0), R = audioBuf.getChannelData(1), N = 1024;
+      for (let i = 0; i < audioBuf.length; i += N) {
+        const m = Math.min(N, audioBuf.length - i), data = new Float32Array(m * 2);
+        data.set(L.subarray(i, i + m), 0); data.set(R.subarray(i, i + m), m);
+        const ad = new AudioData({ format: "f32-planar", sampleRate: 48000, numberOfFrames: m, numberOfChannels: 2, timestamp: Math.round(i / 48000 * 1e6), data });
+        aenc.encode(ad); ad.close();
+      }
+      await aenc.flush(); aenc.close();
+    }
     const enc = new VideoEncoder({ output: (chunk, meta) => muxer.addVideoChunk(chunk, meta), error: e => { err = e; } });
     enc.configure(cfg);
     const frames = Math.round(sec * fps), dtUs = 1e6 / fps, drift = $("optDrift").checked;
@@ -994,11 +1659,13 @@
     for (let i = 0; i < frames && !err; i++) {
       const tt = tA + i / fps;
       // 달리는 장면 전체 길이 기준 — 단계별로 나눠 녹화해도 이어 붙이면 카메라가 끊기지 않는다
-      if (drift) driftAt(tt / SEG.dur); else applyCam(cur);
       if (i > 0) stepRobot(tt, 1 / fps);
       poseAll(tt);
-      renderer.render(scene, camera);
-      const vf = new VideoFrame(renderer.domElement, { timestamp: Math.round(i * dtUs), duration: Math.round(dtUs) });
+      await ensureDisp(tt);
+      renderFrame();
+      if (!recCv) { recCv = document.createElement("canvas"); recCv.width = W; recCv.height = H; }
+      const rg = recCv.getContext("2d"); rg.drawImage(renderer.domElement, 0, 0, W, H); toVideoRange(rg, W, H);
+      const vf = new VideoFrame(recCv, { timestamp: Math.round(i * dtUs), duration: Math.round(dtUs) });
       enc.encode(vf, { keyFrame: i % (fps * 2) === 0 }); vf.close();
       if (enc.encodeQueueSize > 4 || i % 6 === 0) {
         $("recBadge").textContent = `굽는 중 ${Math.round((i + 1) / frames * 100)}%`;
@@ -1011,11 +1678,12 @@
     applyCam(cur);
     if (err) { $("recNote").textContent = "녹화 실패: " + err.message; return; }
     muxer.finalize();
+    $("recNote").textContent = audioBuf ? "MP4(H.264 + AAC 음성) · 1740×1590" : "MP4(H.264) · 1740×1590 — 이 구간엔 음성이 없거나 음성을 구울 수 없는 브라우저";
     seek(tA);
     download(new Blob([muxer.target.buffer], { type: "video/mp4" }), `KISTA_작업현장_${cur.id}${rv === "all" ? "" : "_" + (+rv + 1) + "단계"}_${stamp()}.mp4`);
   };
   $("btnPng").onclick = () => {
-    renderer.setSize(W, H, false); renderer.render(scene, camera);
+    renderer.setSize(W, H, false); renderFrame();
     renderer.domElement.toBlob(b => { download(b, `KISTA_작업현장_${cur.id}_${stamp()}.png`); renderer.setSize(PW, PH, false); dirty = true; });
   };
 
@@ -1023,29 +1691,747 @@
   // 재생 중에만 매 프레임 그린다(1배 크기). 멈추면 바뀐 게 있을 때만
   $("btnPlay").onclick = () => {
     if (recording) return;
-    playing = !playing;
-    if (playing && curT >= SEG.dur - 0.05) seek(0);
-    lastTs = performance.now(); setPlayBtn();
+    if (playing) { stopPlay(); return; }
+    playEnd = null;
+    if (curT >= SEG.dur - 0.05) seek(0);
+    startPlay();
   };
   const camOut = $("camOut");
   let lastCamTxt = "", lastTs = performance.now();
   function tick(now) {
     if (!recording) {   // 녹화 중에는 녹화 루프가 직접 그린다
-      if (playing) {
-        const dt = Math.min(0.05, ((now ?? performance.now()) - lastTs) / 1000);
-        curT = Math.min(SEG.dur, curT + dt);
-        stepRobot(curT, dt); poseAll(curT); showT();
-        if (curT >= SEG.dur) { playing = false; setPlayBtn(); }
+      if (playing) {   // 벽시계 기준(음성과 같은 시계) — 프레임이 밀려도 소리와 어긋나지 않는다
+        const end = playEnd ?? SEG.dur;
+        const nt = Math.min(end, playT0 + ((now ?? performance.now()) - playWall0) / 1000), dt = Math.max(0, nt - curT);
+        curT = nt;
+        if (dt > 0.2) seek(curT); else { stepRobot(curT, dt); poseAll(curT); showT(); }
+        if (curT >= end) { playing = false; playEnd = null; setPlayBtn(); }
+        comboAfterTick();
       }
       lastTs = now ?? performance.now();
       if (controls.enabled) controls.update();   // 감속 중이면 change 가 와서 dirty
       if (dirty) {
-        renderer.render(scene, camera); dirty = false;
+        renderFrame(); dirty = false;
         const txt = camStr(); if (txt !== lastCamTxt) { camOut.textContent = txt; lastCamTxt = txt; }
       }
     }
     requestAnimationFrame(tick);
   }
+  /* ================= 음성 =================
+   * 클로바 음성(assets/source/kista_음성_클로바_대성ver → assets/audio/kista/<장면>-<단계 a~e>.mp3). 장면 SCRIPT 의 voice 시각에 낸다.
+   * 미리보기: Web Audio 로 재생 시작 때 한 번에 예약(재생 중간부터면 그 지점부터). 녹화: 같은 시각표를 OfflineAudioContext 로
+   * 섞어 AAC 로 구워 MP4 음성 트랙에 넣는다(PPT 에서 영상과 같이 나온다).
+   */
+  // var — 장면을 처음 고를 때(이 줄보다 먼저 실행) stopVoices 가 불려도 오류 나지 않게
+  var actx = null, playT0 = 0, playWall0 = 0, vbuf = {}, vsrc = [];
+  async function loadVoices() {
+    if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+    const keys = new Set(); for (const sc of Object.values(SCRIPT)) for (const [, k] of sc.voice || []) keys.add(k);
+    await Promise.all([...keys].map(async k => {
+      if (vbuf[k]) return;
+      try { const ab = await (await fetch(`./assets/audio/kista/${k}.mp3?v=1`)).arrayBuffer(); vbuf[k] = await actx.decodeAudioData(ab); } catch (e) { console.warn("음성", k, e); }
+    }));
+  }
+  function stopVoices() { while (vsrc && vsrc.length) { try { vsrc.pop().stop(); } catch (e) {} } }
+  function startVoices(t0, t1) {
+    stopVoices();
+    if (!actx || !document.getElementById("optVoice")?.checked) return;
+    actx.resume();
+    const now = actx.currentTime + 0.03;
+    for (const [ts, k] of SEG.voice) {
+      const b = vbuf[k]; if (!b || ts + b.duration <= t0 || ts >= t1) continue;
+      const off = Math.max(0, t0 - ts), when = now + Math.max(0, ts - t0), len = Math.min(b.duration - off, t1 - Math.max(ts, t0));
+      if (len <= 0) continue;
+      const src = actx.createBufferSource(); src.buffer = b; src.connect(actx.destination); src.start(when, off, len); vsrc.push(src);
+    }
+  }
+  function startPlay() {
+    playing = true; playT0 = curT; playWall0 = performance.now() + 30; setPlayBtn();
+    loadVoices().then(() => { if (playing) { playT0 = curT; playWall0 = performance.now() + 30; startVoices(curT, playEnd ?? SEG.dur); } });
+  }
+  function stopPlay() { playing = false; playEnd = null; stopVoices(); setPlayBtn(); }
+  // 녹화용 — [tA, tB) 구간 음성을 48kHz 스테레오로 섞는다
+  async function mixVoices(tA, tB) {
+    await loadVoices();
+    const SR = 48000, n = Math.max(1, Math.round((tB - tA) * SR)), oc = new OfflineAudioContext(2, n, SR);
+    for (const [ts, k] of SEG.voice) {
+      const b = vbuf[k]; if (!b || ts + b.duration <= tA || ts >= tB) continue;
+      const off = Math.max(0, tA - ts), when = Math.max(0, ts - tA), len = Math.min(b.duration - off, tB - Math.max(ts, tA));
+      const src = oc.createBufferSource(); src.buffer = b; src.connect(oc.destination); src.start(when, off, len);
+    }
+    return oc.startRendering();
+  }
+
+  /* ================= 합친 영상(작업현장 + 관제실) =================
+   * 관제실 칸 = Figma 시나리오 상세 페이지 오른쪽 칸(모니터 목업 · 화면 770×433) 안에 v7 관제 화면(screens/main-v7.html)을 띄운다.
+   * 장면 시간표에 맞춰 관제 화면 상태를 바꾼다 — 관제 화면의 시뮬레이션 버튼(.rsim [data-m])을 눌러서(같은 사이트라 iframe 안을 만질 수 있다).
+   * 녹화는 사용자 브라우저에서 이 탭을 공유받아(getDisplayMedia · 이 탭) 두 칸 영역만 잘라(Region Capture) 실제 시간으로 찍는다.
+   * 3D 두 개를 그래픽카드로 그리니 PC 가 멈추지 않는다. 탭 오디오를 같이 공유하면 로봇 음성이 들어간다.
+   * CTRL: 장면 → [시각, 관제 상태] — run 이동 중 · inspect 지점 측정 중 · alert 위험 감지 · pause 일시정지 · return 자동복귀 · done 미션 완료
+   */
+  /* 장면 → [시각, 관제 상태, 덧입힘] — Figma 시나리오 표(929:2294) '관제화면' 줄.
+   * 관제 상태: run 이동 중 · inspect 지점 측정 중(멈춤) · alert 위험 감지 · pause 일시정지 · return 자동복귀 · done 미션 완료
+   * 덧입힘(v7 에 아직 없는 화면을 이 영상에서만 덧입힌다 — v7 화면 파일은 그대로):
+   *   badge [글, 색(info · normal · idle · warning · danger)] 로봇 카드 Mission 배지 / bat 배터리 % /
+   *   title · left 진행 막대 두 줄 / 알림은 아래 POP(관제 화면의 원래 알림 팝오버)
+   */
+  const CTRL = {
+    "1-1": [
+      // (11/19) 지도 로봇 자세를 작업현장(SCRIPT 1-1: 0~7 앉음 → 7 기립 → 서 있음)과 맞춘다. v7 에서 앉는 상태는 estop · done 뿐이라
+      //   0~7 은 estop, 7 부터는 제자리에 서는 pause. quiet = 그 모드의 띠(긴급정지 · 일시정지) · 빨간 목록 표시는 숨기고 제목만 보인다
+      [0, "estop", { quiet: true, ban: ["도크 01 · 충전 완료", "muted", "quiet"], badge: ["대기 중", "idle"], bat: 86, title: "도크 01 · 충전 완료", left: "미션 시작 대기 중" }],
+      [2, "estop", { quiet: true, ban: ["주변 확인 중", "muted", "quiet"], badge: ["대기 중", "idle"], bat: 86, title: "주변 확인 중", left: "작업자 1명 감지 · 안전거리 확인" }],
+      [4, "estop", { quiet: true, ban: ["곧 기립합니다", "muted", "quiet"], badge: ["기립 예고", "warning"], bat: 86, title: "곧 기립합니다", left: "3초 후 저속 기립" }],
+      [7, "pause", { quiet: true, ban: ["저속 기립 중", "muted", "quiet"], badge: ["기립 중", "info"], bat: 86, title: "저속 기립 중", left: "주변 안전 확인 완료" }],
+      [10, "pause", { quiet: true, ban: ["기립 완료 · 미션 시작", "muted", "quiet"], badge: ["수행중", "info"], bat: 86, title: "기립 완료 · 미션 시작", left: "1번 지점으로 이동" }]],
+    "1-2": [
+      [0, "run", { title: "지하 4층 미션 수행 중", left: "N₂ 배관 압력계 판독 · WP-04로 이동" }],
+      [2.4, "run", { badge: ["사람 감지", "info"], title: "전방 근로자 감지", left: "감속하며 통행 확인 중" }],
+      // (11/19) 관제 모드(일시정지 표시)는 작업현장 로봇이 실제로 서 있는 7.6~10.8 에 맞춘다 — 글은 단계 시각 그대로
+      [4.8, "run", { badge: ["정지 대기", "warning"], title: "정지하여 대기 중입니다", left: "근로자 통행 대기" }],
+      [7.2, "run", { badge: ["출발 예고", "warning"], title: "이동을 재개하겠습니다", left: "통행 확인 완료 · 곧 출발" }],
+      [7.6, "pause", { badge: ["출발 예고", "warning"], title: "이동을 재개하겠습니다", left: "통행 확인 완료 · 곧 출발" }],
+      [9.6, "pause", { title: "WP-04로 이동 중", left: "지하 4층 정기 순회 점검" }],
+      [10.8, "run", { title: "WP-04로 이동 중", left: "지하 4층 정기 순회 점검" }]],
+    "2-1": [
+      [0, "run", { badge: ["주의 감지", "warning"], title: "안전모 미착용 근로자 감지", left: "B4 고소 작업 발판 · 1명" }],
+      [2.8, "run", { badge: ["정지 · 안내", "warning"], title: "안전모 착용 안내 중", left: "로봇 정지 · 착용 요청" }],
+      [4.2, "pause", { badge: ["정지 · 안내", "warning"], title: "안전모 착용 안내 중", left: "로봇 정지 · 착용 요청" }],   // 작업현장 로봇이 서는 때
+      [8.4, "pause", { badge: ["음성 연결", "info"], title: "관제실 음성 연결 중", left: "현장 작업자와 대화 중" }],
+      [12.0, "pause", { badge: ["착용 확인", "normal"], title: "안전모 착용 확인", left: "조치 내용 기록" }],
+      [15.9, "run", { title: "이동 재개", left: "다음 점검 지점으로" }]],
+    "2-2": [
+      [0, "inspect", { title: "N₂ 배관 압력계 판독 중", left: "이상 징후 확인 중" }],
+      [2.8, "alert", { badge: ["위험 감지", "danger"], title: "배관 이상 감지", left: "N₂ 배관 압력계 · 접근 금지 안내" }],
+      [5.6, "alert", { badge: ["위험 감지", "danger"], title: "작업자 우회 안내 중", left: "위험 구역 주변 접근 금지" }],
+      [8.4, "alert", { badge: ["점검 요청", "danger"], title: "현장 점검 요청됨", left: "로봇은 현장에서 대기" }],
+      [11.2, "run", { title: "다음 점검 지점으로 이동", left: "알람 처리 완료 · 정상 운영" }]],
+    "3-1": [
+      [0, "pause", { badge: ["점검 중단", "warning"], bat: 20, title: "배터리 부족 · 점검 중단", left: "안정 자세로 대기" }],
+      [3.0, "pause", { badge: ["복귀 대기", "warning"], bat: 20, title: "자율 복귀 가능 · 지시 대기", left: "복귀 예상 2분 · 복귀 후 15%" }],
+      // 관제 지도 로봇은 WP-18 에서 남은 길(→ 도크, 길 끝 = 도크)로 들어간다. return 은 왔던 길을 거꾸로 가며 뒤를 보므로 쓰지 않는다 —
+      //   7.3 은 멈춘 채(pause) 띠만 '복귀 예정', 12.6 부터 run 으로 앞으로 걷는다
+      [7.3, "pause", { badge: ["복귀 예정", "idle"], bat: 19, ban: ["복귀 예정", "muted", "return"], title: "도크 02로 복귀 예정", left: "이동 경로를 비워 주세요" }],
+      [12.6, "run", { badge: ["복귀 중", "idle"], bat: 18, title: "도크 02로 자율 복귀 중", left: "저속 이동" }],
+      [21.0, "run", { badge: ["충전 중", "normal"], bat: 18, title: "충전 중", left: "진행 정보 유지 · 충전 후 재개 여부 확인" }]],
+    "3-2": [
+      [0, "alert", { badge: ["복귀 불가", "danger"], bat: 18, title: "배터리 부족 · 자율 복귀 불가", left: "점검 · 주행 중단" }],
+      [6.4, "alert", { badge: ["회수 대기", "danger"], bat: 18, title: "정지 완료 · 회수 대기", left: "통로 가장자리 정지 · 잔량 18%" }],
+      // 10.2 — 작업현장 로봇이 통로 가장자리에서 주저앉는 때(SCRIPT 3-2 sit). 관제 지도 로봇도 앉는다: v7 에서 앉는 상태는 estop · done 뿐이고
+      //   done 은 로봇을 길 끝으로 옮기므로 estop 을 쓰고, '긴급정지' 글은 ban(진행 제목 자리 띠 [글, 색, 기호])으로 덮는다
+      [10.2, "estop", { badge: ["회수 대기", "danger"], bat: 18, ban: ["회수 대기", "critical", "estop"], title: "정지 완료 · 회수 대기", left: "통로 가장자리 정지 · 잔량 18%" }],
+      [11.6, "estop", { badge: ["회수 대기", "danger"], bat: 18, ban: ["회수 대기", "critical", "estop"], title: "접근 금지 안내 중", left: "정지 위치 · 잔량 18%" }],
+      [16.0, "estop", { badge: ["회수 중", "info"], bat: 18, ban: ["회수 중", "muted", "estop"], title: "회수 담당자 도착 · 가이드 확인 중", left: "전원 종료 → 운반 → 인계" }],
+      [22.0, "estop", { badge: ["회수 완료", "normal"], bat: 18, ban: ["회수 완료", "safe", "done"], title: "회수 완료", left: "충전 · 점검 후 운영 재개" }]],
+  };
+  /* Delta 기본 상태(11/18 디자이너) — 이 장면들은 Delta 를 위험 · 주의가 아닌 기본(파랑)으로, 두 줄은 아래 글로.
+   *   관제 화면은 알림 목록을 다시 그릴 때마다 Delta 단계를 다시 보낸다(monitor.js tellAi) — 바뀌는 즉시 되돌린다(MutationObserver) */
+  const CTRL_DELTA = {
+    "1-1": ["미션 시작 준비 중", "Robot 01 이 도크 01에서 기립을 준비하고 있어요. 지금은 특이사항이 없습니다."],
+    "1-2": ["정기 순회 진행 중", "Robot 01 이 정기 순회를 진행하고 있어요. 지금은 특이사항이 없습니다."],
+  };
+  let deltaObs = null;
+  function deltaKeep(d) {
+    if (deltaObs) { deltaObs.disconnect(); deltaObs = null; }
+    // 알림 목록 · 건수 · 테두리 · 지도 표식도 같이 비운다 — 관제 화면의 '알림 없음' 판(주소 #normal, monitor.js fromHash). 다른 장면은 기본(위험) 판으로
+    if (d) { const lw = d.defaultView.location, want = comboOn && CTRL_DELTA[cur.id] ? "#normal" : ""; if ((lw.hash || "") !== want && !(want === "" && lw.hash === "#")) lw.hash = want ? "normal" : ""; }
+    const cfg = comboOn && CTRL_DELTA[cur.id], panel = d && d.querySelector("[data-ai-panel]");
+    if (!cfg || !panel) return;
+    const two = panel.closest(".two-col"), w = d.defaultView;
+    const fix = () => {
+      const l1 = panel.querySelector(".ai-line-1"), acts = d.querySelector("[data-ai-actions]");
+      const off = /is-(critical|warning|safe)/.test(panel.className + " " + (two ? two.className : "")) || (l1 && l1.textContent.trim() !== cfg[0]);
+      if (acts && !acts.hidden) acts.hidden = true;   // 기본 상태엔 조치 버튼 없음
+      if (!off) return;
+      deltaObs && deltaObs.disconnect();
+      d.dispatchEvent(new w.CustomEvent("aprism:severity", { detail: { level: null, glow: "", line1: cfg[0], line2: cfg[1] } }));
+      deltaObs && deltaObs.observe(panel, opts), two && deltaObs && deltaObs.observe(two, { attributes: true, attributeFilter: ["class"] });
+    };
+    const opts = { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ["class", "hidden"] };
+    deltaObs = new w.MutationObserver(fix);
+    fix(); deltaObs.observe(panel, opts); if (two) deltaObs.observe(two, { attributes: true, attributeFilter: ["class"] });
+  }
+  var comboOn = false, ctlMode = null, ctlKey = null, comboRec = null;   // var — 장면을 처음 고를 때(이 줄보다 먼저) 읽혀도 오류 나지 않게
+  const ctlFrame = document.getElementById("ctlFrame");
+  function ctlDoc() { try { return ctlFrame.contentDocument; } catch (e) { return null; } }
+  function ctlApply(t, force) {
+    if (!comboOn) return;
+    const tl = CTRL[cur.id]; if (!tl) return;
+    let e = tl[0]; for (const x of tl) if (t >= x[0]) e = x;
+    const d = ctlDoc(); if (!d) return;
+    if (cur.id + "" !== ctlApply.scene || force) { ctlPlace(d); (POP[cur.id] || []).forEach(([, x]) => x && x.shot != null && shot3d(x.shot)); }
+    if (e[1] !== ctlMode || force) { const b = d.querySelector(`.rsim [data-m="${e[1]}"]`); if (b) { b.click(); ctlMode = e[1]; } }
+    ctlMove(d, t);
+    ctlKista(d, t, e[2] || {});
+    if (e[2] && e[2].ban) { ctlBan(d, e[2]); requestAnimationFrame(() => ctlBan(d, e[2])); setTimeout(() => ctlBan(d, e[2]), 120); }
+    // 덧입힘은 0.3초마다 다시 얹는다 — 관제 화면이 배지 · 배터리 글을 제 박자로 다시 써도 덮이게
+    const key = cur.id + "@" + e[0], now = performance.now();
+    if (key !== ctlKey || force || now - (ctlApply.last || 0) > 300) { if (cur.id + "" !== ctlApply.scene || force) { deltaKeep(d); ctlApply.scene = cur.id; } ctlOverlay(d, e[2] || {}); ctlPop(d, popAt(t)); ctlKey = key; ctlApply.last = now; }
+  }
+  /* 관제 지도 로봇의 바닥 호 · 자세와 로봇 카드 2D 자세를 작업현장(LIGHT 호 · SCRIPT 로봇 동작)에서 그대로 받는다(11/19).
+   *   map-v6.js 가 window.APRISM_KISTA_OV 를 보면 관제 모드와 상관없이 그 호 · 자세로 그린다. 시야 빔(부채꼴)은 작업현장에 없어 끈다.
+   *   2D(robot-2d.js data-r2): 걷기 walk · 처음부터 앉음 kseat · 앉기 sit(한 번 내려앉음) · 앉았다 일어섬 krise · 서 있음 kstand */
+  function robotModeAt(t) { const g = SEG.robot, i = segAt(g, t); return { m: g[i].mode, i, prev: i ? g[i - 1].mode : null }; }
+  function ctlKista(d, t, o) {
+    const w = d.defaultView; if (!w) return;
+    const hl = haloLook(t), rm = robotModeAt(t);
+    const motion = rm.m === "walk" ? "walk" : rm.m === "sit" ? "sit" : rm.m === "inspect" ? "inspect" : "idle";
+    let ov = { show: false, fan: false, motion };
+    if (hl) {
+      const f = hl.fade, op = hl.op;
+      ov = { show: f > 0, fan: false, motion, color: hl.color.getHex(), front: op.front * f, base: (op.left + op.right + op.back) / 3 * f,
+        ring: Math.min(1, op.ring / 0.18) * f, scale: hl.sc, sway: hl.sway };
+    }
+    w.APRISM_KISTA_OV = ov;
+    const r2 = o.r2 || (rm.m === "walk" ? "walk" : rm.m === "sit" ? (rm.i === 0 ? "kseat" : "sit") : rm.prev === "sit" ? "krise" : "kstand");
+    const card0 = d.querySelector('.robot-strip .robot-card[aria-pressed="true"]') || d.querySelector(".robot-strip .robot-card");
+    const th = card0 && card0.querySelector(".robot-thumb");
+    if (th && th.getAttribute("data-r2") !== r2) th.setAttribute("data-r2", r2);
+  }
+  /* 관제 지도 · 웨이포인트 목록의 로봇 자리 — 로봇 디스플레이 · 관제 글과 같은 지점으로(11/18).
+   *   [k, f] = k 번째 지점(0부터)과 다음 지점 사이 f. k = -1 은 첫 지점 앞(출발 전).
+   *   1-2: 디스플레이 'WP-04로 이동' → WP-03 과 WP-04 사이 / 1-1: 도크(길 시작 s=0 — 지도가 로봇을 충전 스테이션 칸 안에 넣는다).
+   *        1-1 은 관제 상태도 내내 run — inspect 는 가장 가까운 앞 지점(1번)으로 옮겨 세운다
+   *   2-1: 안전모 알림 WP-07 바로 앞 / 2-2: N₂ 배관 압력계 WP-04 에 선다(측정)
+   *   나머지 장면은 v7 기본 자리(WP-07 과 WP-08 사이 · route-sim.js 시작값)
+   *   모드 버튼(inspect 는 가장 가까운 앞 지점에 선다)보다 먼저 옮긴다 */
+  const CTRL_POS = { "1-1": [-1, 0], "1-2": [2, 0.45], "2-1": [5, 0.6], "2-2": [3, 0], "3-1": [17, 0.15], "3-2": [6, 0.4] }, CTRL_POS_BASE = [6, 0.55];
+  function ctlPlace(d) {
+    const rr = d.defaultView && d.defaultView.APRISM_RR;
+    try {
+      // route-sim.js 가 제 시작 자리를 잡기 전(.rsim.is-ready 전)이면 그 뒤에 다시 — 안 그러면 시작값(WP-08)이 덮는다
+      if (!rr || !rr.ready() || !d.querySelector(".rsim.is-ready")) { clearTimeout(ctlPlace.tm); ctlPlace.tm = setTimeout(() => comboOn && ctlApply(curT, true), 400); return; }
+      const st = rr.stops(), [k, f] = CTRL_POS[cur.id] || CTRL_POS_BASE;
+      if (st.length < 8) return;
+      const a = k < 0 ? 0 : st[k], b = st[k + 1];
+      ctlPlace.s0 = a + (b - a) * f; ctlPlace.gap = b - a; ctlPlace.sNow = null;
+      rr.mode("run"); rr.set(ctlPlace.s0);
+      ctlFocus(d);
+    } catch (err) { console.warn("관제 로봇 자리", err); }
+  }
+  /* 지도를 로봇에 맞춰 더 당긴다(11/19) — [로봇 위치로](확대 2.2 이상, 로봇을 가운데) 뒤 [확대]를 n 번. 1-1 은 도크에서 지도가 멀어 비어 보였다 */
+  const CTRL_FOCUS = { "1-1": 1, "1-2": 1 };
+  function ctlFocus(d) {
+    const n = CTRL_FOCUS[cur.id]; if (!n) return;
+    clearTimeout(ctlFocus.tm);
+    ctlFocus.tm = setTimeout(() => {
+      d.querySelector("[data-map-robot]")?.click();
+      let i = 0; const zin = () => { if (i++ >= n) return; d.querySelector("[data-map-zoom-in]")?.click(); ctlFocus.tm = setTimeout(zin, 350); };
+      ctlFocus.tm = setTimeout(zin, 900);
+    }, 300);
+  }
+  /* 관제 지도 로봇을 장면 시간에 맞춰 옮긴다(11/18) — [시작초, 끝초, 끝 자리(0 = 도크)]. 사이는 천천히 출발 · 도착(ease-in-out).
+   *   끝 자리 "end" = 길 끝(한 바퀴 돌아 도크로 돌아온 자리).
+   *   3-1: WP-18 조금 지나서 12.6~21.0 저속 자율 복귀 → 길 끝(도크). 21.0 에 같은 자리인 길 시작(s=0)으로 바꿔 지도가 로봇을 충전 스테이션 칸 안에 넣게 한다 */
+  //   (11/19) {g: x} = 시작 자리에서 '지점 사이 거리 × x' 앞 — 작업현장 로봇이 걷는 구간(SCRIPT robot walk)에 지도 로봇도 조금씩 간다
+  const CTRL_MOVE = {
+    "1-2": [[0, 7.6, { g: 0.25 }], [10.8, 12, { g: 0.35 }]],
+    "2-1": [[0, 4.2, { g: 0.2 }], [15.8, 18, { g: 0.4 }]],
+    "2-2": [[11.2, 14, { g: 0.2 }]],
+    "3-1": [[12.6, 21.0, "end"], [21.0, 21.0, 0]],
+    "3-2": [[0, 1.6, { g: 0.06 }], [6.4, 9.4, { g: 0.2 }]],
+  };
+  function ctlMove(d, t) {
+    const mv = CTRL_MOVE[cur.id], rr = d.defaultView && d.defaultView.APRISM_RR;
+    if (!mv || ctlPlace.s0 == null || !rr || !rr.ready()) return;
+    let s = ctlPlace.s0;
+    for (let [a, b, to] of mv) {
+      if (to === "end") to = rr.total();
+      else if (to && to.g != null) to = ctlPlace.s0 + (ctlPlace.gap || 0) * to.g;
+      if (t >= b) s = to;
+      else if (t > a) { const k = (t - a) / (b - a), e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2; s = s + (to - s) * e; }
+    }
+    if (ctlPlace.sNow != null && Math.abs(s - ctlPlace.sNow) < 1e-4) return;
+    ctlPlace.sNow = s; rr.set(s);
+  }
+
+  /* 알림 팝오버(11/18 디자이너) — 지도 위에 따로 그린 카드 대신 관제 화면의 원래 알림 팝오버(왼쪽 패널 뒤에서 나오는 판)를 연다.
+   *   key  알림 목록에서 열 알림(글에 든 말) — 2-1 안전모(WP-07) · 2-2 N₂ 배관 압력계(WP-04). 배터리 장면은 목록에 배터리 알림이 없어
+   *        로봇 가까운 안전모 알림 판을 열고 글 · 사진을 바꾼다(사진 = 작업현장 3D 의 한 장면, shot 초)
+   *   sev crit · warn / kind 감지 이름 / title / place 위치 글 / lead DELTA 권고 / checks 조치 체크(첫째 = AI 추천) / primary 주 버튼 글
+   *   fp false 면 오탐 가능성 숨김 / req { to, acts[], ok } — '조치 요청됨' 판(관제 화면과 같은 꼴). ok 면 초록(완료)
+   *   null = 팝오버 닫음. 요청은 관제 화면의 진짜 요청 기록(localStorage)을 건드리지 않고 판만 바꾼다(되감아도 처음 그대로)
+   */
+  const POP_HELMET = { key: "안전모", sev: "warn" };
+  const POP_PIPE = { key: "N₂ 배관", sev: "crit" };
+  const POP_BAT1 = { key: "안전모", solo: true, sev: "warn", kind: "배터리", place: "B4 통로", shot: 1.5, fp: false };
+  const POP_BAT2 = { key: "안전모", solo: true, sev: "crit", kind: "배터리", title: "자율 복귀 불가 · 잔량 18%", place: "B4 통로", shot: 3.0, fp: false };
+  const POP = {
+    "2-1": [
+      [0, { ...POP_HELMET, lead: "고소 작업 발판 근처 근로자 1명이 안전모를 쓰지 않았어요. 로봇이 착용을 안내할게요.",
+        checks: ["로봇 음성 연결", "현장 관리자에게 알림"], primary: "로봇 음성 연결" }],
+      [8.4, { ...POP_HELMET, req: { to: "현장 작업자와 음성 연결 중", acts: ["관제사 ↔ 현장 작업자", "작업자 목소리가 관제사에게 전달돼요"] } }],
+      [12.0, { ...POP_HELMET, req: { to: "안전모 착용 확인됨", acts: ["조치 내용을 기록했어요"], ok: true } }],
+      [15.9, null]],
+    "2-2": [
+      [0, null],
+      [2.8, { ...POP_PIPE, lead: "N₂ 배관 압력이 정상 범위를 넘었어요. 로봇이 근로자에게 접근 금지를 안내하고 있어요.",
+        checks: ["현장 점검 요청", "로봇 정지", "도크로 복귀"], primary: "현장 점검 요청" }],
+      [5.6, { ...POP_PIPE, lead: "근로자 1명을 우회 통로로 안내하고 있어요. 현장 점검을 요청해 주세요.",
+        checks: ["현장 점검 요청", "로봇 정지", "도크로 복귀"], primary: "현장 점검 요청" }],
+      [8.4, { ...POP_PIPE, req: { to: "설비 담당자에게 현장 점검 요청됨", acts: ["담당자 배정 중", "로봇은 위험 구역 앞에서 대기"] } }],
+      [11.2, { ...POP_PIPE, req: { to: "조치 완료", acts: ["배관 이상 알람을 처리했어요"], ok: true } }]],
+    "3-1": [
+      [0, { ...POP_BAT1, title: "배터리 20% · 점검 중단", lead: "Robot 01 배터리가 20%예요. 점검을 멈추고 안정 자세로 대기하고 있어요.",
+        checks: ["임무 중단 후 도크 02로 복귀", "현재 위치에서 대기"], primary: "임무 중단 후 복귀" }],
+      [3.0, { ...POP_BAT1, title: "배터리 부족 · 자율 복귀 가능", lead: "도크 02까지 2분, 복귀 후 15%가 남아요. 복귀를 지시해 주세요.",
+        checks: ["임무 중단 후 도크 02로 복귀", "현재 위치에서 대기"], primary: "임무 중단 후 복귀" }],
+      [7.3, { ...POP_BAT1, title: "배터리 부족 · 자율 복귀 가능", req: { to: "도크 02로 복귀 지시됨", acts: ["임무 중단 후 복귀", "이동 경로를 비워 달라고 안내해요"] } }],
+      [12.6, null]],
+    "3-2": [
+      [0, { ...POP_BAT2, lead: "배터리가 부족해 도크까지 갈 수 없어요. 통로 가장자리에 정지해 회수를 기다려요.",
+        checks: ["회수 담당자 호출", "주변 근로자 접근 금지 안내"], primary: "회수 담당자 호출" }],
+      [6.4, { ...POP_BAT2, req: { to: "회수 담당자에게 회수 요청됨", acts: ["정지 위치 B4 통로 · 잔량 18%", "회수 담당자 배정 중"] } }],
+      [11.6, { ...POP_BAT2, req: { to: "회수 담당자에게 회수 요청됨", acts: ["근로자 접근 시 접근 금지를 안내해요"] } }],
+      [16.0, { ...POP_BAT2, req: { to: "회수 담당자 도착", acts: ["태블릿에서 회수 가이드 확인 중"] } }],
+      [22.0, { ...POP_BAT2, req: { to: "회수 완료", acts: ["로봇은 충전 · 점검 후 운영을 재개해요"], ok: true } }]],
+  };
+  function popAt(t) { const tl = POP[cur.id]; if (!tl) return null; let sp = null; for (const [ts, x] of tl) if (t >= ts) sp = x; return sp; }
+  // 작업현장 3D 의 한 장면(머리 위 디스플레이 판 없이) — 장면마다 한 번 구워 둔다
+  const shotCache = {};
+  function shot3d(T) {
+    const k = cur.id + "@" + T; if (shotCache[k]) return shotCache[k];
+    const t0 = curT; seek(T); renderer.render(scene, camera);
+    const url = renderer.domElement.toDataURL("image/jpeg", 0.86);
+    seek(t0); dirty = true;
+    return (shotCache[k] = url);
+  }
+  function ctlPop(d, sp) {
+    const box = d.querySelector("[data-map-alert]"); if (!box) return;
+    if (!sp) {
+      if (box.dataset.kbase) { box.dataset.kbase = ""; box.dataset.kpop = ""; popReq(d, box, null); if (!box.hidden) box.querySelector("[data-ma-close]")?.click(); }
+      return;
+    }
+    if (box.hidden || box.dataset.kbase !== sp.key) {
+      const it = [...d.querySelectorAll("[data-ah-list] .ah-item")].find(n => n.textContent.includes(sp.key));
+      if (!it) return;   // 목록이 아직이면 다음 덧입힘(0.3초)에 다시
+      it.click(); box.dataset.kbase = sp.key; box.dataset.kpop = "";
+      if (sp.solo) popSolo(d, box);
+    }
+    if (sp.solo) d.querySelectorAll('[data-ah-list] .ah-item[aria-pressed="true"]').forEach(n => n.setAttribute("aria-pressed", "false"));   // 목록이 다시 그려져도 고른 줄 없이
+    popFit(box);   // 0.3초마다 — 관제 화면이 판 자리를 다시 잡아도 덮는다
+    const sig = JSON.stringify(sp);
+    if (box.dataset.kpop === sig) return;
+    box.dataset.kpop = sig;
+    const $b = q => box.querySelector(q);
+    const chip = $b("[data-ma-badge]");
+    if (sp.sev && chip) { chip.classList.toggle("is-crit", sp.sev === "crit"); chip.classList.toggle("is-warn", sp.sev !== "crit"); box.classList.toggle("is-critical", sp.sev === "crit"); $b("[data-ma-sev]").textContent = sp.sev === "crit" ? "위험" : "주의"; }
+    if (sp.kind && $b("[data-ma-kind]")) $b("[data-ma-kind]").textContent = sp.kind;
+    if (sp.title) $b("[data-ma-title]").textContent = sp.title;
+    if (sp.place) { const pl = $b(".ma-st-place"), pin = $b(".ma-stamp .mbt-pin"); if (pl) pl.textContent = sp.place; if (pin) pin.style.display = "none"; }
+    if (sp.shot != null) { const img = $b("[data-ma-img]"); img.src = shot3d(sp.shot); img.alt = "작업현장"; img.hidden = false; box.classList.remove("no-snap"); }
+    const fp = $b("[data-ma-fp]"); if (fp) fp.style.visibility = sp.fp === false ? "hidden" : "";
+    if (sp.lead) $b("[data-ma-lead]").textContent = sp.lead;
+    if (sp.checks) {
+      $b("[data-ma-options]").innerHTML = sp.checks.map((c, i) => `<button type="button" class="ma-check" role="checkbox" data-act="${c}" aria-checked="${i === 0}"><span class="ma-check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span><span class="ma-check-label">${c}</span>${i === 0 ? '<span class="ma-check-tag">AI 추천</span>' : ""}</button>`).join("");
+    }
+    const cf = $b("[data-ma-confirm]"); if (cf && sp.primary) { cf.textContent = sp.primary; cf.disabled = false; }
+    popReq(d, box, sp.req || null);
+    requestAnimationFrame(() => popFit(box));
+  }
+  /* solo(배터리 장면) — 판만 빌린 알림이라 그 웨이포인트(WP-07)를 고른 채 두지 않는다(11/18 디자이너): 지도 · 우측 목록 고름을 풀고 로봇에게 간다.
+   *   지도는 팝오버의 data-wp 가 고른 지점과 다르면 팝오버를 닫는다(map-v6.js tellWaypoint) — data-wp 를 먼저 지워 null 끼리 같게 둔다 */
+  function popSolo(d, box) {
+    const w = d.defaultView;
+    box.removeAttribute("data-wp");
+    const tl = d.querySelector("[data-timeline]");
+    if (tl) { tl.removeAttribute("data-selected-waypoint"); tl.querySelectorAll("[data-waypoint]").forEach(n => { n.classList.remove("is-selected"); n.removeAttribute("data-wp-selected"); }); }
+    d.dispatchEvent(new w.CustomEvent("aprism:waypoint", { detail: { id: null, from: "panel" } }));
+    d.querySelector("[data-map-robot]")?.click();
+  }
+  // '조치 요청됨' 판 — 관제 화면(monitor.js reqShow7)과 같은 꼴 · 같은 class. 진짜 요청 기록은 쓰지 않는다
+  function popReq(d, box, r) {
+    let el = d.getElementById("kista-req");
+    if (!r) { if (el) el.hidden = true; box.classList.remove("is-requested"); return; }
+    if (!el) {
+      el = d.createElement("div"); el.id = "kista-req"; el.className = "ma-req";
+      el.innerHTML = '<div class="ma-req-head" role="status"><p class="ma-req-to"></p><ul class="ma-req-acts"></ul></div>' +
+        '<div class="ma-req-actions"><button type="button" class="btn btn-secondary">진단 상세</button><button type="button" class="btn btn-primary">확인함</button></div>';
+    }
+    const lower = box.querySelector(".ma-lower"); if (el.parentNode !== lower) lower.appendChild(el);
+    el.querySelector(".ma-req-to").textContent = r.to;
+    el.querySelector(".ma-req-acts").innerHTML = (r.acts || []).map(x => `<li>${x}</li>`).join("");
+    el.classList.toggle("is-ok", !!r.ok);
+    el.hidden = false; box.classList.add("is-requested");
+  }
+  /* (11/19) 판을 지도 칸 아래 끝에 붙이고, 높이는 내용만큼(위로 올린다).
+   *   관제 화면은 판 위치(--y)를 알림 자리에 맞춰 두어 판이 내용보다 낮다 — 아래 [진단 상세] 버튼 줄이 잘렸다.
+   *   요청 판으로 줄어든 뒤 자리를 다시 안 잡는 배터리 장면(로봇 판)도 이것으로 아래 끝에 붙는다 */
+  function popFit(box) {
+    if (box.hidden) return;
+    const ph = box.parentElement && box.parentElement.clientHeight; if (!ph) return;
+    const need = Math.min(ph, Math.max(box.scrollHeight, box.offsetHeight));
+    const lower = box.querySelector(".ma-lower"), extra = lower ? Math.max(0, lower.scrollHeight - lower.clientHeight) : 0;
+    const y = Math.max(0, Math.round(ph - Math.min(ph, need + extra))) + "px";
+    if (box.style.getPropertyValue("--y") !== y) box.style.setProperty("--y", y);
+  }
+  // v7 에 없는 상태 · 알림을 이 영상에서만 덧입힌다 — 글은 속성(data-k)으로 얹어 관제 화면이 글을 다시 써도 유지된다
+  function ctlOverlay(d, o) {
+    if (!d.getElementById("kista-ov-css")) {
+      const st = d.createElement("style"); st.id = "kista-ov-css";
+      st.textContent = `
+        [data-k] { font-size: 0 !important; }
+        [data-k]::after { content: attr(data-k); font-size: var(--k-fs, 12px); }
+        .badge[data-kc="info"] { color: var(--status-info-text) !important; } .badge[data-kc="normal"] { color: var(--status-safe-text) !important; }
+        .badge[data-kc="idle"] { color: var(--text-secondary) !important; } .badge[data-kc="warning"] { color: var(--status-warning-text) !important; }
+        .badge[data-kc="danger"] { color: var(--status-critical-text) !important; }
+        .badge[data-kc] .badge-dot { background: currentColor !important; }
+        #kista-req.is-ok .ma-req-head { border-color: var(--status-safe-border); background-color: var(--status-safe-bg); }
+        #kista-req.is-ok .ma-req-to, #kista-req.is-ok .ma-req-acts { color: var(--status-safe-text); }
+        .rr-banner.is-quiet .rr-dot { display: none !important; }
+        body.kista-quiet .rr-st { display: none !important; }
+        body.kista-quiet [data-timeline].rr-estop .timeline-item.is-pending .step-card { opacity: 1 !important; }
+        /* 로봇 카드 2D 로봇(robot-2d.js) — kseat 처음부터 앉음, krise 앉은 데서 일어섬(앉기 애니메이션을 거꾸로) */
+        [data-r2="kseat"] .r2-all { animation: r2-sit-all 1ms both; } [data-r2="kseat"] .r2-hip { animation: r2-sit-hip 1ms both; }
+        [data-r2="kseat"] .r2-knee { animation: r2-sit-knee 1ms both; } [data-r2="kseat"] .r2-foot { animation: r2-sit-foot 1ms both; }
+        [data-r2="kseat"] .r2-body-sh { animation: r2-sit-sh 1ms both; }
+        [data-r2="krise"] .r2-all { animation: r2-sit-all 1.4s ease-in-out reverse both; } [data-r2="krise"] .r2-hip { animation: r2-sit-hip 1.4s ease-in-out reverse both; }
+        [data-r2="krise"] .r2-knee { animation: r2-sit-knee 1.4s ease-in-out reverse both; } [data-r2="krise"] .r2-foot { animation: r2-sit-foot 1.4s ease-in-out reverse both; }
+        [data-r2="krise"] .r2-body-sh { animation: r2-sit-sh 1.4s ease-in-out reverse both; }`;
+      d.head.appendChild(st);
+    }
+    const setK = (el, txt) => { if (!el) return; if (txt == null) { el.removeAttribute("data-k"); return; }
+      if (!el.style.getPropertyValue("--k-fs")) { const prev = el.getAttribute("data-k"); el.removeAttribute("data-k"); el.style.setProperty("--k-fs", getComputedStyle(el).fontSize); if (prev != null) el.setAttribute("data-k", prev); }
+      el.setAttribute("data-k", txt); };
+    // quiet — 띠는 지도가 계속 다시 만들어 뺄 수 없다. 띠 글을 진행 제목으로 바꾸고(ban) 기호 점만 숨겨 평소(run) 제목처럼 보인다
+    d.body.classList.toggle("kista-quiet", !!o.quiet);   // 지금 지점 카드의 상태 줄(긴급정지 · 일시정지 [재개])도 숨긴다
+    if (o.quiet) { const rail = d.querySelector("[data-timeline]"); if (rail) rail.classList.remove("rr-estop", "rr-frozen"); }
+    const card0 = d.querySelector('.robot-strip .robot-card[aria-pressed="true"]') || d.querySelector(".robot-strip .robot-card");
+    // 배지
+    const badge = card0 && card0.querySelector(".robot-lists .badge");
+    if (badge) {
+      const dot = badge.querySelector(".badge-dot");
+      if (o.badge) { if (!badge.dataset.kOrig) badge.dataset.kOrig = badge.lastChild.textContent; badge.lastChild.textContent = o.badge[0]; badge.setAttribute("data-kc", o.badge[1]); }
+      else if (badge.dataset.kOrig) { badge.lastChild.textContent = badge.dataset.kOrig; badge.removeAttribute("data-kc"); }
+      if (dot && badge.firstChild !== dot) badge.prepend(dot);
+    }
+    // 배터리
+    const fill = card0 && card0.querySelector(".battery-fill"), num = card0 && card0.querySelector(".battery .num");
+    if (fill) { if (!fill.dataset.kOrig) fill.dataset.kOrig = fill.style.width; fill.style.width = o.bat != null ? o.bat + "%" : fill.dataset.kOrig; }
+    if (num) setK(num, o.bat != null ? o.bat + "%" : null);
+    // 진행 막대 두 줄
+    setK(d.querySelector("[data-progress-title]"), o.title ?? null);
+    setK(d.querySelector("[data-progress-left]"), o.left ?? null);
+    // 진행 제목 자리 상태 띠(route-sim.js stateBits) — 글 · 색 · 기호를 덮는다. 모드가 바뀌면 route-sim 이 새로 쓰므로 그때 다시 얹는다
+    ctlBan(d, o);
+    // E-STOP 버튼 '작동 중' 테두리는 이 영상에선 쓰지 않는다(3-2 는 앉히려고 estop 상태만 빌린다)
+    d.querySelector('.rc-actions [data-modal-open="estop"].rr-on')?.classList.remove("rr-on");
+  }
+  // 띠는 route-sim 이 프레임마다 살피다 모드가 바뀐 다음 프레임에 새로 쓴다 — 0.3초 덧입힘을 기다리면 '긴급정지'가 비치므로 매 프레임 · 모드 직후에도 얹는다
+  function ctlBan(d, o) {
+    const ban = d.querySelector(".rr-banner"), b = ban && ban.querySelector(".rr-state b");
+    if (!ban || !o.ban || !b) return;
+    const cls = `rr-banner is-${o.ban[2]} rr-tone-${o.ban[1]}`;
+    if (ban.className !== cls) ban.className = cls;
+    if (b.getAttribute("data-k") !== o.ban[0]) { if (!b.style.getPropertyValue("--k-fs")) b.style.setProperty("--k-fs", getComputedStyle(b).fontSize); b.setAttribute("data-k", o.ban[0]); }
+  }
+  function ctlReady() {
+    const d = ctlDoc(); if (!d || !d.querySelector(".rsim")) return false;
+    if (!d.getElementById("kista-hide")) { const st = d.createElement("style"); st.id = "kista-hide"; st.textContent = ".rsim{display:none!important}"; d.head.appendChild(st); }   // 시뮬레이션 리모콘은 화면에서 숨김(누르기만)
+    return true;
+  }
+  /* 아래 단계 바 — 슬라이드 Steps(899:2165): 점 중심 104 + 251k · 점 줄 y 56, 글자 20/28 아래끝 = 점 위 12. 지금 단계 하나만 진하게 */
+  /* 관제 카메라(11/19) — 발표 슬라이드에서 관제 화면이 작다는 의견. 반반 칸은 두고, 장면마다 필요한 부분만 키운다.
+   *   CAMP 자리 = [가운데 x, 가운데 y, 보이는 폭] (관제 1920×1080 좌표). 창 822×693 에 폭을 맞추고, 높이가 1080 을 넘으면 창 위아래를 줄인다(full).
+   *   full 전체 / map 알림 팝오버 · Delta · 지도 로봇(x 390~1570) / side 지도 로봇 · 오른쪽 로봇 상태 · 웨이포인트(x 720~1900) / wide 1-2 용(로봇이 왼쪽)
+   *   CAM 장면마다 [시각, 자리] — 시각부터 CAM_DUR 초 동안 부드럽게 옮긴다. 미리보기 · 고화질 녹화 둘 다 이 표를 쓴다 */
+  const CAM_WIN = { x: 24, y: 24, w: 822, h: 693, r: 8 };
+  const CAMP = { full: [960, 540, 1920], map: [980, 582, 1180], side: [1310, 582, 1180], wide: [1200, 560, 1400] };
+  const CAM = {
+    "1-1": [[0, "full"], [1.2, "side"]],
+    "1-2": [[0, "full"], [1.2, "side"]],   // (11/19) 지도를 로봇에 당겨(CTRL_FOCUS) 로봇이 가운데 — wide 대신 side
+    "2-1": [[0, "full"], [1.2, "map"], [15.9, "side"]],
+    "2-2": [[0, "full"], [1.2, "side"], [2.8, "map"]],
+    "3-1": [[0, "full"], [1.2, "map"], [12.6, "side"]],
+    "3-2": [[0, "full"], [1.2, "map"]],
+  };
+  const CAM_DUR = 1.0;
+  let camHQ = 1;   // 고화질 1단계에서 창을 키운 배율(--hq)
+  function camAt(id, t) {
+    const ks = CAM[id] || [[0, "full"]];
+    let i = 0; while (i + 1 < ks.length && ks[i + 1][0] <= t) i++;
+    const b = CAMP[ks[i][1]], a = i ? CAMP[ks[i - 1][1]] : b;
+    let p = Math.min(1, Math.max(0, (t - ks[i][0]) / CAM_DUR)); p = p * p * (3 - 2 * p);
+    const w = Math.exp(Math.log(a[2]) + (Math.log(b[2]) - Math.log(a[2])) * p);
+    const cx = a[0] + (b[0] - a[0]) * p, cy = a[1] + (b[1] - a[1]) * p;
+    const k = CAM_WIN.w / w, visH = Math.min(1080, CAM_WIN.h / k), bh = visH * k;
+    const x0 = Math.min(1920 - w, Math.max(0, cx - w / 2));
+    const yc = Math.min(1080 - visH / 2, Math.max(visH / 2, cy));
+    return { k, x0, y0: yc - CAM_WIN.h / 2 / k, bh, ins: (CAM_WIN.h - bh) / 2 };
+  }
+  function camApply(t) {
+    const box = document.querySelector(".combo-r .ctl"), fr = box && box.firstElementChild; if (!fr) return;
+    const c = camAt(cur.id, t);
+    fr.style.transform = `scale(${(c.k * camHQ).toFixed(5)}) translate(${(-c.x0).toFixed(2)}px, ${(-c.y0).toFixed(2)}px)`;
+    box.style.clipPath = `inset(${c.ins.toFixed(2)}px 0 round ${CAM_WIN.r}px)`;
+  }
+  const STEP_X = k => 104 + 251 * k;
+  function stepsNow(t) { return Math.max(0, SEG.st.filter(x => t >= x - 1e-6).length - 1); }
+  function comboStepsFill() {
+    const el = document.getElementById("comboSteps"); if (!el) return;
+    let h = "";
+    for (let k = 0; k < 4; k++) h += `<i class="cs-l" style="left:${STEP_X(k) + 4}px;width:${251 - 8}px"></i>`;
+    cur.steps.forEach((nm, k) => { h += `<span class="cs-t" style="left:${STEP_X(k)}px">${nm}</span><b class="cs-d" style="left:${STEP_X(k)}px"></b>`; });
+    el.innerHTML = h; el.dataset.n = "";
+    comboStepsAt(curT);
+  }
+  function comboStepsAt(t) {
+    const el = document.getElementById("comboSteps"); if (!el) return;
+    const n = String(stepsNow(t)); if (el.dataset.n === n) return; el.dataset.n = n;
+    el.querySelectorAll(".cs-t").forEach((x, k) => x.classList.toggle("on", String(k) === n));
+    el.querySelectorAll(".cs-d").forEach((x, k) => x.classList.toggle("on", String(k) === n));
+  }
+  // 같은 단계 바를 캔버스에(고화질 굽기) — sc 배율, (ox, oy) 합친 영상 왼쪽 위
+  function drawSteps(o, sc, t) {
+    const n = stepsNow(t), X = 274, Y = 741;
+    o.save(); o.scale(sc, sc); o.translate(X, Y);
+    o.save(); o.shadowColor = "rgba(0,0,0,0.1)"; o.shadowBlur = 20; o.shadowOffsetY = 12; o.fillStyle = "#fff";
+    o.beginPath(); o.roundRect(0, 0, 1212, 76, 8); o.fill(); o.restore();
+    o.fillStyle = "rgba(17,18,23,0.7)";
+    for (let k = 0; k < 4; k++) o.fillRect(STEP_X(k) + 4, 56, 251 - 8, 1);
+    o.textAlign = "center"; o.textBaseline = "middle"; o.letterSpacing = "-0.6px";
+    cur.steps.forEach((nm, k) => {
+      const on = k === n, cx = STEP_X(k);
+      o.font = `${on ? 700 : 400} 20px Pretendard, "Noto Sans KR", sans-serif`; o.fillStyle = on ? "#111217" : "#747985";
+      o.fillText(nm, cx, 26);
+      o.beginPath();
+      if (on) { o.arc(cx, 56, 6, 0, Math.PI * 2); o.fillStyle = "#111217"; o.fill(); }
+      else { o.arc(cx, 56, 3.5, 0, Math.PI * 2); o.fillStyle = "#fff"; o.fill(); o.lineWidth = 1; o.strokeStyle = "#747985"; o.stroke(); }
+    });
+    o.restore();
+  }
+  function comboFill() {
+    comboStepsFill();
+    document.getElementById("comboScene").textContent = `${cur.id}. ${cur.title}` + (CTRL[cur.id] ? "" : " — 관제 시간표 없음(이동 중 그대로)");
+    const rr = document.getElementById("comboRange");
+    rr.innerHTML = `<option value="all">전체 ${SEG.dur}초</option>` + cur.steps.map((s, i) => `<option value="${i}">${i + 1}단계 · ${s}</option>`).join("");
+  }
+  function comboEnter() {
+    comboOn = true; ctlMode = null;
+    document.getElementById("combo").hidden = false; document.getElementById("comboBar").hidden = false;
+    document.getElementById("comboL").appendChild(renderer.domElement);
+    if (!ctlFrame.src) ctlFrame.src = "./screens/main-v7.html";
+    comboFill(); seek(curT);
+    const wait = () => { if (ctlReady()) ctlApply(curT, true); else if (comboOn) setTimeout(wait, 400); }; wait();
+    window.scrollTo(0, 0);
+  }
+  function comboExit() {
+    comboOn = false; stopPlay(); try { const fw = ctlFrame.contentWindow; if (fw) fw.APRISM_KISTA_OV = null; } catch (e) {} if (deltaObs) { deltaObs.disconnect(); deltaObs = null; } ctlApply.scene = null;
+    document.getElementById("combo").hidden = true; document.getElementById("comboBar").hidden = true;
+    stage.prepend(renderer.domElement); dirty = true;
+  }
+  function comboRangeT() {
+    const rv = document.getElementById("comboRange").value;
+    return rv === "all" ? [0, SEG.dur, ""] : [SEG.st[+rv], SEG.st[+rv + 1] ?? SEG.dur, "_" + (+rv + 1) + "단계"];
+  }
+  function comboPreview() {
+    if (playing) { stopPlay(); return; }
+    const [tA, tB] = comboRangeT(); playEnd = tB; seek(tA); ctlApply(tA, true); startPlay();
+  }
+  async function comboRecord() {
+    if (comboRec || recording) return;
+    const note = document.getElementById("comboNote");
+    if (!ctlReady()) { note.textContent = "관제 화면을 불러오는 중이에요 — 잠시 뒤 다시 눌러 주세요"; return; }
+    await loadDisp(cur.id); await loadVoices();
+    let stream;
+    try {
+      stream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "browser", cursor: "never", frameRate: 30 }, audio: true,
+        preferCurrentTab: true, selfBrowserSurface: "include", surfaceSwitching: "exclude", systemAudio: "exclude" });
+    } catch (e) { note.textContent = "탭 공유를 취소했어요"; return; }
+    const [track] = stream.getVideoTracks();
+    if (window.CropTarget && track.cropTo) { try { await track.cropTo(await CropTarget.fromElement(document.getElementById("combo"))); } catch (e) { console.warn("영역 자르기 실패", e); } }
+    const mime = ["video/mp4;codecs=avc1.640028,mp4a.40.2", "video/mp4", "video/webm;codecs=vp9,opus", "video/webm"].find(m => MediaRecorder.isTypeSupported(m));
+    const mr = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 16e6 });
+    const chunks = []; mr.ondataavailable = e => e.data.size && chunks.push(e.data);
+    const [tA, tB, tag] = comboRangeT();
+    stopPlay(); seek(tA); ctlApply(tA, true);
+    await new Promise(r => setTimeout(r, 900));   // 관제 화면이 상태를 바꿔 그릴 틈
+    document.getElementById("comboBar").style.visibility = "hidden";
+    comboRec = { mr, stream, name: `KISTA_합친영상_${cur.id}${tag}_${stamp()}.${mime.startsWith("video/mp4") ? "mp4" : "webm"}` };
+    mr.onstop = () => {
+      stream.getTracks().forEach(t => t.stop());
+      download(new Blob(chunks, { type: mime }), comboRec.name);
+      note.textContent = mime.startsWith("video/mp4") ? "저장했어요(MP4)" : "저장했어요(WebM — 이 브라우저는 MP4 녹화가 안 돼요)";
+      comboRec = null; document.getElementById("comboBar").style.visibility = "";
+    };
+    mr.start(); playEnd = tB; startPlay();
+  }
+  // 재생이 끝나면 녹화를 마친다(tick 에서 부름)
+  function comboAfterTick() {
+    if (comboOn) ctlApply(curT);
+    if (comboRec && !playing && comboRec.mr.state === "recording") { const r = comboRec; setTimeout(() => r.mr.state === "recording" && r.mr.stop(), 300); r.mr.requestData?.(); comboRec = { ...r, stopping: true }; }
+  }
+  document.getElementById("btnCombo").onclick = comboEnter;
+  document.getElementById("comboExit").onclick = comboExit;
+  document.getElementById("comboPlay").onclick = comboPreview;
+  document.getElementById("comboRec").onclick = comboRecord;
+
+  /* ================= 고화질 합친 영상(3520×1700) =================
+   * 빠른 녹화는 화면에 보이는 픽셀 그대로라(1760×795, 관제 화면은 1920×1080 을 0.4배로 줄여 그려 글자가 뭉갠다) 낮다. 두 번에 나눠 굽는다.
+   *   1) 관제 창(822×693, 카메라 CAM 이 키운 그대로)만 창에 맞춰 크게 띄우고(× --hq) 이 탭을 공유받아 실제 시간으로 찍는다. 프레임마다 그때의 장면 시각을 붙여
+   *      1644×1386(창의 두 배)으로 H.264 로 메모리에 담는다(MediaStreamTrackProcessor → VideoEncoder).
+   *   2) 작업현장 3D 를 영상 녹화처럼 한 프레임씩 두 배(1740×1590)로 그리고, 같은 시각의 관제 프레임을 차례로 풀어(VideoDecoder — 되감기 없음)
+   *      관제 창 자리에 붙여 3520×1700 MP4(H.264 + AAC 음성)로 굽는다(아래 단계 바 포함). 두 칸 · 사이 20 · 관제 창 자리는 합친 영상 모드(1760×795)의 두 배 그대로.
+   */
+  const HQ = { W: 3520, H: 1700, fps: 30, CW: 1644, CH: 1386 };   // CW · CH = 관제 창 822×693 의 두 배   // 850 × 2 — 아래 단계 바까지
+  let hqBusy = false;
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  async function hqCodec(w, h, fps, bitrate) {
+    for (const codec of CODECS.concat(["avc1.640028"])) {
+      const cfg = { codec, width: w, height: h, bitrate, framerate: fps, avc: { format: "avc" } };
+      try { if ((await VideoEncoder.isConfigSupported(cfg)).supported) return cfg; } catch (e) {}
+    }
+    return null;
+  }
+  function hqFit() { camHQ = +Math.min(innerWidth / CAM_WIN.w, innerHeight / CAM_WIN.h).toFixed(4); document.body.style.setProperty("--hq", camHQ); }
+  // (11/19) 탭 공유를 시작하면 '이 탭을 공유하는 중' 막대가 뒤늦게 떠 창이 낮아진다 — 처음 맞춘 크기면 관제 창 아래가 잘렸다. 창이 바뀌면 다시 맞춘다
+  addEventListener("resize", () => { if (document.body.classList.contains("combo-hq")) { hqFit(); camApply(curT); } });
+  async function comboRecordHQ() {
+    if (hqBusy || comboRec || recording) return;
+    const note = document.getElementById("comboNote");
+    if (!ctlReady()) { note.textContent = "관제 화면을 불러오는 중이에요 — 잠시 뒤 다시 눌러 주세요"; return; }
+    if (!window.MediaStreamTrackProcessor || !window.VideoEncoder || !window.VideoDecoder) { note.textContent = "이 브라우저는 고화질 녹화를 못 해요 — 최신 Chrome 에서 열어 주세요"; return; }
+    const ocfg = await hqCodec(HQ.W, HQ.H, HQ.fps, 40e6), tcfg = await hqCodec(HQ.CW, HQ.CH, HQ.fps, 24e6);
+    if (!ocfg || !tcfg) { note.textContent = "이 PC 의 H.264 인코더가 3520×1700 을 못 받아요 — 빠른 녹화를 써 주세요"; return; }
+    hqBusy = true;
+    try {
+      await loadDisp(cur.id); await loadVoices();
+      let stream;
+      try {
+        stream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "browser", cursor: "never", frameRate: 30 }, audio: false,
+          preferCurrentTab: true, selfBrowserSurface: "include", surfaceSwitching: "exclude" });
+      } catch (e) { note.textContent = "탭 공유를 취소했어요"; return; }
+      const [track] = stream.getVideoTracks();
+      // 1단계 — 관제 화면만 크게
+      hqFit(); document.body.classList.add("combo-hq"); window.scrollTo(0, 0);
+      const ctlBox = document.querySelector(".combo-r .ctl");
+      await sleep(400); hqFit(); camApply(curT);
+      if (window.CropTarget && track.cropTo) { try { await track.cropTo(await CropTarget.fromElement(ctlBox)); } catch (e) { console.warn("영역 자르기 실패", e); } }
+      const devW = Math.round(CAM_WIN.w * camHQ * devicePixelRatio);
+      const [tA, tB, tag] = comboRangeT();
+      stopPlay(); seek(tA); ctlApply(tA, true); camApply(tA);
+      await sleep(2400);   // 관제 화면이 상태 · 팝오버 · 지도 당기기(ctlFocus)를 다 끝낼 틈
+      hqFit(); camApply(curT);   // 공유 막대가 그사이 떴어도 창에 맞게
+      const cv = new OffscreenCanvas(HQ.CW, HQ.CH), g = cv.getContext("2d");
+      const chunks = []; let dcfg = null, terr = null, tsPrev = -1, n = 0, started = false, stop = false;
+      const tenc = new VideoEncoder({ output: (c, meta) => { if (meta && meta.decoderConfig) dcfg = meta.decoderConfig; const b = new Uint8Array(c.byteLength); c.copyTo(b); chunks.push({ type: c.type, timestamp: c.timestamp, data: b }); }, error: e => { terr = e; } });
+      tenc.configure(tcfg);
+      const reader = new MediaStreamTrackProcessor({ track }).readable.getReader();
+      const pump = (async () => {
+        while (!stop) {
+          const { value: vf, done } = await reader.read(); if (done) break;
+          // 이 프레임이 보여 주는 장면 시각 — 읽은 때의 장면 시계에서 잡힘 지연(약 한 프레임)을 뺀다
+          const st = started ? Math.max(tA, curT - 0.035) : tA;
+          g.drawImage(vf, 0, 0, HQ.CW, HQ.CH); vf.close();
+          let ts = Math.round(st * 1e6); if (ts <= tsPrev) ts = tsPrev + 1; tsPrev = ts;
+          const f = new VideoFrame(cv, { timestamp: ts }); tenc.encode(f, { keyFrame: n % 60 === 0 }); f.close(); n++;
+          if (n % 15 === 0) note.textContent = `1/2 관제 화면 찍는 중 ${Math.round((curT - tA) / (tB - tA) * 100)}%`;
+        }
+      })();
+      await sleep(300);
+      playEnd = tB; started = true; startPlay();
+      while (playing) await sleep(100);
+      await sleep(250);
+      stop = true; try { await reader.cancel(); } catch (e) {}
+      stream.getTracks().forEach(t => t.stop());
+      await pump.catch(() => {});
+      await tenc.flush(); tenc.close();
+      document.body.classList.remove("combo-hq"); camHQ = 1; camApply(curT);
+      if (terr || !dcfg || !chunks.length) { note.textContent = "관제 화면 찍기 실패" + (terr ? ": " + terr.message : ""); return; }
+      // 2단계 — 3D 두 배 + 관제 프레임을 모니터 칸에
+      note.textContent = `2/2 준비 중 — 관제 프레임 ${chunks.length}장`;
+      await hqCompose(chunks, dcfg, ocfg, tA, tB, tag, note, devW);
+    } catch (e) {
+      console.error(e); note.textContent = "고화질 녹화 실패: " + e.message;
+    } finally {
+      hqBusy = false; document.body.classList.remove("combo-hq"); camHQ = 1; if (comboOn) camApply(curT);
+      if (recording) { recording = false; renderer.setSize(PW, PH, false); dirty = true; }
+    }
+  }
+  async function hqCompose(chunks, dcfg, ocfg, tA, tB, tag, note, devW) {
+    const { Muxer, ArrayBufferTarget } = await import("https://cdn.jsdelivr.net/npm/mp4-muxer@5.1.3/+esm");
+    const fps = HQ.fps, X2 = 2, RX = (870 + 20) * X2;   // 오른쪽 칸 왼쪽 끝
+    const out = document.createElement("canvas"); out.width = HQ.W; out.height = HQ.H;
+    const o = out.getContext("2d"); o.imageSmoothingQuality = "high";
+    try { await Promise.all([document.fonts.load('700 20px Pretendard'), document.fonts.load('400 20px Pretendard')]); } catch (e) {}
+    // 관제 프레임을 차례로 푼다 — 장면 시각 t 이하에서 가장 늦은 프레임
+    const q = []; let fed = 0, flushed = false, derr = null;
+    const dec = new VideoDecoder({ output: f => q.push(f), error: e => { derr = e; } });
+    dec.configure(dcfg);
+    // 지난 프레임은 바로바로 닫는다 — 디코더는 열어 둔 프레임 수에 한도가 있어, 쌓아 두면 더 내놓지 않고 멈춘다(11/18 저장 안 됨)
+    const drop = tt => { while (q.length > 1 && q[1].timestamp <= tt) q.shift().close(); };
+    let lastGood = 0;
+    async function ctlAt(t) {
+      const tt = Math.round(t * 1e6), t0 = performance.now();
+      while (!derr) {
+        drop(tt);
+        if (q.some(f => f.timestamp > tt) || flushed) break;
+        if (performance.now() - t0 > 3000) { console.warn("관제 프레임 기다림 초과", t, fed, chunks.length, q.length, dec.decodeQueueSize); break; }
+        if (fed < chunks.length && dec.decodeQueueSize < 3) { const c = chunks[fed++]; dec.decode(new EncodedVideoChunk({ type: c.type, timestamp: c.timestamp, data: c.data })); continue; }
+        if (fed >= chunks.length && dec.decodeQueueSize === 0) { await dec.flush(); flushed = true; continue; }
+        await sleep(1);
+      }
+      drop(tt);
+      if (q[0]) lastGood = t;
+      return q[0] || null;
+    }
+    // 음성
+    let audioBuf = null; const acfg = { codec: "mp4a.40.2", sampleRate: 48000, numberOfChannels: 2, bitrate: 128000 };
+    if (SEG.voice.some(([ts, k]) => ts < tB && ts + (vbuf[k]?.duration ?? 6) > tA) && window.AudioEncoder) {
+      try { if ((await AudioEncoder.isConfigSupported(acfg)).supported) audioBuf = await mixVoices(tA, tB); } catch (e) { console.warn("음성 굽기 불가", e); }
+    }
+    const muxer = new Muxer({ target: new ArrayBufferTarget(), video: { codec: "avc", width: HQ.W, height: HQ.H, frameRate: fps },
+      ...(audioBuf ? { audio: { codec: "aac", sampleRate: 48000, numberOfChannels: 2 } } : {}), fastStart: "in-memory" });
+    let err = null;
+    if (audioBuf) {
+      const aenc = new AudioEncoder({ output: (chunk, meta) => muxer.addAudioChunk(chunk, meta), error: e => { err = e; } });
+      aenc.configure(acfg);
+      const L = audioBuf.getChannelData(0), R = audioBuf.getChannelData(1), N = 1024;
+      for (let i = 0; i < audioBuf.length; i += N) {
+        const m = Math.min(N, audioBuf.length - i), data = new Float32Array(m * 2);
+        data.set(L.subarray(i, i + m), 0); data.set(R.subarray(i, i + m), m);
+        const ad = new AudioData({ format: "f32-planar", sampleRate: 48000, numberOfFrames: m, numberOfChannels: 2, timestamp: Math.round(i / 48000 * 1e6), data });
+        aenc.encode(ad); ad.close();
+      }
+      await aenc.flush(); aenc.close();
+    }
+    const enc = new VideoEncoder({ output: (chunk, meta) => muxer.addVideoChunk(chunk, meta), error: e => { err = e; } });
+    enc.configure(ocfg);
+    recording = true; renderer.setSize(W, H, false);
+    const frames = Math.round((tB - tA) * fps), dtUs = 1e6 / fps;
+    seek(tA);
+    for (let i = 0; i < frames && !err && !derr; i++) {
+      const tt = tA + i / fps;
+      if (i > 0) stepRobot(tt, 1 / fps);
+      poseAll(tt);
+      await ensureDisp(tt);
+      renderFrame();
+      o.fillStyle = "#fff"; o.fillRect(0, 0, HQ.W, HQ.H);
+      o.drawImage(renderer.domElement, 0, 0, 870 * X2, 795 * X2);
+      o.fillStyle = "#F0F3F6"; o.fillRect(RX, 0, 870 * X2, 795 * X2);
+      const cf = await ctlAt(tt), cm = camAt(cur.id, tt);
+      const wx = RX + CAM_WIN.x * X2, wy = (CAM_WIN.y + cm.ins) * X2, ww = CAM_WIN.w * X2, wh = cm.bh * X2;
+      o.save(); o.beginPath(); o.roundRect(wx, wy, ww, wh, CAM_WIN.r * X2); o.clip();
+      o.fillStyle = "#0A0F18"; o.fillRect(wx, wy, ww, wh);
+      // 1단계는 창 전체(822×693)를 찍었다 — 그중 위아래를 줄인 띠만
+      if (cf) { const fh = cf.displayHeight; o.drawImage(cf, 0, cm.ins / CAM_WIN.h * fh, cf.displayWidth, cm.bh / CAM_WIN.h * fh, wx, wy, ww, wh); }
+      o.restore();
+      drawSteps(o, X2, tt);
+      toVideoRange(o, HQ.W, HQ.H);
+      const vf = new VideoFrame(out, { timestamp: Math.round(i * dtUs), duration: Math.round(dtUs) });
+      enc.encode(vf, { keyFrame: i % (fps * 2) === 0 }); vf.close();
+      if (enc.encodeQueueSize > 4 || i % 6 === 0) { note.textContent = `2/2 굽는 중 ${Math.round((i + 1) / frames * 100)}%`; await sleep(0); }
+    }
+    await enc.flush(); enc.close();
+    q.forEach(f => f.close()); try { dec.close(); } catch (e) {}
+    recording = false; renderer.setSize(PW, PH, false); dirty = true; seek(tA);
+    if (err || derr) { note.textContent = "굽기 실패: " + (err || derr).message; console.error(err || derr); return; }
+    note.textContent = "파일 만드는 중…";
+    muxer.finalize();
+    download(new Blob([muxer.target.buffer], { type: "video/mp4" }), `KISTA_합친영상_${cur.id}${tag}_고화질_${stamp()}.mp4`);
+    note.textContent = `저장했어요 — 3520×1700${audioBuf ? " · 음성 포함" : ""}` + (devW < CAM_WIN.w * 1.2 ? ` · 관제 화면은 창이 작아 ${devW}px 로 찍혀 조금 흐릴 수 있어요(창을 키우거나 F11)` : "");
+  }
+  document.getElementById("comboHQ").onclick = comboRecordHQ;
   function setPlayBtn() { const b = document.getElementById("btnPlay"); if (b) b.textContent = playing ? "❚❚ 멈춤" : "▶ 재생"; }
   tick();
   window.__ksReady = true;

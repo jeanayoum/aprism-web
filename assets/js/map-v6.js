@@ -2650,7 +2650,7 @@
 
     var base = pad(), g = base.g;
     // [11/05] 빗금 원판 · 테 · 겹친 원 넷은 걷었다 — 호만 남긴다. 흰색으로 그려 재질색(상태색)을 입힌다
-    g.globalAlpha = 0.3; g.strokeStyle = "#fff"; g.lineWidth = 12; g.lineCap = "round";   // 옅은 3방위 호(좌 · 우 · 뒤)
+    g.globalAlpha = 1; g.strokeStyle = "#fff"; g.lineWidth = 12; g.lineCap = "round";   // 옅은 3방위 호(좌 · 우 · 뒤) — 옅기 30% 는 재질 투명도로(rrHalo, 11/19)
     [-90, 90, 180].forEach(function (a) { arcPath(g, a, 32, R - 10); g.stroke(); });
 
     var ring = pad(); g = ring.g;   // 01 대기 — 어두운 트랙 위에 링 12%
@@ -2698,6 +2698,25 @@
       scene.add(halo.g);
     }
     var st = (botBox && botBox.getAttribute("data-rr")) || "run";
+    // [11/19 KISTA 발표 영상] 밖(kista-site.html)에서 바닥 라이팅을 정해 줄 수 있다 — 작업현장 로봇 호(LIGHT)와 같게. 없으면 평소대로
+    //   window.APRISM_KISTA_OV = { show, color, front, base, ring(0~1), scale, sway(앞 호 좌우 rad), fan(false = 시야 빔 끔), motion }
+    var ov = window.APRISM_KISTA_OV;
+    if (ov && onLane && botBox && !botBox.hidden && robotKind(onLane.id) === "spot") {
+      if (onLane.fan && ov.fan === false) { onLane.fan.visible = false; }
+      halo.g.visible = !!ov.show;
+      if (!ov.show) { return; }
+      halo.duo.visible = halo.brk.visible = false;
+      halo.base.visible = ov.base > 0; halo.front.visible = ov.front > 0; halo.ring.visible = ov.ring > 0;
+      halo.base.material.color.setHex(ov.color); halo.front.material.color.setHex(ov.color);
+      halo.base.material.opacity = Math.min(1, ov.base); halo.front.material.opacity = Math.min(1, ov.front); halo.ring.material.opacity = Math.min(1, ov.ring);
+      halo.front.rotation.y = ov.sway || 0;
+      var osz = DOG_PX * baseSize / (view.clientHeight || 1);
+      halo.g.position.set(onLane.here.x, onLane.here.y + span * 0.0006, onLane.here.z);
+      halo.g.scale.setScalar(osz * HALO_R * halo.size * 2 * (ov.scale || 1));
+      var odx = onLane.ahead.x - onLane.here.x, odz = onLane.ahead.z - onLane.here.z;
+      if (odx * odx + odz * odz > 1e-10) { halo.g.rotation.y = Math.atan2(-odz, odx); }
+      return;
+    }
     var show = !!(onLane && botBox && !botBox.hidden && botBox.style.visibility !== "hidden" && !botBox.hasAttribute("data-rr-docked"))
       && robotKind(onLane.id) === "spot" && st !== "lost";   // [11/05] 긴급정지는 빨간 두 줄, 일시정지는 노란 끊긴 두 줄
     halo.g.visible = show;
@@ -2709,6 +2728,7 @@
     halo.duo.visible = !wait && !scan && !hold && !arc4;
     halo.brk.visible = hold && !arc4;
     halo.ring.visible = wait;
+    halo.base.material.opacity = 0.3; halo.ring.material.opacity = 1;
     var walk = DOG_MOTION[st] === "walk", now = performance.now();
     var tint = HALO_TINT[st] || HALO_GX;
     halo.base.material.color.setHex(tint); halo.front.material.color.setHex(tint); halo.duo.material.color.setHex(tint); halo.brk.material.color.setHex(tint);
@@ -2756,7 +2776,7 @@
     var st = (botBox && botBox.getAttribute("data-rr")) || "run";
     // [11/05] 통신 끊김은 자세를 바꾸지 않는다 — 끊기기 직전 자세에서 멈춘 채 옅어지기만 한다(dogGhost)
     dog3.freeze = st === "lost";
-    if (!dog3.freeze) { dog3.motion = DOG_MOTION[st] || "idle"; }
+    if (!dog3.freeze) { dog3.motion = (window.APRISM_KISTA_OV && window.APRISM_KISTA_OV.motion) || DOG_MOTION[st] || "idle"; }   // [11/19] KISTA 영상은 작업현장 로봇 자세를 따른다
     var ac = renderer.autoClear;
     renderer.autoClear = false;
     renderer.clearDepth();
