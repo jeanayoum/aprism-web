@@ -1,0 +1,109 @@
+/* 미리보기 전용 (저장소에 넣지 않음): 화면 코드를 바꾸기 전에, 지금 클래스에 components-v7.css 모양을 입혀 TO-BE를 본다
+ * 4단계에서는 이 파일 대신 화면 JS가 ds.badge, ds.wp, ds.floor, ds.chip 등을 부르게 바꾼다
+ * 마크업을 바꿔야 하는 두 곳(.ac-c-sev 아이콘만 배지, .ac-dc-sev 배지 + 글자)은 CSS로 흉내 낼 수 없어 여기서 빠짐 */
+
+/* ---------- 면 있는 배지: 22, 좌우 8, 모서리 2, 면만(테두리 없음) ---------- */
+:root body.ver-7 .verdict-chip:not(.z1):not(.z2):not(.z3),
+:root body.ver-7 .ac-count-badge:not(.z1):not(.z2):not(.z3),
+:root body.ver-7 .ac-chip-done:not(.z1):not(.z2):not(.z3),
+:root body.ver-7 .ma-check-tag:not(.z1):not(.z2):not(.z3),
+:root body.ver-7 .sf .cv:not(.z1):not(.z2):not(.z3),
+:root body.ver-7 .bld-bot-name:not(.z1):not(.z2):not(.z3) {
+  display: inline-flex !important; align-items: center !important; gap: var(--space-4) !important; box-sizing: border-box !important;
+  height: 22px !important; min-height: 22px !important; padding: 0 var(--space-8) !important;
+  border: 0 !important; box-shadow: none !important; border-radius: var(--radius-2) !important;
+  background-color: var(--bg-map-chip) !important; color: var(--text-secondary) !important;
+  font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-medium) !important;
+}
+:root body.ver-7 .bld-bot-name:not(.z1):not(.z2):not(.z3) { width: auto !important; min-width: 22px !important; justify-content: center !important; }
+:root body.ver-7 .verdict-chip.is-crit:not(.z1):not(.z2):not(.z3),
+:root body.ver-7 .sf .cv.crit:not(.z1):not(.z2):not(.z3) { background-color: var(--status-critical-bg) !important; color: var(--status-critical-text) !important; }
+:root body.ver-7 .verdict-chip.is-warn:not(.z1):not(.z2):not(.z3),
+:root body.ver-7 .sf .cv.warn:not(.z1):not(.z2):not(.z3) { background-color: var(--status-warning-bg) !important; color: var(--status-warning-text) !important; }
+:root body.ver-7 .ac-count-badge:not(.z1):not(.z2):not(.z3),
+:root body.ver-7 .ac-chip-done:not(.z1):not(.z2):not(.z3),
+:root body.ver-7 .ma-check-tag:not(.z1):not(.z2):not(.z3) { background-color: var(--status-info-bg) !important; color: var(--status-info-text) !important; }
+:root body.ver-7 .sf .cv.plan:not(.z1):not(.z2):not(.z3) { color: var(--text-tertiary) !important; }
+
+/* ---------- 면 없는 배지: 면 없이 그대로, 높이 22, 좌우 4, 아이콘과 글자 사이 4 (색은 지금 그대로) ---------- */
+:root body.ver-7 .badge:not(.badge-dot):not(.badge-mode):not(.badge-marker):not(.done-count):not(.z1):not(.z2),
+:root body.ver-7 .tag-running:not(.z1):not(.z2):not(.z3),
+:root body.ver-7 .bld-sev:not(dd):not(.z1):not(.z2):not(.z3),
+:root body.ver-7 .bld-rc-badge:not(.z1):not(.z2):not(.z3) {
+  display: inline-flex !important; align-items: center !important; gap: var(--space-4) !important; box-sizing: border-box !important;
+  height: 22px !important; min-height: 22px !important; padding: 0 var(--space-4) !important;
+  border: 0 !important; box-shadow: none !important; background-color: transparent !important;
+  font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-medium) !important;
+}
+
+/* ---------- WP 번호 원: 어디서 쓰든 지름 22, 완전 둥글게, 글자 12 (상태 색은 지금 그대로) ---------- */
+:root body.ver-7 [data-timeline] .step-no:not(.z1):not(.z2):not(.z3):not(.z4),
+:root body.ver-7 .step-no:not(.z1):not(.z2):not(.z3):not(.z4),
+:root body.ver-7 .check-ord:not(.z1):not(.z2):not(.z3),
+:root body.ver-7 .map-plan-wp:not(.z1):not(.z2):not(.z3),
+:root body.ver-7 .dl-wp:not(.z1):not(.z2):not(.z3) {
+  display: inline-grid !important; place-items: center !important; box-sizing: border-box !important;
+  width: 22px !important; height: 22px !important; min-width: 22px !important; padding: 0 !important;
+  border-radius: var(--radius-pill) !important;
+  font-size: var(--font-size-12) !important; line-height: 1 !important; font-variant-numeric: tabular-nums !important;
+}
+/* 위험, 주의 (Delta): 지금 v7 모양(속 비운 원 + 단계 색 테 + 단계 색 숫자)이 정한 모양이라 색은 그대로 둠 */
+
+/* ---------- 층: .floor-tag는 지금 그대로. 안전진단 지도 위 .sfx-fl만 층 꼬리표 값으로 (설명서 .ds-floor와 같은 값) ---------- */
+:root body.ver-7 .sfx-fl:not(.z1):not(.z2):not(.z3) {
+  display: inline-flex !important; align-items: center !important; box-sizing: border-box !important;
+  height: 18px !important; min-height: 18px !important; padding: 0 var(--space-4) !important;
+  border: 0 !important; box-shadow: none !important; border-radius: var(--radius-2) !important;
+  background-color: var(--bg-raised) !important; color: var(--text-secondary) !important;
+  font-family: var(--font-family-mono) !important; font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-regular) !important;
+}
+:root[data-theme="light"] body.ver-7 .sfx-fl:not(.z1):not(.z2):not(.z3) { background-color: var(--color-gray-100) !important; color: var(--text-tertiary) !important; }
+
+/* ---------- 칩: 26, 기존 거르기 칩 모양 (모서리 4, 켜짐 진한 면). 거르기는 지금 그대로, Delta 질문을 같게 ---------- */
+:root body.ver-7 .ah-caps > .btn.is-xs:not(.z1):not(.z2):not(.z3),
+:root body.ver-7 .dc6-q:not(.z1):not(.z2):not(.z3) {
+  height: 26px !important; padding: 0 var(--space-8) !important; gap: var(--space-4) !important;
+  border: var(--border-width-thin) solid var(--comp-button-secondary-border-default) !important; border-radius: var(--radius-4) !important;
+  background-color: var(--comp-button-secondary-bg-default) !important; color: var(--comp-button-secondary-text-default) !important;
+  font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-medium) !important;
+}
+:root body.ver-7 .ah-caps > .btn.is-xs:hover:not(.z1):not(.z2):not(.z3),
+:root body.ver-7 .dc6-q:hover:not(.z1):not(.z2):not(.z3) { background-color: var(--comp-button-secondary-bg-hover) !important; }
+:root body.ver-7 .ah-caps > .btn.is-xs[aria-pressed="true"]:not(.z1):not(.z2):not(.z3) { border-color: transparent !important; background-color: var(--comp-button-inverse-bg-default) !important; color: var(--comp-button-inverse-text-default) !important; }
+:root body.ver-7 .ah-caps > .btn.is-xs[aria-pressed="true"] *:not(.z1) { color: inherit !important; }
+
+/* ---------- 탭 2단: 감지 고르기를 칩 탭으로 (32, 탭 사이 4, 칩과 같은 모양: 모서리 4, 고른 탭 진한 면) ---------- */
+:root body.ver-7 .sf .tbs:not(.z1):not(.z2) { display: flex !important; flex-wrap: wrap !important; gap: var(--space-4) !important; }
+:root body.ver-7 .sf .tb:not(.z1):not(.z2):not(.z3) {
+  flex: none !important; height: 32px !important; padding: 0 var(--space-12) !important; gap: var(--space-4) !important; justify-content: center !important;
+  border: var(--border-width-thin) solid var(--comp-button-secondary-border-default) !important; border-radius: var(--radius-4) !important;
+  background-color: var(--comp-button-secondary-bg-default) !important; color: var(--comp-button-secondary-text-default) !important;
+  font-size: var(--font-size-14) !important; line-height: var(--font-line-height-20) !important; font-weight: var(--font-weight-medium) !important;
+}
+:root body.ver-7 .sf .tb.on:not(.z1):not(.z2):not(.z3) { border-color: transparent !important; background-color: var(--comp-button-inverse-bg-default) !important; color: var(--comp-button-inverse-text-default) !important; }
+
+/* ---------- 버튼으로: Delta 조치 버튼 모서리 4 ---------- */
+:root body.ver-7 .dc6-btn:not(.z1):not(.z2):not(.z3) { border-radius: var(--radius-4) !important; }
+
+/* ---------- 구간 전환: 안전진단 층 고르기(.m2f)를 관제 층 고르기와 같게 (1단계 목록에서 빠졌던 곳)
+ * 묶음 회색 면, 안쪽 여백 2, 항목 사이 2, 항목 24, 모서리 2, 고른 층 흰 면. 로봇 있는 층 파란 점은 그대로. 4단계에서는 ds.seg() ---------- */
+:root body.ver-7 .sf .m2f[role="group"]:not(.z1):not(.z2):not(.z3) {
+  display: inline-flex !important; gap: var(--space-2) !important; padding: var(--space-2) !important; margin-left: 0 !important;
+  border: 0 !important; border-radius: var(--radius-4) !important; box-shadow: none !important; background-color: var(--bg-map-chip) !important;
+}
+:root body.ver-7 .sf .m2f[role="group"] > button:not(.z1):not(.z2):not(.z3) {
+  display: inline-flex !important; align-items: center !important; justify-content: center !important; box-sizing: border-box !important;
+  height: 24px !important; padding: 0 var(--space-12) !important; border: 0 !important; border-radius: var(--radius-2) !important; box-shadow: none !important;
+  background-color: transparent !important; color: var(--text-secondary) !important;
+  font-size: var(--font-size-13) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-medium) !important;
+}
+:root body.ver-7 .sf .m2f[role="group"] > button.on:not(.z1):not(.z2):not(.z3) { background-color: var(--comp-button-secondary-bg-default) !important; color: var(--text-primary) !important; }
+/* 층이 하나뿐일 때 보이는 층 글자(.m2f > span)는 층 꼬리표 값으로 */
+:root body.ver-7 .sf .m2f:not([role="group"]):not(.z1):not(.z2) { box-shadow: none !important; background: transparent !important; padding: 0 !important; }
+:root body.ver-7 .sf .m2f:not([role="group"]) > span:not(.z1):not(.z2):not(.z3) {
+  display: inline-flex !important; align-items: center !important; height: 18px !important; padding: 0 var(--space-4) !important; border-radius: var(--radius-2) !important;
+  background-color: var(--bg-raised) !important; color: var(--text-secondary) !important;
+  font-family: var(--font-family-mono) !important; font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-regular) !important;
+}
+:root[data-theme="light"] body.ver-7 .sf .m2f:not([role="group"]) > span:not(.z1):not(.z2):not(.z3) { background-color: var(--color-gray-100) !important; color: var(--text-tertiary) !important; }
+

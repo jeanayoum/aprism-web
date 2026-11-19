@@ -35,7 +35,9 @@
   <link rel="stylesheet" href="../assets/css/v5.css?v=aefc22b4" />
   <!-- v6 전용 규칙 — v5 는 10/30 부로 멈췄다. v6 에서 바꾸는 것은 여기(body.ver-6)에. -->
   <link rel="stylesheet" href="../assets/css/v6.css?v=fbf27a9f" />
-  <link rel="stylesheet" href="../assets/css/v7.css?v=b28bc1eb" />
+  <link rel="stylesheet" href="../assets/css/v7.css?v=24bc2299" />
+  <link rel="stylesheet" href="../assets/css/components-v7.css?v=3617635e" />
+  <script src="../assets/js/ds-v7.js?v=0ea87ac8"></script>
   <!-- [10/29] v5 지도(map-v6.js)가 그리는 설비 이름표 · 충전 스테이션 · 번호 핀 꼴 — 메인과 같다 -->
   <link rel="stylesheet" href="../assets/css/route-rules.css?v=1301c827" />
   <style>
@@ -467,12 +469,8 @@
           <section class="map-panel" aria-label="설비 배치도">
             <div class="map-canvas">
                           <div class="map-tools">
-              <!-- 층 — 지하 4층 · 지하 3층. 누르면 그 층으로 갈아탄다(assets/js/map.js).
-                   계단을 눌러도 옮겨 간다. -->
-              <div class="map-floors" role="group" aria-label="층">
-                <button type="button" class="map-floor" data-map-floor="B3" aria-pressed="false">B3</button>
-                <button type="button" class="map-floor" data-map-floor="B4" aria-pressed="true">B4</button>
-              </div>
+                <!-- [11/18 v7] 관제와 같게 — 조작 판과 층 판을 둘로 나눴다. 층 판은 조작 판 아래에 따로 선다. -->
+                <div class="map-tools-box">
                             <button type="button" class="icon-button" data-map-zoom-in aria-label="확대">
                               <span class="i i-20" style="--i:var(--ic-zoom-in)"></span>
                             </button>
@@ -489,6 +487,15 @@
                             <button type="button" class="icon-button map-dim" data-map-3d aria-label="3D로 보기" title="3D로 보기" aria-pressed="true">
                               <span class="map-dim-txt t-label-1">3D</span>
                             </button>
+                </div>
+                <div class="map-tools-box is-floors">
+              <!-- 층 — 지하 4층 · 지하 3층. 누르면 그 층으로 갈아탄다(assets/js/map.js).
+                   계단을 눌러도 옮겨 간다. -->
+              <div class="map-floors" role="group" aria-label="층">
+                <button type="button" class="map-floor" data-map-floor="B3" aria-pressed="false">B3</button>
+                <button type="button" class="map-floor" data-map-floor="B4" aria-pressed="true">B4</button>
+              </div>
+                </div>
                           </div>
                           <!-- 지도 위의 로봇·웨이포인트·설비 쪽지. 자리와 내용은 모두
                                assets/js/map.js 가 채운다. 기본은 hidden 이다. -->

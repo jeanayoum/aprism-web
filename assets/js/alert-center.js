@@ -1021,7 +1021,8 @@
     var doneCrit = countBy("critical", true), doneWarn = countBy("warning", true);
     var open = openCrit + openWarn, closed = doneCrit + doneWarn;
 
-    $("[data-ac-open-badge]").textContent = (document.body.classList.contains("ver-7") ? "조치 필요 " : "미확인 ") + open + "건";   // [11/11 v7] 용어 통일 — 조치 필요
+    var openBadge = $("[data-ac-open-badge]");   // [11/18 v7] 제목 옆 건수 배지는 v7에서 뺐다. 없으면 건너뜀
+    if (openBadge) { openBadge.textContent = (document.body.classList.contains("ver-7") ? "조치 필요 " : "미확인 ") + open + "건"; }   // [11/11 v7] 용어 통일 — 조치 필요
     $("[data-ac-count-open]").textContent = open + "건";
     $("[data-ac-count-done]").textContent = closed + "건";
 

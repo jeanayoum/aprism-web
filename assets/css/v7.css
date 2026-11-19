@@ -1650,3 +1650,10 @@ body.ver-7 .tag-running::before { margin-left: calc((12px - 6px) / 2) !important
 /* ---------- 탭 (정할 것 4: 세 가지로 정리) ---------- */
 /* 화면 전체를 바꾸는 미션 탭 44는 그대로, 패널 안 줄 탭(알림센터 탭)도 44 */
 body.ver-7 .ac-tab { box-sizing: border-box !important; height: 44px !important; min-height: 44px !important; }
+
+/* ---------- [11/18] 미션설정, 사전 점검 지도 도구를 관제와 같게: 조작 판과 층 판 둘 ----------
+ * 바깥 레일(.map-tools)은 면을 빼고, 조작 판에 원래 레일 면을 준다. 층 판(.map-tools-box.is-floors)은 위 관제 층 규칙을 그대로 받음 */
+:root[data-theme] body.ver-7.sian .map-tools { padding: 0; gap: var(--space-8); background: transparent; box-shadow: none; }
+:root[data-theme] body.ver-7.sian .map-tools > .map-tools-box:not(.is-floors) { display: flex; flex-direction: column; gap: var(--space-8); padding: var(--space-4); border-radius: var(--radius-container); background-color: var(--color-gray-800); }
+:root[data-theme="light"] body.ver-7.sian .map-tools > .map-tools-box:not(.is-floors) { background-color: color-mix(in srgb, var(--color-gray-100) 80%, transparent); }
+:root[data-theme] body.ver-7.sian .map-tools > .map-tools-box.is-floors { display: flex; flex-direction: column; }
