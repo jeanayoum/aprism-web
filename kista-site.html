@@ -2284,6 +2284,8 @@
     return null;
   }
   function hqFit() { camHQ = +Math.min(innerWidth / CAM_WIN.w, innerHeight / CAM_WIN.h).toFixed(4); document.body.style.setProperty("--hq", camHQ); }
+  // (11/19) 탭 공유를 시작하면 '이 탭을 공유하는 중' 막대가 뒤늦게 떠 창이 낮아진다 — 처음 맞춘 크기면 관제 창 아래가 잘렸다. 창이 바뀌면 다시 맞춘다
+  addEventListener("resize", () => { if (document.body.classList.contains("combo-hq")) { hqFit(); camApply(curT); } });
   async function comboRecordHQ() {
     if (hqBusy || comboRec || recording) return;
     const note = document.getElementById("comboNote");
@@ -2303,12 +2305,13 @@
       // 1단계 — 관제 화면만 크게
       hqFit(); document.body.classList.add("combo-hq"); window.scrollTo(0, 0);
       const ctlBox = document.querySelector(".combo-r .ctl");
-      await sleep(400);
+      await sleep(400); hqFit(); camApply(curT);
       if (window.CropTarget && track.cropTo) { try { await track.cropTo(await CropTarget.fromElement(ctlBox)); } catch (e) { console.warn("영역 자르기 실패", e); } }
       const devW = Math.round(CAM_WIN.w * camHQ * devicePixelRatio);
       const [tA, tB, tag] = comboRangeT();
       stopPlay(); seek(tA); ctlApply(tA, true); camApply(tA);
       await sleep(2400);   // 관제 화면이 상태 · 팝오버 · 지도 당기기(ctlFocus)를 다 끝낼 틈
+      hqFit(); camApply(curT);   // 공유 막대가 그사이 떴어도 창에 맞게
       const cv = new OffscreenCanvas(HQ.CW, HQ.CH), g = cv.getContext("2d");
       const chunks = []; let dcfg = null, terr = null, tsPrev = -1, n = 0, started = false, stop = false;
       const tenc = new VideoEncoder({ output: (c, meta) => { if (meta && meta.decoderConfig) dcfg = meta.decoderConfig; const b = new Uint8Array(c.byteLength); c.copyTo(b); chunks.push({ type: c.type, timestamp: c.timestamp, data: b }); }, error: e => { terr = e; } });
