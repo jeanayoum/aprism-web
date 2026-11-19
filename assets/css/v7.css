@@ -1509,58 +1509,25 @@ body.ver-7 .sfx-fl {
   align-items: center !important; gap: var(--space-4) !important;
 }
 
-/* ---------- 칩 Filter, Medium 26 ---------- */
-body.ver-7 .ah-filter .btn.is-xs,
-body.ver-7 .ac-check {
-  box-sizing: border-box !important; height: 26px !important; min-height: 26px !important; align-items: center !important;
-  padding: 0 var(--space-8) !important; font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-medium) !important; gap: var(--space-4) !important;
-}
-
-/* ---------- 칩 Selection, Medium 26 ---------- */
-body.ver-7 .dc6-q {
-  box-sizing: border-box !important; height: 26px !important; min-height: 26px !important; display: inline-flex !important; align-items: center !important;
-  padding: 0 var(--space-8) !important; font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-medium) !important;
-}
-
-/* ---------- 칩 모양 탭, Large 32 ---------- */
-body.ver-7 .tb {
-  box-sizing: border-box !important; height: 32px !important; display: inline-flex !important; align-items: center !important;
-  padding: 0 var(--space-12) !important; font-size: var(--font-size-14) !important; line-height: var(--font-line-height-20) !important; font-weight: var(--font-weight-medium) !important;
-}
+/* 칩(거르기, 질문 고르기, 체크형)과 칩 모양 탭은 components-v7.css 의 .ds-chip, .ds-tab-chip 으로 옮김 (11/19) */
 
 /* 버튼 규칙은 components-v7.css "버튼"으로 옮김 (11/19) */
 
-/* ---------- 구간 전환(층 고르기 B3 B4, 웨이포인트 지도 목록): 같은 꼴, 배경과 선택 두 단계 ----------
-   묶음 회색 면, 안쪽 여백 2, 항목 사이 2, 항목 높이 24, 모서리 2, 선택은 흰 면만(테두리 없음). 층 고르기는 확대축소 판과 떨어진 따로 판 */
+/* 구간 전환 모양은 components-v7.css 의 .ds-seg 로 옮김 (11/19). 여기는 층 판 바깥 상자와 배치만 */
 body.ver-7 .map-tools-box.is-floors { background: transparent !important; box-shadow: none !important; border: 0 !important; padding: 0 !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
-body.ver-7 .map-tools-box.is-floors .map-floors,
-body.ver-7 .rr-wp-seg,
-body.ver-7 .lyseg { background: var(--bg-map-chip) !important; border: 0 !important; border-radius: var(--radius-4) !important; padding: var(--space-2) !important; gap: var(--space-2) !important; overflow: visible !important; }
-body.ver-7 .map-tools-box.is-floors .map-floor,
-body.ver-7 .rr-wp-seg > button,
-body.ver-7 .lyseg > button { height: 24px !important; border: 0 !important; border-radius: var(--radius-2) !important; background: transparent !important; box-shadow: none !important; font-weight: var(--font-weight-medium) !important; }
-body.ver-7 .map-tools-box.is-floors .map-floor { width: 100% !important; }
-body.ver-7 .map-tools-box.is-floors .map-floor.is-on,
-body.ver-7 .rr-wp-seg > button[aria-selected="true"],
-body.ver-7 .lyseg > button.on { background: var(--comp-button-secondary-bg-default) !important; color: var(--text-primary) !important; }
 body.ver-7 .lyseg { display: inline-flex !important; }
-body.ver-7 .lyseg > button { display: inline-flex !important; align-items: center !important; justify-content: center !important; padding: 0 var(--space-12) !important; font-size: var(--font-size-13) !important; }
 
 /* 버튼 규칙은 components-v7.css "버튼"으로 옮김 (11/19) */
 
 /* ---------- 칩과 칩 사이 4 ---------- */
-body.ver-7 .ah-caps, body.ver-7 .dc6-qs, body.ver-7 .ac-head-badges, body.ver-7 .ac-chips { column-gap: var(--space-4) !important; gap: var(--space-4) !important; }
+body.ver-7 .ac-head-badges, body.ver-7 .ac-chips { column-gap: var(--space-4) !important; gap: var(--space-4) !important; }   /* 거르기, 질문 칩 사이는 components-v7.css .ds-chips */
 body.ver-7 .ac-filter .ac-check + .ac-check { margin-left: calc(var(--space-4) * -1) !important; } /* 줄 간격 12에서 4를 빼 항목 사이 8, 눈에 보이는 거리 16 */
 
 /* ---------- 아이콘과 글자 사이: 칩과 버튼 22, 26은 4, 버튼 32, 40은 8. 2와 10은 없앰 ---------- */
-body.ver-7 .dc6-q { gap: var(--space-4) !important; }
 body.ver-7 .dc6-row { gap: var(--space-8) !important; }
 
-/* ---------- 알림센터 거르기(면 없는 체크): 좌우 패딩 4, 눈에 보이는 사이 12 (4+4+4), 안쪽 체크와 글자 사이 4 ---------- */
-body.ver-7 .ac-filter .ac-check:not(.z1):not(.z2) { padding-left: var(--space-4) !important; padding-right: var(--space-4) !important; gap: var(--space-8) !important; } /* 체크 상자와 글자 사이 --space-8 (입력 요소 기준) */
 
 /* ---------- 간격 토큰 고르기 결과 (11/17) ---------- */
-body.ver-7 .ac-tab { column-gap: var(--space-8) !important; gap: var(--space-8) !important; }                 /* 알림센터 탭 글자와 건수 10 → --space-8 */
 body.ver-7 .sb-tab:not([data-mission]) { column-gap: var(--space-8) !important; gap: var(--space-8) !important; } /* 미션 탭 전체 미션 6 → --space-8 */
 body.ver-7 .ma-check:not(.z1) { padding-left: var(--space-8) !important; padding-right: var(--space-8) !important; } /* 조치 체크 줄 10/6 → --space-8 */
 
@@ -1568,9 +1535,6 @@ body.ver-7 .ma-check:not(.z1) { padding-left: var(--space-8) !important; padding
 body.ver-7 .badge-dot { margin-left: calc((12px - 6px) / 2) !important; margin-right: calc((12px - 6px) / 2) !important; }
 body.ver-7 .tag-running::before { margin-left: calc((12px - 6px) / 2) !important; margin-right: calc((12px - 6px) / 2) !important; }
 
-/* ---------- 탭 (정할 것 4: 세 가지로 정리) ---------- */
-/* 화면 전체를 바꾸는 미션 탭 44는 그대로, 패널 안 줄 탭(알림센터 탭)도 44 */
-body.ver-7 .ac-tab { box-sizing: border-box !important; height: 44px !important; min-height: 44px !important; }
 
 /* ---------- [11/18] 미션설정, 사전 점검 지도 도구를 관제와 같게: 조작 판과 층 판 둘 ----------
  * 바깥 레일(.map-tools)은 면을 빼고, 조작 판에 원래 레일 면을 준다. 층 판(.map-tools-box.is-floors)은 위 관제 층 규칙을 그대로 받음 */

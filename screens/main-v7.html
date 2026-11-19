@@ -41,8 +41,8 @@
   <link rel="stylesheet" href="../assets/css/v5.css?v=aefc22b4" />
   <!-- v6 전용 규칙 — v5 는 10/30 부로 멈췄다. v6 에서 바꾸는 것은 여기(body.ver-6)에. -->
   <link rel="stylesheet" href="../assets/css/v6.css?v=fbf27a9f" />
-  <link rel="stylesheet" href="../assets/css/v7.css?v=b13ec658" />
-  <link rel="stylesheet" href="../assets/css/components-v7.css?v=dd70388b" />
+  <link rel="stylesheet" href="../assets/css/v7.css?v=1f7a1eaa" />
+  <link rel="stylesheet" href="../assets/css/components-v7.css?v=5edef11b" />
   <script src="../assets/js/ds-v7.js?v=9fcc3308"></script>
   <!-- 지도 경로 표현 규칙(10/28 반영, 지도 경로 표현 전달서 1022) — 경로 네 구간 · 흐름 빛 · 번호 핀 · 시야 빔 로봇 · 충전 스테이션 · 아래 상태 시뮬레이션 막대 -->
   <link rel="stylesheet" href="../assets/css/route-rules.css?v=1301c827" />
@@ -281,10 +281,10 @@
           <!-- 처리 필요 — 거르기(Button Small · 고른 것 Accent) · 정렬 · 목록 -->
           <section class="ah-sec" aria-labelledby="ah-title">
             <div class="ah-filter">
-              <div class="ah-caps" role="group" aria-label="위험도로 거르기">
-                <button type="button" class="btn is-xs" data-ah-filter="all" aria-pressed="true">전체 <span class="num" data-ah-count="all">0</span></button>
-                <button type="button" class="btn is-xs" data-ah-filter="critical" aria-pressed="false">위험 <span class="num" data-ah-count="critical">0</span></button>
-                <button type="button" class="btn is-xs" data-ah-filter="warning" aria-pressed="false">주의 <span class="num" data-ah-count="warning">0</span></button>
+              <div class="ah-caps ds-chips" role="group" aria-label="위험도로 거르기">
+                <button type="button" class="ds-chip" data-ah-filter="all" aria-pressed="true">전체 <span class="num" data-ah-count="all">0</span></button>
+                <button type="button" class="ds-chip" data-ah-filter="critical" aria-pressed="false">위험 <span class="num" data-ah-count="critical">0</span></button>
+                <button type="button" class="ds-chip" data-ah-filter="warning" aria-pressed="false">주의 <span class="num" data-ah-count="warning">0</span></button>
               </div>
               <span class="ah-order t-caption">오래된 순 · 위험 우선</span>
             </div>
@@ -448,11 +448,11 @@
                 <div class="map-tools-box is-floors">
                   <!-- 층 — 지하 4층 · 지하 3층. 누르면 그 층으로 갈아탄다(assets/js/map.js).
                        계단을 눌러도 옮겨 간다. -->
-                  <div class="map-floors" role="group" aria-label="층">
+                  <div class="map-floors ds-seg is-vertical" role="group" aria-label="층">
                 <!-- v3(10/21 디자이너) — [전체] 는 뺐다. 층 판은 B3 · B4 사이를 옮겨 다니기만 한다.
                      모든 미션을 보는 통합 순회 현황은 상단 미션 메뉴 맨 위에서 고른다. -->
-                <button type="button" class="map-floor" data-map-floor="B3" aria-pressed="false">B3</button>
-                <button type="button" class="map-floor" data-map-floor="B4" aria-pressed="true">B4</button>
+                <button type="button" class="map-floor ds-tab" data-map-floor="B3" aria-pressed="false">B3</button>
+                <button type="button" class="map-floor ds-tab" data-map-floor="B4" aria-pressed="true">B4</button>
               </div>
                 </div>
               </div>
@@ -1795,7 +1795,7 @@
 <script src="../assets/js/map-fx-v6.js?v=05546ef0"></script>
 <script src="../assets/js/mini-routes.js?v=e5bd39a9"></script>
 <script src="../assets/js/mini-plan.js?v=e11c5703"></script>
-<script src="../assets/js/map-v6.js?v=2fdaaeb5"></script>
+<script src="../assets/js/map-v6.js?v=63783df7"></script>
 <script src="../assets/js/count-up-v7.js?v=5c25113e"></script>
 <!-- 지도 위 3D 로봇(SPOT · 휠 로봇) — 10/29 디자이너 "SPOT 로봇 360 시안". 예전 로봇개(robot-stage.js)는 v5 에서 안 쓴다. -->
 <script src="../assets/js/robot-spot.js?v=2a3061e4"></script>
@@ -1809,7 +1809,7 @@
 <script src="../assets/js/mission-tabs-v6.js?v=18f484a3"></script>
 <script src="../assets/js/mission-done-v6.js?v=beaaa1ff"></script>
 <script src="../assets/js/delta-pulse.js?v=2d0afced"></script>
-<script src="../assets/js/delta-answer-v6.js?v=f546674b"></script>
+<script src="../assets/js/delta-answer-v6.js?v=3cb8b0b1"></script>
 <script src="../assets/js/delta-chat.js?v=4fb165cc"></script>
 <script src="../assets/js/delta-v3.js?v=403861c7"></script>
 <script src="../assets/js/delta-resize.js?v=b83bd18b"></script>

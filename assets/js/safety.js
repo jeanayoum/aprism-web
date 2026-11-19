@@ -252,7 +252,7 @@
     // [11/10 v7] 넘은 지점이 모두 조치 완료면 탭의 단계 표식(삼각형)을 뺀다
     const allDone = k2 => V7 && (() => { const hs = itemsOf(mi, k2).filter(it => it[0]==='crit' || it[0]==='warn'); return hs.length > 0 && hs.every(it => (REQ[mi + '|' + k2 + '|' + wpOf(it)] || {}).st === 'done'); })();
     const tabs = K.map(k2 => { const y = m.r[k2]; if(!y) return `<span class="tb na">${k2}</span>`; const s2 = y[0]==='ok' || allDone(k2) ? '' : y[0];
-      return `<button type="button" class="tb ${k2===k ? 'on' : ''}" data-dk="${k2}">${k2}<i class="d ${s2}"></i></button>`; }).join('');
+      return `<button type="button" class="tb${V7 ? ' ds-tab' : ''} ${k2===k ? 'on' : ''}" data-dk="${k2}">${k2}<i class="d ${s2}"></i></button>`; }).join('');
     // [10/30] 안전감지(안전모 · 안전벨트 착용)는 히트맵 칸이 없다 — 원본만 크게
     const md = MD(k, st, mi), canBig = !md[1].includes('canvas'), heat = k !== '안전감지';
     const media = bigD && canBig ? `<div class="dmw ${heat ? 'two' : ''}"><div class="md ${md[0]}">${md[1]}<span class="dlab">원본</span></div>${heat ? `<div class="md hm ${md[0]}">${md[1].replace(/<span class="bx"[^>]*><\/span>/, '')}<span class="heat"></span><span class="dlab">히트맵</span></div>` : ''}<button type="button" class="bigb on" data-bigd="1">원본 크게 끄기</button></div>`
@@ -373,7 +373,7 @@
       : `<div class="lvA s1 ${st}">${step('이상 판정')}<div class="tt"><span class="verdict-chip is-${st}">${WORD[st]}</span><h5>${k}, ${isHit ? x[1] : st==='plan' ? '측정 전' : '정상 범위 ' + x[1]}</h5></div>${loc}${cond}</div>`;
     // [11/02 v6] 측정 이력(11/02 "재발 여부" 에서 이름 바꿈 — 관제에서 익숙한 말, 반복 판단은 꼬리표가 한다) — Figma 처럼 네 줄을 다 보이고(줄 32 라 접을 만큼 길지 않다), 결론(처음 넘음 · 반복)은 머리 오른쪽 꼬리표로
     const histV6 = `<div class="sth"><b>측정 이력</b>${V7 ? '' : `<span class="hfl ${rep3 ? 'is-rep' : ''}">${rep3 ? '반복' : isHit ? '처음 넘음' : '계속 정상 범위'}</span>`}</div><div class="hist">${hist.map((h, n) => n===3 && RQ ? hiRow(h, n).replace(/<span class="verdict-chip [^"]*">[^<]*<\/span>/, rqBadge(RQ)).replace(/<span class="hia[^"]*">[^<]*<\/span>/, `<span class="hia on">${rqLine(RQ)}</span>`) : hiRow(h, n)).join('')}</div>`;
-    return `<div class="dtop"><button type="button" class="btn btn-secondary bkx" data-dback="1"><span class="i i-16" style="--i:var(--ic-chevron-left)" aria-hidden="true"></span>돌아가기</button><div class="tbs">${tabs}</div></div>
+    return `<div class="dtop"><button type="button" class="btn btn-secondary bkx" data-dback="1"><span class="i i-16" style="--i:var(--ic-chevron-left)" aria-hidden="true"></span>돌아가기</button><div class="tbs${V7 ? ' ds-tab-chip' : ''}">${tabs}</div></div>
       <div class="dB">
         <div class="dBm">
           ${judge}
@@ -477,7 +477,7 @@
     return `<div class="mtbw"><table class="mtb">${head}${body}</table></div>`;
   }
 
-  const LAYB = () => `<span class="lyseg"><button type="button" data-lay="card" class="${lay==='card' ? 'on' : ''}">카드</button><button type="button" data-lay="table" class="${lay==='table' ? 'on' : ''}">표</button></span>`;
+  const LAYB = () => `<span class="lyseg${V7 ? ' ds-seg' : ''}"><button type="button" data-lay="card" class="${V7 ? 'ds-tab ' : ''}${lay==='card' ? 'on' : ''}">카드</button><button type="button" data-lay="table" class="${V7 ? 'ds-tab ' : ''}${lay==='table' ? 'on' : ''}">표</button></span>`;   // [11/19 v7] 공통 CSS 구간 전환
   // 한 감지의 결과 목록. 넘은 것 먼저(위험 > 주의 > 요청됨), 같으면 최근 것 먼저. 맨 앞이 대표
   const isOpen = it => (it[0]==='crit' || it[0]==='warn') && !it[4];
   const wpOf = it => it[2].split(' ')[0];
@@ -624,7 +624,7 @@
     return {fls, robotF, cur:mapF[i] && fls.includes(mapF[i]) ? mapF[i] : robotF}; }
   function floorBar(i, big){ const {fls, robotF, cur} = viewF(i);
     if(fls.length < 2) return `<span class="m2f"><span>${fls[0]}</span></span>`;
-    return `<span class="m2f" role="group" aria-label="층">${fls.map(f => `<button type="button" data-mf="${f}" data-mi="${i}" class="${f===cur ? 'on' : ''}" aria-pressed="${f===cur}">${f}${f===robotF ? '<i title="로봇 있는 층"></i>' : ''}</button>`).join('')}</span>`; }
+    return `<span class="m2f${V7 ? ' ds-seg' : ''}" role="group" aria-label="층">${fls.map(f => `<button type="button" data-mf="${f}" data-mi="${i}" class="${V7 ? 'ds-tab ' : ''}${f===cur ? 'on' : ''}" aria-pressed="${f===cur}">${f}${f===robotF ? '<i title="로봇 있는 층"></i>' : ''}</button>`).join('')}</span>`; }
   const LEG = '<div class="mlg"><span class="mli"><i class="c"></i>위험</span> <span class="mli"><i class="w"></i>주의</span> <span class="mli"><i class="o"></i>정상 범위</span> <span class="mli"><i class="p"></i>예정</span> <span class="mli"><svg viewBox="-9 -9 20 18" width="11" height="10"><path class="rbt" d="M10 0-7.5 8.5-3.6 0-7.5-8.5Z" stroke="none"/></svg>로봇</span></div>';
   // [11/02 v6] 범례 로봇도 지도와 같은 3D 탑뷰 그림(코가 오른쪽)
   //   그림은 그 미션 로봇과 같게(휠 로봇 Robot 05 면 모베드) — 지도의 robotTop 과 같은 규칙

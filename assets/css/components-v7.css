@@ -98,6 +98,7 @@ body.ver-7 {
   --ds-btn-gap: var(--space-4);                   /* 아이콘과 글자 사이 */
   --ds-btn-between: var(--space-8);               /* 버튼과 버튼 사이 */
   --ds-btn-radius: var(--radius-4);
+  --ds-btn-delta-radius: var(--radius-pill);        /* 예외: Delta 영역 버튼은 알약형 */
   --ds-btn-sm-font-size: var(--font-size-12);     /* XSmall, Small */
   --ds-btn-sm-line-height: var(--font-line-height-18);
   --ds-btn-m-font-size: var(--font-size-14);
@@ -182,67 +183,66 @@ body.ver-7 .ds-floor {
 }
 :root[data-theme="light"] body.ver-7 .ds-floor { background-color: var(--color-gray-100); color: var(--text-tertiary); }
 
-/* ---------- 칩: 누름. 기존 거르기 칩 모양 (꺼짐 흰 면 + 회색 테, 켜짐 진한 면 + 흰 글자) ---------- */
+/* ---------- 칩: 누름. 기존 거르기 칩 모양 (꺼짐 흰 면 + 회색 테, 켜짐 진한 면 + 흰 글자)
+ * 화면: 관제와 전체 미션 거르기, 전체 미션 로봇 상태 거르기, 미션설정 거르기, Delta 질문, 알림센터 체크형 거르기
+ * 모양 값은 !important (예전 클래스 규칙을 이기게), 배치는 :where 로 세기를 낮춰 기존 배치 규칙이 이기게 ---------- */
+:where(body.ver-7) .ds-chip { display: inline-flex; align-items: center; flex: none; box-sizing: border-box; margin: 0; font-family: inherit; white-space: nowrap; cursor: pointer; }
 body.ver-7 .ds-chip {
-  display: inline-flex; align-items: center; gap: var(--ds-chip-gap); flex: none; box-sizing: border-box;
-  height: var(--ds-chip-h); padding: 0 var(--ds-chip-pad-x); margin: 0;
-  border: var(--ds-chip-border-width) solid var(--ds-chip-border, var(--comp-button-secondary-border-default)); border-radius: var(--ds-chip-radius);
-  background-color: var(--ds-chip-bg, var(--comp-button-secondary-bg-default)); color: var(--ds-chip-fg, var(--comp-button-secondary-text-default));
-  font-family: inherit; font-size: var(--ds-chip-font-size); line-height: var(--ds-chip-line-height); font-weight: var(--ds-chip-font-weight);
-  white-space: nowrap; cursor: pointer;
+  gap: var(--ds-chip-gap) !important; height: var(--ds-chip-h) !important; min-height: var(--ds-chip-h) !important; padding: 0 var(--ds-chip-pad-x) !important;
+  border: var(--ds-chip-border-width) solid var(--ds-chip-border, var(--comp-button-secondary-border-default)) !important; border-radius: var(--ds-chip-radius) !important; box-shadow: none !important;
+  background-color: var(--ds-chip-bg, var(--comp-button-secondary-bg-default)) !important; color: var(--ds-chip-fg, var(--comp-button-secondary-text-default)) !important;
+  font-size: var(--ds-chip-font-size) !important; line-height: var(--ds-chip-line-height) !important; font-weight: var(--ds-chip-font-weight) !important;
 }
-body.ver-7 .ds-chip:hover { background-color: var(--ds-chip-hover-bg, var(--comp-button-secondary-bg-hover)); }
-body.ver-7 .ds-chip:active { background-color: var(--comp-button-secondary-bg-pressed); }
+body.ver-7 .ds-chip:hover { background-color: var(--ds-chip-hover-bg, var(--comp-button-secondary-bg-hover)) !important; }
 body.ver-7 .ds-chip:focus-visible { outline: var(--border-width-strong) solid var(--border-focus); outline-offset: var(--space-2); }
-body.ver-7 .ds-chip[aria-pressed="true"],
-body.ver-7 .ds-chip.is-on { border-color: var(--ds-chip-on-border, transparent); background-color: var(--ds-chip-on-bg, var(--comp-button-inverse-bg-default)); color: var(--ds-chip-on-fg, var(--comp-button-inverse-text-default)); }
-body.ver-7 .ds-chip[aria-pressed="true"]:hover,
-body.ver-7 .ds-chip.is-on:hover { background-color: var(--ds-chip-on-hover-bg, var(--comp-button-inverse-bg-hover)); }
-body.ver-7 .ds-chip:disabled,
-body.ver-7 .ds-chip.is-disabled { border-color: var(--comp-button-secondary-border-disabled); background-color: var(--comp-button-secondary-bg-disabled); color: var(--comp-button-secondary-text-disabled); cursor: default; }
-/* 체크형 거르기 (알림센터): 면과 테 없음 */
-body.ver-7 .ds-chip.is-check { border-color: transparent; background-color: transparent; padding: 0 var(--ds-chip-check-pad-x); gap: var(--ds-chip-check-gap); }
-body.ver-7 .ds-chip.is-check[aria-pressed="true"] { border-color: transparent; background-color: transparent; color: var(--text-primary); }
+body.ver-7 .ds-chip:is([aria-pressed="true"], .is-on) { border-color: var(--ds-chip-on-border, transparent) !important; background-color: var(--ds-chip-on-bg, var(--comp-button-inverse-bg-default)) !important; color: var(--ds-chip-on-fg, var(--comp-button-inverse-text-default)) !important; }
+body.ver-7 .ds-chip:is([aria-pressed="true"], .is-on):hover { background-color: var(--ds-chip-on-hover-bg, var(--comp-button-inverse-bg-hover)) !important; }
+body.ver-7 .ds-chip:is([aria-pressed="true"], .is-on) .num { color: inherit !important; }
+body.ver-7 .ds-chip:is(:disabled, .is-disabled) { border-color: var(--comp-button-secondary-border-disabled) !important; background-color: var(--comp-button-secondary-bg-disabled) !important; color: var(--comp-button-secondary-text-disabled) !important; cursor: default; }
+/* 체크형 거르기 (알림센터): 면과 테 없음, 체크 상자와 글자 사이 */
+body.ver-7 .ds-chip.is-check { border-color: transparent !important; background-color: transparent !important; padding: 0 var(--ds-chip-check-pad-x) !important; gap: var(--ds-chip-check-gap) !important; }
+body.ver-7 .ds-chip.is-check:is([aria-pressed="true"], [aria-checked="true"], .is-on) { border-color: transparent !important; background-color: transparent !important; color: var(--text-primary) !important; }
 /* 칩 묶음 */
-body.ver-7 .ds-chips { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ds-chip-between); }
+:where(body.ver-7) .ds-chips { display: flex; flex-wrap: wrap; align-items: center; }
+body.ver-7 .ds-chips { gap: var(--ds-chip-between) !important; column-gap: var(--ds-chip-between) !important; }
 
-/* ---------- 탭 1단: 줄 탭, 고른 탭 밑줄 ---------- */
-body.ver-7 .ds-tab-line { display: flex; align-items: stretch; }
+/* ---------- 탭 1단: 줄 탭, 고른 탭 밑줄. 화면: 알림센터 ---------- */
+:where(body.ver-7) .ds-tab-line { display: flex; align-items: stretch; }
+:where(body.ver-7) .ds-tab-line > .ds-tab { display: inline-flex; align-items: center; box-sizing: border-box; margin: 0; background: none; font-family: inherit; white-space: nowrap; cursor: pointer; }
 body.ver-7 .ds-tab-line > .ds-tab {
-  display: inline-flex; align-items: center; gap: var(--ds-tabline-gap); box-sizing: border-box;
-  height: var(--ds-tabline-h); padding: 0 var(--ds-tabline-pad-x); margin: 0;
-  border: 0; border-bottom: var(--ds-tabline-bar) solid transparent; background: none;
-  color: var(--text-secondary); font-family: inherit; white-space: nowrap; cursor: pointer;
+  gap: var(--ds-tabline-gap) !important; column-gap: var(--ds-tabline-gap) !important; height: var(--ds-tabline-h) !important; min-height: var(--ds-tabline-h) !important; padding: 0 var(--ds-tabline-pad-x) !important;
+  border: 0 !important; border-bottom: var(--ds-tabline-bar) solid transparent !important; color: var(--text-secondary) !important;
 }
-body.ver-7 .ds-tab-line > .ds-tab:hover { color: var(--text-primary); }
-body.ver-7 .ds-tab-line > .ds-tab[aria-selected="true"] { border-bottom-color: var(--border-brand); color: var(--text-primary); }
+body.ver-7 .ds-tab-line > .ds-tab:hover { color: var(--text-primary) !important; }
+body.ver-7 .ds-tab-line > .ds-tab:is([aria-selected="true"], .on, .is-on) { border-bottom-color: var(--border-brand) !important; color: var(--text-primary) !important; }
 body.ver-7 .ds-tab-line > .ds-tab:focus-visible { outline: var(--border-width-strong) solid var(--border-focus); outline-offset: calc(var(--space-2) * -1); }
 
-/* ---------- 탭 2단: 칩 탭, 칩과 같은 색 ---------- */
-body.ver-7 .ds-tab-chip { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ds-chiptab-between); }
+/* ---------- 탭 2단: 칩 탭, 칩과 같은 색. 화면: 안전진단 상세 감지 고르기 ---------- */
+body.ver-7 .ds-tab-chip { display: flex !important; flex-wrap: wrap !important; align-items: center !important; gap: var(--ds-chiptab-between) !important; }
+:where(body.ver-7) .ds-tab-chip > .ds-tab { display: inline-flex; align-items: center; justify-content: center; flex: none; box-sizing: border-box; margin: 0; font-family: inherit; white-space: nowrap; cursor: pointer; }
 body.ver-7 .ds-tab-chip > .ds-tab {
-  display: inline-flex; align-items: center; gap: var(--ds-chip-gap); box-sizing: border-box;
-  height: var(--ds-chiptab-h); padding: 0 var(--ds-chiptab-pad-x); margin: 0;
-  border: var(--ds-chip-border-width) solid var(--ds-chip-border, var(--comp-button-secondary-border-default)); border-radius: var(--ds-chiptab-radius);
-  background-color: var(--ds-chip-bg, var(--comp-button-secondary-bg-default)); color: var(--ds-chip-fg, var(--comp-button-secondary-text-default));
-  font-family: inherit; font-size: var(--ds-chiptab-font-size); line-height: var(--ds-chiptab-line-height); font-weight: var(--ds-chip-font-weight);
-  white-space: nowrap; cursor: pointer;
+  flex: none !important; gap: var(--ds-chip-gap) !important; height: var(--ds-chiptab-h) !important; min-height: var(--ds-chiptab-h) !important; padding: 0 var(--ds-chiptab-pad-x) !important;
+  border: var(--ds-chip-border-width) solid var(--ds-chip-border, var(--comp-button-secondary-border-default)) !important; border-radius: var(--ds-chiptab-radius) !important; box-shadow: none !important;
+  background-color: var(--ds-chip-bg, var(--comp-button-secondary-bg-default)) !important; color: var(--ds-chip-fg, var(--comp-button-secondary-text-default)) !important;
+  font-size: var(--ds-chiptab-font-size) !important; line-height: var(--ds-chiptab-line-height) !important; font-weight: var(--ds-chip-font-weight) !important;
 }
-body.ver-7 .ds-tab-chip > .ds-tab:hover { background-color: var(--ds-chip-hover-bg, var(--comp-button-secondary-bg-hover)); }
-body.ver-7 .ds-tab-chip > .ds-tab[aria-selected="true"] { border-color: var(--ds-chip-on-border, transparent); background-color: var(--ds-chip-on-bg, var(--comp-button-inverse-bg-default)); color: var(--ds-chip-on-fg, var(--comp-button-inverse-text-default)); }
+body.ver-7 .ds-tab-chip > .ds-tab:hover { background-color: var(--ds-chip-hover-bg, var(--comp-button-secondary-bg-hover)) !important; }
+body.ver-7 .ds-tab-chip > .ds-tab:is([aria-selected="true"], .on, .is-on) { border-color: var(--ds-chip-on-border, transparent) !important; background-color: var(--ds-chip-on-bg, var(--comp-button-inverse-bg-default)) !important; color: var(--ds-chip-on-fg, var(--comp-button-inverse-text-default)) !important; }
 body.ver-7 .ds-tab-chip > .ds-tab:focus-visible { outline: var(--border-width-strong) solid var(--border-focus); outline-offset: var(--space-2); }
 
-/* ---------- 보기 바꾸기: 구간 전환 (층 고르기 포함) ---------- */
-body.ver-7 .ds-seg { display: inline-flex; gap: var(--ds-seg-gap); padding: var(--ds-seg-pad); border-radius: var(--ds-seg-radius); background-color: var(--ds-seg-bg, var(--bg-map-chip)); }
-body.ver-7 .ds-seg.is-vertical { flex-direction: column; }
+/* ---------- 보기 바꾸기: 구간 전환 (층 고르기 포함)
+ * 화면: 관제 지도/목록과 층, 안전진단 카드/표와 층, 전체 미션 층, 미션설정과 사전 점검 층. 가로, 세로(.is-vertical)만 다름 ---------- */
+:where(body.ver-7) .ds-seg { display: inline-flex; }
+:where(body.ver-7) .ds-seg.is-vertical { flex-direction: column; }
+body.ver-7 .ds-seg { gap: var(--ds-seg-gap) !important; padding: var(--ds-seg-pad) !important; border: 0 !important; border-radius: var(--ds-seg-radius) !important; box-shadow: none !important; background-color: var(--ds-seg-bg, var(--bg-map-chip)) !important; }
+:where(body.ver-7) .ds-seg > .ds-tab { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; margin: 0; font-family: inherit; white-space: nowrap; cursor: pointer; }
 body.ver-7 .ds-seg > .ds-tab {
-  display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;
-  height: var(--ds-seg-item-h); padding: 0 var(--ds-seg-item-pad-x); margin: 0; border: 0; border-radius: var(--ds-seg-item-radius);
-  background: transparent; color: var(--text-secondary);
-  font-family: inherit; font-size: var(--ds-seg-font-size); line-height: var(--font-line-height-18); font-weight: var(--font-weight-medium);
-  white-space: nowrap; cursor: pointer;
+  height: var(--ds-seg-item-h) !important; min-height: var(--ds-seg-item-h) !important; padding: 0 var(--ds-seg-item-pad-x) !important; border: 0 !important; border-radius: var(--ds-seg-item-radius) !important; box-shadow: none !important;
+  background-color: transparent !important; color: var(--text-secondary) !important;
+  font-size: var(--ds-seg-font-size) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-medium) !important;
 }
-body.ver-7 .ds-seg > .ds-tab[aria-selected="true"] { background-color: var(--ds-seg-on-bg, var(--comp-button-secondary-bg-default)); color: var(--text-primary); }
+body.ver-7 .ds-seg.is-vertical > .ds-tab { width: 100% !important; padding: 0 !important; }
+body.ver-7 .ds-seg > .ds-tab:is([aria-selected="true"], [aria-pressed="true"], .on, .is-on) { background-color: var(--ds-seg-on-bg, var(--comp-button-secondary-bg-default)) !important; color: var(--text-primary) !important; }
 body.ver-7 .ds-seg > .ds-tab:focus-visible { outline: var(--border-width-strong) solid var(--border-focus); outline-offset: calc(var(--space-2) * -1); }
 
 /* ==========================================================================
@@ -355,6 +355,9 @@ body.ver-7 .done-head .done-count:not(.z1):not(.z2) { padding-left: var(--ds-btn
 body.ver-7 .done-head .done-fold:not(.z1):not(.z2):not(.z3):not(.z4) { padding-left: 0 !important; width: auto !important; min-width: 0 !important; margin-left: 0 !important; }
 /* 오래된 순 아이콘 오른쪽 끝을 알림 센터 아이콘 끝에 맞춤 (두 줄의 감싸는 칸 오른쪽 여백이 2 달라서 생긴 차이) */
 body.ver-7 .context-panel .ah-sort-btn { margin-right: calc(var(--space-2) * -1) !important; }
+
+/* ---------- 예외: Delta 영역 버튼(조치 제안 "위험 상세 확인", "위치 보기")은 알약형. 크기는 Medium 32 그대로 ---------- */
+body.ver-7 .dc6-btn { border-radius: var(--ds-btn-delta-radius) !important; }
 
 /* ---------- 버튼과 버튼 사이 ---------- */
 body.ver-7 .dc6-btns { gap: var(--ds-btn-between) !important; }   /* Delta 답변 버튼 */

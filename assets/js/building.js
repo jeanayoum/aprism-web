@@ -907,7 +907,7 @@
       sf.textContent = "";
       [["all", "전체"], ["run", "수행중"], ["off", "끊김"], ["done", "완료"], ["idle", "대기"]].forEach(function (x) {
         var n = x[0] === "all" ? onFloor.length : onFloor.filter(function (r) { return r.st === x[0]; }).length;
-        var b = el("button", "btn is-xs");
+        var b = el("button", document.body.classList.contains("ver-7") ? "ds-chip" : "btn is-xs");   // [11/19 v7] 공통 CSS 칩
         b.type = "button";
         b.setAttribute("aria-pressed", fleetSt === x[0] ? "true" : "false");
         b.appendChild(document.createTextNode(x[1] + " "));
@@ -986,7 +986,7 @@
    * ================================================================== */
   var floorsBox = $("[data-bld-floors]");
   FLOORS.forEach(function (f) {
-    var b = el("button", "map-floor", f);
+    var b = el("button", document.body.classList.contains("ver-7") ? "map-floor ds-tab" : "map-floor", f);   // [11/19 v7] 공통 CSS 구간 전환
     b.type = "button";
     b.setAttribute("data-bld-floor", f);
     b.setAttribute("aria-pressed", "false");

@@ -35,8 +35,8 @@
   <link rel="stylesheet" href="../assets/css/v5.css?v=aefc22b4" />
   <!-- v6 전용 규칙 — v5 는 10/30 부로 멈췄다. v6 에서 바꾸는 것은 여기(body.ver-6)에. -->
   <link rel="stylesheet" href="../assets/css/v6.css?v=fbf27a9f" />
-  <link rel="stylesheet" href="../assets/css/v7.css?v=b13ec658" />
-  <link rel="stylesheet" href="../assets/css/components-v7.css?v=dd70388b" />
+  <link rel="stylesheet" href="../assets/css/v7.css?v=1f7a1eaa" />
+  <link rel="stylesheet" href="../assets/css/components-v7.css?v=5edef11b" />
   <script src="../assets/js/ds-v7.js?v=9fcc3308"></script>
   <!-- [10/29] v5 지도(map-v6.js)가 그리는 설비 이름표 · 충전 스테이션 · 번호 핀 꼴 — 메인과 같다 -->
   <link rel="stylesheet" href="../assets/css/route-rules.css?v=1301c827" />
@@ -413,9 +413,9 @@
                     <span class="badge t-caption ah-need" data-ah-need><span class="badge-dot"></span><span data-ah-need-text>조치 필요 0</span></span>
                   </div>
                   <div class="ah-filter">
-                    <div class="ah-caps" role="group" aria-label="위험도로 거르기">
-                      <button type="button" class="sev-chip is-critical" data-ah-filter="critical" aria-pressed="false"><span class="badge-dot"></span>위험 <span class="num" data-ah-count="critical">0</span></button>
-                      <button type="button" class="sev-chip is-warning" data-ah-filter="warning" aria-pressed="false"><span class="badge-dot"></span>주의 <span class="num" data-ah-count="warning">0</span></button>
+                    <div class="ah-caps ds-chips" role="group" aria-label="위험도로 거르기">
+                      <button type="button" class="sev-chip is-critical ds-chip" data-ah-filter="critical" aria-pressed="false"><span class="badge-dot"></span>위험 <span class="num" data-ah-count="critical">0</span></button>
+                      <button type="button" class="sev-chip is-warning ds-chip" data-ah-filter="warning" aria-pressed="false"><span class="badge-dot"></span>주의 <span class="num" data-ah-count="warning">0</span></button>
                     </div>
                     <button type="button" class="ah-sort t-label-2">최근 24시간<span class="i i-16" style="--i:var(--ic-chevron-down)" aria-hidden="true"></span></button>
                   </div>
@@ -491,9 +491,9 @@
                 <div class="map-tools-box is-floors">
               <!-- 층 — 지하 4층 · 지하 3층. 누르면 그 층으로 갈아탄다(assets/js/map.js).
                    계단을 눌러도 옮겨 간다. -->
-              <div class="map-floors" role="group" aria-label="층">
-                <button type="button" class="map-floor" data-map-floor="B3" aria-pressed="false">B3</button>
-                <button type="button" class="map-floor" data-map-floor="B4" aria-pressed="true">B4</button>
+              <div class="map-floors ds-seg is-vertical" role="group" aria-label="층">
+                <button type="button" class="map-floor ds-tab" data-map-floor="B3" aria-pressed="false">B3</button>
+                <button type="button" class="map-floor ds-tab" data-map-floor="B4" aria-pressed="true">B4</button>
               </div>
                 </div>
                           </div>
@@ -1654,7 +1654,7 @@
 <script src="../assets/js/map-model.js?v=0f88c871"></script>
 <!-- [10/29] v5 지도(map-v6.js) — 라이트 단계 톤 지도 · 바닥 표식 · 바닥 띠 경로를 메인과 같게. map.js 는 v3 · v4 가 쓴다 -->
 <script src="../assets/js/map-fx-v6.js?v=05546ef0"></script>
-<script src="../assets/js/map-v6.js?v=2fdaaeb5"></script>
+<script src="../assets/js/map-v6.js?v=63783df7"></script>
 <script src="../assets/js/count-up-v7.js?v=5c25113e"></script>
 <script src="../assets/js/robot-spot.js?v=2a3061e4"></script>
 <script src="../assets/js/sian.js?v=8caef8ce"></script>

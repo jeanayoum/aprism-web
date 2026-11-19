@@ -63,7 +63,7 @@
     var sugg = el("div", "dc6-sugg");
     sugg.hidden = true;
     sugg.appendChild(el("span", "dc6-sugg-l", "이렇게 물어보세요"));
-    var chips = el("div", "dc6-qs");
+    var chips = el("div", document.body.classList.contains("ver-7") ? "dc6-qs ds-chips" : "dc6-qs");   // [11/19 v7] 공통 CSS 칩
     sugg.appendChild(chips);
     host.insertBefore(sugg, box);
     var anchor = el("div", "dc6-jump-at");
@@ -502,7 +502,7 @@
       var list = (SUGG[lastType] || SUGG.other).filter(keep);
       Q_FILL.forEach(function (t) { if (list.length < 3 && list.indexOf(t) < 0 && keep(t)) { list.push(t); } });
       list.slice(0, 3).forEach(function (t) {
-        var b = el("button", "dc6-q", t);
+        var b = el("button", document.body.classList.contains("ver-7") ? "dc6-q ds-chip" : "dc6-q", t);
         b.type = "button";
         b.addEventListener("click", function () { c.ask(t); });
         chips.appendChild(b);

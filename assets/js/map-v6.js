@@ -4196,10 +4196,10 @@
         wpHead.className = "rr-wp-head";
         wpHead.appendChild(wpTog);
         var seg = document.createElement("div");
-        seg.className = "rr-wp-seg"; seg.setAttribute("role", "tablist"); seg.setAttribute("aria-label", "웨이포인트 보기");
+        seg.className = document.body.classList.contains("ver-7") ? "rr-wp-seg ds-seg" : "rr-wp-seg"; seg.setAttribute("role", "tablist");   // [11/19 v7] 공통 CSS 구간 전환 seg.setAttribute("aria-label", "웨이포인트 보기");
         [["map", "지도"], ["list", "목록"]].forEach(function (o) {
           var b = document.createElement("button");
-          b.type = "button"; b.setAttribute("role", "tab"); b.setAttribute("data-wpv", o[0]); b.textContent = o[1];
+          b.type = "button"; b.setAttribute("role", "tab"); b.setAttribute("data-wpv", o[0]); b.textContent = o[1]; if (document.body.classList.contains("ver-7")) { b.className = "ds-tab"; }
           b.addEventListener("click", function () { wpViewSet(o[0]); });
           seg.appendChild(b);
         });
