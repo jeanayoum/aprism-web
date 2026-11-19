@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" fill="none">
+  <!-- 안전모 바닥 조명(KISTA 2-1) — 동그라미 테두리 + 로봇 디스플레이(spot-display.html) 안전모 아이콘 -->
+  <circle cx="128" cy="128" r="112" stroke="#FFC21A" stroke-width="12"/>
+  <g transform="translate(128 128) scale(0.768) translate(-120 -120)" fill="#FFC21A">
+    <path d="M210 140V160H30V140Z"/>
+    <path d="M130 40V80H110V40Z"/>
+    <path fill-rule="evenodd" d="M140 50.709C173.923 55.5613 200 84.7353 200 120V130H40V120C40 84.7353 66.0771 55.5613 100 50.709V80C100 85.5228 104.477 90 110 90H130C135.523 90 140 85.5258 140 80.0029V50.709ZM130 50V70C130 75.5228 125.523 80 120 80C114.477 80 110 75.5228 110 70V50H130Z"/>
+  </g>
+</svg>

@@ -1130,11 +1130,14 @@
       g.strokeStyle = "#fff"; g.fillStyle = "#fff"; g.lineWidth = 12;
       g.beginPath(); g.arc(128, 128, 112, 0, 7); g.stroke();
       g.save(); g.translate(128, 128); g.scale(0.72 * 256 / 240, 0.72 * 256 / 240); g.translate(-120, -120);
-      for (const [d, fill] of paths) { const p2 = new Path2D(d); if (fill) g.fill(p2); else { g.lineWidth = 30; g.lineCap = "butt"; g.stroke(p2); } }
+      for (const [d, fill] of paths) { const p2 = new Path2D(d); if (fill) g.fill(p2, fill === "evenodd" ? "evenodd" : "nonzero"); else { g.lineWidth = 30; g.lineCap = "butt"; g.stroke(p2); } }
       g.restore();
     }, { repeat: [1, 1] });
   }
-  const ICONS = { helmet: iconTex("helmet"), check: iconTex("check"), warn: iconTex("warn"), arrow: iconTex("arrow"),
+  const ICONS = {
+    // 안전모 = 디스플레이 안전모 아이콘(11/19, assets/img/kista/floor-helmet.svg 와 같은 모양)
+    helmet: symTex([["M210 140V160H30V140Z", true], ["M130 40V80H110V40Z", true],
+      ["M140 50.709C173.923 55.5613 200 84.7353 200 120V130H40V120C40 84.7353 66.0771 55.5613 100 50.709V80C100 85.5228 104.477 90 110 90H130C135.523 90 140 85.5258 140 80.0029V50.709ZM130 50V70C130 75.5228 125.523 80 120 80C114.477 80 110 75.5228 110 70V50H130Z", "evenodd"]]), check: iconTex("check"), warn: iconTex("warn"), arrow: iconTex("arrow"),
     right: symTex([["M210 120L130 170V135H40V105H130V70Z", true]]),
     detour: symTex([["M70 190V125C70 102.909 87.9086 85 110 85H145", false], ["M210 85.0875L130 135L130 36L210 85.0875Z", true]]),
     uturn: symTex([["M170 190V90C170 67.9086 152.091 50 130 50H120C97.9086 50 80 67.9086 80 90V135", false], ["M80 200L130 120H30L80 200Z", true]]) };
