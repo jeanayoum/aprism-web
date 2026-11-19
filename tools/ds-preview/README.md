@@ -30,13 +30,16 @@ node tools/ds-preview/serve.mjs
 
 ## 디자인 값을 바꿀 때
 
-- `tools/ds-preview/ds-preview.css`: 미리보기용. 지금 클래스(.verdict-chip, .ah-caps .btn 등)에 TO-BE 값을 덮는다. 새로 고치면 바로 반영
-- `assets/css/components-v7.css`: 설명서. 같은 값을 같이 고친다
+- `assets/css/components-v7.css` 맨 위 "디자인 값" 블록(`--ds-*` 변수)만 고친다. 공통 CSS 규칙과 이 미리보기 CSS가 모두 이 변수를 본다
+- `tools/ds-preview/ds-preview.css`에는 값을 적지 않는다(변수만 참조). 새로 고치면 바로 반영
+- 색 변수는 주석으로 비워 둔 것이 기본(패널마다 다른 토큰을 그대로 따라감). 바꾸려면 주석을 풀고 토큰을 넣는다
 - 값은 토큰만 쓴다(`assets/css/tokens.css`). 여백 단계 밖 값, `--radius-6`을 만들지 않는다
+- 버튼 값은 미리보기 없이 실제 화면에 바로 걸린다
 - 화면 캡처는 찍지 않는다. 값 확인은 브라우저 개발자 도구나 조작판 정보 보기로
 
 ## 한계
 
 - CSS로 덮은 것이라, 화면 코드를 설명서로 바꾼 뒤의 결과와 조금 다를 수 있다
 - 마크업을 바꿔야 하는 두 곳(알림센터 카드 머리 삼각형, 처리 완료 표 등급 + 시각)은 미리보기에 나오지 않는다
+- 4단계(화면 코드가 .ds-* 클래스를 쓰게 바꾸기)가 끝나면 이 도구는 지운다
 - 기준 문서: 배지, 칩, 탭 인계 https://claude.ai/artifact/P6i1TzG3SDpNn9gPTiF1mg
