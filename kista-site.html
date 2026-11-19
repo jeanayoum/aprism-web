@@ -1772,11 +1772,11 @@
     "1-1": [
       // (11/19) 지도 로봇 자세를 작업현장(SCRIPT 1-1: 0~7 앉음 → 7 기립 → 서 있음)과 맞춘다. v7 에서 앉는 상태는 estop · done 뿐이라
       //   0~7 은 estop, 7 부터는 제자리에 서는 pause. quiet = 그 모드의 띠(긴급정지 · 일시정지) · 빨간 목록 표시는 숨기고 제목만 보인다
-      [0, "estop", { quiet: true, badge: ["대기 중", "idle"], bat: 86, title: "도크 01 · 충전 완료", left: "미션 시작 대기 중" }],
-      [2, "estop", { quiet: true, badge: ["대기 중", "idle"], bat: 86, title: "주변 확인 중", left: "작업자 1명 감지 · 안전거리 확인" }],
-      [4, "estop", { quiet: true, badge: ["기립 예고", "warning"], bat: 86, title: "곧 기립합니다", left: "3초 후 저속 기립" }],
-      [7, "pause", { quiet: true, badge: ["기립 중", "info"], bat: 86, title: "저속 기립 중", left: "주변 안전 확인 완료" }],
-      [10, "pause", { quiet: true, badge: ["수행중", "info"], bat: 86, title: "기립 완료 · 미션 시작", left: "1번 지점으로 이동" }]],
+      [0, "estop", { quiet: true, ban: ["도크 01 · 충전 완료", "muted", "quiet"], badge: ["대기 중", "idle"], bat: 86, title: "도크 01 · 충전 완료", left: "미션 시작 대기 중" }],
+      [2, "estop", { quiet: true, ban: ["주변 확인 중", "muted", "quiet"], badge: ["대기 중", "idle"], bat: 86, title: "주변 확인 중", left: "작업자 1명 감지 · 안전거리 확인" }],
+      [4, "estop", { quiet: true, ban: ["곧 기립합니다", "muted", "quiet"], badge: ["기립 예고", "warning"], bat: 86, title: "곧 기립합니다", left: "3초 후 저속 기립" }],
+      [7, "pause", { quiet: true, ban: ["저속 기립 중", "muted", "quiet"], badge: ["기립 중", "info"], bat: 86, title: "저속 기립 중", left: "주변 안전 확인 완료" }],
+      [10, "pause", { quiet: true, ban: ["기립 완료 · 미션 시작", "muted", "quiet"], badge: ["수행중", "info"], bat: 86, title: "기립 완료 · 미션 시작", left: "1번 지점으로 이동" }]],
     "1-2": [
       [0, "run", { title: "지하 4층 미션 수행 중", left: "N₂ 배관 압력계 판독 · WP-04로 이동" }],
       [2.4, "run", { badge: ["사람 감지", "info"], title: "전방 근로자 감지", left: "감속하며 통행 확인 중" }],
@@ -2012,14 +2012,15 @@
         .badge[data-kc="danger"] { color: var(--status-critical-text) !important; }
         .badge[data-kc] .badge-dot { background: currentColor !important; }
         #kista-req.is-ok .ma-req-head { border-color: var(--status-safe-border); background-color: var(--status-safe-bg); }
-        #kista-req.is-ok .ma-req-to, #kista-req.is-ok .ma-req-acts { color: var(--status-safe-text); }`;
+        #kista-req.is-ok .ma-req-to, #kista-req.is-ok .ma-req-acts { color: var(--status-safe-text); }
+        .rr-banner.is-quiet .rr-dot { display: none !important; }`;
       d.head.appendChild(st);
     }
     const setK = (el, txt) => { if (!el) return; if (txt == null) { el.removeAttribute("data-k"); return; }
       if (!el.style.getPropertyValue("--k-fs")) { const prev = el.getAttribute("data-k"); el.removeAttribute("data-k"); el.style.setProperty("--k-fs", getComputedStyle(el).fontSize); if (prev != null) el.setAttribute("data-k", prev); }
       el.setAttribute("data-k", txt); };
-    // quiet — 띠를 숨기면(display none) 진행 제목이 :has(.rr-banner) 로 계속 가려져, 띠를 아예 뺀다(모드가 바뀔 때만 다시 생긴다)
-    if (o.quiet) { d.querySelectorAll(".rr-banner").forEach(b => b.remove()); const rail = d.querySelector("[data-timeline]"); if (rail) rail.classList.remove("rr-estop", "rr-frozen"); }
+    // quiet — 띠는 지도가 계속 다시 만들어 뺄 수 없다. 띠 글을 진행 제목으로 바꾸고(ban) 기호 점만 숨겨 평소(run) 제목처럼 보인다
+    if (o.quiet) { const rail = d.querySelector("[data-timeline]"); if (rail) rail.classList.remove("rr-estop", "rr-frozen"); }
     const card0 = d.querySelector('.robot-strip .robot-card[aria-pressed="true"]') || d.querySelector(".robot-strip .robot-card");
     // 배지
     const badge = card0 && card0.querySelector(".robot-lists .badge");
