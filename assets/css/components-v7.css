@@ -116,7 +116,7 @@ body.ver-7 {
   --ds-paneltoggle-pad: var(--space-2);
 }
 
-/* ---------- 아이콘 상자 12: 작은 점, 큰 점, 삼각형 ---------- */
+/* ---------- 아이콘 상자 12 (4의 배수): 작은 점(지름 6), 큰 원, 삼각형 ---------- */
 body.ver-7 .ds-ic { display: inline-grid; place-items: center; flex: none; width: 12px; height: 12px; }
 body.ver-7 .ds-ic::before { content: ""; display: block; background-color: currentColor; }
 body.ver-7 .ds-ic.is-dot::before { width: 6px; height: 6px; border-radius: var(--radius-pill); }
