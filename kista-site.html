@@ -1228,29 +1228,36 @@
     const m = flat(new THREE.PlaneGeometry(1, 1), fxMat(haloTex[tex]));
     m.userData.off = rot; m.renderOrder = 4; HALO[k] = m;
   }
-  function drawHalo(t, rp) {
-    for (const m of Object.values(HALO)) m.visible = false;
-    const L = LIGHT[cur.id]; if (!L || !L.halo) return;
-    let h = null; for (const x of L.halo) if (t >= x[0] && t < x[1]) h = x; if (!h) return;
+  // 지금 시각의 호 모양(색 · 호마다 밝기 · 크기 · 앞 호 흔들림 · 들고 남) — 작업현장(drawHalo)과 관제 지도(ctlKista) 둘 다 이걸 쓴다
+  function haloLook(t) {
+    const L = LIGHT[cur.id]; if (!L || !L.halo) return null;
+    let h = null; for (const x of L.halo) if (t >= x[0] && t < x[1]) h = x; if (!h) return null;
     const [t0, t1, c, mode, o = {}] = h, u = (t - t0) / (t1 - t0), e = t - t0;
     _c1.setHex(LC[c]); if (o.c2) _c1.lerpHSL(_c2.setHex(LC[o.c2]), smooth(Math.min(1, e / 0.6)));   // 단계 시작 0.6초 안에 바뀐다(중간색이 탁해지지 않게 색상환으로)
-    // 앞 방향 — aim(근로자 · 점)이 있으면 그쪽, 없으면 로봇 앞
-    let ax = rp.fx, az = rp.fz;
-    if (o.aim) { let tx, tz; if (typeof o.aim === "string") { const w = SEG[o.aim]; if (w) [tx, tz] = posAt(w.segs, t); } else [tx, tz] = o.aim;
-      if (tx !== undefined) { const dx = tx - rp.x, dz = tz - rp.z, dd = Math.hypot(dx, dz); if (dd > 0.01) { ax = dx / dd; az = dz / dd; } } }
-    let yaw = Math.atan2(-az, ax);   // 판 +x(캔버스 앞 호)를 그 방향으로
     const wave = (per, lo) => lo + (1 - lo) * (0.5 - 0.5 * Math.cos(t / per * Math.PI * 2));
-    let sc = HALO_SIZE, op = { front: 1, left: 0.3, right: 0.3, back: 0.3, ring: 0 };
+    let sc = 1, sway = 0, op = { front: 1, left: 0.3, right: 0.3, back: 0.3, ring: 0 };
     if (mode === "walk") op.front = wave(2.4, 0.35);
-    else if (mode === "inspect") { yaw += Math.sin(t * 1000 / 650) * 0.42; op.front = wave(1.8, 0.45); }
+    else if (mode === "inspect") { sway = Math.sin(t * 1000 / 650) * 0.42; op.front = wave(1.8, 0.45); }
     else if (mode === "ring") op = { front: 0, left: 0, right: 0, back: 0, ring: 0.18 };
-    else if (mode === "grow") { sc *= 0.5 + 0.5 * smooth(u); op = { front: 0.6, left: 0.6, right: 0.6, back: 0.6, ring: 0 }; }
+    else if (mode === "grow") { sc = 0.5 + 0.5 * smooth(u); op = { front: 0.6, left: 0.6, right: 0.6, back: 0.6, ring: 0 }; }
     else if (mode === "count") { op = { front: 0.3, left: e >= 0 ? 1 : 0.15, right: e >= 1 ? 1 : 0.15, back: e >= 2 ? 1 : 0.15, ring: 0 }; }
     else if (mode === "rise") { const k = 0.35 + 0.65 * u; op = { front: k, left: k, right: k, back: k, ring: 0 }; }
     else if (mode === "blink") { const k = wave(1.6, 0.3); op = { front: k, left: k, right: k, back: k, ring: 0 }; }
     // 앞뒤 구간이 이어지면 경계에서 꺼졌다 켜지지 않는다 — 처음 켤 때 · 마지막에 끌 때만 0.25초 들고 난다
     const prevCont = L.halo.some(x => Math.abs(x[1] - t0) < 1e-6), nextCont = L.halo.some(x => Math.abs(x[0] - t1) < 1e-6);
     const fade = Math.min(prevCont ? 1 : e / 0.25, nextCont ? 1 : (t1 - t) / 0.25, 1);
+    return { o, color: _c1, op, sc, sway, fade };
+  }
+  function drawHalo(t, rp) {
+    for (const m of Object.values(HALO)) m.visible = false;
+    const hl = haloLook(t); if (!hl) return;
+    const { o, op, fade } = hl;
+    // 앞 방향 — aim(근로자 · 점)이 있으면 그쪽, 없으면 로봇 앞
+    let ax = rp.fx, az = rp.fz;
+    if (o.aim) { let tx, tz; if (typeof o.aim === "string") { const w = SEG[o.aim]; if (w) [tx, tz] = posAt(w.segs, t); } else [tx, tz] = o.aim;
+      if (tx !== undefined) { const dx = tx - rp.x, dz = tz - rp.z, dd = Math.hypot(dx, dz); if (dd > 0.01) { ax = dx / dd; az = dz / dd; } } }
+    const yaw = Math.atan2(-az, ax) + hl.sway;   // 판 +x(캔버스 앞 호)를 그 방향으로
+    const sc = HALO_SIZE * hl.sc;
     for (const [k, m] of Object.entries(HALO)) {
       if (!op[k]) continue;
       m.visible = true; m.position.set(rp.x, 0.016, rp.z); m.scale.set(sc, sc, 1);
@@ -1772,20 +1779,24 @@
     "1-1": [
       // (11/19) 지도 로봇 자세를 작업현장(SCRIPT 1-1: 0~7 앉음 → 7 기립 → 서 있음)과 맞춘다. v7 에서 앉는 상태는 estop · done 뿐이라
       //   0~7 은 estop, 7 부터는 제자리에 서는 pause. quiet = 그 모드의 띠(긴급정지 · 일시정지) · 빨간 목록 표시는 숨기고 제목만 보인다
-      [0, "estop", { quiet: true, r2: "kseat", ban: ["도크 01 · 충전 완료", "muted", "quiet"], badge: ["대기 중", "idle"], bat: 86, title: "도크 01 · 충전 완료", left: "미션 시작 대기 중" }],
-      [2, "estop", { quiet: true, r2: "kseat", ban: ["주변 확인 중", "muted", "quiet"], badge: ["대기 중", "idle"], bat: 86, title: "주변 확인 중", left: "작업자 1명 감지 · 안전거리 확인" }],
-      [4, "estop", { quiet: true, r2: "kseat", ban: ["곧 기립합니다", "muted", "quiet"], badge: ["기립 예고", "warning"], bat: 86, title: "곧 기립합니다", left: "3초 후 저속 기립" }],
-      [7, "pause", { quiet: true, r2: "krise", ban: ["저속 기립 중", "muted", "quiet"], badge: ["기립 중", "info"], bat: 86, title: "저속 기립 중", left: "주변 안전 확인 완료" }],
-      [10, "pause", { quiet: true, r2: "krise", ban: ["기립 완료 · 미션 시작", "muted", "quiet"], badge: ["수행중", "info"], bat: 86, title: "기립 완료 · 미션 시작", left: "1번 지점으로 이동" }]],
+      [0, "estop", { quiet: true, ban: ["도크 01 · 충전 완료", "muted", "quiet"], badge: ["대기 중", "idle"], bat: 86, title: "도크 01 · 충전 완료", left: "미션 시작 대기 중" }],
+      [2, "estop", { quiet: true, ban: ["주변 확인 중", "muted", "quiet"], badge: ["대기 중", "idle"], bat: 86, title: "주변 확인 중", left: "작업자 1명 감지 · 안전거리 확인" }],
+      [4, "estop", { quiet: true, ban: ["곧 기립합니다", "muted", "quiet"], badge: ["기립 예고", "warning"], bat: 86, title: "곧 기립합니다", left: "3초 후 저속 기립" }],
+      [7, "pause", { quiet: true, ban: ["저속 기립 중", "muted", "quiet"], badge: ["기립 중", "info"], bat: 86, title: "저속 기립 중", left: "주변 안전 확인 완료" }],
+      [10, "pause", { quiet: true, ban: ["기립 완료 · 미션 시작", "muted", "quiet"], badge: ["수행중", "info"], bat: 86, title: "기립 완료 · 미션 시작", left: "1번 지점으로 이동" }]],
     "1-2": [
       [0, "run", { title: "지하 4층 미션 수행 중", left: "N₂ 배관 압력계 판독 · WP-04로 이동" }],
       [2.4, "run", { badge: ["사람 감지", "info"], title: "전방 근로자 감지", left: "감속하며 통행 확인 중" }],
-      [4.8, "pause", { badge: ["정지 대기", "warning"], title: "정지하여 대기 중입니다", left: "근로자 통행 대기" }],
-      [7.2, "pause", { badge: ["출발 예고", "warning"], title: "이동을 재개하겠습니다", left: "통행 확인 완료 · 곧 출발" }],
-      [9.6, "run", { title: "WP-04로 이동 중", left: "지하 4층 정기 순회 점검" }]],
+      // (11/19) 관제 모드(일시정지 표시)는 작업현장 로봇이 실제로 서 있는 7.6~10.8 에 맞춘다 — 글은 단계 시각 그대로
+      [4.8, "run", { badge: ["정지 대기", "warning"], title: "정지하여 대기 중입니다", left: "근로자 통행 대기" }],
+      [7.2, "run", { badge: ["출발 예고", "warning"], title: "이동을 재개하겠습니다", left: "통행 확인 완료 · 곧 출발" }],
+      [7.6, "pause", { badge: ["출발 예고", "warning"], title: "이동을 재개하겠습니다", left: "통행 확인 완료 · 곧 출발" }],
+      [9.6, "pause", { title: "WP-04로 이동 중", left: "지하 4층 정기 순회 점검" }],
+      [10.8, "run", { title: "WP-04로 이동 중", left: "지하 4층 정기 순회 점검" }]],
     "2-1": [
       [0, "run", { badge: ["주의 감지", "warning"], title: "안전모 미착용 근로자 감지", left: "B4 고소 작업 발판 · 1명" }],
-      [2.8, "pause", { badge: ["정지 · 안내", "warning"], title: "안전모 착용 안내 중", left: "로봇 정지 · 착용 요청" }],
+      [2.8, "run", { badge: ["정지 · 안내", "warning"], title: "안전모 착용 안내 중", left: "로봇 정지 · 착용 요청" }],
+      [4.2, "pause", { badge: ["정지 · 안내", "warning"], title: "안전모 착용 안내 중", left: "로봇 정지 · 착용 요청" }],   // 작업현장 로봇이 서는 때
       [8.4, "pause", { badge: ["음성 연결", "info"], title: "관제실 음성 연결 중", left: "현장 작업자와 대화 중" }],
       [12.0, "pause", { badge: ["착용 확인", "normal"], title: "안전모 착용 확인", left: "조치 내용 기록" }],
       [15.9, "run", { title: "이동 재개", left: "다음 점검 지점으로" }]],
@@ -1851,10 +1862,31 @@
     if (cur.id + "" !== ctlApply.scene || force) { ctlPlace(d); (POP[cur.id] || []).forEach(([, x]) => x && x.shot != null && shot3d(x.shot)); }
     if (e[1] !== ctlMode || force) { const b = d.querySelector(`.rsim [data-m="${e[1]}"]`); if (b) { b.click(); ctlMode = e[1]; } }
     ctlMove(d, t);
+    ctlKista(d, t, e[2] || {});
     if (e[2] && e[2].ban) { ctlBan(d, e[2]); requestAnimationFrame(() => ctlBan(d, e[2])); setTimeout(() => ctlBan(d, e[2]), 120); }
     // 덧입힘은 0.3초마다 다시 얹는다 — 관제 화면이 배지 · 배터리 글을 제 박자로 다시 써도 덮이게
     const key = cur.id + "@" + e[0], now = performance.now();
     if (key !== ctlKey || force || now - (ctlApply.last || 0) > 300) { if (cur.id + "" !== ctlApply.scene || force) { deltaKeep(d); ctlApply.scene = cur.id; } ctlOverlay(d, e[2] || {}); ctlPop(d, popAt(t)); ctlKey = key; ctlApply.last = now; }
+  }
+  /* 관제 지도 로봇의 바닥 호 · 자세와 로봇 카드 2D 자세를 작업현장(LIGHT 호 · SCRIPT 로봇 동작)에서 그대로 받는다(11/19).
+   *   map-v6.js 가 window.APRISM_KISTA_OV 를 보면 관제 모드와 상관없이 그 호 · 자세로 그린다. 시야 빔(부채꼴)은 작업현장에 없어 끈다.
+   *   2D(robot-2d.js data-r2): 걷기 walk · 처음부터 앉음 kseat · 앉기 sit(한 번 내려앉음) · 앉았다 일어섬 krise · 서 있음 kstand */
+  function robotModeAt(t) { const g = SEG.robot, i = segAt(g, t); return { m: g[i].mode, i, prev: i ? g[i - 1].mode : null }; }
+  function ctlKista(d, t, o) {
+    const w = d.defaultView; if (!w) return;
+    const hl = haloLook(t), rm = robotModeAt(t);
+    const motion = rm.m === "walk" ? "walk" : rm.m === "sit" ? "sit" : rm.m === "inspect" ? "inspect" : "idle";
+    let ov = { show: false, fan: false, motion };
+    if (hl) {
+      const f = hl.fade, op = hl.op;
+      ov = { show: f > 0, fan: false, motion, color: hl.color.getHex(), front: op.front * f, base: (op.left + op.right + op.back) / 3 * f,
+        ring: Math.min(1, op.ring / 0.18) * f, scale: hl.sc, sway: hl.sway };
+    }
+    w.APRISM_KISTA_OV = ov;
+    const r2 = o.r2 || (rm.m === "walk" ? "walk" : rm.m === "sit" ? (rm.i === 0 ? "kseat" : "sit") : rm.prev === "sit" ? "krise" : "kstand");
+    const card0 = d.querySelector('.robot-strip .robot-card[aria-pressed="true"]') || d.querySelector(".robot-strip .robot-card");
+    const th = card0 && card0.querySelector(".robot-thumb");
+    if (th && th.getAttribute("data-r2") !== r2) th.setAttribute("data-r2", r2);
   }
   /* 관제 지도 · 웨이포인트 목록의 로봇 자리 — 로봇 디스플레이 · 관제 글과 같은 지점으로(11/18).
    *   [k, f] = k 번째 지점(0부터)과 다음 지점 사이 f. k = -1 은 첫 지점 앞(출발 전).
@@ -1863,7 +1895,7 @@
    *   2-1: 안전모 알림 WP-07 바로 앞 / 2-2: N₂ 배관 압력계 WP-04 에 선다(측정)
    *   나머지 장면은 v7 기본 자리(WP-07 과 WP-08 사이 · route-sim.js 시작값)
    *   모드 버튼(inspect 는 가장 가까운 앞 지점에 선다)보다 먼저 옮긴다 */
-  const CTRL_POS = { "1-1": [-1, 0], "1-2": [2, 0.55], "2-1": [5, 0.8], "2-2": [3, 0], "3-1": [17, 0.15] }, CTRL_POS_BASE = [6, 0.55];
+  const CTRL_POS = { "1-1": [-1, 0], "1-2": [2, 0.45], "2-1": [5, 0.6], "2-2": [3, 0], "3-1": [17, 0.15], "3-2": [6, 0.4] }, CTRL_POS_BASE = [6, 0.55];
   function ctlPlace(d) {
     const rr = d.defaultView && d.defaultView.APRISM_RR;
     try {
@@ -1872,7 +1904,7 @@
       const st = rr.stops(), [k, f] = CTRL_POS[cur.id] || CTRL_POS_BASE;
       if (st.length < 8) return;
       const a = k < 0 ? 0 : st[k], b = st[k + 1];
-      ctlPlace.s0 = a + (b - a) * f; ctlPlace.sNow = null;
+      ctlPlace.s0 = a + (b - a) * f; ctlPlace.gap = b - a; ctlPlace.sNow = null;
       rr.mode("run"); rr.set(ctlPlace.s0);
       ctlFocus(d);
     } catch (err) { console.warn("관제 로봇 자리", err); }
@@ -1891,13 +1923,21 @@
   /* 관제 지도 로봇을 장면 시간에 맞춰 옮긴다(11/18) — [시작초, 끝초, 끝 자리(0 = 도크)]. 사이는 천천히 출발 · 도착(ease-in-out).
    *   끝 자리 "end" = 길 끝(한 바퀴 돌아 도크로 돌아온 자리).
    *   3-1: WP-18 조금 지나서 12.6~21.0 저속 자율 복귀 → 길 끝(도크). 21.0 에 같은 자리인 길 시작(s=0)으로 바꿔 지도가 로봇을 충전 스테이션 칸 안에 넣게 한다 */
-  const CTRL_MOVE = { "3-1": [[12.6, 21.0, "end"], [21.0, 21.0, 0]] };
+  //   (11/19) {g: x} = 시작 자리에서 '지점 사이 거리 × x' 앞 — 작업현장 로봇이 걷는 구간(SCRIPT robot walk)에 지도 로봇도 조금씩 간다
+  const CTRL_MOVE = {
+    "1-2": [[0, 7.6, { g: 0.25 }], [10.8, 12, { g: 0.35 }]],
+    "2-1": [[0, 4.2, { g: 0.2 }], [15.8, 18, { g: 0.4 }]],
+    "2-2": [[11.2, 14, { g: 0.2 }]],
+    "3-1": [[12.6, 21.0, "end"], [21.0, 21.0, 0]],
+    "3-2": [[0, 1.6, { g: 0.06 }], [6.4, 9.4, { g: 0.2 }]],
+  };
   function ctlMove(d, t) {
     const mv = CTRL_MOVE[cur.id], rr = d.defaultView && d.defaultView.APRISM_RR;
     if (!mv || ctlPlace.s0 == null || !rr || !rr.ready()) return;
     let s = ctlPlace.s0;
     for (let [a, b, to] of mv) {
       if (to === "end") to = rr.total();
+      else if (to && to.g != null) to = ctlPlace.s0 + (ctlPlace.gap || 0) * to.g;
       if (t >= b) s = to;
       else if (t > a) { const k = (t - a) / (b - a), e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2; s = s + (to - s) * e; }
     }
@@ -2044,13 +2084,6 @@
     d.body.classList.toggle("kista-quiet", !!o.quiet);   // 지금 지점 카드의 상태 줄(긴급정지 · 일시정지 [재개])도 숨긴다
     if (o.quiet) { const rail = d.querySelector("[data-timeline]"); if (rail) rail.classList.remove("rr-estop", "rr-frozen"); }
     const card0 = d.querySelector('.robot-strip .robot-card[aria-pressed="true"]') || d.querySelector(".robot-strip .robot-card");
-    // 로봇 카드 2D 로봇 자세(o.r2) — 없으면 우리가 바꿔 둔 것만 원래 규칙(수행중 배지 = 걷기, 나머지 앉기)으로 돌린다
-    const th = card0 && card0.querySelector(".robot-thumb");
-    if (th) {
-      const cur2 = th.getAttribute("data-r2");
-      if (o.r2) { if (cur2 !== o.r2) th.setAttribute("data-r2", o.r2); }
-      else if (cur2 === "kseat" || cur2 === "krise") th.setAttribute("data-r2", /수행중/.test(card0.querySelector(".robot-row .badge")?.textContent || "") ? "walk" : "sit");
-    }
     // 배지
     const badge = card0 && card0.querySelector(".robot-lists .badge");
     if (badge) {
@@ -2170,7 +2203,7 @@
     window.scrollTo(0, 0);
   }
   function comboExit() {
-    comboOn = false; stopPlay(); if (deltaObs) { deltaObs.disconnect(); deltaObs = null; } ctlApply.scene = null;
+    comboOn = false; stopPlay(); try { const fw = ctlFrame.contentWindow; if (fw) fw.APRISM_KISTA_OV = null; } catch (e) {} if (deltaObs) { deltaObs.disconnect(); deltaObs = null; } ctlApply.scene = null;
     document.getElementById("combo").hidden = true; document.getElementById("comboBar").hidden = true;
     stage.prepend(renderer.domElement); dirty = true;
   }
