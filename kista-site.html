@@ -1910,7 +1910,7 @@
     } catch (err) { console.warn("관제 로봇 자리", err); }
   }
   /* 지도를 로봇에 맞춰 더 당긴다(11/19) — [로봇 위치로](확대 2.2 이상, 로봇을 가운데) 뒤 [확대]를 n 번. 1-1 은 도크에서 지도가 멀어 비어 보였다 */
-  const CTRL_FOCUS = { "1-1": 1 };
+  const CTRL_FOCUS = { "1-1": 1, "1-2": 1 };
   function ctlFocus(d) {
     const n = CTRL_FOCUS[cur.id]; if (!n) return;
     clearTimeout(ctlFocus.tm);
@@ -2051,6 +2051,9 @@
     el.querySelector(".ma-req-acts").innerHTML = (r.acts || []).map(x => `<li>${x}</li>`).join("");
     el.classList.toggle("is-ok", !!r.ok);
     el.hidden = false; box.classList.add("is-requested");
+    // (11/19) 판이 줄어든 뒤 자리를 다시 안 잡는 경우(배터리 장면 — 로봇 판) 위쪽에 떠 있다 → 지도 칸 아래 끝에 붙인다(2-1 · 2-2 처럼)
+    const ph = box.parentElement && box.parentElement.clientHeight, bh = box.offsetHeight;
+    if (ph && bh) { const y = Math.round(ph - bh) + "px"; if (box.style.getPropertyValue("--y") !== y) box.style.setProperty("--y", y); }
   }
   // v7 에 없는 상태 · 알림을 이 영상에서만 덧입힌다 — 글은 속성(data-k)으로 얹어 관제 화면이 글을 다시 써도 유지된다
   function ctlOverlay(d, o) {
@@ -2126,7 +2129,7 @@
   const CAMP = { full: [960, 540, 1920], map: [980, 582, 1180], side: [1310, 582, 1180], wide: [1200, 560, 1400] };
   const CAM = {
     "1-1": [[0, "full"], [1.2, "side"]],
-    "1-2": [[0, "full"], [1.2, "wide"]],
+    "1-2": [[0, "full"], [1.2, "side"]],   // (11/19) 지도를 로봇에 당겨(CTRL_FOCUS) 로봇이 가운데 — wide 대신 side
     "2-1": [[0, "full"], [1.2, "map"], [15.9, "side"]],
     "2-2": [[0, "full"], [1.2, "side"], [2.8, "map"]],
     "3-1": [[0, "full"], [1.2, "map"], [12.6, "side"]],
