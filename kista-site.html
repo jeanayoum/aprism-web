@@ -2009,6 +2009,7 @@
       if (sp.solo) popSolo(d, box);
     }
     if (sp.solo) d.querySelectorAll('[data-ah-list] .ah-item[aria-pressed="true"]').forEach(n => n.setAttribute("aria-pressed", "false"));   // 목록이 다시 그려져도 고른 줄 없이
+    popFit(box);   // 0.3초마다 — 관제 화면이 판 자리를 다시 잡아도 덮는다
     const sig = JSON.stringify(sp);
     if (box.dataset.kpop === sig) return;
     box.dataset.kpop = sig;
@@ -2026,6 +2027,7 @@
     }
     const cf = $b("[data-ma-confirm]"); if (cf && sp.primary) { cf.textContent = sp.primary; cf.disabled = false; }
     popReq(d, box, sp.req || null);
+    requestAnimationFrame(() => popFit(box));
   }
   /* solo(배터리 장면) — 판만 빌린 알림이라 그 웨이포인트(WP-07)를 고른 채 두지 않는다(11/18 디자이너): 지도 · 우측 목록 고름을 풀고 로봇에게 간다.
    *   지도는 팝오버의 data-wp 가 고른 지점과 다르면 팝오버를 닫는다(map-v6.js tellWaypoint) — data-wp 를 먼저 지워 null 끼리 같게 둔다 */
@@ -2051,9 +2053,17 @@
     el.querySelector(".ma-req-acts").innerHTML = (r.acts || []).map(x => `<li>${x}</li>`).join("");
     el.classList.toggle("is-ok", !!r.ok);
     el.hidden = false; box.classList.add("is-requested");
-    // (11/19) 판이 줄어든 뒤 자리를 다시 안 잡는 경우(배터리 장면 — 로봇 판) 위쪽에 떠 있다 → 지도 칸 아래 끝에 붙인다(2-1 · 2-2 처럼)
-    const ph = box.parentElement && box.parentElement.clientHeight, bh = box.offsetHeight;
-    if (ph && bh) { const y = Math.round(ph - bh) + "px"; if (box.style.getPropertyValue("--y") !== y) box.style.setProperty("--y", y); }
+  }
+  /* (11/19) 판을 지도 칸 아래 끝에 붙이고, 높이는 내용만큼(위로 올린다).
+   *   관제 화면은 판 위치(--y)를 알림 자리에 맞춰 두어 판이 내용보다 낮다 — 아래 [진단 상세] 버튼 줄이 잘렸다.
+   *   요청 판으로 줄어든 뒤 자리를 다시 안 잡는 배터리 장면(로봇 판)도 이것으로 아래 끝에 붙는다 */
+  function popFit(box) {
+    if (box.hidden) return;
+    const ph = box.parentElement && box.parentElement.clientHeight; if (!ph) return;
+    const need = Math.min(ph, Math.max(box.scrollHeight, box.offsetHeight));
+    const lower = box.querySelector(".ma-lower"), extra = lower ? Math.max(0, lower.scrollHeight - lower.clientHeight) : 0;
+    const y = Math.max(0, Math.round(ph - Math.min(ph, need + extra))) + "px";
+    if (box.style.getPropertyValue("--y") !== y) box.style.setProperty("--y", y);
   }
   // v7 에 없는 상태 · 알림을 이 영상에서만 덧입힌다 — 글은 속성(data-k)으로 얹어 관제 화면이 글을 다시 써도 유지된다
   function ctlOverlay(d, o) {
