@@ -250,7 +250,7 @@
       function tick() {
         var next = rows.shift();
         if (!next) {
-          if (tag) { tag.textContent = "완료"; }
+          if (tag) { tag.textContent = "완료"; if (document.body.classList.contains("ver-7") && window.ds) { tag.className = "tag-running " + window.ds.statusCls("done"); } }   // [11/19 v7] 진행 상태 태그: 수행중 → 완료
           if (startBtn) { startBtn.disabled = false; }
           /*
            * 다 통과하면 모니터링으로 넘어간다. 단, 그 단계를 보여 주려고 연 화면

@@ -148,7 +148,7 @@
 
         // 지나는 층 — 차례대로(B3 → B4)
         var fl = span("scope-floors");
-        floorsOf(m).forEach(function (f) { fl.appendChild(span("floor-tag num", f)); });
+        floorsOf(m).forEach(function (f) { fl.appendChild(span("floor-tag num" + (document.body.classList.contains("ver-7") ? " ds-floor" : ""), f)); });
         item.appendChild(fl);
         item.appendChild(span("scope-robots num", robotsOf(m)));
         item.setAttribute("aria-label", m + " · " + g[1] + " · " + floorsOf(m).join(" → ") + " · Robot " + robotsOf(m) +

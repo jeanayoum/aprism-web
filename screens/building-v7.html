@@ -42,9 +42,9 @@
   <link rel="stylesheet" href="../assets/css/v5.css?v=aefc22b4" />
   <!-- v6 전용 규칙 — v5 는 10/30 부로 멈췄다. v6 에서 바꾸는 것은 여기(body.ver-6)에. -->
   <link rel="stylesheet" href="../assets/css/v6.css?v=fbf27a9f" />
-  <link rel="stylesheet" href="../assets/css/v7.css?v=3c2dd96b" />
-  <link rel="stylesheet" href="../assets/css/components-v7.css?v=a5b3ef1e" />
-  <script src="../assets/js/ds-v7.js?v=9fcc3308"></script>
+  <link rel="stylesheet" href="../assets/css/v7.css?v=779a3888" />
+  <link rel="stylesheet" href="../assets/css/components-v7.css?v=b5d493c7" />
+  <script src="../assets/js/ds-v7.js?v=53a732a2"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
@@ -135,11 +135,11 @@
         <div class="dropdown-menu signal-menu" role="menu" aria-label="통신 상태" hidden>
           <div class="menu-item" role="menuitem">
             <span class="t-label-2">AI Server</span>
-            <span class="badge badge-normal t-caption"><span class="badge-dot"></span>Online</span>
+            <span class="badge badge-normal t-caption ds-badge is-plain is-safe ds-i-dot"><span class="badge-dot"></span>Online</span>
           </div>
           <div class="menu-item" role="menuitem">
             <span class="t-label-2">DB server</span>
-            <span class="badge badge-normal t-caption"><span class="badge-dot"></span>Online</span>
+            <span class="badge badge-normal t-caption ds-badge is-plain is-safe ds-i-dot"><span class="badge-dot"></span>Online</span>
           </div>
           <div class="menu-item" role="menuitem">
             <span class="t-label-2">Network</span>
@@ -224,7 +224,7 @@
                    이름은 위 "조치 필요 알림"과 같은 위계(t-title-2 · 16) — 알림 센터 탭(조치 필요 알림 / 조치 요청된 알림)과 같은 이름 · 형제. 위 층은 패널 머리줄(관제 …… 알림 센터 ›).
                    [11/06] "조치" 로 통일(버튼 [조치 요청]과 같은 말) — "완료"는 현장 결과가 돌아오는 다음 단계 몫이라 쓰지 않는다. 범위(오늘)는 제목 대신 건수 앞에(v7.css) -->
               <h3 class="t-title-2" id="done-title">조치 요청된 알림</h3>
-              <span class="badge done-count t-caption"><span class="badge-dot"></span><span class="num" data-done-count>0건</span></span>
+              <span class="done-count ds-chip"><i class="ds-ic is-check" aria-hidden="true"></i><span class="num" data-done-count>0건</span></span>
               <button type="button" class="done-fold" data-done-fold
                       aria-expanded="true" aria-controls="done-box" aria-label="조치 요청된 알림 접기">
                 <span class="i i-16" aria-hidden="true" style="--i:var(--ic-chevron-down)"></span>
@@ -393,7 +393,7 @@
                   <p class="robot-counts t-caption">
                     <span class="i i-16" style="--i:var(--ic-bot)" aria-hidden="true"></span>
                     <span data-bld-count>12대 연결</span>
-                    <span class="badge badge-info t-caption"><span class="badge-dot"></span><span data-bld-running>3대 수행중</span></span>
+                    <span class="badge badge-info t-caption ds-badge is-plain is-info ds-i-play"><span class="badge-dot"></span><span data-bld-running>3대 수행중</span></span>
                   </p>
                 </div>
                 <div class="bld-fleet-filter" role="group" aria-label="층으로 거르기" data-bld-fleet-filter></div>
@@ -415,7 +415,7 @@
 <script src="../assets/js/delta-form.js?v=42bb62ab"></script>
 <script src="../assets/js/theme.js?v=c86093d9"></script>
 <script src="../assets/js/prism-orb.js?v=4b220825"></script>
-<script src="../assets/js/screen.js?v=0944fa2a"></script>
+<script src="../assets/js/screen.js?v=bd06b2e8"></script>
 <script src="../assets/js/map-model.js?v=0f88c871"></script>
 <!-- [11/02] 통합 순회 연출(셰이더 윤곽선 · 스캔 · AO · 블룸 · 비네트 · 하늘 · 안개) — 실험(lab-bld-render-v6)에서 고른 값. building.js 앞에(APRISM_BLD_FX 고리) -->
 <script src="../assets/js/bld-fx-v6.js?v=34cdf95f"></script>
@@ -424,13 +424,13 @@
 <script src="../assets/js/mini-plan.js?v=e11c5703"></script>
 <script src="../assets/js/ah-sort.js?v=8010f248"></script>
 <script src="../assets/js/alert-text-v6.js?v=a6a79f62"></script>
-<script src="../assets/js/building.js?v=3286058c"></script>
+<script src="../assets/js/building.js?v=94723460"></script>
 <!-- [10/30 v6] 상단 미션 탭(윈도우 탐색기 꼴) — 미션 메뉴를 읽어 탭으로 늘어놓는다. 메뉴를 만드는 스크립트 다음에 -->
 <script src="../assets/js/mission-tabs-v6.js?v=18f484a3"></script>
 <script src="../assets/js/delta-pulse.js?v=2d0afced"></script>
 <script src="../assets/js/delta-v3.js?v=403861c7"></script>
 <script src="../assets/js/delta-resize.js?v=b83bd18b"></script>
 <script src="../assets/js/grid-overlay.js?v=164e4f2a"></script>
-<script src="../assets/js/v3-panel.js?v=342f6059"></script>
+<script src="../assets/js/v3-panel.js?v=40d60cc9"></script>
 </body>
 </html>

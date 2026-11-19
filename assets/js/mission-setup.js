@@ -191,7 +191,7 @@
       if (yes) { nth += 1; }
       return '<div class="check-row" role="checkbox" aria-checked="' + (yes ? "true" : "false") +
         '" tabindex="0" data-wp="' + id + '" data-dwell="' + w.dwell + '">' +
-        '<span class="check-ord" title="방문 순서">' + (yes ? nth : "") + "</span>" +
+        '<span class="check-ord' + (document.body.classList.contains("ver-7") ? " ds-wp is-s" : "") + '" title="방문 순서">' + (yes ? nth : "") + "</span>" +
         '<span class="check-text">' + w.text + "</span>" +
         '<span class="check-skip t-caption">건너뜀</span>' +
         '<button type="button" class="check-act" data-mp-locate aria-label="' + id +
@@ -281,7 +281,8 @@
     if (batState) {
       var word = { ok: "수행 가능", low: "여유 부족", no: "수행 불가" }[p.state];
       var tone = { ok: "badge-normal", low: "badge-warning", no: "badge-danger" }[p.state];
-      batState.innerHTML = '<span class="badge ' + tone + ' t-caption">' +
+      var dsv = document.body.classList.contains("ver-7") && window.ds ? " " + window.ds.statusCls({ ok: "avail", low: "low", no: "no" }[p.state]) : "";   // [11/19 v7] 공통 CSS 태그
+      batState.innerHTML = '<span class="badge ' + tone + ' t-caption' + dsv + '">' +
         '<span class="badge-dot" aria-hidden="true"></span>' + word + "</span>";
     }
 

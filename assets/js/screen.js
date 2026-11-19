@@ -1211,7 +1211,7 @@ window.APRISM_TEXT = (function () {
 
     // 머리 첫 줄 — 번호는 왼쪽, 시각과 소요는 오른쪽으로 밀린다.
     var metaRow = el("div", "step-meta-row");
-    metaRow.appendChild(el("span", "step-no t-label-1", String(index + 1)));
+    metaRow.appendChild(el("span", "step-no t-label-1" + (document.body.classList.contains("ver-7") ? " ds-wp" : ""), String(index + 1)));   // [11/19 v7] WP 번호 원 20
     var times = el("span", "step-times");
     if (step.time) {
       times.appendChild(el("span", "t-caption step-time num", step.time));
@@ -1802,7 +1802,7 @@ window.APRISM_TEXT = (function () {
     function tick() {
       var next = pending.shift();
       if (!next) {
-        if (tag) { tag.textContent = "완료"; }
+        if (tag) { tag.textContent = "완료"; if (document.body.classList.contains("ver-7") && window.ds) { tag.className = "tag-running " + window.ds.statusCls("done"); } }   // [11/19 v7] 진행 상태 태그: 수행중 → 완료
         if (startBtn) { startBtn.disabled = false; }
         window.setTimeout(function () {
           // [11/03] 화면이 적어 둔 관제 주소(body[data-monitor-href] — v6 사전 점검은 control-v6)를 먼저 따른다. 없으면 예전 그대로

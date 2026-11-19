@@ -351,7 +351,7 @@
     if (badge) {
       if (!badge.hasAttribute("data-rr-orig")) { badge.setAttribute("data-rr-orig", badge.className); badge.setAttribute("data-rr-html", badge.innerHTML); }
       var b = BADGE[m] || BADGE.run;
-      badge.className = "badge " + b[1] + " t-caption";
+      badge.className = "badge " + b[1] + " t-caption" + (document.body.classList.contains("ver-7") && window.ds ? " " + window.ds.statusCls(BADGE[m] ? m : "run") : "");   // [11/19 v7] 공통 CSS 태그
       badge.innerHTML = '<span class="badge-dot"></span>' + b[0];
     }
     var left = document.querySelector("[data-progress-left]");

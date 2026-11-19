@@ -3,14 +3,14 @@
  * 화면 JS는 배지, 칩, 탭 HTML을 직접 쓰지 않고 이 함수를 부른다. 글자에 HTML을 넣어도 됨(<b> 등)
  *
  *   ds.badge('crit', '위험')                          판정. crit, warn 은 삼각형이 저절로 붙음
- *   ds.badge('neutral', '정상', { icon: 'big' })        정상은 회색 + 큰 점
- *   ds.badge('info', '수행중', { icon: 'dot' })         작은 점
+ *   ds.badge('ok', '정상')                             판정 정상은 회색 + 큰 점이 저절로
  *   ds.badge('crit', '위험', { iconOnly: true })        아이콘만 (글자는 읽어 주기만)
- *   ds.badge('info', '수행중', { icon: 'dot', plain: true })  면 없는 배지 (운영 상태, 건수)
+ *   ds.badge('info', '수행중', { icon: 'play', plain: true })  태그 (면 없음). 아이콘: dot, big, play, ok, power, check, clock, delta, null(없음)
+ *   ds.badge('neutral', 'AI 추천', { icon: 'delta' })   출처
  *   ds.badge('neutral', '01', { num: true })            로봇 번호
- *   ds.wp(7)  ds.wp(4, { tone: 'crit' })  ds.wp(3, { current: true })  ds.wp('', { skip: true })  ds.wp(2, { map: true })   WP 번호 원
+ *   ds.wp(7)  ds.wp(7, { small: true })  ds.wp(4, { tone: 'crit' })  ds.wp(3, { current: true })  ds.wp('', { skip: true })  ds.wp(2, { map: true })   WP 번호 원 (20, 작은 것 16)
  *   ds.floor('B4')                                      층 (지금 층 꼬리표 값 그대로)
- *   ds.badgeRow(ds.badge('warn', '주의', { icon: 'dot' }), '09:58')   표 칸 안 배지 + 글자
+ *   ds.badgeRow(ds.badge('warn', '주의', { plain: true }), '09:58')   표 칸 안 태그 + 글자
  *   ds.chip('위험 2', { on: false, attrs: 'data-f="crit"' })
  *   ds.tabsLine([{ label: '조치 필요 알림', count: '12건', sel: true, attrs: '...' }, ...])
  *   ds.tabsChip([{ label: '안전감지', sel: true }, ...])
@@ -19,7 +19,7 @@
  * 공통 옵션: cls (덧붙일 클래스), attrs (덧붙일 속성 문자열)
  * ========================================================================== */
 (function () {
-  var TONE_ICON = { crit: 'tri', warn: 'tri' };
+  // 칩 안 아이콘 (배지 아이콘은 아래 badge() 주석)
   function ic(kind, tone) {
     if (!kind) return '';
     return '<i class="ds-ic is-' + kind + (kind === 'tri' && tone === 'warn' ? ' is-warn-ic' : '') + '" aria-hidden="true"></i>';
@@ -27,12 +27,28 @@
   function cls() { return Array.prototype.filter.call(arguments, Boolean).join(' '); }
   function sp(a) { return a ? ' ' + a : ''; }
 
+  // 배지 아이콘은 배지 자신의 ::before (공통 CSS .ds-i-*). icon 을 안 주면 위험, 주의는 삼각형, 정상(ok)은 큰 점이 저절로, null 은 아이콘 없음
   function badge(tone, text, o) {
     o = o || {}; tone = tone || 'neutral';
-    var kind = o.icon === undefined ? (TONE_ICON[tone] || null) : o.icon;
-    var c = cls('ds-badge', 'is-' + tone, o.plain && 'is-plain', o.iconOnly && 'is-icon', o.num && 'is-num', o.cls);
-    var body = o.iconOnly ? ic(kind || 'tri', tone) + '<span class="ds-sr">' + text + '</span>' : ic(kind, tone) + text;
+    var k = o.icon === undefined ? '' : (o.icon === null ? 'ds-i-none' : 'ds-i-' + o.icon);
+    var c = cls('ds-badge', 'is-' + tone, o.plain && 'is-plain', o.iconOnly && 'is-icon', o.num && 'is-num', k, o.cls);
+    var body = o.iconOnly ? '<span class="ds-sr">' + text + '</span>' : text;
     return '<span class="' + c + '"' + sp(o.attrs) + '>' + body + '</span>';
+  }
+  /*
+   * 운영 상태 태그 (11/19 B안: 점 → 상태 모양 아이콘). 예전 클래스(.badge-info 등) 옆에 붙일 클래스를 한 곳에서 정함
+   *   ds.statusCls('run') → 'ds-badge is-plain is-info ds-i-play'
+   *   정하지 않은 아이콘(일시정지, 통신 Online)은 작은 점 그대로. 긴급정지는 위험 삼각형
+   */
+  var STATUS = {
+    run: 'info play', inspect: 'info play', 'return': 'info play', alert: 'info play',
+    avail: 'safe ok', done: 'neutral check', wait: 'neutral clock', idle: 'neutral clock',
+    lost: 'crit power', off: 'crit power', estop: 'crit', low: 'warn', no: 'crit',
+    pause: 'neutral dot', online: 'safe dot'
+  };
+  function statusCls(key) {
+    var v = (STATUS[key] || 'neutral dot').split(' ');
+    return cls('ds-badge', 'is-plain', 'is-' + v[0], v[1] && 'ds-i-' + v[1]);
   }
   function badgeRow(badgeHtml, text, o) {
     o = o || {};
@@ -40,7 +56,7 @@
   }
   function wp(n, o) {
     o = o || {};
-    var c = cls('ds-wp', o.tone && 'is-' + o.tone, o.current && 'is-current', o.skip && 'is-skip', o.map && 'is-map', o.cls);
+    var c = cls('ds-wp', o.small && 'is-s', o.tone && 'is-' + o.tone, o.current && 'is-current', o.skip && 'is-skip', o.map && 'is-map', o.cls);
     var tag = o.button ? 'button' : 'span';
     return '<' + tag + (o.button ? ' type="button"' : '') + ' class="' + c + '"' + sp(o.attrs) + '>' + (n == null ? '' : n) + '</' + tag + '>';
   }
@@ -62,7 +78,7 @@
     }).join('') + '</div>';
   }
   window.ds = {
-    badge: badge, badgeRow: badgeRow, wp: wp, floor: floor, chip: chip,
+    badge: badge, badgeRow: badgeRow, statusCls: statusCls, wp: wp, floor: floor, chip: chip,
     tabsLine: function (items, o) { return tabs('ds-tab-line', items, o); },
     tabsChip: function (items, o) { return tabs('ds-tab-chip', items, o); },
     seg: function (items, o) { return tabs('ds-seg', items, o); },

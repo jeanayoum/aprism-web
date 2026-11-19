@@ -27,9 +27,11 @@ body.ver-7 {
   --ds-badge-font-weight: var(--font-weight-medium);
   --ds-badge-row-gap: var(--space-8);             /* 표 칸 배지와 글자 사이 */
   /* --ds-badge-neutral-bg: var(--bg-map-chip); */
+  --ds-ai-ramp: #1B77EE 0%, #0A49D7 12.5%, #1E2FB0 25%, #493891 37.5%, #74608B 50%, #858DA3 62.5%, #71A7C9 75%, #459EE9 87.5%, #1B77EE 100%;   /* AI 추천 Delta 아이콘 (Delta 스펙트럼) */
 
   /* WP 번호 원 */
-  --ds-wp-size: 22px;
+  --ds-wp-size: 20px;                             /* 번호 칸, 지도 (4의 배수, 아이콘과 같은 단계) */
+  --ds-wp-size-s: 16px;                           /* 글자 줄 안: 알림 목록, 지도 팝오버, 점검 줄 */
   --ds-wp-font-size: var(--font-size-12);
   --ds-wp-ring: var(--border-width-strong);       /* 위험, 주의, 지도 위 테 굵기 */
 
@@ -122,6 +124,7 @@ body.ver-7 .ds-ic::before { content: ""; display: block; background-color: curre
 body.ver-7 .ds-ic.is-dot::before { width: 6px; height: 6px; border-radius: var(--radius-pill); }
 body.ver-7 .ds-ic.is-big::before { width: 10px; height: 10px; border-radius: var(--radius-pill); }
 body.ver-7 .ds-ic.is-tri::before { width: 12px; height: 12px; -webkit-mask: var(--ic-error) center / contain no-repeat; mask: var(--ic-error) center / contain no-repeat; }
+body.ver-7 .ds-ic.is-check::before { width: 12px; height: 12px; -webkit-mask: var(--ic-check) center / contain no-repeat; mask: var(--ic-check) center / contain no-repeat; }
 body.ver-7 .ds-ic.is-tri.is-warn-ic::before { -webkit-mask-image: var(--ic-warning); mask-image: var(--ic-warning); }
 
 /* ---------- 예전 14 아이콘을 12로 (11/19): 판정 삼각형, 체크 표시, 화살표, Delta 표식 ----------
@@ -142,68 +145,101 @@ body.ver-7 .sf-scope .wd.crit, body.ver-7 .sf-scope .wd.warn { width: 12px; heig
 /* 화면에는 안 보이고 읽어 주기만 하는 글자 */
 body.ver-7 .ds-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
-/* ---------- 배지: 누르지 않음, 상태 없음 ---------- */
+/* ---------- 배지와 태그: 누르지 않음, 상태 없음 ----------
+ * 화면 코드는 예전 클래스 옆에 .ds-badge 를 덧붙인다(v7만, 11/19 4단계). 모양 값은 !important 로 예전 클래스 규칙을 이김
+ * 면 있는 배지: .ds-badge.is-{crit|warn|info|safe|neutral|ok}   태그(면 없음): .is-plain 을 더함
+ * 아이콘은 배지 자신의 ::before 하나로 그림(JS가 글자를 바꿔도 아이콘이 남게). 예전 점(.badge-dot)과 예전 ::before 는 끔
+ *   위험, 주의는 저절로 삼각형, 판정 정상(.is-ok)은 저절로 큰 점. 그 밖은 .ds-i-* 로 고름:
+ *   .ds-i-dot 작은 점, .ds-i-big 큰 점, .ds-i-play 재생, .ds-i-ok 체크 원, .ds-i-power 전원, .ds-i-check 체크, .ds-i-clock 시계, .ds-i-delta Delta, .ds-i-none 아이콘 없음 */
 body.ver-7 .ds-badge {
-  display: inline-flex; align-items: center; gap: var(--ds-badge-gap); flex: none; box-sizing: border-box;
-  height: var(--ds-badge-h); padding: 0 var(--ds-badge-pad-x); border: 0; border-radius: var(--ds-badge-radius);
-  background-color: var(--ds-badge-neutral-bg, var(--bg-map-chip)); color: var(--text-secondary);
-  font-family: inherit; font-size: var(--ds-badge-font-size); line-height: var(--ds-badge-line-height); font-weight: var(--ds-badge-font-weight);
+  display: inline-flex !important; align-items: center !important; gap: var(--ds-badge-gap) !important; flex: none; box-sizing: border-box !important;
+  height: var(--ds-badge-h) !important; min-height: var(--ds-badge-h) !important; padding: 0 var(--ds-badge-pad-x) !important;
+  border: 0 !important; box-shadow: none !important; border-radius: var(--ds-badge-radius) !important;
+  background-color: var(--ds-badge-neutral-bg, var(--bg-map-chip)) !important; color: var(--text-secondary) !important;
+  font-family: inherit; font-size: var(--ds-badge-font-size) !important; line-height: var(--ds-badge-line-height) !important; font-weight: var(--ds-badge-font-weight) !important;
   white-space: nowrap; vertical-align: middle;
+  --ds-i-color: var(--text-tertiary);
 }
 /* 판정과 상태 색 (정상은 회색, 색은 신호에만) */
-body.ver-7 .ds-badge.is-neutral .ds-ic { color: var(--text-tertiary); }
-body.ver-7 .ds-badge.is-crit { background-color: var(--status-critical-bg); color: var(--status-critical-text); }
-body.ver-7 .ds-badge.is-crit .ds-ic { color: var(--status-critical-icon); }
-body.ver-7 .ds-badge.is-warn { background-color: var(--status-warning-bg); color: var(--status-warning-text); }
-body.ver-7 .ds-badge.is-warn .ds-ic { color: var(--status-warning-icon); }
-body.ver-7 .ds-badge.is-info { background-color: var(--status-info-bg); color: var(--status-info-text); }
-body.ver-7 .ds-badge.is-info .ds-ic { color: var(--status-info-icon); }
-body.ver-7 .ds-badge.is-safe { background-color: var(--status-safe-bg); color: var(--status-safe-text); }
-body.ver-7 .ds-badge.is-safe .ds-ic { color: var(--status-safe-icon); }
-/* 면 없는 배지 (건수, 운영 상태, 진행 상태): 면 없이 점과 글자 색만 */
-body.ver-7 .ds-badge.is-plain { background-color: transparent; padding: 0 var(--ds-badge-plain-pad-x); }
-body.ver-7 .ds-badge.is-plain.is-crit { color: var(--status-critical-text); }
-body.ver-7 .ds-badge.is-plain.is-warn { color: var(--status-warning-text); }
-body.ver-7 .ds-badge.is-plain.is-info { color: var(--status-info-text); }
-body.ver-7 .ds-badge.is-plain.is-safe { color: var(--status-safe-text); }
-/* 아이콘만 (알림 카드 머리 삼각형): 정사각형 */
-body.ver-7 .ds-badge.is-icon { width: var(--ds-badge-h); padding: 0; justify-content: center; }
+body.ver-7 .ds-badge.is-crit { background-color: var(--status-critical-bg) !important; color: var(--status-critical-text) !important; --ds-i-color: var(--status-critical-icon); --ds-i: var(--ic-error); }
+body.ver-7 .ds-badge.is-warn { background-color: var(--status-warning-bg) !important; color: var(--status-warning-text) !important; --ds-i-color: var(--status-warning-icon); --ds-i: var(--ic-warning); }
+body.ver-7 .ds-badge.is-info { background-color: var(--status-info-bg) !important; color: var(--status-info-text) !important; --ds-i-color: var(--status-info-icon); }
+body.ver-7 .ds-badge.is-safe { background-color: var(--status-safe-bg) !important; color: var(--status-safe-text) !important; --ds-i-color: var(--status-safe-icon); }
+/* 측정 전, 대상 아님: 판정이 아니라 상태. 지금 모양(점선 테, 면 없음) 그대로 */
+body.ver-7 .ds-badge.is-plan,
+body.ver-7 .ds-badge.is-na { border: var(--border-width-thin) dashed var(--border-strong) !important; background-color: transparent !important; color: var(--text-tertiary) !important; }
+/* 태그 (건수, 운영 상태, 진행 상태, 통신 상태): 면 없이 아이콘과 글자 색만 */
+body.ver-7 .ds-badge.is-plain { background-color: transparent !important; padding: 0 var(--ds-badge-plain-pad-x) !important; }
+/* 아이콘만 (글자는 읽어 주기만): 정사각형 */
+body.ver-7 .ds-badge.is-icon { width: var(--ds-badge-h) !important; padding: 0 !important; justify-content: center !important; }
 /* 번호 (로봇 번호): 최소 너비 = 높이, 글자 가운데 */
-body.ver-7 .ds-badge.is-num { min-width: var(--ds-badge-h); justify-content: center; font-variant-numeric: tabular-nums; }
+body.ver-7 .ds-badge.is-num { width: auto !important; min-width: var(--ds-badge-h) !important; justify-content: center !important; font-variant-numeric: tabular-nums; }
 /* 지도 위 배지 (전체 미션 지도 로봇 번호): 크기, 여백, 모서리, 글자는 배지 규칙, 색은 지금 그대로(11/19 정함)
  * 지도 위에 놓여 반투명 기본 면은 지도와 섞임(면/지도 대비 1.03~1.09). 불투명 면 --bg-panel 유지, 수행중은 진한 글자, 표시된 로봇은 반전 */
-body.ver-7 .ds-badge.is-onmap { background-color: var(--bg-panel); color: var(--text-secondary); }
-body.ver-7 .ds-badge.is-onmap.is-strong { color: var(--text-primary); }
-body.ver-7 .ds-badge.is-onmap.is-marked { background-color: var(--text-primary); color: var(--bg-page); }
+body.ver-7 .ds-badge.is-onmap { background-color: var(--bg-panel) !important; color: var(--text-secondary) !important; }
+body.ver-7 .ds-badge.is-onmap.is-strong { color: var(--text-primary) !important; }
+body.ver-7 .ds-badge.is-onmap.is-marked { background-color: var(--text-primary) !important; color: var(--bg-page) !important; }
+/* 전체 미션 지도: 로봇 상태(수행중, 표시됨)는 부모 .bld-bot 이 가짐 */
+body.ver-7 .bld-bot.is-run > .ds-badge.is-onmap { color: var(--text-primary) !important; }
+body.ver-7 .bld-bot.is-marked > .ds-badge.is-onmap { background-color: var(--text-primary) !important; color: var(--bg-page) !important; }
+
+/* 아이콘: 상자 12, 채운 모양 */
+body.ver-7 .ds-badge::before { content: none !important; }
+body.ver-7 .ds-badge > :is(.badge-dot, .bld-sev-dot, .ac-count-ic, .ac-sev-dot),
+body.ver-7 .ds-badge.bld-rc-badge > i { display: none !important; }   /* 예전 점, 아이콘 자식 */
+body.ver-7 .ds-badge:is(.is-crit, .is-warn, .is-ok, [class*="ds-i-"]):not(.ds-i-none)::before {
+  content: "" !important; display: block !important; flex: none !important; position: static !important; box-sizing: border-box !important;
+  width: 12px !important; height: 12px !important; margin: 0 !important; border: 0 !important; border-radius: 0 !important; transform: none !important;
+  background: var(--ds-i-color) !important;
+  -webkit-mask: var(--ds-i) center / contain no-repeat !important; mask: var(--ds-i) center / contain no-repeat !important;
+}
+body.ver-7 .ds-badge.ds-i-play { --ds-i: var(--ic-play-sm); }
+body.ver-7 .ds-badge.ds-i-ok { --ds-i: var(--ic-check-circle); }
+body.ver-7 .ds-badge.ds-i-power { --ds-i: var(--ic-power); }
+body.ver-7 .ds-badge.ds-i-check { --ds-i: var(--ic-check); }
+body.ver-7 .ds-badge.ds-i-clock { --ds-i: var(--ic-clock); }
+/* 점은 마스크 없이 원. 작은 점 지름 6, 큰 점 10을 상자 12 가운데에 (앞뒤 여백은 상자 안 여백, 간격 토큰이 아님) */
+body.ver-7 .ds-badge.ds-i-dot::before { width: 6px !important; height: 6px !important; margin: 0 calc((12px - 6px) / 2) !important; border-radius: var(--radius-pill) !important; -webkit-mask: none !important; mask: none !important; }
+body.ver-7 .ds-badge:is(.ds-i-big, .is-ok:not([class*="ds-i-"]))::before { width: 10px !important; height: 10px !important; margin: 0 calc((12px - 10px) / 2) !important; border-radius: var(--radius-pill) !important; -webkit-mask: none !important; mask: none !important; }
+/* 출처 AI 추천 (A안, 11/19): 회색 면 + Delta 스펙트럼 색 Delta 아이콘 */
+body.ver-7 .ds-badge.ds-i-delta { --ds-i: var(--ic-delta); }
+body.ver-7 .ds-badge.ds-i-delta::before { background: linear-gradient(135deg, var(--ds-ai-ramp)) !important; }
+
 /* 표 칸 안 배지 + 글자 */
 body.ver-7 .ds-badge-row { display: inline-flex; align-items: center; gap: var(--ds-badge-row-gap); white-space: nowrap; font-size: var(--ds-badge-font-size); line-height: var(--ds-badge-line-height); }
 
-/* ---------- WP 번호 원: 경로 목록, 점검 줄, 지도 번호 알, Delta 어디서 쓰든 하나 ---------- */
+/* ---------- WP 번호 원: 왼쪽 알림 목록, 지도 팝오버, 점검 줄, 오른쪽 경로 목록, Delta 어디서 쓰든 하나 ----------
+ * 크기는 아이콘과 같은 4의 배수 두 단계(11/19): 번호 칸과 지도 20(.ds-wp), 글자 줄 안 16(.ds-wp.is-s)
+ * 크기, 모양, 글자는 !important. 색은 :where 로 세기를 0으로 둬 화면의 상태 색(지금 가는 곳, 지나온 곳 등) 규칙이 이김 */
 body.ver-7 .ds-wp {
-  display: inline-grid; place-items: center; flex: none; box-sizing: border-box;
-  width: var(--ds-wp-size); height: var(--ds-wp-size); padding: 0; border: 0; border-radius: var(--radius-pill);
-  background-color: var(--bg-cell); color: var(--text-secondary);
-  font-family: inherit; font-size: var(--ds-wp-font-size); line-height: 1; font-weight: var(--font-weight-medium); font-variant-numeric: tabular-nums;
+  display: inline-grid !important; place-items: center !important; flex: none; box-sizing: border-box !important;
+  width: var(--ds-wp-size) !important; height: var(--ds-wp-size) !important; min-width: var(--ds-wp-size) !important; min-height: 0 !important; padding: 0 !important; border-radius: var(--radius-pill) !important;
+  font-family: inherit; font-size: var(--ds-wp-font-size) !important; line-height: 1 !important; letter-spacing: 0 !important; font-variant-numeric: tabular-nums;
 }
+body.ver-7 .ds-wp.is-s { width: var(--ds-wp-size-s) !important; height: var(--ds-wp-size-s) !important; min-width: var(--ds-wp-size-s) !important; }
+body.ver-7 .ds-wp::after { font-family: inherit !important; font-size: var(--ds-wp-font-size) !important; line-height: 1 !important; letter-spacing: 0 !important; }
+body.ver-7 .ds-wp.is-s, body.ver-7 .ds-wp.is-s::after { letter-spacing: -0.04em !important; }   /* 16 원(테 1)에 두 자리 숫자가 들어가게 */
+:where(body.ver-7 .ds-wp) { border: 0; background-color: var(--bg-cell); color: var(--text-secondary); font-weight: var(--font-weight-medium); }
 /* 위험, 주의: 속 비운 원 + 단계 색 테 + 단계 색 숫자 (지금 Delta 번호 원, 지도 위험 핀 머리와 같은 꼴) */
-body.ver-7 .ds-wp.is-crit { border: var(--ds-wp-ring) solid var(--status-critical-icon); background-color: var(--bg-raised); color: var(--status-critical-icon); font-weight: var(--font-weight-bold); }
-body.ver-7 .ds-wp.is-warn { border: var(--ds-wp-ring) solid var(--status-warning-icon); background-color: var(--bg-raised); color: var(--status-warning-text); font-weight: var(--font-weight-bold); }
+:where(body.ver-7 .ds-wp.is-crit) { border: var(--ds-wp-ring) solid var(--status-critical-icon); background-color: var(--bg-raised); color: var(--status-critical-icon); font-weight: var(--font-weight-bold); }
+:where(body.ver-7 .ds-wp.is-warn) { border: var(--ds-wp-ring) solid var(--status-warning-icon); background-color: var(--bg-raised); color: var(--status-warning-text); font-weight: var(--font-weight-bold); }
 /* 지금 가는 곳, 고른 곳 */
-body.ver-7 .ds-wp.is-current { background-color: var(--comp-button-accent-bg-default); color: var(--comp-button-accent-text-default); }
+:where(body.ver-7 .ds-wp.is-current) { background-color: var(--comp-button-accent-bg-default); color: var(--comp-button-accent-text-default); }
 /* 이번엔 안 가는 곳: 점선, 속 빔 */
-body.ver-7 .ds-wp.is-skip { border: var(--border-width-thin) dashed var(--border-strong); background-color: transparent; color: var(--text-tertiary); }
+:where(body.ver-7 .ds-wp.is-skip) { border: var(--border-width-thin) dashed var(--border-strong); background-color: transparent; color: var(--text-tertiary); }
 /* 지도 위: 바탕이 무엇이든 떠 보이게 테 */
-body.ver-7 .ds-wp.is-map { border: var(--ds-wp-ring) solid var(--bg-page); }
+:where(body.ver-7 .ds-wp.is-map) { border: var(--ds-wp-ring) solid var(--bg-page); }
 
 /* ---------- 층: 지금 층 꼬리표(.floor-tag) 값 그대로 (색, 굵기, 크기 바꾸지 않음)
  * 라이트 gray-100 면 + text-tertiary, 다크 bg-raised 면 + text-secondary, 고정폭 12/18, 굵기 400 ---------- */
 body.ver-7 .ds-floor {
-  display: inline-flex; align-items: center; flex: none; box-sizing: border-box;
-  height: var(--ds-floor-h); padding: 0 var(--ds-floor-pad-x); border: 0; border-radius: var(--ds-floor-radius);
-  background-color: var(--bg-raised); color: var(--text-secondary);
-  font-family: var(--font-family-mono); font-size: var(--font-size-12); line-height: var(--font-line-height-18); font-weight: var(--font-weight-regular); white-space: nowrap;
+  display: inline-flex !important; align-items: center !important; flex: none; box-sizing: border-box !important;
+  width: auto !important; height: var(--ds-floor-h) !important; min-height: var(--ds-floor-h) !important; padding: 0 var(--ds-floor-pad-x) !important;
+  border: 0 !important; box-shadow: none !important; border-radius: var(--ds-floor-radius) !important;
+  background-color: var(--bg-raised) !important; color: var(--text-secondary) !important;
+  font-family: var(--font-family-mono) !important; font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-regular) !important; white-space: nowrap;
 }
-:root[data-theme="light"] body.ver-7 .ds-floor { background-color: var(--color-gray-100); color: var(--text-tertiary); }
+:root[data-theme="light"] body.ver-7 .ds-floor { background-color: var(--color-gray-100) !important; color: var(--text-tertiary) !important; }
 
 /* ---------- 칩: 누름. 기존 거르기 칩 모양 (꺼짐 흰 면 + 회색 테, 켜짐 진한 면 + 흰 글자)
  * 화면: 관제와 전체 미션 거르기, 전체 미션 로봇 상태 거르기, 미션설정 거르기, Delta 질문, 알림센터 체크형 거르기
@@ -269,6 +305,16 @@ body.ver-7 .ds-seg > .ds-tab {
 body.ver-7 .ds-seg.is-vertical > .ds-tab { width: 100% !important; padding: 0 !important; }
 body.ver-7 .ds-seg > .ds-tab:is([aria-selected="true"], [aria-pressed="true"], .on, .is-on) { background-color: var(--ds-seg-on-bg, var(--comp-button-secondary-bg-default)) !important; color: var(--text-primary) !important; }
 body.ver-7 .ds-seg > .ds-tab:focus-visible { outline: var(--border-width-strong) solid var(--border-focus); outline-offset: calc(var(--space-2) * -1); }
+/* 구간 전환 항목의 상태 점: 관제 층 고르기 기준(11/19). 지름 6, 항목 오른쪽 위 모서리에 걸침. 색은 뜻대로(로봇 있는 층 파랑, 알림 있는 층 단계 색)
+ *   관제 .map-floor.has-robot::after, 전체 미션 .bld-floor-dot, 안전진단 층 .m2f 의 로봇 점(i) */
+body.ver-7 .ds-seg > .ds-tab { position: relative; overflow: visible !important; }
+body.ver-7 .ds-seg > .ds-tab.has-robot::after,
+body.ver-7 .ds-seg > .ds-tab > .bld-floor-dot,
+body.ver-7 .m2f.ds-seg > .ds-tab > i {
+  content: ""; position: absolute !important; top: calc(var(--space-4) * -1) !important; right: calc(var(--space-4) * -1) !important; left: auto !important; bottom: auto !important;
+  width: 6px !important; height: 6px !important; margin: 0 !important; border-radius: var(--radius-pill) !important; transform: none !important;
+}
+body.ver-7 .ds-seg > .ds-tab.has-robot::after, body.ver-7 .m2f.ds-seg > .ds-tab > i { background-color: var(--status-info-icon) !important; }
 
 /* ==========================================================================
  * 버튼 (v7)
@@ -374,9 +420,8 @@ body.ver-7 dd > a.t-caption[href*="main-v"]:not(.z1):not(.z2),
 body.ver-7 .lk:not(.z1):not(.z2) { display: inline-flex !important; align-items: center !important; box-sizing: border-box !important; height: var(--ds-btn-xs-h) !important; padding: 0 var(--ds-btn-ghost-pad-x) !important; margin: calc(var(--space-2) * -1) calc(var(--ds-btn-ghost-pad-x) * -1) !important; vertical-align: top !important; align-self: center !important; border-radius: var(--ds-btn-radius) !important; }
 body.ver-7 dd > a.t-caption[href*="main-v"]:hover, body.ver-7 .lk:hover { background-color: var(--comp-button-ghost-bg-hover) !important; }
 
-/* ---------- 처리 완료 펼치기 [● 오늘 5건 ⌄]: 점과 꺾쇠가 들어간 글자 버튼 하나처럼 ---------- */
+/* ---------- 처리 완료 펼치기: 아코디언 트리거(머리 줄 어디를 눌러도 접고 펼침, v3-panel.js). 칩 [✓ 오늘 5건] + 칩 밖 꺾쇠 (11/19) ---------- */
 body.ver-7 .done-head { gap: var(--space-4) !important; }
-body.ver-7 .done-head .done-count:not(.z1):not(.z2) { padding-left: var(--ds-btn-ghost-pad-x) !important; padding-right: 0 !important; }
 body.ver-7 .done-head .done-fold:not(.z1):not(.z2):not(.z3):not(.z4) { padding-left: 0 !important; width: auto !important; min-width: 0 !important; margin-left: 0 !important; }
 /* 오래된 순 아이콘 오른쪽 끝을 알림 센터 아이콘 끝에 맞춤 (두 줄의 감싸는 칸 오른쪽 여백이 2 달라서 생긴 차이) */
 body.ver-7 .context-panel .ah-sort-btn { margin-right: calc(var(--space-2) * -1) !important; }

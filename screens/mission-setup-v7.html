@@ -35,9 +35,9 @@
   <link rel="stylesheet" href="../assets/css/v5.css?v=aefc22b4" />
   <!-- v6 전용 규칙 — v5 는 10/30 부로 멈췄다. v6 에서 바꾸는 것은 여기(body.ver-6)에. -->
   <link rel="stylesheet" href="../assets/css/v6.css?v=fbf27a9f" />
-  <link rel="stylesheet" href="../assets/css/v7.css?v=3c2dd96b" />
-  <link rel="stylesheet" href="../assets/css/components-v7.css?v=a5b3ef1e" />
-  <script src="../assets/js/ds-v7.js?v=9fcc3308"></script>
+  <link rel="stylesheet" href="../assets/css/v7.css?v=779a3888" />
+  <link rel="stylesheet" href="../assets/css/components-v7.css?v=b5d493c7" />
+  <script src="../assets/js/ds-v7.js?v=53a732a2"></script>
   <!-- [10/29] v5 지도(map-v6.js)가 그리는 설비 이름표 · 충전 스테이션 · 번호 핀 꼴 — 메인과 같다 -->
   <link rel="stylesheet" href="../assets/css/route-rules.css?v=1301c827" />
   <style>
@@ -178,11 +178,11 @@
           <div class="dropdown-menu signal-menu" role="menu" aria-label="통신 상태" hidden>
             <div class="menu-item" role="menuitem">
               <span class="t-label-2">AI Server</span>
-              <span class="badge badge-normal t-caption"><span class="badge-dot"></span>Online</span>
+              <span class="badge badge-normal t-caption ds-badge is-plain is-safe ds-i-dot"><span class="badge-dot"></span>Online</span>
             </div>
             <div class="menu-item" role="menuitem">
               <span class="t-label-2">DB server</span>
-              <span class="badge badge-normal t-caption"><span class="badge-dot"></span>Online</span>
+              <span class="badge badge-normal t-caption ds-badge is-plain is-safe ds-i-dot"><span class="badge-dot"></span>Online</span>
             </div>
             <div class="menu-item" role="menuitem">
               <span class="t-label-2">Network</span>
@@ -360,7 +360,7 @@
               <div class="precheck-list" data-sian-precheck>
                 <div class="precheck-head">
                   <span class="label">점검 항목</span>
-                  <span class="tag-running" data-precheck-tag>Running</span>
+                  <span class="tag-running ds-badge is-plain is-info ds-i-play" data-precheck-tag>Running</span>
                 </div>
                 <div class="precheck-row is-running is-active" data-precheck-row data-done-meta="4s">
                   <span class="i i-20" aria-hidden="true"></span>
@@ -569,7 +569,7 @@
                                       <p class="robot-counts t-caption">
                                         <span class="i i-16" style="--i:var(--ic-bot)" aria-hidden="true"></span>
                                         <span>11대 연결</span>
-                                        <span class="badge badge-info t-caption"><span class="badge-dot"></span>3대 수행중</span>
+                                        <span class="badge badge-info t-caption ds-badge is-plain is-info ds-i-play"><span class="badge-dot"></span>3대 수행중</span>
                                       </p>
                                       <button type="button" class="btn btn-ghost" data-modal-open="robots" data-robot-more>로봇 더보기</button>
                                     </div>
@@ -633,7 +633,7 @@
                         <span class="robot-lists">
                           <span class="robot-row">
                             <span class="t-caption">Mission</span>
-                            <span class="badge badge-info t-caption"><span class="badge-dot"></span>수행중</span>
+                            <span class="badge badge-info t-caption ds-badge is-plain is-info ds-i-play"><span class="badge-dot"></span>수행중</span>
                           </span>
                           <span class="robot-row">
                             <span class="t-caption">Battery</span>
@@ -729,7 +729,7 @@
                         <span class="robot-lists">
                           <span class="robot-row">
                             <span class="t-caption">Mission</span>
-                            <span class="badge badge-normal t-caption"><span class="badge-dot"></span>완료</span>
+                            <span class="badge badge-normal t-caption ds-badge is-plain is-neutral ds-i-check"><span class="badge-dot"></span>완료</span>
                           </span>
                           <span class="robot-row">
                             <span class="t-caption">Battery</span>
@@ -761,7 +761,7 @@
                         <span class="robot-lists">
                           <span class="robot-row">
                             <span class="t-caption">Mission</span>
-                            <span class="badge badge-info t-caption"><span class="badge-dot"></span>수행중</span>
+                            <span class="badge badge-info t-caption ds-badge is-plain is-info ds-i-play"><span class="badge-dot"></span>수행중</span>
                           </span>
                           <span class="robot-row">
                             <span class="t-caption">Battery</span>
@@ -826,7 +826,7 @@
                         <span class="robot-lists">
                           <span class="robot-row">
                             <span class="t-caption">Mission</span>
-                            <span class="badge badge-normal t-caption"><span class="badge-dot"></span>완료</span>
+                            <span class="badge badge-normal t-caption ds-badge is-plain is-neutral ds-i-check"><span class="badge-dot"></span>완료</span>
                           </span>
                           <span class="robot-row">
                             <span class="t-caption">Battery</span>
@@ -891,7 +891,7 @@
                         <span class="robot-lists">
                           <span class="robot-row">
                             <span class="t-caption">Mission</span>
-                            <span class="badge badge-normal t-caption"><span class="badge-dot"></span>완료</span>
+                            <span class="badge badge-normal t-caption ds-badge is-plain is-neutral ds-i-check"><span class="badge-dot"></span>완료</span>
                           </span>
                           <span class="robot-row">
                             <span class="t-caption">Battery</span>
@@ -923,7 +923,7 @@
                         <span class="robot-lists">
                           <span class="robot-row">
                             <span class="t-caption">Mission</span>
-                            <span class="badge badge-danger t-caption"><span class="badge-dot"></span>끊김</span>
+                            <span class="badge badge-danger t-caption ds-badge is-plain is-crit ds-i-power"><span class="badge-dot"></span>끊김</span>
                           </span>
                           <span class="robot-row">
                             <span class="t-caption">Battery</span>
@@ -955,7 +955,7 @@
                         <span class="robot-lists">
                           <span class="robot-row">
                             <span class="t-caption">Mission</span>
-                            <span class="badge badge-info t-caption"><span class="badge-dot"></span>수행중</span>
+                            <span class="badge badge-info t-caption ds-badge is-plain is-info ds-i-play"><span class="badge-dot"></span>수행중</span>
                           </span>
                           <span class="robot-row">
                             <span class="t-caption">Battery</span>
@@ -1280,7 +1280,7 @@
             <span class="robot-lists">
               <span class="robot-row">
                 <span class="t-caption">Mission</span>
-                <span class="badge badge-info t-caption"><span class="badge-dot"></span>수행중</span>
+                <span class="badge badge-info t-caption ds-badge is-plain is-info ds-i-play"><span class="badge-dot"></span>수행중</span>
               </span>
               <span class="robot-row">
                 <span class="t-caption">Battery</span>
@@ -1378,7 +1378,7 @@
             <span class="robot-lists">
               <span class="robot-row">
                 <span class="t-caption">Mission</span>
-                <span class="badge badge-normal t-caption"><span class="badge-dot"></span>완료</span>
+                <span class="badge badge-normal t-caption ds-badge is-plain is-neutral ds-i-check"><span class="badge-dot"></span>완료</span>
               </span>
               <span class="robot-row">
                 <span class="t-caption">Battery</span>
@@ -1410,7 +1410,7 @@
             <span class="robot-lists">
               <span class="robot-row">
                 <span class="t-caption">Mission</span>
-                <span class="badge badge-info t-caption"><span class="badge-dot"></span>수행중</span>
+                <span class="badge badge-info t-caption ds-badge is-plain is-info ds-i-play"><span class="badge-dot"></span>수행중</span>
               </span>
               <span class="robot-row">
                 <span class="t-caption">Battery</span>
@@ -1475,7 +1475,7 @@
             <span class="robot-lists">
               <span class="robot-row">
                 <span class="t-caption">Mission</span>
-                <span class="badge badge-normal t-caption"><span class="badge-dot"></span>완료</span>
+                <span class="badge badge-normal t-caption ds-badge is-plain is-neutral ds-i-check"><span class="badge-dot"></span>완료</span>
               </span>
               <span class="robot-row">
                 <span class="t-caption">Battery</span>
@@ -1540,7 +1540,7 @@
             <span class="robot-lists">
               <span class="robot-row">
                 <span class="t-caption">Mission</span>
-                <span class="badge badge-normal t-caption"><span class="badge-dot"></span>완료</span>
+                <span class="badge badge-normal t-caption ds-badge is-plain is-neutral ds-i-check"><span class="badge-dot"></span>완료</span>
               </span>
               <span class="robot-row">
                 <span class="t-caption">Battery</span>
@@ -1572,7 +1572,7 @@
             <span class="robot-lists">
               <span class="robot-row">
                 <span class="t-caption">Mission</span>
-                <span class="badge badge-danger t-caption"><span class="badge-dot"></span>끊김</span>
+                <span class="badge badge-danger t-caption ds-badge is-plain is-crit ds-i-power"><span class="badge-dot"></span>끊김</span>
               </span>
               <span class="robot-row">
                 <span class="t-caption">Battery</span>
@@ -1604,7 +1604,7 @@
             <span class="robot-lists">
               <span class="robot-row">
                 <span class="t-caption">Mission</span>
-                <span class="badge badge-info t-caption"><span class="badge-dot"></span>수행중</span>
+                <span class="badge badge-info t-caption ds-badge is-plain is-info ds-i-play"><span class="badge-dot"></span>수행중</span>
               </span>
               <span class="robot-row">
                 <span class="t-caption">Battery</span>
@@ -1673,16 +1673,16 @@
 
 <script src="../assets/js/theme.js?v=c86093d9"></script>
 <script src="../assets/js/prism-orb.js?v=4b220825"></script>
-<script src="../assets/js/screen.js?v=0944fa2a"></script>
+<script src="../assets/js/screen.js?v=bd06b2e8"></script>
 <script src="../assets/js/map-model.js?v=0f88c871"></script>
 <!-- [10/29] v5 지도(map-v6.js) — 라이트 단계 톤 지도 · 바닥 표식 · 바닥 띠 경로를 메인과 같게. map.js 는 v3 · v4 가 쓴다 -->
 <script src="../assets/js/map-fx-v6.js?v=05546ef0"></script>
-<script src="../assets/js/map-v6.js?v=63783df7"></script>
+<script src="../assets/js/map-v6.js?v=5fc31888"></script>
 <script src="../assets/js/count-up-v7.js?v=5c25113e"></script>
 <script src="../assets/js/robot-spot.js?v=2a3061e4"></script>
-<script src="../assets/js/sian.js?v=8caef8ce"></script>
+<script src="../assets/js/sian.js?v=fb191fd4"></script>
 <!-- 미션 설정 — 점검항목 · 순서 · 로봇이 소요시간과 배터리를 움직인다. screen.js 뒤에 온다. -->
-<script src="../assets/js/mission-setup.js?v=d4fe220d"></script>
+<script src="../assets/js/mission-setup.js?v=17a9a526"></script>
 <script src="../assets/js/grid-overlay.js?v=164e4f2a"></script>
 <script src="../assets/js/setup-tabs-v6.js?v=80c5889a"></script>
 </body>

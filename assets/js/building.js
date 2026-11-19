@@ -243,7 +243,7 @@
     [["critical", "위험"], ["warning", "주의"]].forEach(function (k) {
       var n = list.filter(function (a) { return a.sev === k[0]; }).length;
       if (!n) { return; }
-      var one = el("span", "bld-sev");
+      var one = el("span", "bld-sev" + (document.body.classList.contains("ver-7") ? " ds-badge is-plain is-" + (k[0] === "critical" ? "crit" : "warn") : ""));   // [11/19 v7] 건수 태그: 점 → 삼각형
       one.setAttribute("data-sev", k[0]);
       one.appendChild(el("span", "bld-sev-dot"));
       one.appendChild(document.createTextNode(k[1] + " " + n));
@@ -341,7 +341,7 @@
         }
         item.appendChild(name);
         var fl = el("span", "scope-floors");
-        MISSION_FLOORS[m].forEach(function (f) { fl.appendChild(el("span", "floor-tag num", f)); });
+        MISSION_FLOORS[m].forEach(function (f) { fl.appendChild(el("span", "floor-tag num" + (document.body.classList.contains("ver-7") ? " ds-floor" : ""), f)); });
         item.appendChild(fl);
         item.appendChild(el("span", "scope-robots num", ROBOTS.filter(function (r) { return r.mission === m; })
           .map(function (r) { return (r.n < 10 ? "0" : "") + r.n; }).join(" · ")));
@@ -396,12 +396,12 @@
     title.appendChild(tm);
 
     var where = el("span", "ah-where t-caption");
-    where.appendChild(el("span", "floor-tag num", a.floor));   // 층 꼬리표는 웨이포인트 이름 앞(10/19)
+    where.appendChild(el("span", "floor-tag num" + (document.body.classList.contains("ver-7") ? " ds-floor" : ""), a.floor));   // 층 꼬리표는 웨이포인트 이름 앞(10/19)
     // [11/10 v7 디자이너 · UT 개선 사용성 1b] 층 꼬리표와 지점 이름 사이에 웨이포인트 번호 원(기본 지점 모양 — 지도 팝오버 .mbt-pin.is-plain 과 같다).
     //   목록 · 지도 · 우측 지점 목록이 같은 번호로 이어진다(UT P01 "목록에도 지도처럼 번호를"). 단계색은 앞 아이콘 · 왼쪽 띠가 말하므로 번호는 기본색
     var wpNo = document.body.classList.contains("ver-7") && /WP-(\d+)/.exec((a.wp || "") + " " + (a.where || ""));
     if (wpNo) {
-      var wpPin = el("span", "mbt-pin is-plain ah-wp-pin");
+      var wpPin = el("span", "mbt-pin is-plain ah-wp-pin" + (document.body.classList.contains("ver-7") ? " ds-wp is-s" : ""));   // [11/19 v7] WP 번호 원 16
       wpPin.setAttribute("data-n", String(parseInt(wpNo[1], 10)));
       wpPin.setAttribute("role", "img");
       wpPin.setAttribute("aria-label", "WP-" + wpNo[1]);
@@ -646,7 +646,7 @@
       side.appendChild(row);
     }
     var b = BADGE[r.st];
-    var st = el("span", "bld-rc-badge is-" + ST_TONE[r.st]);
+    var st = el("span", "bld-rc-badge is-" + ST_TONE[r.st] + (document.body.classList.contains("ver-7") && window.ds ? " " + window.ds.statusCls(r.st) : ""));   // [11/19 v7] 공통 CSS 태그
     st.appendChild(el("i"));
     st.appendChild(el("span", null, b.text));
     line("Mission", st);
@@ -713,7 +713,7 @@
     // Mission · Battery · Signal 과 같은 차례 · 같은 부품이다. 머리 오른쪽에 두면 이름 · 미션명이 길 때 겹쳤다.
     var vit = el("span", "bld-rc2-vitals");
     var b = BADGE[r.st];
-    var st = el("span", "bld-rc2-cell bld-rc-badge is-" + ST_TONE[r.st]);
+    var st = el("span", "bld-rc2-cell bld-rc-badge is-" + ST_TONE[r.st] + (document.body.classList.contains("ver-7") && window.ds ? " " + window.ds.statusCls(r.st) : ""));   // [11/19 v7] 공통 CSS 태그
     st.appendChild(el("i"));
     st.appendChild(el("span", null, b.text));
     vit.appendChild(st);
@@ -828,7 +828,7 @@
     var foot = el("span", "bld-robot-foot");
     // 상태
     var b = BADGE[r.st];
-    var st = chip("badge " + b.cls);
+    var st = chip("badge " + b.cls + (document.body.classList.contains("ver-7") && window.ds ? " " + window.ds.statusCls(r.st) : ""));   // [11/19 v7] 공통 CSS 태그
     st.appendChild(el("span", "badge-dot"));
     st.appendChild(el("span", "t-caption", b.text));
     foot.appendChild(st);
@@ -1728,7 +1728,7 @@
       var b = el("span", "bld-bot is-" + r.st);
       b.setAttribute("aria-hidden", "true");
       b.appendChild(el("i"));
-      b.appendChild(el("span", "bld-bot-name num", (r.n < 10 ? "0" : "") + r.n));
+      b.appendChild(el("span", "bld-bot-name num" + (document.body.classList.contains("ver-7") ? " ds-badge is-neutral is-num is-onmap" : ""), (r.n < 10 ? "0" : "") + r.n));   // [11/19 v7] 로봇 번호 배지(색은 지금 그대로)
       // v3 — 로봇 위 미션 이름 말풍선(10/21 디자이너). 층을 펼쳤을 때 · 줄에 손을 얹었을 때만 보인다(v3.css).
       // 말풍선을 누르면 그 미션으로, 로봇이 선 층 그대로 들어간다(10/21).
       if (V3 && r.mission) {

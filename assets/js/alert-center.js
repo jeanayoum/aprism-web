@@ -441,7 +441,7 @@
   // 위치 조각 — v6 는 관제 최신 알림처럼 층 꼬리표 + WP + 설비 이름.
   //   [11/05 논의] 측정 채널(CH1)은 목록 줄에서 뺐다(관제 최신 알림과 같게) — 채널은 상세가 말한다. 예전: 끝에 '· ' + chOf(a)
   function placeHtml(a, placeCls) {
-    return (V6 && a.floor ? '<span class="floor-tag">' + esc(a.floor) + '</span>' : "") +
+    return (V6 && a.floor ? '<span class="floor-tag' + (document.body.classList.contains("ver-7") ? " ds-floor" : "") + '">' + esc(a.floor) + '</span>' : "") +
       '<span class="ac-wp ac-mono-label">' + esc(a.wp) + '</span>' +
       '<span class="' + placeCls + ' t-body-4">' + esc(a.place) + '</span>';
   }
@@ -468,8 +468,10 @@
           '<span class="ac-dc-act t-caption">' + esc(d.picked.join(", ")) + '</span>' +
         '</span>' +
         '<span class="ac-dc-sev t-caption" role="gridcell">' +
-          '<span class="ac-sev-dot" aria-hidden="true"></span>' +
-          '<span>' + SEV_LABEL[a.sev] + " " + esc(shortTime(a.time)) + '</span>' +
+          (document.body.classList.contains("ver-7") && window.ds   // [11/19 v7] 태그 [▲ 주의] + 시각 (공통 CSS)
+            ? window.ds.badgeRow(window.ds.badge(a.sev === "critical" ? "crit" : "warn", SEV_LABEL[a.sev], { plain: true }), esc(shortTime(a.time)))
+            : '<span class="ac-sev-dot" aria-hidden="true"></span>' +
+              '<span>' + SEV_LABEL[a.sev] + " " + esc(shortTime(a.time)) + '</span>') +
         '</span>' +
         '<span class="ac-dc-who t-caption" role="gridcell">' + esc(d.by) + '</span>' +
       '</div>';
@@ -679,7 +681,7 @@
   }
 
   function sevBadge(a, prefix) {
-    return '<span class="verdict-chip ' + (a.sev === "warning" ? "is-warn" : "is-crit") + '">' +
+    return '<span class="verdict-chip ' + (document.body.classList.contains("ver-7") ? "ds-badge " : "") + (a.sev === "warning" ? "is-warn" : "is-crit") + '">' +
       // 단계 칩의 표식은 점이 아니라 기호 — 위험 ⓧ · 주의 △(10/20 디자이너, 지도 알림 팝오버와 같다). 점은 상태에만 쓴다.
       prefix + SEV_LABEL[a.sev] + '</span>';
   }
@@ -878,7 +880,7 @@
       return '<button type="button" class="ma-check" role="checkbox" data-act="' + esc(c.t) + '" aria-checked="' + (on ? "true" : "false") + '">' +
         '<span class="ma-check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>' +
         '<span class="ma-check-label">' + esc(c.t) + '</span>' +
-        (c.delta ? '<span class="ma-check-tag">AI 추천</span>' : "") +
+        (c.delta ? '<span class="ma-check-tag' + (document.body.classList.contains("ver-7") ? " ds-badge is-neutral ds-i-delta" : "") + '">AI 추천</span>' : "") +
       '</button>';
     }).join("");
     return '<section class="ac-dl is-light-scope is-dark-scope" aria-labelledby="ac-dl-label">' +

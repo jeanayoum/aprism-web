@@ -112,7 +112,7 @@
     // [11/06] 지도 핀 머리와 같은 단계 색 원(핀 대는 없음) — sev 가 없으면 예전 어두운 원
     wp: function (n, sev) {
       var w = document.createElement("span");
-      w.className = "dl-wp";
+      w.className = "dl-wp" + (document.body.classList.contains("ver-7") ? " ds-wp" : "");   // [11/19 v7] WP 번호 원 20
       if (sev) { w.setAttribute("data-sev", sev); }
       w.textContent = n;
       w.setAttribute("aria-label", "waypoint " + n);

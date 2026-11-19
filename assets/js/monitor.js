@@ -612,12 +612,12 @@
     // v2.2 — 위치 줄 앞 표적 아이콘은 뺐다(10/19 디자이너). 층 꼬리표가 이미 "위치" 신호다.
     if (!scoped) { where.appendChild(icon("target")); }
     // v2.2 — 층 꼬리표는 웨이포인트 이름 앞(10/19 디자이너). 미션이 여러 층을 지나므로 줄마다 층을 말한다.
-    if (scoped && a.floor) { where.appendChild(el("span", "floor-tag num", a.floor)); }
+    if (scoped && a.floor) { where.appendChild(el("span", "floor-tag num" + (document.body.classList.contains("ver-7") ? " ds-floor" : ""), a.floor)); }
     // [11/10 v7 디자이너 · UT 개선 사용성 1b] 층 꼬리표와 지점 이름 사이에 웨이포인트 번호 원(기본 지점 모양 — 지도 팝오버 .mbt-pin.is-plain 과 같다).
     //   목록 · 지도 · 우측 지점 목록이 같은 번호로 이어진다(UT P01 "목록에도 지도처럼 번호를"). 단계색은 앞 아이콘 · 왼쪽 띠가 말하므로 번호는 기본색
     var wpNo = scoped && document.body.classList.contains("ver-7") && /WP-(\d+)/.exec((a.wp || "") + " " + (a.where || ""));
     if (wpNo) {
-      var wpPin = el("span", "mbt-pin is-plain ah-wp-pin");
+      var wpPin = el("span", "mbt-pin is-plain ah-wp-pin" + (document.body.classList.contains("ver-7") ? " ds-wp is-s" : ""));   // [11/19 v7] WP 번호 원 16
       wpPin.setAttribute("data-n", String(parseInt(wpNo[1], 10)));
       wpPin.setAttribute("role", "img");
       wpPin.setAttribute("aria-label", "WP-" + wpNo[1]);
@@ -1188,7 +1188,7 @@
         if (where6.indexOf(a.wp) === 0) { where6 = where6.slice(a.wp.length).trim(); }
         stamp.textContent = "";
         stamp.classList.add("ma-stamp6");
-        var pin6 = document.createElement("span"); pin6.className = "mbt-pin"; pin6.setAttribute("data-n", isNaN(wn) ? "" : String(wn));
+        var pin6 = document.createElement("span"); pin6.className = "mbt-pin" + (document.body.classList.contains("ver-7") ? " ds-wp is-s" : ""); pin6.setAttribute("data-n", isNaN(wn) ? "" : String(wn));
         pin6.setAttribute("role", "img"); pin6.setAttribute("aria-label", a.wp);
         // [11/06 디자이너] 번호 원은 세 팝오버 · Delta 와 같은 꼴(지도 핀 색, 16px · 1px 테 — v6.css .mbt-pin). 지도 핀이 없으면(다른 층) 회색 기본 꼴
         if (ph) { pin6.setAttribute("style", ph.getAttribute("style") || ""); } else { pin6.classList.add("is-plain"); }
@@ -1253,7 +1253,7 @@
           boxEl.appendChild(mark);
           row.appendChild(boxEl);
           row.appendChild(el("span", "ma-check-label", act.t));
-          if (act.ai) { row.appendChild(el("span", "ma-check-tag", "AI 추천")); }
+          if (act.ai) { row.appendChild(el("span", "ma-check-tag" + (document.body.classList.contains("ver-7") ? " ds-badge is-neutral ds-i-delta" : ""), "AI 추천")); }   // [11/19 v7] 출처 배지 A안
           options.appendChild(row);
         });
         memoReset();

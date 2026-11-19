@@ -133,7 +133,7 @@
     const tm = {wait:R.t, work:cur > 0 ? R.t2 : '', done:cur > 1 ? R.t3 : ''};
     const steps = ord.map((s, n) => `<li class="${n < cur ? 'is-past' : n === cur ? 'is-now' : ''}"${n === cur ? ' aria-current="step"' : ''}><i aria-hidden="true"></i><div><b>${RQ_WORD[s]}</b><span>${sub[s]}</span></div><time>${tm[s]}</time></li>`).join('');
     return `<div class="dl is-light-scope is-dark-scope is-sent"><div class="hh"><span><span class="dlogo" aria-hidden="true"></span>DELTA 조치 제안</span></div><div class="ti">${sug[0]}</div>
-        <div class="cks">${sug[1].map(([l, a2, to]) => `<label class="c1x"><input type="checkbox" disabled ${R.acts.includes(l) ? 'checked' : ''}><span><b>${l}</b><small>${to}</small></span>${a2 ? '<em class="ma-check-tag">AI 추천</em>' : ''}</label>`).join('')}</div>
+        <div class="cks">${sug[1].map(([l, a2, to]) => `<label class="c1x"><input type="checkbox" disabled ${R.acts.includes(l) ? 'checked' : ''}><span><b>${l}</b><small>${to}</small></span>${a2 ? (V7 ? '<em class="ma-check-tag ds-badge is-neutral ds-i-delta">AI 추천</em>' : '<em class="ma-check-tag">AI 추천</em>') : ''}</label>`).join('')}</div>
         ${R.memo ? `<span class="mm">메모</span><p class="fd rq-memo">${R.memo.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'})[c])}</p>` : ''}</div>
       <button type="button" class="btn btn-accent rqx" disabled><span class="i i-16" style="--i:var(--ic-check)" aria-hidden="true"></span>${R.t} ${S7 ? '요청됨' : '요청 전송됨'}</button>
       <section class="rqp" aria-label="조치 진행"><div class="rqp-h"><b>조치 진행</b><span class="badge badge-mode ${RQ_BADGE[R.st]} rqp-b"><span class="badge-dot"></span>${RQ_WORD[R.st]}</span></div>
@@ -276,7 +276,7 @@
      * 연관 감지는 근거가 있을 때만 카드를 둔다(아래 dBc).
      */
     const tSplit = t => { const i = t.lastIndexOf(' '); return i < 0 ? t : `<span class="hdt">${t.slice(0, i)}</span><span class="htm">${t.slice(i + 1)}</span>`; };   // 날짜 | 시각 — 시각이 줄마다 같은 선에
-    const hiRow = ([t, val, s2, a], n) => `<div class="hi ${n===3 ? 'now' : ''}"><span class="t">${V6 ? tSplit(t) : t}</span><span>${val}</span><span class="verdict-chip is-${s2}">${WORD[s2]}</span><span class="hia ${a && a !== '조치 없음' ? 'on' : ''}">${a}</span></div>`;
+    const hiRow = ([t, val, s2, a], n) => `<div class="hi ${n===3 ? 'now' : ''}"><span class="t">${V6 ? tSplit(t) : t}</span><span>${val}</span><span class="verdict-chip${V7 ? ' ds-badge' : ''} is-${s2}">${WORD[s2]}</span><span class="hia ${a && a !== '조치 없음' ? 'on' : ''}">${a}</span></div>`;
     const rep3 = hist.slice(0, 3).some(h => h[2] !== 'ok');
     const histHtml = !V6 || rep3 ? `${V6 ? '<p class="hsum is-rep"><b>반복</b> 지난 순회에서도 기준을 넘었음</p>' : ''}<div class="hist">${hist.map(hiRow).join('')}</div>`
       : `<p class="hsum"><b>${isHit ? '처음 넘음' : '계속 정상 범위'}</b></p><div class="hist">${hiRow(hist[3], 3)}</div>
@@ -285,16 +285,16 @@
     const sug = SG;
     const side = !isHit ? `<div class="donec"><b>${st==='plan' ? '아직 측정 전' : '조치 필요 없음'}</b><span>${st==='plan' ? '로봇이 도착하면 결과가 표시됨' : '정상 범위의 측정값'}</span></div>` : st==='done' ? `<div class="donec"><b>${x[4] || '10:17'} ${RQ_DONE}</b><span>재측정에서 다시 넘으면 다시 표시</span></div>`
       : `<div class="dl${V6 ? ' is-light-scope is-dark-scope' : ''}"><div class="hh"><span><span class="dlogo" aria-hidden="true"></span>DELTA 조치 제안</span>${V7 ? "" : "<span>오탐 가능성 <b>낮음</b></span>"}</div><div class="ti">${sug[0]}</div>
-        <div class="cks">${sug[1].map(([l, a2, to]) => `<label class="c1x"><input type="checkbox" ${a2 ? 'checked' : ''}><span><b>${l}</b><small>${to}</small></span>${a2 ? (V6 ? '<em class="ma-check-tag">AI 추천</em>' : '<em class="badge badge-mode badge-info t-caption">AI 추천</em>') : ''}</label>`).join('')}</div>
+        <div class="cks">${sug[1].map(([l, a2, to]) => `<label class="c1x"><input type="checkbox" ${a2 ? 'checked' : ''}><span><b>${l}</b><small>${to}</small></span>${a2 ? (V6 ? (V7 ? '<em class="ma-check-tag ds-badge is-neutral ds-i-delta">AI 추천</em>' : '<em class="ma-check-tag">AI 추천</em>') : '<em class="badge badge-mode badge-info t-caption">AI 추천</em>') : ''}</label>`).join('')}</div>
         <label class="mm" for="sfMemo">메모 (선택)</label><textarea class="fd" id="sfMemo" rows="2" placeholder="현장에 전달할 내용"></textarea></div><button type="button" class="btn btn-accent rqx" data-req="1">${RQ_BTN}</button>`;
     const step = q => `<div class="sth"><b>${q}</b></div>`;   // [v5 점검] 번호 원을 뺐다 — 배치가 동시에 보는 격자라 순서를 강요하지 않는다(위계는 판 밝기가 말한다)
     const lks = (LINKS[dt.mi] || []).filter(l => l[0]===k || l[1]===k).map(l => { const k2 = l[0]===k ? l[1] : l[0], y = m.r[k2]; return y && (y[0]==='crit' || y[0]==='warn') ? {k2, y, w2:y[2].split(' ')[0], role:l[0]===k ? '영향 후보' : '원인 후보', why:l[2], p:l[3]} : null; }).filter(Boolean);
     const rest = rel.filter(k2 => !lks.some(l => l.k2===k2));
     // [11/02 v6] 연관 감지 줄 — 한 줄에 다섯 덩어리가 이어져 어색했다(디자이너). 덩어리를 둘로 가른다:
     //   왼쪽 = 그 감지(단계 배지 · 감지 이름 + 지점 · 값), 오른쪽 = 이 판정과의 관계(원인/영향 후보 · 가능성). 근거 문장은 아래 줄
-    const lkRow = V6 ? (l => `<button type="button" class="rlx lk" data-dk="${l.k2}" data-dw="${l.w2}" data-rel="1"><span class="rlt"><span class="rlw"><span class="verdict-chip is-${l.y[0]}">${WORD[l.y[0]]}</span><b>${l.k2}</b>${V7 ? `<span class="rmi" title="${m.mis}">같은 미션</span>` : `<span class="rwv"><span class="rwp">${l.w2}</span><span class="rv">${SHORT[l.y[1]] || l.y[1]}</span></span>`}</span><span class="rlr"><em class="rr r0">${l.role}</em><small class="lp">가능성 ${l.p}</small></span></span><span class="rwhy">${l.why}</span></button>`)
-      : (l => `<button type="button" class="rlx lk" data-dk="${l.k2}" data-dw="${l.w2}" data-rel="1"><span class="rlt"><span class="verdict-chip is-${l.y[0]}">${WORD[l.y[0]]}</span><b>${l.k2}</b><span>${l.w2}</span><em class="rr r0">${l.role}</em><small class="lp">가능성 ${l.p}</small><span class="t">${SHORT[l.y[1]] || l.y[1]}</span></span><span class="rwhy">${l.why}</span></button>`);
-    const restRow = k2 => { const y = m.r[k2], w2 = y[2].split(' ')[0]; return `<button type="button" class="rlx" data-dk="${k2}" data-dw="${w2}" data-rel="1"><span class="verdict-chip is-${y[0]}">${WORD[y[0]]}</span><b>${k2}</b><span>${w2}</span><span class="t">${SHORT[y[1]] || y[1]}</span></button>`; };
+    const lkRow = V6 ? (l => `<button type="button" class="rlx lk" data-dk="${l.k2}" data-dw="${l.w2}" data-rel="1"><span class="rlt"><span class="rlw"><span class="verdict-chip${V7 ? ' ds-badge' : ''} is-${l.y[0]}">${WORD[l.y[0]]}</span><b>${l.k2}</b>${V7 ? `<span class="rmi" title="${m.mis}">같은 미션</span>` : `<span class="rwv"><span class="rwp">${l.w2}</span><span class="rv">${SHORT[l.y[1]] || l.y[1]}</span></span>`}</span><span class="rlr"><em class="rr r0">${l.role}</em><small class="lp">가능성 ${l.p}</small></span></span><span class="rwhy">${l.why}</span></button>`)
+      : (l => `<button type="button" class="rlx lk" data-dk="${l.k2}" data-dw="${l.w2}" data-rel="1"><span class="rlt"><span class="verdict-chip${V7 ? ' ds-badge' : ''} is-${l.y[0]}">${WORD[l.y[0]]}</span><b>${l.k2}</b><span>${l.w2}</span><em class="rr r0">${l.role}</em><small class="lp">가능성 ${l.p}</small><span class="t">${SHORT[l.y[1]] || l.y[1]}</span></span><span class="rwhy">${l.why}</span></button>`);
+    const restRow = k2 => { const y = m.r[k2], w2 = y[2].split(' ')[0]; return `<button type="button" class="rlx" data-dk="${k2}" data-dw="${w2}" data-rel="1"><span class="verdict-chip${V7 ? ' ds-badge' : ''} is-${y[0]}">${WORD[y[0]]}</span><b>${k2}</b><span>${w2}</span><span class="t">${SHORT[y[1]] || y[1]}</span></button>`; };
     const relB = (lks.length ? `<div class="rl b">${lks.map(lkRow).join('')}</div>` : '<span class="why1">연관 근거가 있는 감지 없음</span>');
     const relHead = `<div class="sth"><b>연관 감지</b><span class="qt" tabindex="0" role="button" aria-label="연관 감지 설명">?<span class="tip" role="tooltip">DELTA가 같은 계통 정보와 함께 움직이는 감지 짝으로 고른 연관 후보다. 확정된 원인이 아니라 판단을 돕는 참고용 가설이다. 시안의 계통 정보는 예시 값이다.</span></span></div>`;
     dt.wp = wp; dt.lk = lks.map(l => l.w2);   // 왼쪽 패널 지도가 이 지점과 연관 지점을 표시한다(sideHtml)
@@ -365,12 +365,12 @@
     const RQ = V7 && isHit && st !== 'done' ? REQ[dt.mi + '|' + k + '|' + wp] : null;
     // [11/10 v7] 넘은 지점이 둘 이상이면(목록 카드 '위험 1 외 1곳') 판정 카드 머리 오른쪽에 지점 고르기 — 상세가 한 곳만 보여 나머지를 찾을 수 없었다
     const spots = V7 && its.length > 1 ? `<div class="jsp" role="group" aria-label="기준을 넘은 지점 ${its.length}곳">${its.map(it => { const w2 = wpOf(it), on = w2===wp, R2 = REQ[dt.mi + '|' + k + '|' + w2];
-      return `<button type="button" class="jsp-b${on ? ' on' : ''}" data-dk="${k}" data-dw="${w2}" aria-pressed="${on}">${R2 ? rqBadge(R2) : `<span class="verdict-chip is-${it[0]}">${WORD[it[0]]}</span>`}<b>${w2}</b><span>${it[2].split(' ').slice(1).join(' ')}</span></button>`; }).join('')}</div>` : '';
+      return `<button type="button" class="jsp-b${on ? ' on' : ''}" data-dk="${k}" data-dw="${w2}" aria-pressed="${on}">${R2 ? rqBadge(R2) : `<span class="verdict-chip${V7 ? ' ds-badge' : ''} is-${it[0]}">${WORD[it[0]]}</span>`}<b>${w2}</b><span>${it[2].split(' ').slice(1).join(' ')}</span></button>`; }).join('')}</div>` : '';
     const actS = RQ ? RQ_WORD[RQ.st] : !isHit ? (st==='plan' ? '—' : '필요 없음') : st==='done' || x[4] ? `${x[4] || '10:17'} 요청됨` : '요청 전';   // 요청 시각은 x[4](data-req 가 적는다)
     const jinfo = [['발생위치', `${wp}${isHit ? ' ' + x[2].split(' ').slice(1).join(' ') : ''}`, ''], [isHit ? '발생시간' : '측정 시간', x[3] || '—', ''], ['조치 상태', actS, ''], ['다음 측정', nextM, '']]
       .map(([l, v, c]) => `<div><span>${l}</span><b class="${c}" title="${v}">${v}</b></div>`).join('');
-    const judge = V6 ? `<div class="lvA s1 jx ${st}"><div class="jtop"><div class="jrow">${RQ ? rqBadge(RQ) :`<span class="verdict-chip is-${st}">${WORD[st]}</span>`}${V7 ? '' : `<span class="jk">${k}</span>`}${spots}</div>${jv}</div><div class="jinfo">${jinfo}</div></div>`
-      : `<div class="lvA s1 ${st}">${step('이상 판정')}<div class="tt"><span class="verdict-chip is-${st}">${WORD[st]}</span><h5>${k}, ${isHit ? x[1] : st==='plan' ? '측정 전' : '정상 범위 ' + x[1]}</h5></div>${loc}${cond}</div>`;
+    const judge = V6 ? `<div class="lvA s1 jx ${st}"><div class="jtop"><div class="jrow">${RQ ? rqBadge(RQ) :`<span class="verdict-chip${V7 ? ' ds-badge' : ''} is-${st}">${WORD[st]}</span>`}${V7 ? '' : `<span class="jk">${k}</span>`}${spots}</div>${jv}</div><div class="jinfo">${jinfo}</div></div>`
+      : `<div class="lvA s1 ${st}">${step('이상 판정')}<div class="tt"><span class="verdict-chip${V7 ? ' ds-badge' : ''} is-${st}">${WORD[st]}</span><h5>${k}, ${isHit ? x[1] : st==='plan' ? '측정 전' : '정상 범위 ' + x[1]}</h5></div>${loc}${cond}</div>`;
     // [11/02 v6] 측정 이력(11/02 "재발 여부" 에서 이름 바꿈 — 관제에서 익숙한 말, 반복 판단은 꼬리표가 한다) — Figma 처럼 네 줄을 다 보이고(줄 32 라 접을 만큼 길지 않다), 결론(처음 넘음 · 반복)은 머리 오른쪽 꼬리표로
     const histV6 = `<div class="sth"><b>측정 이력</b>${V7 ? '' : `<span class="hfl ${rep3 ? 'is-rep' : ''}">${rep3 ? '반복' : isHit ? '처음 넘음' : '계속 정상 범위'}</span>`}</div><div class="hist">${hist.map((h, n) => n===3 && RQ ? hiRow(h, n).replace(/<span class="verdict-chip [^"]*">[^<]*<\/span>/, rqBadge(RQ)).replace(/<span class="hia[^"]*">[^<]*<\/span>/, `<span class="hia on">${rqLine(RQ)}</span>`) : hiRow(h, n)).join('')}</div>`;
     return `<div class="dtop"><button type="button" class="btn btn-secondary bkx" data-dback="1"><span class="i i-16" style="--i:var(--ic-chevron-left)" aria-hidden="true"></span>돌아가기</button><div class="tbs${V7 ? ' ds-tab-chip' : ''}">${tabs}</div></div>
@@ -456,7 +456,7 @@
     const {sp, now, rows} = eData(i);
     const head = `<tr><th class="c-n">감지</th><th>판정</th><th>기준</th>${sp.map(([w, t, r, p]) => `<th class="c-wp ${w===now ? 'now' : ''} ${p ? 'plan' : ''}" data-col="${w}"><b>${w}</b><span>${p ? '예정 ' : ''}${t}</span><span class="rb">${r}</span></th>`).join('')}<th class="c-m dmh"><span class="dlogo"><i></i><i></i><i></i></span>DELTA 메모</th></tr>`;
     const body = rows.map(r => `<tr class="r-${r.s}"><td class="c-n"><span class="bar"></span><b>${r.n}</b><span class="src">${r.src}</span></td>
-      <td><span class="verdict-chip is-${r.s}">${r.s==='na' ? NAW[r.na] : WORD[r.s]}</span></td><td class="c-std">${r.std}</td>
+      <td><span class="verdict-chip${V7 ? ' ds-badge' : ''} is-${r.s}">${r.s==='na' ? NAW[r.na] : WORD[r.s]}</span></td><td class="c-std">${r.std}</td>
       ${sp.map(([w]) => { const v = r.c[w], cls = `c-wp ${w===now ? 'now' : ''}`;
         if(!v) return `<td class="${cls}" data-col="${w}"><i class="nil"></i></td>`;
         if(v[0]==='plan') return `<td class="${cls}" data-col="${w}"><span class="cv plan">예정</span></td>`;
@@ -677,7 +677,7 @@
       }
       const i = scope, m = M[i], h = hits(i);
       const cur = dt && dt.wp ? flOf(m, dt.wp) : viewF(i).cur, sel = dt ? dt.wp : undefined, lk = dt ? dt.lk : undefined;
-      const fl = m.fls && m.fls.length > 1 ? floorBar(i) : `<span class="sfx-fl">${m.ab}</span>`;
+      const fl = m.fls && m.fls.length > 1 ? floorBar(i) : `<span class="sfx-fl${V7 ? ' ds-floor' : ''}">${m.ab}</span>`;
       // [10/30] 층 · [관제에서 보기]는 지도 판 안 위로, 로봇 · 측정 · 요청 전은 판 안 아래 3칸 한 줄로(디자이너)
       const kv3 = (k, v) => `<span class="sfx-kv"><span class="k">${k}</span><span class="v">${v}</span></span>`;
       return `<div class="sfx"><div class="sfx-h"><b class="sfx-t">${m.mis}</b></div>
@@ -703,8 +703,8 @@
     return hit ? hit[0] + ' ' + OKN[k] + ', ' + hit[1] : ''; }
   function cardNA(i, k){ const m = M[i], why = naOf(i, k), md = MD(k, 'ok', i);
     const judged = K.filter(k2 => m.r[k2]).map(k2 => k2.replace('감지', '').replace('인식', '')).join(', ');
-    if(why==='sensor') return `<div class="kd na" data-n="${k}"><div class="rw"><span class="nm">${k}</span><span class="verdict-chip is-na">센서 없음</span></div><div class="big">센서 없음</div><span class="sm">${m.robot}에 ${k==='부분방전' ? 'PD' : k} 센서가 달려 있지 않음</span><div class="md naempty"><span><b>송출할 센서 없음</b>센서를 단 로봇이 순회하면 표시</span></div></div>`;
-    return `<div class="kd na" data-n="${k}"><div class="rw"><span class="nm">${k}</span><span class="verdict-chip is-na">대상 아님</span></div><div class="big">판정하지 않음</div><span class="sm">${m.mis}는 ${judged}만 판정</span><div class="md nadim ${md[0]}">${md[1].replace(/<span class="bx"[^>]*><\/span>/, '')}</div></div>`;
+    if(why==='sensor') return `<div class="kd na" data-n="${k}"><div class="rw"><span class="nm">${k}</span><span class="verdict-chip${V7 ? ' ds-badge' : ''} is-na">센서 없음</span></div><div class="big">센서 없음</div><span class="sm">${m.robot}에 ${k==='부분방전' ? 'PD' : k} 센서가 달려 있지 않음</span><div class="md naempty"><span><b>송출할 센서 없음</b>센서를 단 로봇이 순회하면 표시</span></div></div>`;
+    return `<div class="kd na" data-n="${k}"><div class="rw"><span class="nm">${k}</span><span class="verdict-chip${V7 ? ' ds-badge' : ''} is-na">대상 아님</span></div><div class="big">판정하지 않음</div><span class="sm">${m.mis}는 ${judged}만 판정</span><div class="md nadim ${md[0]}">${md[1].replace(/<span class="bx"[^>]*><\/span>/, '')}</div></div>`;
   }
   function cardM(i, k){
     const m = M[i], x = m.r[k];
@@ -745,7 +745,7 @@
   function cardC(k, x, extra, mi){
     if(!x) return `<div class="kd ok" data-n="${k}"><div class="rw"><span class="nm">${k}</span></div><div class="big">재지 않음</div></div>`;
     const [s, sent, loc, t, rq] = x, md = MD(k, s, mi);
-    if(s==='ok') return `<div class="kd ok" data-n="${k}" tabindex="0" role="button"><div class="rw"><span class="nm">${k}</span><span class="verdict-chip is-ok">정상 범위</span></div><div class="big">정상 범위</div><span class="sm">${loc}</span>${extra || ''}<div class="md ${md[0]}">${md[1].replace(/<span class="bx"[^>]*><\/span>/, '')}</div><span class="more">자세히 보기 →</span></div>`;
+    if(s==='ok') return `<div class="kd ok" data-n="${k}" tabindex="0" role="button"><div class="rw"><span class="nm">${k}</span><span class="verdict-chip${V7 ? ' ds-badge' : ''} is-ok">정상 범위</span></div><div class="big">정상 범위</div><span class="sm">${loc}</span>${extra || ''}<div class="md ${md[0]}">${md[1].replace(/<span class="bx"[^>]*><\/span>/, '')}</div><span class="more">자세히 보기 →</span></div>`;
     /*
      * [11/02 v6] 조치 전 위험 카드 — 테두리가 숨 쉰다(디자이너 "빨리 눌러 조치하라"). 위험이면서 현장 조치 요청 전(rq 없음)만.
      * 요청하면 멈춘다(rq 가 생긴다). 처음 보이는 카드만 두 번 또렷하게(is-new) — 다시 그릴 때마다 되풀이하지 않게 본 카드를 기억한다(KD_SEEN).
@@ -753,7 +753,7 @@
     const todo = V6 && s==='crit' && !rq, seenK = mi + '|' + k, fresh = todo && !KD_SEEN.has(seenK);
     if(todo) KD_SEEN.add(seenK);
     const R = V7 && s !== 'done' ? REQ[mi + '|' + k + '|' + wpOf(x)] : null;   // [11/10 v7] 요청한 감지 — 칩 · 처리 줄을 진행 단계로
-    return `<div class="kd ${s} ${s==='done' ? 'dim' : ''}${todo ? ' is-todo' : ''}${fresh ? ' is-new' : ''}" data-n="${k}" tabindex="0" role="button"><div class="rw"><span class="nm">${k}</span>${R ? rqBadge(R) : `<span class="verdict-chip is-${s}">${WORD[s]}</span>`}</div>
+    return `<div class="kd ${s} ${s==='done' ? 'dim' : ''}${todo ? ' is-todo' : ''}${fresh ? ' is-new' : ''}" data-n="${k}" tabindex="0" role="button"><div class="rw"><span class="nm">${k}</span>${R ? rqBadge(R) : `<span class="verdict-chip${V7 ? ' ds-badge' : ''} is-${s}">${WORD[s]}</span>`}</div>
       <div class="big">${(() => { const r6 = V6 && res6(k, x); return r6 ? `${r6[0]} ${r6[1]}${r6[2] ? `<span class="kdt">${r6[2]}</span>` : ''}` : sent; })()}</div><span class="sm">${loc}, ${t}</span>${R ? `<span class="req">${rqLine(R)}</span>` : rq ? `<span class="req">${rq} ${RQ_DONE}</span>` : ''}${extra || ''}<div class="md ${md[0]}">${md[1]}</div><span class="more">자세히 보기 →</span></div>`;
   }
   function head(title, done, total, n){
@@ -769,7 +769,7 @@
     // 줄 차례도 관제와 같게 — 로봇 번호 순
     const ord = M.map((m, i) => i).sort((x, y) => parseInt(M[x].robot.replace(/\D+/g, '')) - parseInt(M[y].robot.replace(/\D+/g, '')));
     const items = head + ord.map(i => [M[i], i]).map(([m, i]) => { const w = worst(i), on = String(scope)===String(i), sv = SEV[w], run = m.done < m.total ? 'run' : 'done';
-      const fls = (m.fls ? m.fls.map(f => f[0]) : [m.ab]).map(f => `<span class="floor-tag num">${f}</span>`).join('');
+      const fls = (m.fls ? m.fls.map(f => f[0]) : [m.ab]).map(f => `<span class="floor-tag num${V7 ? ' ds-floor' : ''}">${f}</span>`).join('');
       return `<button type="button" class="menu-item scope-item is-${run}" role="menuitemradio" aria-checked="${on}" data-sc="${i}"${i===1 && !newSeen ? ' data-new="1"' : ''}><span class="scope-run" data-run="${run}" title="${run==='run' ? '수행중' : '완료'}"></span><span class="scope-name"><span class="t-label-2">${m.mis}</span>${sv ? `<span class="i i-16 scope-sev" data-sev="${sv[0]}" style="--i:var(--ic-${sv[1]})" title="${sv[2]} 알림 있음"></span>` : ''}${i===1 && !newSeen ? '<em class="nwm">새 위험</em>' : ''}</span><span class="scope-floors">${fls}</span><span class="scope-robots num">${m.robot.replace(/\D+/g, '')}</span></button>`; }).join('');
     return `<button type="button" class="sb-overview t-title-2 ${isAll ? 'is-on' : ''}" data-sc="all">통합 순회 현황</button><span class="status-bar-sep t-title-2" aria-hidden="true">›</span>
       <div class="scope-menu-box"><button type="button" class="scope-trigger" data-menu="1" aria-haspopup="true" aria-expanded="${menu}"><span class="t-title-2">${isAll ? '미션 고르기' : M[scope].mis}</span><span class="i i-16" style="--i:var(--ic-chevron-down)" aria-hidden="true"></span></button><div class="dropdown-menu scope-menu sf-scope" role="menu" aria-label="미션"${menu ? '' : ' hidden'}>${items}</div></div>${dt ? `<span class="status-bar-sep t-title-2" aria-hidden="true">›</span><span class="t-title-2 sf-crumb-k">${dt.k}</span>` : ''}`;
@@ -778,10 +778,10 @@
   // [10/30 GUI · Figma 1494:14581] 카드 꼴 — 미션 전체 · 미션 하나 같은 꼴(.cx). 건수는 단계 배지 안으로(위험 2), 위치 · 시각 두 줄, 현장 조치 요청은 시각 줄 오른쪽.
   // named: 감지 이름 줄을 남긴다(미션 하나 — 감지 열 머리가 없다). 미션 전체는 머리 줄이 감지 이름을 말해 뺀다
   function cardX(h, k, named){
-    let c = h.replace(/<span class="nm">([^<]*)<\/span>(<span class="verdict-chip is-([a-z]+)">([^<]*)<\/span>)?/, (a, t, pl, st, w) => { const mm = t.match(/(\d+)개(?:·(\d+))?/) || [], n = mm[1], sm = mm[2];
+    let c = h.replace(/<span class="nm">([^<]*)<\/span>(<span class="verdict-chip(?: ds-badge)? is-([a-z]+)">([^<]*)<\/span>)?/, (a, t, pl, st, w) => { const mm = t.match(/(\d+)개(?:·(\d+))?/) || [], n = mm[1], sm = mm[2];
       const cnt = sm && +sm < +n ? ' ' + sm + ' 외 ' + (n - sm) + '곳' : n ? ' ' + n : '';   // v6 — 단계가 섞이면 "위험 1 외 1곳"
       // [10/30] 정상 카드는 배지를 뺀다 — 큰 제목이 같은 말(정상 범위)을 한다. 주의 · 위험 · 대상 아님 · 센서 없음은 그대로
-      return '<span class="nm"></span>' + (pl && st !== 'ok' ? `<span class="verdict-chip is-${st}">${w}${cnt}</span>` : ''); });
+      return '<span class="nm"></span>' + (pl && st !== 'ok' ? `<span class="verdict-chip${V7 ? ' ds-badge' : ''} is-${st}">${w}${cnt}</span>` : ''); });
     if(named) c = c.replace('</div>', `</div><span class="knm">${k}</span>`);   // 첫 </div> = 배지 줄 끝
     return c.replace(/<span class="sm">([^<]*), (\d\d:\d\d)<\/span>/, '<span class="mt lc">$1</span><span class="mt tm">$2</span>')
       .replace(/<span class="mt tm">([^<]*)<\/span>(<span class="req">[^<]*<\/span>)?/, (q, t, r) => `<span class="mt trow"><span class="tm">${t}</span>${r || ''}</span>`);
@@ -817,7 +817,7 @@
     const wp = el.dataset.dw || (x[0] !== 'ok' ? wpOf(x) : ''), hx = el.dataset.dw ? itemsOf(mi, k).find(y => y[0] !== 'ok' && wpOf(y)===el.dataset.dw) : (x[0] !== 'ok' ? x : null), hit = !!hx;
     const st = hit ? hx[0] : (el.classList.contains('plan') ? 'plan' : 'ok'), val = el.textContent.trim(), md = MD(k, st, mi);
     pv.innerHTML = `<div class="pvh"><b>${k}</b><span>${m.mis} ${m.fl}${wp ? ', ' + wp : ''}${hit ? ', ' + hx[3] : ''}</span></div><div class="pvm md ${md[0]}">${md[1]}</div>
-      <div class="pvf"><span class="verdict-chip is-${st}">${WORD[st]}</span><b>${val}</b><span>기준 ${STD[k]}</span></div><span class="pvn">${hit ? '누르면 자세히 보기' : '시안용 예시 이미지(같은 감지의 사진), 누르면 자세히 보기'}</span>`;
+      <div class="pvf"><span class="verdict-chip${V7 ? ' ds-badge' : ''} is-${st}">${WORD[st]}</span><b>${val}</b><span>기준 ${STD[k]}</span></div><span class="pvn">${hit ? '누르면 자세히 보기' : '시안용 예시 이미지(같은 감지의 사진), 누르면 자세히 보기'}</span>`;
     pv.querySelectorAll('canvas[data-spec3]').forEach(spec3);
     const sr = sf.getBoundingClientRect(), cr = el.getBoundingClientRect();
     let px = cr.right - sr.left + 12, py = cr.top - sr.top - 40;
