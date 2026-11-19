@@ -1874,7 +1874,19 @@
       const a = k < 0 ? 0 : st[k], b = st[k + 1];
       ctlPlace.s0 = a + (b - a) * f; ctlPlace.sNow = null;
       rr.mode("run"); rr.set(ctlPlace.s0);
+      ctlFocus(d);
     } catch (err) { console.warn("관제 로봇 자리", err); }
+  }
+  /* 지도를 로봇에 맞춰 더 당긴다(11/19) — [로봇 위치로](확대 2.2 이상, 로봇을 가운데) 뒤 [확대]를 n 번. 1-1 은 도크에서 지도가 멀어 비어 보였다 */
+  const CTRL_FOCUS = { "1-1": 2 };
+  function ctlFocus(d) {
+    const n = CTRL_FOCUS[cur.id]; if (!n) return;
+    clearTimeout(ctlFocus.tm);
+    ctlFocus.tm = setTimeout(() => {
+      d.querySelector("[data-map-robot]")?.click();
+      let i = 0; const zin = () => { if (i++ >= n) return; d.querySelector("[data-map-zoom-in]")?.click(); ctlFocus.tm = setTimeout(zin, 350); };
+      ctlFocus.tm = setTimeout(zin, 900);
+    }, 300);
   }
   /* 관제 지도 로봇을 장면 시간에 맞춰 옮긴다(11/18) — [시작초, 끝초, 끝 자리(0 = 도크)]. 사이는 천천히 출발 · 도착(ease-in-out).
    *   끝 자리 "end" = 길 끝(한 바퀴 돌아 도크로 돌아온 자리).
@@ -2247,7 +2259,7 @@
       const devW = Math.round(CAM_WIN.w * camHQ * devicePixelRatio);
       const [tA, tB, tag] = comboRangeT();
       stopPlay(); seek(tA); ctlApply(tA, true); camApply(tA);
-      await sleep(1200);   // 관제 화면이 상태 · 팝오버를 다 그릴 틈
+      await sleep(2400);   // 관제 화면이 상태 · 팝오버 · 지도 당기기(ctlFocus)를 다 끝낼 틈
       const cv = new OffscreenCanvas(HQ.CW, HQ.CH), g = cv.getContext("2d");
       const chunks = []; let dcfg = null, terr = null, tsPrev = -1, n = 0, started = false, stop = false;
       const tenc = new VideoEncoder({ output: (c, meta) => { if (meta && meta.decoderConfig) dcfg = meta.decoderConfig; const b = new Uint8Array(c.byteLength); c.copyTo(b); chunks.push({ type: c.type, timestamp: c.timestamp, data: b }); }, error: e => { terr = e; } });
