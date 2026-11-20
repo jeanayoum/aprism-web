@@ -5,7 +5,7 @@
  * - 값은 토큰만 쓴다(tokens.css). 높이처럼 토큰이 없는 것만 숫자
  * - 배지, 칩, 탭: .ds-badge, .ds-wp, .ds-floor, .ds-chip, .ds-tab-line, .ds-tab-chip, .ds-seg (화면 코드를 이 클래스로 바꾸는 중, assets/js/ds-v7.js 가 같은 마크업을 만들어 줌)
  * - 상단 미션 탭: .sb-tab, .sb-tab-more, .sb-more-menu (11/20 정의서 공통-01 Q6 으로 등록, 그리는 곳은 assets/js/mission-tabs-v6.js, 값은 파일 끝 "상단 미션 탭" 블록)
- * - 파일 차례: 디자인 값 → 컴포넌트(아이콘, 리스트, 패널 머리, 안내 상자, 토글, 지도 도구 상자, 지도 팝오버, 배지, 태그, 점 배지, WP 번호 원, 층, 조치 목록과 체크 상자, 칩, 탭, 구간 전환, 버튼) → Delta 부품 → 지도 부품(2D 지도 경로, 번호 원) → 맨 끝 사례(Case Studies: 컴포넌트를 엮은 화면 한 덩이, 예: DELTA 조치 제안 카드)
+ * - 파일 차례: 디자인 값 → 컴포넌트(아이콘, 배터리, 리스트, 패널 머리, 안내 상자, 토글, 지도 도구 상자, 지도 팝오버, 배지, 태그, 점 배지, WP 번호 원, 층, 조치 목록과 체크 상자, 칩, 탭, 구간 전환, 버튼) → Delta 부품 → 지도 부품(2D 지도 경로, 번호 원) → 맨 끝 사례(Case Studies: 컴포넌트를 엮은 화면 한 덩이, 예: DELTA 조치 제안 카드)
  * - 버튼: 지금 화면이 쓰는 .btn, .icon-button 등에 바로 걸림 (파일 아래쪽 "버튼")
  * - 나누는 기준: 누르지 않는 표시는 배지, 조건을 켜거나 값을 고르면 칩, 보이는 내용이 통째로 바뀌면 탭, 행동과 이동은 버튼
  * - 인계 문서: https://claude.ai/artifact/P6i1TzG3SDpNn9gPTiF1mg
@@ -200,6 +200,15 @@ body.ver-7, body.ds-auth {   /* body.ds-auth: 로그인 쪽 화면(안내 상자
   --ds-maptools-pad: var(--space-4);
   --ds-maptools-gap: var(--space-8);
   --ds-maptools-radius: var(--radius-8);
+
+  /* 배터리 (11/20): 몸통은 아이콘 단계(가로 20, 세로 12) */
+  --ds-battery-w: var(--ds-icon-20);
+  --ds-battery-h: var(--ds-icon-12);
+  --ds-battery-line: var(--border-width-strong);  /* 몸통 테 */
+  --ds-battery-tip-w: 2px;                        /* 꼭지 */
+  --ds-battery-tip-h: 6px;
+  --ds-battery-bolt: var(--ds-icon-12);           /* 충전 번개 */
+  --ds-battery-gap: var(--space-4);               /* 아이콘과 숫자 사이(아이콘 - 글자 4) */
 
   /* 리스트 (11/20, SEED List 참고) */
   --ds-list-pad-x: var(--space-12);              /* 좌우: 패널 머리와 같은 선 */
@@ -405,6 +414,25 @@ body.ver-7 .ds-mappop { box-sizing: border-box !important; min-width: var(--ds-m
 body.ver-7 .ds-mappop > .ds-mappop-head { display: flex !important; align-items: center !important; gap: var(--space-8) !important; margin: calc(var(--ds-mappop-pad) * -1) calc(var(--ds-mappop-pad) * -1) 0 !important; padding: var(--ds-mappop-pad) !important; border-radius: var(--ds-pop-radius) var(--ds-pop-radius) 0 0 !important; background-color: var(--bg-raised) !important; }
 body.ver-7 .ds-mappop-head > .map-card-name { flex: 1 1 auto; min-width: 0; font-size: var(--ds-mappop-name-size) !important; line-height: var(--ds-mappop-name-line) !important; font-weight: var(--font-weight-bold) !important; }
 body.ver-7 .ds-mappop > .map-card-photo { margin: calc(var(--ds-mappop-gap) * -1) calc(var(--ds-mappop-pad) * -1) 0 !important; }
+
+/* ---------- 배터리 (11/20, .ds-battery): 몸통(채움 + 충전 번개) + 꼭지 + 숫자 ----------
+ * 화면: 관제 로봇 카드, 전체 미션 로봇 칸, 미션설정 배터리(머리 줄 아이콘 + 예측 막대). 예전 .battery 옆에 .ds-battery
+ * 단계는 ds-v7.js ds.batteryCls 한 곳(20 이하 위험, 40 이하 주의). 보통은 회색(정상은 회색 규칙), 주의 노랑, 위험 빨강. 채움은 아이콘 색, 숫자는 글자 색
+ * 숫자는 글자 토큰(12/18 보통 굵기), 몸통은 아이콘 단계 20 x 12 (예전 20 x 14, 숫자 13/18 중간 굵기도 있었음) */
+body.ver-7 { --ds-battery-normal: var(--text-secondary); --ds-battery-edge: var(--color-gray-600); }
+:root[data-theme="light"] body.ver-7 { --ds-battery-edge: var(--color-gray-450); }
+body.ver-7 .ds-battery { display: inline-flex !important; align-items: center !important; gap: var(--ds-battery-gap) !important; color: var(--ds-battery-normal) !important; --ds-battery-fill: var(--ds-battery-normal); }
+body.ver-7 .ds-battery.is-warning { color: var(--status-warning-text) !important; --ds-battery-fill: var(--status-warning-icon); }
+body.ver-7 .ds-battery.is-critical { color: var(--status-critical-text) !important; --ds-battery-fill: var(--status-critical-icon); }
+body.ver-7 .ds-battery > .battery-body { position: relative !important; flex: none !important; box-sizing: border-box !important; width: var(--ds-battery-w) !important; height: var(--ds-battery-h) !important; border: var(--ds-battery-line) solid var(--ds-battery-edge) !important; border-radius: var(--radius-4) !important; background-color: var(--comp-chart-track) !important; overflow: visible !important; }
+body.ver-7 .ds-battery .battery-fill { position: absolute !important; inset: 0 auto 0 0 !important; border-radius: var(--radius-2) !important; background-color: var(--ds-battery-fill) !important; }
+body.ver-7 .ds-battery > .battery-tip { flex: none !important; box-sizing: border-box !important; width: var(--ds-battery-tip-w) !important; height: var(--ds-battery-tip-h) !important; margin-left: calc(var(--ds-battery-gap) * -1) !important; border: 0 !important; border-radius: 0 var(--radius-2) var(--radius-2) 0 !important; background-color: var(--ds-battery-edge) !important; }
+body.ver-7 .ds-battery .battery-bolt { position: absolute !important; inset: 0 !important; margin: auto !important; width: var(--ds-battery-bolt) !important; height: var(--ds-battery-bolt) !important; color: var(--text-primary) !important; }
+body.ver-7 .ds-battery > :not(.battery-body):not(.battery-tip) { font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-regular) !important; color: inherit !important; font-variant-numeric: tabular-nums; }
+/* 미션설정 예측 막대: 남는 양도 배터리와 같은 색 규칙(보통 회색, 여유 부족 주의, 수행 불가는 쓸 양 빗금 위험). 예전 보통 = 초록 */
+body.ver-7 .mp-bat-bar .rest { background-color: var(--ds-battery-normal) !important; }
+body.ver-7 .mp-bat-bar.is-low .rest { background-color: var(--status-warning-icon) !important; }
+body.ver-7 .mp-bat-bar.is-no .rest { background-color: var(--status-critical-icon) !important; }
 
 /* ---------- 리스트 (11/20, .ds-list-item, SEED List 참고): 가로 한 줄에 앞 + 글(제목, 보조) + 뒤 ----------
  * 크기: .is-s 작게 32(안쪽 4 / 8, 고르기 목록), .is-m 보통 40(안쪽 8 / 12, 한 줄), .is-l 크게(높이 자동, 안쪽 12 / 12, 여러 줄). 보고서는 .is-wide(좌우 16)

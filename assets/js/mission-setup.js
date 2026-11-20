@@ -282,6 +282,9 @@
       var word = { ok: "수행 가능", low: "여유 부족", no: "수행 불가" }[p.state];
       var tone = { ok: "badge-normal", low: "badge-warning", no: "badge-danger" }[p.state];
       var dsv = document.body.classList.contains("ver-7") && window.ds ? " " + window.ds.statusCls({ ok: "avail", low: "low", no: "no" }[p.state]) : "";   // [11/19 v7] 공통 CSS 태그
+      // [11/20 v7] 머리 줄 아이콘 = 공통 배터리 표시(지금 잔량, 단계 색). 예전 번개 아이콘
+      var batIc = document.querySelector(".sum-row.has-detail > .i, .sum-row.has-detail > .ds-battery");
+      if (batIc && dsv && window.ds.battery) { batIc.outerHTML = window.ds.battery(spec.bat, { text: false }); }
       batState.innerHTML = '<span class="badge ' + tone + ' t-caption' + dsv + '">' +
         '<span class="badge-dot" aria-hidden="true"></span>' + word + "</span>";
     }

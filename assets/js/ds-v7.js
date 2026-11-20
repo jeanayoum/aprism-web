@@ -97,7 +97,18 @@
         (t.before || '') + '<span>' + t.label + '</span>' + (t.count != null ? '<span class="ds-tab-count">' + t.count + '</span>' : '') + (t.after || '') + '</button>';
     }).join('') + '</div>';
   }
+  /*
+   * [11/20] 배터리 표시(.ds-battery) 단계 한 곳: 20 이하 위험, 40 이하 주의, 그 위 보통(회색). 충전 중이면 번개
+   *   batteryCls(잔량, 충전) → 클래스 글, battery(잔량, {charging, text}) → 표시 마크업(아이콘 + 숫자)
+   */
+  var BAT_CRIT = 20, BAT_WARN = 40;
+  function batteryCls(level, charging) { return "battery ds-battery" + (level <= BAT_CRIT ? " is-critical" : level <= BAT_WARN ? " is-warning" : "") + (charging ? " is-charging" : ""); }
+  function battery(level, o) {
+    o = o || {}; var v = Math.max(0, Math.min(100, Math.round(level)));
+    return '<span class="' + batteryCls(v, o.charging) + '"' + (o.text === false ? ' role="img" aria-label="배터리 ' + v + '%"' : "") + '><span class="battery-body"><span class="battery-fill" style="width:' + v + '%"></span>' + (o.charging ? '<span class="i battery-bolt" style="--i:var(--ic-bolt)" aria-hidden="true"></span>' : "") + '</span><span class="battery-tip"></span>' + (o.text === false ? "" : '<span class="ds-battery-v">' + v + "%</span>") + "</span>";
+  }
   window.ds = {
+    battery: battery, batteryCls: batteryCls, BAT_CRIT: BAT_CRIT, BAT_WARN: BAT_WARN,
     badge: badge, badgeRow: badgeRow, statusCls: statusCls, act: act, deltaHead: deltaHead, wp: wp, floor: floor, chip: chip,
     tabsLine: function (items, o) { return tabs('ds-tab-line', items, o); },
     tabsChip: function (items, o) { return tabs('ds-tab-chip', items, o); },

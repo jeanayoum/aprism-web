@@ -651,7 +651,7 @@
     st.appendChild(el("span", null, b.text));
     line("Mission", st);
 
-    var bat = el("span", "battery" + (r.bat <= 20 ? " is-critical" : r.bat <= 40 ? " is-warning" : "") + (r.chg ? " is-charging" : ""));
+    var bat = el("span", window.ds ? window.ds.batteryCls(r.bat, r.chg) : "battery" + (r.bat <= 20 ? " is-critical" : r.bat <= 40 ? " is-warning" : "") + (r.chg ? " is-charging" : ""));   // [11/20 v7] 단계는 ds-v7.js 한 곳
     var bb = el("span", "battery-body");
     var bf = el("span", "battery-fill");
     bf.style.width = r.bat + "%";
@@ -717,7 +717,7 @@
     st.appendChild(el("i"));
     st.appendChild(el("span", null, b.text));
     vit.appendChild(st);
-    var bat = el("span", "bld-rc2-cell battery" + (r.bat <= 20 ? " is-critical" : r.bat <= 40 ? " is-warning" : "") + (r.chg ? " is-charging" : ""));
+    var bat = el("span", "bld-rc2-cell " + (window.ds ? window.ds.batteryCls(r.bat, r.chg) : "battery" + (r.bat <= 20 ? " is-critical" : r.bat <= 40 ? " is-warning" : "") + (r.chg ? " is-charging" : "")));   // [11/20 v7] 단계는 ds-v7.js 한 곳
     bat.title = "배터리 " + r.bat + "%" + (r.chg ? " · 충전 중" : "");
     var bb = el("span", "battery-body");
     var bf = el("span", "battery-fill");

@@ -42,8 +42,8 @@
   <!-- v6 전용 규칙 — v5 는 10/30 부로 멈췄다. v6 에서 바꾸는 것은 여기(body.ver-6)에. -->
   <link rel="stylesheet" href="../assets/css/v6.css?v=c384b14c" />
   <link rel="stylesheet" href="../assets/css/v7.css?v=3c9355ed" />
-  <link rel="stylesheet" href="../assets/css/components-v7.css?v=1a13dbfa" />
-  <script src="../assets/js/ds-v7.js?v=c4cba4fd"></script>
+  <link rel="stylesheet" href="../assets/css/components-v7.css?v=8629d9c2" />
+  <script src="../assets/js/ds-v7.js?v=1b798677"></script>
   <!-- 지도 경로 표현 규칙(10/28 반영, 지도 경로 표현 전달서 1022) — 경로 네 구간 · 흐름 빛 · 번호 핀 · 시야 빔 로봇 · 충전 스테이션 · 아래 상태 시뮬레이션 막대 -->
   <link rel="stylesheet" href="../assets/css/route-rules.css?v=06eba321" />
   <style>
@@ -696,7 +696,7 @@
                         </span>
                         <span class="robot-row">
                           <span class="t-caption">Battery</span>
-                          <span class="battery">
+                          <span class="battery ds-battery">
                             <span class="battery-body"><span class="battery-fill" style="width:78%"></span></span>
                             <span class="battery-tip"></span>
                             <span class="t-caption num">78%</span>
@@ -704,7 +704,7 @@
                         </span>
                         <span class="robot-row">
                           <span class="t-caption">Signal</span>
-                          <span class="battery">
+                          <span class="battery ds-battery">
                             <span class="signal-bars" data-level="4"><i></i><i></i><i></i><i></i></span>
                             <span class="t-caption">Strong</span>
                           </span>
@@ -727,7 +727,7 @@
                         </span>
                         <span class="robot-row">
                           <span class="t-caption">Battery</span>
-                          <span class="battery is-critical is-charging">
+                          <span class="battery ds-battery is-critical is-charging">
                             <span class="battery-body">
                               <span class="battery-fill" style="width:18%"></span>
                               <span class="i battery-bolt" style="--i:var(--ic-bolt)" aria-hidden="true"></span>
@@ -738,7 +738,7 @@
                         </span>
                         <span class="robot-row">
                           <span class="t-caption">Signal</span>
-                          <span class="battery is-warning">
+                          <span class="battery ds-battery is-warning">
                             <span class="signal-bars" data-level="2"><i></i><i></i><i></i><i></i></span>
                             <span class="t-caption">Weak</span>
                           </span>
@@ -760,7 +760,7 @@
                         </span>
                         <span class="robot-row">
                           <span class="t-caption">Battery</span>
-                          <span class="battery is-warning is-charging">
+                          <span class="battery ds-battery is-warning is-charging">
                             <span class="battery-body">
                               <span class="battery-fill" style="width:35%"></span>
                               <span class="i battery-bolt" style="--i:var(--ic-bolt)" aria-hidden="true"></span>
@@ -771,7 +771,7 @@
                         </span>
                         <span class="robot-row">
                           <span class="t-caption">Signal</span>
-                          <span class="battery">
+                          <span class="battery ds-battery">
                             <span class="signal-bars" data-level="3"><i></i><i></i><i></i><i></i></span>
                             <span class="t-caption">Good</span>
                           </span>
@@ -793,7 +793,7 @@
                         </span>
                         <span class="robot-row">
                           <span class="t-caption">Battery</span>
-                          <span class="battery">
+                          <span class="battery ds-battery">
                             <span class="battery-body">
                               <span class="battery-fill" style="width:92%"></span>
                             </span>
@@ -803,7 +803,7 @@
                         </span>
                         <span class="robot-row">
                           <span class="t-caption">Signal</span>
-                          <span class="battery">
+                          <span class="battery ds-battery">
                             <span class="signal-bars" data-level="4"><i></i><i></i><i></i><i></i></span>
                             <span class="t-caption">Strong</span>
                           </span>
@@ -826,7 +826,7 @@
                         </span>
                         <span class="robot-row">
                           <span class="t-caption">Battery</span>
-                          <span class="battery">
+                          <span class="battery ds-battery">
                             <span class="battery-body">
                               <span class="battery-fill" style="width:64%"></span>
                             </span>
@@ -836,7 +836,7 @@
                         </span>
                         <span class="robot-row">
                           <span class="t-caption">Signal</span>
-                          <span class="battery">
+                          <span class="battery ds-battery">
                             <span class="signal-bars" data-level="3"><i></i><i></i><i></i><i></i></span>
                             <span class="t-caption">Good</span>
                           </span>
@@ -858,7 +858,7 @@
                         </span>
                         <span class="robot-row">
                           <span class="t-caption">Battery</span>
-                          <span class="battery is-critical is-charging">
+                          <span class="battery ds-battery is-critical is-charging">
                             <span class="battery-body">
                               <span class="battery-fill" style="width:8%"></span>
                             <span class="i battery-bolt" style="--i:var(--ic-bolt)" aria-hidden="true"></span>
@@ -869,7 +869,7 @@
                         </span>
                         <span class="robot-row">
                           <span class="t-caption">Signal</span>
-                          <span class="battery is-warning">
+                          <span class="battery ds-battery is-warning">
                             <span class="signal-bars" data-level="2"><i></i><i></i><i></i><i></i></span>
                             <span class="t-caption">Weak</span>
                           </span>
@@ -891,7 +891,7 @@
                         </span>
                         <span class="robot-row">
                           <span class="t-caption">Battery</span>
-                          <span class="battery is-charging">
+                          <span class="battery ds-battery is-charging">
                             <span class="battery-body">
                               <span class="battery-fill" style="width:96%"></span>
                             <span class="i battery-bolt" style="--i:var(--ic-bolt)" aria-hidden="true"></span>
@@ -902,7 +902,7 @@
                         </span>
                         <span class="robot-row">
                           <span class="t-caption">Signal</span>
-                          <span class="battery">
+                          <span class="battery ds-battery">
                             <span class="signal-bars" data-level="4"><i></i><i></i><i></i><i></i></span>
                             <span class="t-caption">Strong</span>
                           </span>
@@ -924,7 +924,7 @@
                         </span>
                         <span class="robot-row">
                           <span class="t-caption">Battery</span>
-                          <span class="battery">
+                          <span class="battery ds-battery">
                             <span class="battery-body">
                               <span class="battery-fill" style="width:47%"></span>
                             </span>
@@ -934,7 +934,7 @@
                         </span>
                         <span class="robot-row">
                           <span class="t-caption">Signal</span>
-                          <span class="battery">
+                          <span class="battery ds-battery">
                             <span class="signal-bars" data-level="3"><i></i><i></i><i></i><i></i></span>
                             <span class="t-caption">Good</span>
                           </span>
@@ -956,7 +956,7 @@
                         </span>
                         <span class="robot-row">
                           <span class="t-caption">Battery</span>
-                          <span class="battery">
+                          <span class="battery ds-battery">
                             <span class="battery-body">
                               <span class="battery-fill" style="width:88%"></span>
                             </span>
@@ -966,7 +966,7 @@
                         </span>
                         <span class="robot-row">
                           <span class="t-caption">Signal</span>
-                          <span class="battery">
+                          <span class="battery ds-battery">
                             <span class="signal-bars" data-level="4"><i></i><i></i><i></i><i></i></span>
                             <span class="t-caption">Strong</span>
                           </span>
@@ -988,7 +988,7 @@
                         </span>
                         <span class="robot-row">
                           <span class="t-caption">Battery</span>
-                          <span class="battery is-warning">
+                          <span class="battery ds-battery is-warning">
                             <span class="battery-body">
                               <span class="battery-fill" style="width:29%"></span>
                             </span>
@@ -998,7 +998,7 @@
                         </span>
                         <span class="robot-row">
                           <span class="t-caption">Signal</span>
-                          <span class="battery is-warning">
+                          <span class="battery ds-battery is-warning">
                             <span class="signal-bars" data-level="0"><i></i><i></i><i></i><i></i></span>
                             <span class="t-caption">끊김</span>
                           </span>
@@ -1020,7 +1020,7 @@
                         </span>
                         <span class="robot-row">
                           <span class="t-caption">Battery</span>
-                          <span class="battery">
+                          <span class="battery ds-battery">
                             <span class="battery-body">
                               <span class="battery-fill" style="width:71%"></span>
                             </span>
@@ -1030,7 +1030,7 @@
                         </span>
                         <span class="robot-row">
                           <span class="t-caption">Signal</span>
-                          <span class="battery">
+                          <span class="battery ds-battery">
                             <span class="signal-bars" data-level="4"><i></i><i></i><i></i><i></i></span>
                             <span class="t-caption">Strong</span>
                           </span>
@@ -1052,7 +1052,7 @@
                         </span>
                         <span class="robot-row">
                           <span class="t-caption">Battery</span>
-                          <span class="battery is-charging">
+                          <span class="battery ds-battery is-charging">
                             <span class="battery-body">
                               <span class="battery-fill" style="width:55%"></span>
                               <span class="i battery-bolt" style="--i:var(--ic-bolt)" aria-hidden="true"></span>
@@ -1063,7 +1063,7 @@
                         </span>
                         <span class="robot-row">
                           <span class="t-caption">Signal</span>
-                          <span class="battery">
+                          <span class="battery ds-battery">
                             <span class="signal-bars" data-level="3"><i></i><i></i><i></i><i></i></span>
                             <span class="t-caption">Good</span>
                           </span>
@@ -1299,7 +1299,7 @@
               </span>
               <span class="robot-row">
                 <span class="t-caption">Battery</span>
-                <span class="battery">
+                <span class="battery ds-battery">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:78%"></span>
                   </span>
@@ -1309,7 +1309,7 @@
               </span>
               <span class="robot-row">
                 <span class="t-caption">Signal</span>
-                <span class="battery">
+                <span class="battery ds-battery">
                   <span class="signal-bars" data-level="4"><i></i><i></i><i></i><i></i></span>
                   <span class="t-caption">Strong</span>
                 </span>
@@ -1331,7 +1331,7 @@
               </span>
               <span class="robot-row">
                 <span class="t-caption">Battery</span>
-                <span class="battery is-critical is-charging">
+                <span class="battery ds-battery is-critical is-charging">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:18%"></span>
                     <span class="i battery-bolt" style="--i:var(--ic-bolt)" aria-hidden="true"></span>
@@ -1342,7 +1342,7 @@
               </span>
               <span class="robot-row">
                 <span class="t-caption">Signal</span>
-                <span class="battery is-warning">
+                <span class="battery ds-battery is-warning">
                   <span class="signal-bars" data-level="2"><i></i><i></i><i></i><i></i></span>
                   <span class="t-caption">Weak</span>
                 </span>
@@ -1364,7 +1364,7 @@
               </span>
               <span class="robot-row">
                 <span class="t-caption">Battery</span>
-                <span class="battery is-warning is-charging">
+                <span class="battery ds-battery is-warning is-charging">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:35%"></span>
                     <span class="i battery-bolt" style="--i:var(--ic-bolt)" aria-hidden="true"></span>
@@ -1375,7 +1375,7 @@
               </span>
               <span class="robot-row">
                 <span class="t-caption">Signal</span>
-                <span class="battery">
+                <span class="battery ds-battery">
                   <span class="signal-bars" data-level="3"><i></i><i></i><i></i><i></i></span>
                   <span class="t-caption">Good</span>
                 </span>
@@ -1397,7 +1397,7 @@
               </span>
               <span class="robot-row">
                 <span class="t-caption">Battery</span>
-                <span class="battery">
+                <span class="battery ds-battery">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:92%"></span>
                   </span>
@@ -1407,7 +1407,7 @@
               </span>
               <span class="robot-row">
                 <span class="t-caption">Signal</span>
-                <span class="battery">
+                <span class="battery ds-battery">
                   <span class="signal-bars" data-level="4"><i></i><i></i><i></i><i></i></span>
                   <span class="t-caption">Strong</span>
                 </span>
@@ -1429,7 +1429,7 @@
               </span>
               <span class="robot-row">
                 <span class="t-caption">Battery</span>
-                <span class="battery">
+                <span class="battery ds-battery">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:64%"></span>
                   </span>
@@ -1439,7 +1439,7 @@
               </span>
               <span class="robot-row">
                 <span class="t-caption">Signal</span>
-                <span class="battery">
+                <span class="battery ds-battery">
                   <span class="signal-bars" data-level="3"><i></i><i></i><i></i><i></i></span>
                   <span class="t-caption">Good</span>
                 </span>
@@ -1461,7 +1461,7 @@
               </span>
               <span class="robot-row">
                 <span class="t-caption">Battery</span>
-                <span class="battery is-critical is-charging">
+                <span class="battery ds-battery is-critical is-charging">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:8%"></span>
                     <span class="i battery-bolt" style="--i:var(--ic-bolt)" aria-hidden="true"></span>
@@ -1472,7 +1472,7 @@
               </span>
               <span class="robot-row">
                 <span class="t-caption">Signal</span>
-                <span class="battery is-warning">
+                <span class="battery ds-battery is-warning">
                   <span class="signal-bars" data-level="2"><i></i><i></i><i></i><i></i></span>
                   <span class="t-caption">Weak</span>
                 </span>
@@ -1494,7 +1494,7 @@
               </span>
               <span class="robot-row">
                 <span class="t-caption">Battery</span>
-                <span class="battery is-charging">
+                <span class="battery ds-battery is-charging">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:96%"></span>
                     <span class="i battery-bolt" style="--i:var(--ic-bolt)" aria-hidden="true"></span>
@@ -1505,7 +1505,7 @@
               </span>
               <span class="robot-row">
                 <span class="t-caption">Signal</span>
-                <span class="battery">
+                <span class="battery ds-battery">
                   <span class="signal-bars" data-level="4"><i></i><i></i><i></i><i></i></span>
                   <span class="t-caption">Strong</span>
                 </span>
@@ -1527,7 +1527,7 @@
               </span>
               <span class="robot-row">
                 <span class="t-caption">Battery</span>
-                <span class="battery">
+                <span class="battery ds-battery">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:47%"></span>
                   </span>
@@ -1537,7 +1537,7 @@
               </span>
               <span class="robot-row">
                 <span class="t-caption">Signal</span>
-                <span class="battery">
+                <span class="battery ds-battery">
                   <span class="signal-bars" data-level="3"><i></i><i></i><i></i><i></i></span>
                   <span class="t-caption">Good</span>
                 </span>
@@ -1559,7 +1559,7 @@
               </span>
               <span class="robot-row">
                 <span class="t-caption">Battery</span>
-                <span class="battery">
+                <span class="battery ds-battery">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:88%"></span>
                   </span>
@@ -1569,7 +1569,7 @@
               </span>
               <span class="robot-row">
                 <span class="t-caption">Signal</span>
-                <span class="battery">
+                <span class="battery ds-battery">
                   <span class="signal-bars" data-level="4"><i></i><i></i><i></i><i></i></span>
                   <span class="t-caption">Strong</span>
                 </span>
@@ -1591,7 +1591,7 @@
               </span>
               <span class="robot-row">
                 <span class="t-caption">Battery</span>
-                <span class="battery is-warning">
+                <span class="battery ds-battery is-warning">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:29%"></span>
                   </span>
@@ -1601,7 +1601,7 @@
               </span>
               <span class="robot-row">
                 <span class="t-caption">Signal</span>
-                <span class="battery is-warning">
+                <span class="battery ds-battery is-warning">
                   <span class="signal-bars" data-level="0"><i></i><i></i><i></i><i></i></span>
                   <span class="t-caption">끊김</span>
                 </span>
@@ -1623,7 +1623,7 @@
               </span>
               <span class="robot-row">
                 <span class="t-caption">Battery</span>
-                <span class="battery">
+                <span class="battery ds-battery">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:71%"></span>
                   </span>
@@ -1633,7 +1633,7 @@
               </span>
               <span class="robot-row">
                 <span class="t-caption">Signal</span>
-                <span class="battery">
+                <span class="battery ds-battery">
                   <span class="signal-bars" data-level="4"><i></i><i></i><i></i><i></i></span>
                   <span class="t-caption">Strong</span>
                 </span>
@@ -1655,7 +1655,7 @@
               </span>
               <span class="robot-row">
                 <span class="t-caption">Battery</span>
-                <span class="battery is-charging">
+                <span class="battery ds-battery is-charging">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:55%"></span>
                     <span class="i battery-bolt" style="--i:var(--ic-bolt)" aria-hidden="true"></span>
@@ -1666,7 +1666,7 @@
               </span>
               <span class="robot-row">
                 <span class="t-caption">Signal</span>
-                <span class="battery">
+                <span class="battery ds-battery">
                   <span class="signal-bars" data-level="3"><i></i><i></i><i></i><i></i></span>
                   <span class="t-caption">Good</span>
                 </span>
