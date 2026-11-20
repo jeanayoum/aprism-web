@@ -183,6 +183,13 @@ body.ver-7 .ds-badge.is-onmap.is-marked { background-color: var(--text-primary) 
 body.ver-7 .bld-bot.is-run > .ds-badge.is-onmap { color: var(--text-primary) !important; }
 body.ver-7 .bld-bot.is-marked > .ds-badge.is-onmap { background-color: var(--text-primary) !important; color: var(--bg-page) !important; }
 
+/* 점 배지 (11/20): 글자 없는 상태 점. 지름 6(아이콘의 작은 점과 같음), 누르지 않음, 항목 하나에 점 하나
+ * .is-crit 위험 알림, .is-warn 주의 알림, .is-info 로봇 있음. 색만으로는 뜻을 못 전하므로 항목 이름(aria-label)에 같이 읽힘 */
+body.ver-7 .ds-dot { display: inline-block; flex: none; box-sizing: border-box; width: 6px !important; height: 6px !important; padding: 0 !important; border: 0 !important; border-radius: var(--radius-pill) !important; background-color: var(--text-tertiary); }
+body.ver-7 .ds-dot.is-crit { background-color: var(--status-critical-icon) !important; }
+body.ver-7 .ds-dot.is-warn { background-color: var(--status-warning-icon) !important; }
+body.ver-7 .ds-dot.is-info { background-color: var(--status-info-icon) !important; }
+
 /* 아이콘: 상자 12, 채운 모양 */
 body.ver-7 .ds-badge::before { content: none !important; }
 body.ver-7 .ds-badge > :is(.badge-dot, .bld-sev-dot, .ac-count-ic, .ac-sev-dot),
@@ -198,9 +205,9 @@ body.ver-7 .ds-badge.ds-i-ok { --ds-i: var(--ic-check-circle); }
 body.ver-7 .ds-badge.ds-i-power { --ds-i: var(--ic-power); }
 body.ver-7 .ds-badge.ds-i-check { --ds-i: var(--ic-check); }
 body.ver-7 .ds-badge.ds-i-clock { --ds-i: var(--ic-clock); }
-/* 점은 마스크 없이 원. 작은 점 지름 6, 큰 점 10을 상자 12 가운데에 (앞뒤 여백은 상자 안 여백, 간격 토큰이 아님) */
+/* 점은 마스크 없이 원. 작은 점 지름 6, 큰 점 8(11/20, 10은 삼각형보다 커 보여 줄임)을 상자 12 가운데에 (앞뒤 여백은 상자 안 여백, 간격 토큰이 아님) */
 body.ver-7 .ds-badge.ds-i-dot:not(.ds-i-none)::before { width: 6px !important; height: 6px !important; margin: 0 calc((12px - 6px) / 2) !important; border-radius: var(--radius-pill) !important; -webkit-mask: none !important; mask: none !important; }
-body.ver-7 .ds-badge:is(.ds-i-big, .is-ok:not([class*="ds-i-"])):not(.ds-i-none)::before { width: 10px !important; height: 10px !important; margin: 0 calc((12px - 10px) / 2) !important; border-radius: var(--radius-pill) !important; -webkit-mask: none !important; mask: none !important; }
+body.ver-7 .ds-badge:is(.ds-i-big, .is-ok:not([class*="ds-i-"])):not(.ds-i-none)::before { width: 8px !important; height: 8px !important; margin: 0 calc((12px - 8px) / 2) !important; border-radius: var(--radius-pill) !important; -webkit-mask: none !important; mask: none !important; }
 /* 출처 AI 추천 (A안, 11/19): 회색 면 + Delta 스펙트럼 색 Delta 아이콘 */
 body.ver-7 .ds-badge.ds-i-delta { --ds-i: var(--ic-delta); }
 body.ver-7 .ds-badge.ds-i-delta::before { background: linear-gradient(135deg, var(--ds-ai-ramp)) !important; }
@@ -209,7 +216,7 @@ body.ver-7 .ds-badge.ds-i-delta::before { background: linear-gradient(135deg, va
 body.ver-7 .ds-badge-row { display: inline-flex; align-items: center; gap: var(--ds-badge-row-gap); white-space: nowrap; font-size: var(--ds-badge-font-size); line-height: var(--ds-badge-line-height); }
 
 /* ---------- WP 번호 원: 왼쪽 알림 목록, 지도 팝오버, 점검 줄, 오른쪽 경로 목록, Delta 어디서 쓰든 하나 ----------
- * 크기는 아이콘과 같은 4의 배수 두 단계(11/19): 번호 칸과 지도 20(.ds-wp), 글자 줄 안 16(.ds-wp.is-s)
+ * 크기는 아이콘과 같은 4의 배수 두 단계(11/19): 번호 칸, 지도, 팝오버 머리 20(.ds-wp), 글자 줄 안 16(.ds-wp.is-s)
  * 크기, 모양, 글자는 !important. 색은 :where 로 세기를 0으로 둬 화면의 상태 색(지금 가는 곳, 지나온 곳 등) 규칙이 이김 */
 body.ver-7 .ds-wp {
   display: inline-grid !important; place-items: center !important; flex: none; box-sizing: border-box !important;
@@ -229,6 +236,8 @@ body.ver-7 .ds-wp.is-s, body.ver-7 .ds-wp.is-s::after { letter-spacing: -0.04em 
 :where(body.ver-7 .ds-wp.is-skip) { border: var(--border-width-thin) dashed var(--border-strong); background-color: transparent; color: var(--text-tertiary); }
 /* 지도 위: 바탕이 무엇이든 떠 보이게 테 */
 :where(body.ver-7 .ds-wp.is-map) { border: var(--ds-wp-ring) solid var(--bg-page); }
+/* 미션설정 점검 줄: 줄 바탕과 원 면이 같은 색(다크 둘 다 bg-cell)이라 원이 안 보이고 여백만 커 보임 → 지도 팝오버 기본 지점 원처럼 테 1 (11/20) */
+body.ver-7 .check-row .check-ord.ds-wp { border: var(--border-width-thin) solid var(--border-strong) !important; background-color: var(--bg-page) !important; }
 
 /* ---------- 층: 지금 층 꼬리표(.floor-tag) 값 그대로 (색, 굵기, 크기 바꾸지 않음)
  * 라이트 gray-100 면 + text-tertiary, 다크 bg-raised 면 + text-secondary, 고정폭 12/18, 굵기 400 ---------- */
@@ -288,6 +297,9 @@ body.ver-7 .ds-tab-chip > .ds-tab {
   font-size: var(--ds-chiptab-font-size) !important; line-height: var(--ds-chiptab-line-height) !important; font-weight: var(--ds-chip-font-weight) !important;
 }
 body.ver-7 .ds-tab-chip > .ds-tab:hover { background-color: var(--ds-chip-hover-bg, var(--comp-button-secondary-bg-hover)) !important; }
+/* 너비 채움 (.is-fill, 11/20): 남은 줄 너비를 칩 탭이 똑같이 나눠 가짐. 안전진단 감지 고르기 */
+body.ver-7 .ds-tab-chip.is-fill { flex: 1 1 auto !important; flex-wrap: nowrap !important; min-width: 0 !important; }
+body.ver-7 .ds-tab-chip.is-fill > .ds-tab { flex: 1 1 0 !important; min-width: 0 !important; }
 body.ver-7 .ds-tab-chip > .ds-tab:is([aria-selected="true"], .on, .is-on) { border-color: var(--ds-chip-on-border, transparent) !important; background-color: var(--ds-chip-on-bg, var(--comp-button-inverse-bg-default)) !important; color: var(--ds-chip-on-fg, var(--comp-button-inverse-text-default)) !important; }
 body.ver-7 .ds-tab-chip > .ds-tab:focus-visible { outline: var(--border-width-strong) solid var(--border-focus); outline-offset: var(--space-2); }
 
@@ -305,16 +317,17 @@ body.ver-7 .ds-seg > .ds-tab {
 body.ver-7 .ds-seg.is-vertical > .ds-tab { width: 100% !important; padding: 0 !important; }
 body.ver-7 .ds-seg > .ds-tab:is([aria-selected="true"], [aria-pressed="true"], .on, .is-on) { background-color: var(--ds-seg-on-bg, var(--comp-button-secondary-bg-default)) !important; color: var(--text-primary) !important; }
 body.ver-7 .ds-seg > .ds-tab:focus-visible { outline: var(--border-width-strong) solid var(--border-focus); outline-offset: calc(var(--space-2) * -1); }
-/* 구간 전환 항목의 상태 점: 관제 층 고르기 기준(11/19). 지름 6, 항목 오른쪽 위 모서리에 걸침. 색은 뜻대로(로봇 있는 층 파랑, 알림 있는 층 단계 색)
- *   관제 .map-floor.has-robot::after, 전체 미션 .bld-floor-dot, 안전진단 층 .m2f 의 로봇 점(i) */
-body.ver-7 .ds-seg > .ds-tab { position: relative; overflow: visible !important; }
-body.ver-7 .ds-seg > .ds-tab.has-robot::after,
-body.ver-7 .ds-seg > .ds-tab > .bld-floor-dot,
-body.ver-7 .m2f.ds-seg > .ds-tab > i {
-  content: ""; position: absolute !important; top: calc(var(--space-4) * -1) !important; right: calc(var(--space-4) * -1) !important; left: auto !important; bottom: auto !important;
+/* 구간 전환 항목의 점 배지 자리 (11/20): 항목 안 오른쪽 위(위 4, 오른쪽 4). 항목 하나에 점 하나, 알림 점(위험, 주의)이 로봇 점보다 우선
+ *   전체 미션 층 알림 점, 안전진단 층 로봇 점은 .ds-dot. 관제 층 로봇 점은 예전처럼 .has-robot::after 로 그려 같은 값을 줌 */
+body.ver-7 .ds-seg > .ds-tab { position: relative; }
+body.ver-7 .ds-seg > .ds-tab > .ds-dot,
+body.ver-7 .ds-seg > .ds-tab.has-robot::after {
+  content: ""; position: absolute !important; top: var(--space-4) !important; right: var(--space-4) !important; left: auto !important; bottom: auto !important;
   width: 6px !important; height: 6px !important; margin: 0 !important; border-radius: var(--radius-pill) !important; transform: none !important;
 }
-body.ver-7 .ds-seg > .ds-tab.has-robot::after, body.ver-7 .m2f.ds-seg > .ds-tab > i { background-color: var(--status-info-icon) !important; }
+body.ver-7 .ds-seg > .ds-tab.has-robot::after { background-color: var(--status-info-icon) !important; }
+body.ver-7 .ds-seg > .ds-tab:has(> .ds-dot:is(.is-crit, .is-warn))::after,
+body.ver-7 .ds-seg > .ds-tab:has(> .ds-dot:is(.is-crit, .is-warn)) > .ds-dot.is-info { display: none !important; }
 
 /* ==========================================================================
  * 버튼 (v7)
@@ -420,7 +433,7 @@ body.ver-7 dd > a.t-caption[href*="main-v"]:not(.z1):not(.z2),
 body.ver-7 .lk:not(.z1):not(.z2) { display: inline-flex !important; align-items: center !important; box-sizing: border-box !important; height: var(--ds-btn-xs-h) !important; padding: 0 var(--ds-btn-ghost-pad-x) !important; margin: calc(var(--space-2) * -1) calc(var(--ds-btn-ghost-pad-x) * -1) !important; vertical-align: top !important; align-self: center !important; border-radius: var(--ds-btn-radius) !important; }
 body.ver-7 dd > a.t-caption[href*="main-v"]:hover, body.ver-7 .lk:hover { background-color: var(--comp-button-ghost-bg-hover) !important; }
 
-/* ---------- 처리 완료 펼치기: 아코디언 트리거(머리 줄 어디를 눌러도 접고 펼침, v3-panel.js). 칩 [✓ 오늘 5건] + 칩 밖 꺾쇠 (11/19) ---------- */
+/* ---------- 처리 완료 펼치기: 아코디언 트리거 [[✓ 오늘 5건] ⌄] (머리 줄 어디를 눌러도 접고 펼침, v3-panel.js). 건수는 면 없는 태그, 꺾쇠는 그 옆 (11/20) ---------- */
 body.ver-7 .done-head { gap: var(--space-4) !important; }
 body.ver-7 .done-head .done-fold:not(.z1):not(.z2):not(.z3):not(.z4) { padding-left: 0 !important; width: auto !important; min-width: 0 !important; margin-left: 0 !important; }
 /* 오래된 순 아이콘 오른쪽 끝을 알림 센터 아이콘 끝에 맞춤 (두 줄의 감싸는 칸 오른쪽 여백이 2 달라서 생긴 차이) */

@@ -43,7 +43,7 @@
   var STATUS = {
     run: 'info play', inspect: 'info play', 'return': 'info play', alert: 'info play',
     avail: 'safe ok', done: 'neutral check', wait: 'neutral clock', idle: 'neutral clock',
-    lost: 'crit power', off: 'crit power', estop: 'crit', low: 'warn', no: 'crit',
+    work: 'info play', lost: 'crit power', off: 'crit power', estop: 'crit', low: 'warn', no: 'crit',
     pause: 'neutral dot', online: 'safe dot'
   };
   function statusCls(key) {

@@ -3081,7 +3081,7 @@
       var nm6 = (row6 && row6.textContent.trim()) || wpNameOf[info.id] || info.name || info.id;
       // [11/06 디자이너] 꼬리표(예정 · 정상 · 주의 …)는 남긴다 — 로봇 · 설비 팝오버의 [로봇] · [설비] 꼬리표와 같은 자리. 번호 원은 이름 앞에
       var pin6 = wpBox.querySelector(".map-wp-pin");
-      if (!pin6) { pin6 = document.createElement("span"); pin6.className = "mbt-pin map-wp-pin" + (document.body.classList.contains("ver-7") ? " ds-wp is-s" : ""); pin6.setAttribute("role", "img"); wpName.parentNode.insertBefore(pin6, wpName); }
+      if (!pin6) { pin6 = document.createElement("span"); pin6.className = "mbt-pin map-wp-pin" + (document.body.classList.contains("ver-7") ? " ds-wp" : ""); pin6.setAttribute("role", "img"); wpName.parentNode.insertBefore(pin6, wpName); }
       pin6.setAttribute("data-n", String(n6)); pin6.setAttribute("aria-label", info.id);
       pin6.setAttribute("style", ph6 ? (ph6.getAttribute("style") || "") : "");
       pin6.classList.toggle("is-plain", !ph6);

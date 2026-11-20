@@ -992,7 +992,7 @@
     b.setAttribute("aria-pressed", "false");
     b.setAttribute("aria-label", FNAME[f] + "으로 들어가기");
     var s = topSev(alertsOn(f));
-    if (s) { var dot = el("span", "bld-floor-dot"); dot.setAttribute("data-sev", s); b.appendChild(dot); }
+    if (s) { var dot = el("span", "bld-floor-dot" + (document.body.classList.contains("ver-7") ? " ds-dot is-" + (s === "critical" ? "crit" : "warn") : "")); dot.setAttribute("data-sev", s); b.appendChild(dot); }   // [11/20 v7] 점 배지
     if (!inScope(f)) {
       b.classList.add("is-out");
       b.disabled = true;
@@ -1000,6 +1000,7 @@
     } else if (scopeMission) {
       b.setAttribute("aria-label", FNAME[f] + " · " + scopeMission + " 으로 들어가기");
     }
+    if (s && document.body.classList.contains("ver-7")) { b.setAttribute("aria-label", b.getAttribute("aria-label") + ", " + (s === "critical" ? "위험" : "주의") + " 알림 있음"); }   // 점 배지는 색만이라 이름에 같이
     floorsBox.appendChild(b);
   });
   $$("[data-bld-floor]").forEach(function (b) {

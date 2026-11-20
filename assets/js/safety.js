@@ -121,7 +121,7 @@
   const RQ_WORD = {wait:'응답 대기', work:'현장 조치 중', done:'조치 완료'};
   const RQ_BADGE = {wait:'', work:'badge-info', done:'badge-normal'};   // Figma Badge-미션 566:19149 — 대기 · 진행 · 완료
   // [11/10 v7] 요청한 감지는 판정 칩 대신 진행 배지(판정 카드 · 목록 카드 · 측정 이력 오늘 줄 같은 꼴), 처리 줄은 그 단계의 시각 + 이름
-  const rqBadge = R => `<span class="badge badge-mode ${RQ_BADGE[R.st]} jrq"><span class="badge-dot"></span>${RQ_WORD[R.st]}</span>`;
+  const rqBadge = R => `<span class="badge badge-mode ${RQ_BADGE[R.st]} jrq${V7 && window.ds ? ' ' + window.ds.statusCls(R.st) : ''}"><span class="badge-dot"></span>${RQ_WORD[R.st]}</span>`;
   const rqLine = R => `${R.st==='done' ? R.t3 : R.st==='work' ? R.t2 : R.t} ${RQ_WORD[R.st]}`;
   // 요청 뒤 오른쪽 칸 — 보낸 내용은 잠그고(체크 · 메모 바꿀 수 없음), 버튼은 꺼진 '요청 전송됨', 아래에 조치 진행 세 단계
   function reqSide(sug, R, nextM){
@@ -136,7 +136,7 @@
         <div class="cks">${sug[1].map(([l, a2, to]) => `<label class="c1x"><input type="checkbox" disabled ${R.acts.includes(l) ? 'checked' : ''}><span><b>${l}</b><small>${to}</small></span>${a2 ? (V7 ? '<em class="ma-check-tag ds-badge is-neutral ds-i-delta">AI 추천</em>' : '<em class="ma-check-tag">AI 추천</em>') : ''}</label>`).join('')}</div>
         ${R.memo ? `<span class="mm">메모</span><p class="fd rq-memo">${R.memo.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'})[c])}</p>` : ''}</div>
       <button type="button" class="btn btn-accent rqx" disabled><span class="i i-16" style="--i:var(--ic-check)" aria-hidden="true"></span>${R.t} ${S7 ? '요청됨' : '요청 전송됨'}</button>
-      <section class="rqp" aria-label="조치 진행"><div class="rqp-h"><b>조치 진행</b><span class="badge badge-mode ${RQ_BADGE[R.st]} rqp-b"><span class="badge-dot"></span>${RQ_WORD[R.st]}</span></div>
+      <section class="rqp" aria-label="조치 진행"><div class="rqp-h"><b>조치 진행</b><span class="badge badge-mode ${RQ_BADGE[R.st]} rqp-b${V7 && window.ds ? ' ' + window.ds.statusCls(R.st) : ''}"><span class="badge-dot"></span>${RQ_WORD[R.st]}</span></div>
         <ol class="rqp-st is-${R.st}">${steps}</ol>
         ${R.st === 'work' ? '<button type="button" class="btn btn-secondary rqd" data-reqdone="1">조치 완료 확인</button>' : ''}</section>`;
   }
@@ -373,7 +373,7 @@
       : `<div class="lvA s1 ${st}">${step('이상 판정')}<div class="tt"><span class="verdict-chip${V7 ? ' ds-badge' : ''} is-${st}">${WORD[st]}</span><h5>${k}, ${isHit ? x[1] : st==='plan' ? '측정 전' : '정상 범위 ' + x[1]}</h5></div>${loc}${cond}</div>`;
     // [11/02 v6] 측정 이력(11/02 "재발 여부" 에서 이름 바꿈 — 관제에서 익숙한 말, 반복 판단은 꼬리표가 한다) — Figma 처럼 네 줄을 다 보이고(줄 32 라 접을 만큼 길지 않다), 결론(처음 넘음 · 반복)은 머리 오른쪽 꼬리표로
     const histV6 = `<div class="sth"><b>측정 이력</b>${V7 ? '' : `<span class="hfl ${rep3 ? 'is-rep' : ''}">${rep3 ? '반복' : isHit ? '처음 넘음' : '계속 정상 범위'}</span>`}</div><div class="hist">${hist.map((h, n) => n===3 && RQ ? hiRow(h, n).replace(/<span class="verdict-chip [^"]*">[^<]*<\/span>/, rqBadge(RQ)).replace(/<span class="hia[^"]*">[^<]*<\/span>/, `<span class="hia on">${rqLine(RQ)}</span>`) : hiRow(h, n)).join('')}</div>`;
-    return `<div class="dtop"><button type="button" class="btn btn-secondary bkx" data-dback="1"><span class="i i-16" style="--i:var(--ic-chevron-left)" aria-hidden="true"></span>돌아가기</button><div class="tbs${V7 ? ' ds-tab-chip' : ''}">${tabs}</div></div>
+    return `<div class="dtop"><button type="button" class="btn btn-secondary bkx" data-dback="1"><span class="i i-16" style="--i:var(--ic-chevron-left)" aria-hidden="true"></span>돌아가기</button><div class="tbs${V7 ? ' ds-tab-chip is-fill' : ''}">${tabs}</div></div>
       <div class="dB">
         <div class="dBm">
           ${judge}
@@ -624,7 +624,7 @@
     return {fls, robotF, cur:mapF[i] && fls.includes(mapF[i]) ? mapF[i] : robotF}; }
   function floorBar(i, big){ const {fls, robotF, cur} = viewF(i);
     if(fls.length < 2) return `<span class="m2f"><span>${fls[0]}</span></span>`;
-    return `<span class="m2f${V7 ? ' ds-seg' : ''}" role="group" aria-label="층">${fls.map(f => `<button type="button" data-mf="${f}" data-mi="${i}" class="${V7 ? 'ds-tab ' : ''}${f===cur ? 'on' : ''}" aria-pressed="${f===cur}">${f}${f===robotF ? '<i title="로봇 있는 층"></i>' : ''}</button>`).join('')}</span>`; }
+    return `<span class="m2f${V7 ? ' ds-seg' : ''}" role="group" aria-label="층">${fls.map(f => `<button type="button" data-mf="${f}" data-mi="${i}" class="${V7 ? 'ds-tab ' : ''}${f===cur ? 'on' : ''}" aria-pressed="${f===cur}"${V7 && f===robotF ? ` aria-label="${f}, 로봇 있는 층"` : ''}>${f}${f===robotF ? (V7 ? '<i class="ds-dot is-info" title="로봇 있는 층"></i>' : '<i title="로봇 있는 층"></i>') : ''}</button>`).join('')}</span>`; }
   const LEG = '<div class="mlg"><span class="mli"><i class="c"></i>위험</span> <span class="mli"><i class="w"></i>주의</span> <span class="mli"><i class="o"></i>정상 범위</span> <span class="mli"><i class="p"></i>예정</span> <span class="mli"><svg viewBox="-9 -9 20 18" width="11" height="10"><path class="rbt" d="M10 0-7.5 8.5-3.6 0-7.5-8.5Z" stroke="none"/></svg>로봇</span></div>';
   // [11/02 v6] 범례 로봇도 지도와 같은 3D 탑뷰 그림(코가 오른쪽)
   //   그림은 그 미션 로봇과 같게(휠 로봇 Robot 05 면 모베드) — 지도의 robotTop 과 같은 규칙

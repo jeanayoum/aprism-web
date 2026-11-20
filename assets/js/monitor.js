@@ -1188,7 +1188,7 @@
         if (where6.indexOf(a.wp) === 0) { where6 = where6.slice(a.wp.length).trim(); }
         stamp.textContent = "";
         stamp.classList.add("ma-stamp6");
-        var pin6 = document.createElement("span"); pin6.className = "mbt-pin" + (document.body.classList.contains("ver-7") ? " ds-wp is-s" : ""); pin6.setAttribute("data-n", isNaN(wn) ? "" : String(wn));
+        var pin6 = document.createElement("span"); pin6.className = "mbt-pin" + (document.body.classList.contains("ver-7") ? " ds-wp" : ""); pin6.setAttribute("data-n", isNaN(wn) ? "" : String(wn));
         pin6.setAttribute("role", "img"); pin6.setAttribute("aria-label", a.wp);
         // [11/06 디자이너] 번호 원은 세 팝오버 · Delta 와 같은 꼴(지도 핀 색, 16px · 1px 테 — v6.css .mbt-pin). 지도 핀이 없으면(다른 층) 회색 기본 꼴
         if (ph) { pin6.setAttribute("style", ph.getAttribute("style") || ""); } else { pin6.classList.add("is-plain"); }
