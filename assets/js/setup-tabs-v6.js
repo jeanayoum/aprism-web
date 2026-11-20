@@ -103,7 +103,12 @@
     var opener = document.querySelector("[data-discard-open]");
     if (!dirty || !scrim || !opener) { window.location.href = href; return; }
     scrim.querySelector("[data-modal-confirm]").setAttribute("data-modal-confirm", href);
-    scrim.querySelector("[data-discard-to]").textContent = name;
+    var to = scrim.querySelector("[data-discard-to]");
+    // [11/20 정의서 관제화면-01 Q7] v7 — "○○으로 / ○○로" 를 이름 끝 글자에 맞춰 붙인다(받침 없음 · ㄹ 받침 = 로)
+    if (to.hasAttribute("data-josa")) {
+      var c = name.charCodeAt(name.length - 1) - 0xac00, jong = c >= 0 && c < 11172 ? c % 28 : 0;
+      to.textContent = name + (jong && jong !== 8 ? "으로" : "로");
+    } else { to.textContent = name; }
     opener.click();
   }
 
@@ -119,4 +124,19 @@
     if (tab.getAttribute("data-run") === "idle") { go(mission + " 미션 설정", "./mission-setup-v6.html" + q); }
     else { go(mission + " 관제", "./main-v6.html" + q); }
   });
+
+  // [11/20 정의서 관제화면-01 Q2] v7 한글 — [취소] 단추는 두지 않는다. 바꾼 설정이 있으면 GNB 로 떠날 때도 탭과 같은 확인을 먼저 묻는다
+  if (body.classList.contains("ver-7") && document.documentElement.lang !== "en") {
+    var rail = document.querySelector(".gnb-rail");
+    if (rail) {
+      rail.addEventListener("click", function (event) {
+        var a = event.target.closest && event.target.closest("a.gnb-item");
+        if (!a || body.getAttribute("data-stage") !== "setup") { return; }
+        var href = a.getAttribute("href");
+        if (!href || href === "#" || a.getAttribute("aria-current") === "page" || !dirty) { return; }
+        event.preventDefault();
+        go(a.textContent.trim() || "다른 화면", href);
+      });
+    }
+  }
 })();
