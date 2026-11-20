@@ -90,6 +90,8 @@ body.ver-7, body.ds-auth {   /* body.ds-auth: 로그인 쪽 화면(안내 상자
   --ds-delta-bubble-pad-y: var(--space-12);
   --ds-delta-bubble-pad-x: var(--space-16);
   --ds-delta-orb: 56px;                           /* 대화형 Delta 구슬 */
+  --ds-delta-open-w: 295px;                       /* 펼친 판 폭(대화형은 --d3-w 가 덮음) */
+  --ds-delta-open-inset: var(--space-20);         /* 펼친 판 위아래 띄움: 높이 = 판 높이 - 2배 */
 
   /* 글자 단계 (11/20, 관제 왼쪽 패널 기준). 1층 토큰(--font-size-*, --font-line-height-*, --font-weight-* = 400, 500, 600, 700, 800)을 엮은 2층 값. 800(--font-weight-extrabold)은 위쪽 미션 탭 이름에만 */
   --ds-type-title-size: var(--font-size-16);   --ds-type-title-line: var(--font-line-height-24);   --ds-type-title-weight: var(--font-weight-bold);      /* 영역 제목: 조치 필요 알림, 미션 설정 */
@@ -810,7 +812,7 @@ body.ver-7 .dc6-btns { gap: var(--ds-btn-between) !important; }   /* Delta 답�
 
 /* ==========================================================================
  * Delta (11/20, 한 곳에서 정의): Delta 관련 부품의 크기, 모양 값. 지금 화면 값 그대로 옮김(겉모습 변화 없음)
- *   디자인을 바꿀 때는 맨 위 "디자인 값"의 --ds-delta-* 만 고침. 색, 빛, 흐림은 아직 delta-v3.css, v6.css, v7.css 에 남음(다음 단계)
+ *   디자인을 바꿀 때는 맨 위 "디자인 값"의 --ds-delta-* 만 고침. 색, 빛, 흐림은 아래 "Delta 면, 빛, 흐림" 절(11/20 옮김)
  *   컴포넌트: Delta 표식, 유리 버튼(처리 순서 보기, 대화), 조치 버튼(알약), 묻기 칸과 보내기, 대화 말풍선과 구슬, 답변 알림 줄, 접기 토글
  *   사례: 접힌 카드(위젯), 펼친 답변 판, DELTA 조치 제안 카드(아래 사례 절), 인수인계 요약
  * ========================================================================== */
@@ -921,6 +923,83 @@ body.ver-7 .done-item.is-new::after { content: ""; position: absolute; inset: 0;
 body.ver-7 .ds-appear { animation: ds-appear var(--ds-motion-base) var(--ds-ease-base) both; }
 /* 토스트: 나타남 (자리 잡는 transform 과 겹치지 않게 translate 로 움직임) */
 body.ver-7 .toast:not([hidden]) { animation: ds-appear var(--ds-motion-base) var(--ds-ease-base) both; }
+
+/* ---------- Delta 면, 빛, 흐림 (11/20, 관제 v7 M1 기준 값 그대로 옮김) ----------
+ * 단계 3(보통 .delta3 단계 없음, 주의 .is-warning, 위험 .is-critical) x 상태 2(접힘 :not(.is-open), 펼침 .is-open) x 테마 2. v7(body.ver-7)에만 걸림, v6 이하 그대로
+ * 층: 바깥 판(접힘은 모서리 빛, 펼침은 면 + 안쪽 빛 + 흐림 12), 위 테 빛(펼침 ::after), 카드 면(접힘은 면 + 안쪽 빛 + 흐림 10), 이름 띠, 유리 버튼 둘, 본문 바탕
+ * 면과 빛은 단계 색 토큰(--status-*-bg, --comp-alert-*-glow-*, --effect-glass-edge, --bg-glass)과 Delta 전용 변수(--tone-*, --d3-ramp, 아래 정의)로 만듦
+ * 크기: 접힘 --ds-delta-widget(260) 정사각, 펼침 폭 --ds-delta-open-w(295), 높이는 판 높이 - 위아래 --ds-delta-open-inset(20) */
+body.ver-7 .delta3:not(.is-open) { width: var(--ds-delta-widget) !important; height: var(--ds-delta-widget) !important; }
+body.ver-7:not(.d3-chat) .delta3.is-open { width: var(--d3-w, var(--ds-delta-open-w)) !important; height: calc(100% - var(--ds-delta-open-inset) * 2) !important; }
+/* Delta 전용 변수 (라이트 면, 펼침 위 테 빛에 씀) */
+:root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open):not(.is-warning):not(.is-critical) { --d3-ramp: #1B77EE 0%, #0A49D7 12.5%, #1E2FB0 25%, #493891 37.5%, #74608B 50%, #858DA3 62.5%, #71A7C9 75%, #459EE9 87.5%, #1B77EE 100%; }
+:root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open).is-warning { --d3-ramp: #F2B020 0%, #D38210 12.5%, #A5521A 25%, #813D39 37.5%, #7D4F5A 50%, #9C7D6B 62.5%, #CBAD61 75%, #EEC242 87.5%, #F2B020 100%; }
+:root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open).is-critical { --d3-ramp: #F05937 0%, #D9321D 12.5%, #A3121E 25%, #6D0B3B 37.5%, #572262 50%, #6D487C 62.5%, #A3687B 75%, #D96F5E 87.5%, #F05937 100%; }
+:root[data-theme="light"] body.ver-7 .delta3:not(.is-open):not(.is-warning):not(.is-critical) { --tone-base: #4A7FD6; --tone-in: rgb(130 175 255 / 28%); --tone-glow: rgb(47 111 224 / 26%); --tone-c: linear-gradient(in oklab 165deg, #7C7397 0%, #6F7DAE 34%, #4A7FD6 70%, #2F6FE0 100%); --tone-e: linear-gradient(in oklab 105deg, #6E6890 0%, #6F7DAE 38%, #4A7FD6 72%, #2F6FE0 100%); --d3-ramp: #1B77EE 0%, #0A49D7 12.5%, #1E2FB0 25%, #493891 37.5%, #74608B 50%, #858DA3 62.5%, #71A7C9 75%, #459EE9 87.5%, #1B77EE 100%; }
+:root[data-theme="light"] body.ver-7 .delta3:not(.is-open).is-warning { --tone-base: #C88F1A; --tone-in: rgb(255 200 90 / 30%); --tone-glow: rgb(200 140 20 / 30%); --tone-c: linear-gradient(in oklab 165deg, #7C7397 0%, #A68566 34%, #C88F1A 70%, #C08308 100%); --tone-e: linear-gradient(in oklab 105deg, #6E6890 0%, #A68566 38%, #C88F1A 72%, #C08308 100%); --d3-ramp: #F2B020 0%, #D38210 12.5%, #A5521A 25%, #813D39 37.5%, #7D4F5A 50%, #9C7D6B 62.5%, #CBAD61 75%, #EEC242 87.5%, #F2B020 100%; }
+:root[data-theme="light"] body.ver-7 .delta3:not(.is-open).is-critical { --tone-base: #E2573B; --tone-in: rgb(255 120 80 / 35%); --tone-glow: rgb(236 68 38 / 34%); --tone-c: linear-gradient(in oklab 165deg, #7C7397 0%, #B86A77 34%, #E2573B 70%, #EC4426 100%); --tone-e: linear-gradient(in oklab 105deg, #6E6890 0%, #B86A77 38%, #E2573B 72%, #EC4426 100%); --d3-ramp: #F05937 0%, #D9321D 12.5%, #A3121E 25%, #6D0B3B 37.5%, #572262 50%, #6D487C 62.5%, #A3687B 75%, #D96F5E 87.5%, #F05937 100%; }
+:root:not([data-theme="light"]) body.ver-7 .delta3.is-open:not(.is-warning):not(.is-critical) { --d3-ramp: #1B77EE 0%, #0A49D7 12.5%, #1E2FB0 25%, #493891 37.5%, #74608B 50%, #858DA3 62.5%, #71A7C9 75%, #459EE9 87.5%, #1B77EE 100%; }
+:root:not([data-theme="light"]) body.ver-7 .delta3.is-open.is-warning { --d3-ramp: #F2B020 0%, #D38210 12.5%, #A5521A 25%, #813D39 37.5%, #7D4F5A 50%, #9C7D6B 62.5%, #CBAD61 75%, #EEC242 87.5%, #F2B020 100%; }
+:root:not([data-theme="light"]) body.ver-7 .delta3.is-open.is-critical { --d3-ramp: #F05937 0%, #D9321D 12.5%, #A3121E 25%, #6D0B3B 37.5%, #572262 50%, #6D487C 62.5%, #A3687B 75%, #D96F5E 87.5%, #F05937 100%; }
+:root[data-theme="light"] body.ver-7 .delta3.is-open:not(.is-warning):not(.is-critical) { --tone-base: #4A7FD6; --tone-in: rgb(130 175 255 / 28%); --tone-glow: rgb(47 111 224 / 26%); --tone-c: linear-gradient(in oklab 165deg, #7C7397 0%, #6F7DAE 34%, #4A7FD6 70%, #2F6FE0 100%); --tone-e: linear-gradient(in oklab 105deg, #6E6890 0%, #6F7DAE 38%, #4A7FD6 72%, #2F6FE0 100%); --d3-ramp: #1B77EE 0%, #0A49D7 12.5%, #1E2FB0 25%, #493891 37.5%, #74608B 50%, #858DA3 62.5%, #71A7C9 75%, #459EE9 87.5%, #1B77EE 100%; }
+:root[data-theme="light"] body.ver-7 .delta3.is-open.is-warning { --tone-base: #C88F1A; --tone-in: rgb(255 200 90 / 30%); --tone-glow: rgb(200 140 20 / 30%); --tone-c: linear-gradient(in oklab 165deg, #7C7397 0%, #A68566 34%, #C88F1A 70%, #C08308 100%); --tone-e: linear-gradient(in oklab 105deg, #6E6890 0%, #A68566 38%, #C88F1A 72%, #C08308 100%); --d3-ramp: #F2B020 0%, #D38210 12.5%, #A5521A 25%, #813D39 37.5%, #7D4F5A 50%, #9C7D6B 62.5%, #CBAD61 75%, #EEC242 87.5%, #F2B020 100%; }
+:root[data-theme="light"] body.ver-7 .delta3.is-open.is-critical { --tone-base: #E2573B; --tone-in: rgb(255 120 80 / 35%); --tone-glow: rgb(236 68 38 / 34%); --tone-c: linear-gradient(in oklab 165deg, #7C7397 0%, #B86A77 34%, #E2573B 70%, #EC4426 100%); --tone-e: linear-gradient(in oklab 105deg, #6E6890 0%, #B86A77 38%, #E2573B 72%, #EC4426 100%); --d3-ramp: #F05937 0%, #D9321D 12.5%, #A3121E 25%, #6D0B3B 37.5%, #572262 50%, #6D487C 62.5%, #A3687B 75%, #D96F5E 87.5%, #F05937 100%; }
+/* 접힘 바깥 판 */
+body.ver-7 .delta3:not(.is-open) { border-radius: 0 !important; }
+:root[data-theme="light"] body.ver-7 .delta3:not(.is-open) { box-shadow: none !important; background-color: transparent !important; }
+:root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open):not(.is-warning):not(.is-critical) { background-image: none !important; }
+:root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open).is-warning { background-image: radial-gradient(circle 226px at 0 0, color-mix(in srgb, var(--comp-alert-warning-glow-halo) 45%, transparent) 0%, color-mix(in srgb, var(--comp-alert-warning-glow-halo) 15%, transparent) 50%, transparent 100%) !important; }
+:root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open).is-critical { background-image: radial-gradient(circle 226px at 0 0, color-mix(in srgb, var(--comp-alert-critical-glow-halo) 60%, transparent) 0%, color-mix(in srgb, var(--comp-alert-critical-glow-halo) 22%, transparent) 50%, transparent 100%) !important; }
+:root[data-theme="light"] body.ver-7 .delta3:not(.is-open):not(.is-warning):not(.is-critical) { background-image: none !important; }
+:root[data-theme="light"] body.ver-7 .delta3:not(.is-open).is-warning { background-image: radial-gradient(circle 226px at 0 0, color-mix(in srgb, var(--comp-alert-warning-glow-halo) 35%, transparent) 0%, color-mix(in srgb, var(--comp-alert-warning-glow-halo) 12%, transparent) 50%, transparent 100%) !important; }
+:root[data-theme="light"] body.ver-7 .delta3:not(.is-open).is-critical { background-image: radial-gradient(circle 226px at 0 0, color-mix(in srgb, var(--comp-alert-critical-glow-halo) 35%, transparent) 0%, color-mix(in srgb, var(--comp-alert-critical-glow-halo) 12%, transparent) 50%, transparent 100%) !important; }
+/* 접힘 카드 면 */
+body.ver-7 .delta3:not(.is-open) .delta3-card { border-radius: var(--radius-container) !important; -webkit-backdrop-filter: blur(10px) !important; backdrop-filter: blur(10px) !important; }
+:root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open) .delta3-card { background-color: transparent !important; }
+:root[data-theme="light"] body.ver-7 .delta3:not(.is-open) .delta3-card { background-color: var(--tone-base) !important; }
+:root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open):not(.is-warning):not(.is-critical) .delta3-card { box-shadow: inset 0 2px 3px -1px var(--effect-glass-edge) !important; background-image: linear-gradient(to bottom, var(--bg-cell), var(--bg-glass)) !important; }
+:root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open).is-warning .delta3-card { box-shadow: inset 0 2px 3px -1px rgb(255 255 255 / 14%), 0 0 0 1px rgb(242 177 52 / 30%) !important; background-image: linear-gradient(to bottom, #4a3d22, rgb(110 84 30 / 50%)) !important; }
+:root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open).is-critical .delta3-card { box-shadow: inset 0 0 8px -3px var(--comp-alert-critical-glow-core), inset 0 0 20px 0 var(--comp-alert-critical-glow-halo), inset 0 2px 3px -1px var(--effect-glass-edge) !important; background-image: radial-gradient(circle 270px at 100% 100%, var(--bg-glass), var(--status-critical-bg)) !important; }
+:root[data-theme="light"] body.ver-7 .delta3:not(.is-open):not(.is-warning):not(.is-critical) .delta3-card { box-shadow: inset 0 2px 3px -1px rgb(255 255 255 / 35%), inset 0 0 20px 0 var(--tone-in), -24px -24px 80px -20px var(--tone-glow) !important; background-image: var(--tone-c) !important; }
+:root[data-theme="light"] body.ver-7 .delta3:not(.is-open).is-warning .delta3-card { box-shadow: inset 0 2px 3px -1px rgb(255 255 255 / 35%), inset 0 0 20px 0 var(--tone-in), -24px -24px 80px -20px var(--tone-glow) !important; background-image: var(--tone-c) !important; }
+:root[data-theme="light"] body.ver-7 .delta3:not(.is-open).is-critical .delta3-card { box-shadow: inset 0 2px 3px -1px rgb(255 255 255 / 35%), inset 0 0 20px 0 var(--tone-in), -24px -24px 80px -20px var(--tone-glow) !important; background-image: var(--tone-c) !important; }
+/* 접힘 이름 띠 */
+body.ver-7 .delta3:not(.is-open) .delta3-name::before { background-color: var(--bg-frame) !important; }
+/* 접힘 유리 버튼(처리 순서 보기) */
+body.ver-7 .delta3:not(.is-open) .delta3-plus { border-width: var(--border-width-thin) !important; border-style: solid !important; border-radius: var(--radius-pill) !important; background-image: none !important; -webkit-backdrop-filter: blur(4px) !important; backdrop-filter: blur(4px) !important; }
+:root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open) .delta3-plus { border-color: rgb(255 255 255 / 18%) !important; }
+:root[data-theme="light"] body.ver-7 .delta3:not(.is-open) .delta3-plus { border-color: rgb(255 255 255 / 40%) !important; }
+:root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open):not(.is-warning):not(.is-critical) .delta3-plus { background-color: rgb(255 255 255 / 10%) !important; }
+:root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open).is-warning .delta3-plus { background-color: rgb(255 255 255 / 20%) !important; }
+:root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open).is-critical .delta3-plus { background-color: rgb(255 255 255 / 20%) !important; }
+:root[data-theme="light"] body.ver-7 .delta3:not(.is-open):not(.is-warning):not(.is-critical) .delta3-plus { background-color: rgb(255 255 255 / 18%) !important; }
+:root[data-theme="light"] body.ver-7 .delta3:not(.is-open).is-warning .delta3-plus { background-color: rgb(255 255 255 / 26%) !important; }
+:root[data-theme="light"] body.ver-7 .delta3:not(.is-open).is-critical .delta3-plus { background-color: rgb(255 255 255 / 26%) !important; }
+/* 접힘 유리 버튼(대화) */
+body.ver-7 .delta3:not(.is-open) .delta3-talk { border-radius: var(--radius-pill) !important; border-width: var(--border-width-thin) !important; border-style: solid !important; -webkit-backdrop-filter: blur(4px) !important; backdrop-filter: blur(4px) !important; }
+:root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open) .delta3-talk { border-color: rgb(255 255 255 / 18%) !important; background-color: rgb(255 255 255 / 10%) !important; }
+:root[data-theme="light"] body.ver-7 .delta3:not(.is-open) .delta3-talk { border-color: rgb(255 255 255 / 40%) !important; background-color: rgb(255 255 255 / 18%) !important; }
+/* 펼침 바깥 판 */
+body.ver-7 .delta3.is-open { border-radius: var(--ds-delta-panel-radius) !important; -webkit-backdrop-filter: blur(12px) saturate(1.12) !important; backdrop-filter: blur(12px) saturate(1.12) !important; }
+:root:not([data-theme="light"]) body.ver-7 .delta3.is-open { background-color: transparent !important; }
+:root[data-theme="light"] body.ver-7 .delta3.is-open { background-color: var(--tone-base) !important; }
+:root:not([data-theme="light"]) body.ver-7 .delta3.is-open:not(.is-warning):not(.is-critical) { background-image: linear-gradient(to bottom, var(--bg-cell), var(--bg-glass)) !important; box-shadow: inset 0 2px 3px -1px var(--effect-glass-edge) !important; }
+:root:not([data-theme="light"]) body.ver-7 .delta3.is-open.is-warning { background-image: linear-gradient(180deg, rgb(56 49 22 / 94%) 0%, rgb(34 32 24 / 96%) 55%, rgb(26 28 29 / 97%) 100%) !important; box-shadow: inset 0 0 0 1px rgb(238 218 107 / 40%), inset 0 1px 0 rgb(255 255 255 / 8%), 0 8px 24px rgb(0 0 0 / 45%) !important; }
+:root:not([data-theme="light"]) body.ver-7 .delta3.is-open.is-critical { background-image: linear-gradient(to top, var(--bg-glass), var(--status-critical-bg)) !important; box-shadow: inset 0 0 8px -3px var(--comp-alert-critical-glow-core), inset 0 0 20px 0 var(--comp-alert-critical-glow-halo), inset 0 2px 3px -1px var(--effect-glass-edge) !important; }
+:root[data-theme="light"] body.ver-7 .delta3.is-open:not(.is-warning):not(.is-critical) { background-image: var(--tone-e) !important; box-shadow: inset 0 2px 3px -1px rgb(255 255 255 / 35%), 0 8px 24px rgb(11 14 19 / 14%) !important; }
+:root[data-theme="light"] body.ver-7 .delta3.is-open.is-warning { background-image: var(--tone-e) !important; box-shadow: inset 0 2px 3px -1px rgb(255 255 255 / 35%), 0 8px 24px rgb(11 14 19 / 14%) !important; }
+:root[data-theme="light"] body.ver-7 .delta3.is-open.is-critical { background-image: var(--tone-e) !important; box-shadow: inset 0 2px 3px -1px rgb(255 255 255 / 35%), 0 8px 24px rgb(11 14 19 / 14%) !important; }
+/* 펼침 위 테 빛 */
+body.ver-7 .delta3.is-open::after { opacity: 0.9 !important; }
+body.ver-7 .delta3.is-open:not(.is-warning):not(.is-critical)::after { background-image: linear-gradient(90deg, var(--d3-ramp)) !important; }
+body.ver-7 .delta3.is-open.is-warning::after { background-image: linear-gradient(90deg, var(--d3-ramp)) !important; }
+body.ver-7 .delta3.is-open.is-critical::after { background-image: linear-gradient(90deg, transparent, rgb(255 110 84 / 90%) 30%, rgb(255 140 110) 50%, rgb(255 110 84 / 90%) 70%, transparent) !important; }
+/* 펼침 카드 면 */
+body.ver-7 .delta3.is-open .delta3-card { border-radius: var(--radius-container) !important; background-image: none !important; }
+:root:not([data-theme="light"]) body.ver-7 .delta3.is-open .delta3-card { box-shadow: inset 0 0 0 1px rgb(255 255 255 / 6%) !important; background-color: #1B1F25 !important; }
+:root[data-theme="light"] body.ver-7 .delta3.is-open .delta3-card { box-shadow: inset 0 0 0 1px rgb(255 255 255 / 70%) !important; background-color: #FAFAFA !important; }
+/* 펼침 본문 바탕 */
+body.ver-7 .delta3.is-open .delta3-body::before { border-radius: var(--radius-4) !important; background-color: transparent !important; }
 
 /* ==========================================================================
  * 사례 (Case Studies, 11/20): 컴포넌트를 실제 화면 한 덩이로 엮은 것. 새 부품이 아니라 조합 규칙만 둔다
