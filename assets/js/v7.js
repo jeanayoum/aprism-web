@@ -256,7 +256,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var n = running();
     sh.querySelector("#v7m-sh-d").innerHTML = n > 0
       ? "수행 중인 로봇 " + n + "대가 있어 로그아웃할 수 없어요.<br />교대해도 로봇 임무는 중단되지 않아요."
-      : "교대할 관제사가 로그인하면 관제가 그대로 이어져요.";
+      : "교대할 관제사 계정으로 로그인하세요.";
   };
   sh._onHide = reset;
   idIn.addEventListener("input", function () { setErr(idIn, ""); setErr(pwIn, ""); setLock((fails()[idIn.value.trim()] || 0) >= MAX); });
