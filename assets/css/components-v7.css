@@ -26,7 +26,7 @@ body.ver-7 {
   --ds-badge-line-height: var(--font-line-height-18);
   --ds-badge-font-weight: var(--font-weight-medium);
   --ds-badge-row-gap: var(--space-8);             /* 표 칸 배지와 글자 사이 */
-  /* --ds-badge-neutral-bg: var(--bg-map-chip); */
+  /* --ds-badge-neutral-bg: 다크 --bg-glass, 라이트 회색 300 (아래 블록, 11/20) */
   --ds-ai-ramp: #1B77EE 0%, #0A49D7 12.5%, #1E2FB0 25%, #493891 37.5%, #74608B 50%, #858DA3 62.5%, #71A7C9 75%, #459EE9 87.5%, #1B77EE 100%;   /* AI 추천 Delta 아이콘 (Delta 스펙트럼) */
 
   /* WP 번호 원 */
@@ -145,6 +145,12 @@ body.ver-7 .sf-scope .wd.crit, body.ver-7 .sf-scope .wd.warn { width: 12px; heig
 /* 화면에는 안 보이고 읽어 주기만 하는 글자 */
 body.ver-7 .ds-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
+/* 회색 배지 면(판정 정상, AI 추천)이 바탕과 같아져 안 보이던 것 (11/20, 안전진단 표와 상세의 정상 범위)
+ *   다크: --bg-map-chip(회색 900의 50%)이 어두운 바탕에 묻힘 → --bg-glass(회색 600의 40%)
+ *   라이트: v6.css가 --bg-map-chip 을 회색 200으로 두어 회색 200 바탕(안전진단 판정 칸)과 같음 → 회색 300 */
+:root[data-theme="dark"] body.ver-7 { --ds-badge-neutral-bg: var(--bg-glass); }
+:root[data-theme="light"] body.ver-7 { --ds-badge-neutral-bg: var(--color-gray-300); }
+
 /* ---------- 배지와 태그: 누르지 않음, 상태 없음 ----------
  * 화면 코드는 예전 클래스 옆에 .ds-badge 를 덧붙인다(v7만, 11/19 4단계). 모양 값은 !important 로 예전 클래스 규칙을 이김
  * 면 있는 배지: .ds-badge.is-{crit|warn|info|safe|neutral|ok}   태그(면 없음): .is-plain 을 더함
@@ -221,11 +227,10 @@ body.ver-7 .ds-badge-row { display: inline-flex; align-items: center; gap: var(-
 body.ver-7 .ds-wp {
   display: inline-grid !important; place-items: center !important; flex: none; box-sizing: border-box !important;
   width: var(--ds-wp-size) !important; height: var(--ds-wp-size) !important; min-width: var(--ds-wp-size) !important; min-height: 0 !important; padding: 0 !important; border-radius: var(--radius-pill) !important;
-  font-family: inherit; font-size: var(--ds-wp-font-size) !important; line-height: 1 !important; letter-spacing: 0 !important; font-variant-numeric: tabular-nums;
+  font-family: inherit; font-size: var(--ds-wp-font-size) !important; line-height: 1 !important; letter-spacing: 0 !important; font-variant-numeric: normal !important;   /* 고정폭 숫자는 1이 칸 오른쪽에 그려져 원 가운데에서 밀림(11/20 캡처 확인) */
 }
 body.ver-7 .ds-wp.is-s { width: var(--ds-wp-size-s) !important; height: var(--ds-wp-size-s) !important; min-width: var(--ds-wp-size-s) !important; }
-body.ver-7 .ds-wp::after { font-family: inherit !important; font-size: var(--ds-wp-font-size) !important; line-height: 1 !important; letter-spacing: 0 !important; }
-body.ver-7 .ds-wp.is-s, body.ver-7 .ds-wp.is-s::after { letter-spacing: -0.04em !important; }   /* 16 원(테 1)에 두 자리 숫자가 들어가게 */
+body.ver-7 .ds-wp::after { font-variant-numeric: normal !important; font-family: inherit !important; font-size: var(--ds-wp-font-size) !important; line-height: 1 !important; letter-spacing: 0 !important; }
 :where(body.ver-7 .ds-wp) { border: 0; background-color: var(--bg-cell); color: var(--text-secondary); font-weight: var(--font-weight-medium); }
 /* 위험, 주의: 속 비운 원 + 단계 색 테 + 단계 색 숫자 (지금 Delta 번호 원, 지도 위험 핀 머리와 같은 꼴) */
 :where(body.ver-7 .ds-wp.is-crit) { border: var(--ds-wp-ring) solid var(--status-critical-icon); background-color: var(--bg-raised); color: var(--status-critical-icon); font-weight: var(--font-weight-bold); }

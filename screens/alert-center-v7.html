@@ -33,7 +33,7 @@
   <!-- v6 전용 규칙 — v5 는 10/30 부로 멈췄다. v6 에서 바꾸는 것은 여기(body.ver-6)에. -->
   <link rel="stylesheet" href="../assets/css/v6.css?v=fbf27a9f" />
   <link rel="stylesheet" href="../assets/css/v7.css?v=0ada2678" />
-  <link rel="stylesheet" href="../assets/css/components-v7.css?v=f6fcd13b" />
+  <link rel="stylesheet" href="../assets/css/components-v7.css?v=521f78fe" />
   <script src="../assets/js/ds-v7.js?v=b42604f0"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
@@ -168,8 +168,9 @@
         <div class="ac-title-controls">
           <!-- Figma 는 Size=Medium(36) 이다. 아래 [조치 완료] 도 36 으로 맞췄다 —
                Figma 에서는 주 동작이 32 로 보조보다 작았다. -->
-          <button type="button" class="btn btn-secondary is-md">
-            <span class="i i-20" style="--i:var(--ic-download)" aria-hidden="true"></span>
+          <!-- [11/20 v7] 보고서 내보내기는 Large 40 → Medium 32(기본 .btn), 아이콘 16 -->
+          <button type="button" class="btn btn-secondary">
+            <span class="i i-16" style="--i:var(--ic-download)" aria-hidden="true"></span>
             보고서 내보내기
           </button>
         </div>
