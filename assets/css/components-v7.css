@@ -26,7 +26,8 @@ body.ver-7 {
   --ds-badge-line-height: var(--font-line-height-18);
   --ds-badge-font-weight: var(--font-weight-medium);
   --ds-badge-row-gap: var(--space-8);             /* 표 칸 배지와 글자 사이 */
-  /* 회색 배지 면 --ds-badge-neutral-bg, AI 추천 면 --ds-badge-ai-bg: 테마와 판 범위마다 달라 아래 블록 (11/20) */
+  /* 회색 배지 면 --ds-badge-neutral-bg: 테마와 판 범위마다 달라 아래 블록 (11/20) */
+  /* --ds-badge-ai-bg: var(--bg-map-chip); */   /* AI 추천 면 (예전 회색 배지 면) */
   --ds-ai-ramp: #1B77EE 0%, #0A49D7 12.5%, #1E2FB0 25%, #493891 37.5%, #74608B 50%, #858DA3 62.5%, #71A7C9 75%, #459EE9 87.5%, #1B77EE 100%;   /* AI 추천 Delta 아이콘 (Delta 스펙트럼) */
 
   /* WP 번호 원 */
@@ -150,9 +151,7 @@ body.ver-7 .ds-sr { position: absolute; width: 1px; height: 1px; margin: -1px; p
  *   값은 배지마다 걸어 판 범위를 따라감(다크 화면 안 밝은 Delta 판 .is-light-scope 등). 어두운 바탕은 회색 600의 40%, 밝은 바탕은 회색 300 */
 :root[data-theme="dark"] body.ver-7 .ds-badge, :root[data-theme="light"] body.ver-7 .is-dark-scope .ds-badge { --ds-badge-neutral-bg: var(--color-alpha-gray-600-40); }
 :root[data-theme="light"] body.ver-7 .ds-badge, :root[data-theme="dark"] body.ver-7 .is-light-scope .ds-badge { --ds-badge-neutral-bg: var(--color-gray-300); }
-/* AI 추천 면 (11/20 보는 중, 정하기 전): 지금은 회색 배지 면과 같은 값. 아래 두 줄을 지우면 회색 배지 면을 그대로 따름 */
-:root[data-theme="dark"] body.ver-7 .ds-badge, :root[data-theme="light"] body.ver-7 .is-dark-scope .ds-badge { --ds-badge-ai-bg: var(--color-alpha-gray-600-40); }
-:root[data-theme="light"] body.ver-7 .ds-badge, :root[data-theme="dark"] body.ver-7 .is-light-scope .ds-badge { --ds-badge-ai-bg: var(--color-gray-300); }
+/* AI 추천 면 (11/20 정함): 예전 회색 배지 면 그대로(--bg-map-chip, 투명도 있는 회색). 판정, 처리 상태 회색과 다르게 둠 */
 
 /* ---------- 배지와 태그: 누르지 않음, 상태 없음 ----------
  * 화면 코드는 예전 클래스 옆에 .ds-badge 를 덧붙인다(v7만, 11/19 4단계). 모양 값은 !important 로 예전 클래스 규칙을 이김
@@ -218,7 +217,7 @@ body.ver-7 .ds-badge.ds-i-clock { --ds-i: var(--ic-clock); }
 body.ver-7 .ds-badge.ds-i-dot:not(.ds-i-none)::before { width: 6px !important; height: 6px !important; margin: 0 calc((12px - 6px) / 2) !important; border-radius: var(--radius-pill) !important; -webkit-mask: none !important; mask: none !important; }
 body.ver-7 .ds-badge:is(.ds-i-big, .is-ok:not([class*="ds-i-"])):not(.ds-i-none)::before { width: 8px !important; height: 8px !important; margin: 0 calc((12px - 8px) / 2) !important; border-radius: var(--radius-pill) !important; -webkit-mask: none !important; mask: none !important; }
 /* 출처 AI 추천 (A안, 11/19): 회색 면 + Delta 스펙트럼 색 Delta 아이콘 */
-body.ver-7 .ds-badge.ds-i-delta { --ds-i: var(--ic-delta); background-color: var(--ds-badge-ai-bg, var(--ds-badge-neutral-bg, var(--bg-map-chip))) !important; }
+body.ver-7 .ds-badge.ds-i-delta { --ds-i: var(--ic-delta); background-color: var(--ds-badge-ai-bg, var(--bg-map-chip)) !important; }
 body.ver-7 .ds-badge.ds-i-delta::before { background: linear-gradient(135deg, var(--ds-ai-ramp)) !important; }
 
 /* 표 칸 안 배지 + 글자 */

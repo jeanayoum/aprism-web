@@ -1567,8 +1567,13 @@ body.ver-7 .ac-done-acts > li { display: flex; align-items: center; gap: var(--s
 body.ver-7 .ac-done-acts > li > .i { flex: none; color: var(--text-tertiary); }
 
 /* [11/20] 알림센터 조치 요청된 알림: 이미 처리를 맡긴 일이라 신호색을 뺌(목록 패널은 신호색 하나만). 원 등급은 모양과 글자만 회색으로 남김
- *   목록: 원 등급 태그 회색, 알림 이름 보통 굵기. 상세: 원 등급 배지 회색 면, 값과 판정 글자 기본 색 */
+ *   목록: 원 등급 태그 회색, 알림 이름 보통 굵기, 머리 건수 회색. 상세: 원 등급은 보통 판정 배지(색 그대로), 값과 판정 글자 기본 색 */
 body.ver-7 .ac-done-row .ds-badge:is(.is-crit, .is-warn) { color: var(--text-tertiary) !important; --ds-i-color: var(--text-tertiary); }
 body.ver-7 .ac-done-row .ac-dc-title { font-weight: var(--font-weight-regular); }
-body.ver-7 .ac-record .verdict-chip.ds-badge { background-color: var(--ds-badge-neutral-bg, var(--bg-map-chip)) !important; color: var(--text-secondary) !important; --ds-i-color: var(--text-tertiary); }
 body.ver-7 .ac-record .ac-d6-val, body.ver-7 .ac-record .ac-d6-vd { color: var(--text-primary) !important; }
+body.ver-7 .ac-head-badges.is-done-tab .ds-badge:is(.is-crit, .is-warn) { color: var(--text-tertiary) !important; --ds-i-color: var(--text-tertiary); }
+/* [11/20] 가운데점, 쉼표 대신 칸 나눔: 칸 사이 12. 원 등급과 발생은 두 칸 */
+body.ver-7 .ac-cells { display: inline-flex; align-items: center; gap: var(--space-12); min-width: 0; }
+body.ver-7 .ac-dc-act .ac-cells { display: inline; } body.ver-7 .ac-dc-act .ac-cells > span + span { margin-left: var(--space-12); }
+body.ver-7 .ac-dc-sev { width: 56px !important; gap: 0 !important; }
+body.ver-7 .ac-dc-occ { flex: none; width: 72px; color: var(--text-tertiary); white-space: nowrap; }

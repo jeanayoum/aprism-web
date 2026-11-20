@@ -389,6 +389,10 @@
   // [11/20 v7] 문구에 가운데점(·) 구분자를 쓰지 않음 — 데이터 글의 " · " 를 쉼표로
   var V7 = document.body.classList.contains("ver-7");
   function nd(t) { return V7 ? String(t).replace(/\s*·\s*/g, ", ") : t; }
+  // 짧은 나열(문장이 아닌 것)은 쉼표 대신 칸으로 나눔 — 칸 사이는 CSS(.ac-cells, 사이 12). 문장 안 나열은 쉼표 그대로(11/20)
+  function isSentence(t) { return /[.요다]\s*$|[.!?]\s/.test(String(t).trim()); }
+  function cells(parts) { return '<span class="ac-cells">' + parts.map(function (x) { return '<span>' + esc(x) + '</span>'; }).join("") + '</span>'; }
+  function ndHtml(t) { return V7 && !isSentence(t) && /·/.test(t) ? cells(String(t).split(/\s*·\s*/)) : esc(nd(t)); }
   // [11/20 v7] 처리 정보 DELTA 줄: 고른 조치는 위 조치 내용이 말하므로 괄호 목록을 되풀이하지 않음(쓰지 않은 경우의 추천 목록만 남김)
   function deltaLine(t) { return V7 && !/쓰지 않음/.test(t) ? String(t).replace(/\s*\([^)]*\)\s*$/, "") : nd(t); }
 
@@ -409,8 +413,8 @@
     colHead.innerHTML = state.tab === "done"
       ? '<span class="ac-dc-check" role="columnheader"><span class="ac-sr">상태</span></span>' +
         '<span class="ac-dc-time" role="columnheader">조치</span>' +
-        '<span class="ac-dc-body" role="columnheader">' + nd("알림 · 조치 내용") + '</span>' +
-        '<span class="ac-dc-sev" role="columnheader">' + nd("원 등급 · 발생") + '</span>' +
+        '<span class="ac-dc-body" role="columnheader">' + (V7 ? "알림" : "알림 · 조치 내용") + '</span>' +
+        (V7 ? '<span class="ac-dc-sev" role="columnheader">원 등급</span><span class="ac-dc-occ" role="columnheader">발생</span>' : '<span class="ac-dc-sev" role="columnheader">원 등급 · 발생</span>') +
         '<span class="ac-dc-who" role="columnheader">담당</span>'
       : '<span class="ac-c-sev" role="columnheader"><span class="ac-sr">단계</span></span>' +
         '<span class="ac-c-time" role="columnheader">발생</span>' +
@@ -471,11 +475,11 @@
         '<span class="ac-dc-time ac-mono" role="gridcell">' + esc(d.at) + '</span>' +
         '<span class="ac-dc-body" role="gridcell">' +
           '<span class="ac-dc-title t-label-2">' + esc(titleOf(a)) + '</span>' +
-          '<span class="ac-dc-act t-caption">' + esc(d.picked.join(", ")) + '</span>' +
+          (V7 ? '<span class="ac-dc-act t-caption">' + cells(d.picked) + '</span>' : '<span class="ac-dc-act t-caption">' + esc(d.picked.join(", ")) + '</span>') +
         '</span>' +
         '<span class="ac-dc-sev t-caption" role="gridcell">' +
           (document.body.classList.contains("ver-7") && window.ds   // [11/19 v7] 태그 [▲ 주의] + 시각 (공통 CSS)
-            ? window.ds.badgeRow(window.ds.badge(a.sev === "critical" ? "crit" : "warn", SEV_LABEL[a.sev], { plain: true }), esc(shortTime(a.time)))
+            ? window.ds.badge(a.sev === "critical" ? "crit" : "warn", SEV_LABEL[a.sev], { plain: true }) + '</span><span class="ac-dc-occ t-caption" role="gridcell">' + esc(shortTime(a.time))   // [11/20] 원 등급, 발생 두 칸
             : '<span class="ac-sev-dot" aria-hidden="true"></span>' +
               '<span>' + SEV_LABEL[a.sev] + " " + esc(shortTime(a.time)) + '</span>') +
         '</span>' +
@@ -918,7 +922,7 @@
       head6(a, "원 등급 ",
         '<p class="ac-record-age">' +
           '<span class="ac-record-at t-label-1">' + esc(DAYS[d.day].label) + ' ' + esc(d.at) + '</span>' +
-          '<span class="ac-record-by t-caption">' + (V7 ? '조치 ' + esc(d.by) + ', ' + esc(d.took) : '조치 · ' + esc(d.by) + ' · ' + esc(d.took)) + '</span>' +
+          '<span class="ac-record-by t-caption">' + (V7 ? cells(['조치 ' + d.by, d.took]) : '조치 · ' + esc(d.by) + ' · ' + esc(d.took)) + '</span>' +
         '</p>') +
       snap6(a,
         metaRow("발생", '<span class="ac-mono">' + esc(a.stamp) + '</span>') +
@@ -1039,6 +1043,7 @@
 
     // 탭 옆 배지는 그 탭의 단계별 건수다.
     $("[data-ac-badge-crit]").textContent = "위험 " + (state.tab === "done" ? doneCrit : openCrit);
+    var hb = document.querySelector(".ac-head-badges"); if (hb) { hb.classList.toggle("is-done-tab", state.tab === "done"); }   // [11/20 v7] 끝난 일 건수는 회색
     $("[data-ac-badge-warn]").textContent = "주의 " + (state.tab === "done" ? doneWarn : openWarn);
 
     // 등급 필터는 두 탭을 합친 전체 건수다.
@@ -1056,7 +1061,7 @@
         // [11/02 v6] Delta 표식은 DELTA 조치 제안 판과 같은 Delta 로고(예전 판은 cpu)
         '<span class="ac-handover-mark">' + icon(V6 ? "--ic-delta" : "--ic-cpu", 16) +
           '<span class="t-label-2">DELTA 인수인계 요약</span></span>' +
-        '<span class="ac-handover-when t-caption">' + esc(nd(HANDOVER.when)) + '</span>' +
+        '<span class="ac-handover-when t-caption">' + ndHtml(HANDOVER.when) + '</span>' +
         '<span class="ac-head-spacer"></span>' +
         '<button type="button" class="btn btn-ghost is-xs" data-ac-handover-close>닫기</button>' +
       '</div>' +
@@ -1064,7 +1069,7 @@
         HANDOVER.items.map(function (it) {
           return '<div class="ac-handover-row">' +
             '<dt class="t-label-2">' + esc(it[0]) + '</dt>' +
-            '<dd class="t-body-4">' + esc(nd(it[1])) + '</dd></div>';
+            '<dd class="t-body-4">' + ndHtml(it[1]) + '</dd></div>';
         }).join("") +
       '</dl>' +
       '<div class="ac-handover-actions">' +
