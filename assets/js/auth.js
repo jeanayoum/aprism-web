@@ -109,7 +109,7 @@
   var form = document.querySelector("[data-login-form]");
   if (form) {
     // [11/20 정의서 CM-02] v2 — 빈 칸이면 요청하지 않고 첫 빈 칸으로(Q1), 요청 중에는 버튼 안 로딩 · 다시 못 누름(Q2),
-    //   자동 로그인 켜면 12시간, 끄면 시스템을 닫을 때까지 로그인 유지(Q3)
+    //   자동 로그인 켜면 마지막 접속부터 72시간(기존 기획 UI_04), 끄면 시스템을 닫을 때까지 로그인 유지(Q3)
     var EMPTY = { "login-id": "아이디를 입력하세요", "login-pw": "비밀번호를 입력하세요" };
     var setErr = function (input, on) {
       var field = input.closest(".field"); if (!field) { return; }
@@ -122,6 +122,46 @@
       }
       if (help) { help.textContent = on ? EMPTY[input.id] : ""; help.hidden = !on; }
     };
+    // [11/20 정의서 CM-03] v2 — 인증 실패 · 계정 잠금. 시연: 비밀번호 "wrong" 이면 실패, 같은 아이디로 5번 실패하면 잠김.
+    //   주소 ?demo=fail · ?demo=lock 으로 바로 그 상태를 연다(캡처용). 남은 횟수 · 잠금은 서버가 정하는 값의 자리
+    var MAX = 5, FAILS = "aprism.fails";
+    var idIn = document.getElementById("login-id"), pwIn = document.getElementById("login-pw");
+    var fails = function () { try { return JSON.parse(sessionStorage.getItem(FAILS) || "{}"); } catch (e) { return {}; } };
+    var saveFails = function (o) { try { sessionStorage.setItem(FAILS, JSON.stringify(o)); } catch (e) { /* 막힘 */ } };
+    var authErr = function (msg) {
+      [idIn, pwIn].forEach(function (el) { if (el) { setErr(el, false); el.closest(".field").classList.toggle("is-error", !!msg); el.setAttribute("aria-invalid", msg ? "true" : "false"); } });
+      if (!msg || !pwIn) { return; }
+      var field = pwIn.closest(".field"), help = field.querySelector(".field-helper");
+      if (!help) { help = document.createElement("p"); help.className = "field-helper t-caption"; help.setAttribute("role", "alert"); help.id = "login-pw-help"; pwIn.setAttribute("aria-describedby", help.id); field.appendChild(help); }
+      help.textContent = msg; help.hidden = false;
+    };
+    var lockBox = null;
+    var setLock = function (on) {
+      var btn0 = form.querySelector(".login-submit");
+      if (on && !lockBox) {
+        lockBox = document.createElement("div");
+        lockBox.className = "login-alert"; lockBox.setAttribute("role", "alert");
+        lockBox.innerHTML = '<span class="i i-20" aria-hidden="true"></span><div><p class="login-alert-title">계정이 잠겼어요</p>' +
+          '<p class="login-alert-text">비밀번호를 ' + MAX + '회 잘못 입력했어요. 설비운영팀(내선 2400)에 잠금 해제를 요청하세요.</p></div>';
+        form.querySelector(".login-head").insertAdjacentElement("afterend", lockBox);
+      } else if (!on && lockBox) { lockBox.remove(); lockBox = null; }
+      if (btn0) { btn0.disabled = on; }
+      if (pwIn) { pwIn.disabled = on; }
+      if (on) { authErr(null); }
+    };
+    var isLocked = function () { var id0 = idIn ? idIn.value.trim() : ""; return (fails()[id0] || 0) >= MAX; };
+    if (V2 && idIn) {
+      idIn.addEventListener("input", function () { setLock(isLocked()); if (!lockBox) { authErr(null); } });
+      // 비밀번호 변경 화면에서 잠겨 돌아오면 그 아이디로 잠금 안내(CM-04 Q4)
+      var lastUser = ""; try { lastUser = sessionStorage.getItem("aprism.user") || ""; } catch (e) { lastUser = ""; }
+      if (lastUser && (fails()[lastUser] || 0) >= MAX) { idIn.value = lastUser; setLock(true); }
+      var demo = (/[?&]demo=(fail|lock)/.exec(location.search) || [])[1];
+      if (demo) {
+        idIn.value = "hong.gd";
+        var o = {}; o["hong.gd"] = demo === "lock" ? MAX : 2; saveFails(o);
+        if (demo === "lock") { setLock(true); } else { authErr("아이디 또는 비밀번호가 맞지 않아요 (남은 시도 " + (MAX - 2) + "회)"); }
+      }
+    }
     if (V2) {
       Object.keys(EMPTY).forEach(function (k) {
         var el = document.getElementById(k);
@@ -140,6 +180,7 @@
           if (empty && !first) { first = el; }
         });
         if (first) { first.focus(); return; }
+        if (isLocked()) { setLock(true); return; }
       }
       // 친 아이디만 남긴다. 비밀번호 변경 화면의 "아이디와 3자 이상 연속 일치 금지" 가
       // 이 값을 본다 — 그 화면에는 아이디 칸이 없다. 비밀번호는 남기지 않는다.
@@ -152,14 +193,26 @@
       if (V2) {
         var keep = form.querySelector('input[name="remember"]');
         try {
-          if (keep && keep.checked) { localStorage.setItem(SIGNED, String(Date.now() + 12 * 3600 * 1000)); }
+          if (keep && keep.checked) { localStorage.setItem(SIGNED, String(Date.now() + 72 * 3600 * 1000)); }
           else { sessionStorage.setItem(SIGNED, "1"); }
         } catch (e) { /* 막힘 */ }
         if (btn) {
           btn.disabled = true; btn.classList.add("is-loading"); btn.setAttribute("aria-busy", "true");
           btn.innerHTML = '<span class="i i-20 login-spin" aria-hidden="true"></span><span class="sr-only">로그인 중</span>';
         }
-        window.setTimeout(function () { location.href = (window.aprismHref || String)(landing()); }, 700);   // 시연 — 서버 응답 자리
+        var uid = idIn ? idIn.value.trim() : "", bad = pwIn && pwIn.value === "wrong";
+        window.setTimeout(function () {   // 시연 — 서버 응답 자리
+          if (!bad) {
+            var o2 = fails(); delete o2[uid]; saveFails(o2);
+            location.href = (window.aprismHref || String)(landing()); return;
+          }
+          try { sessionStorage.removeItem(SIGNED); localStorage.removeItem(SIGNED); } catch (e) { /* 막힘 */ }
+          var o3 = fails(); o3[uid] = (o3[uid] || 0) + 1; saveFails(o3);
+          if (btn) { btn.classList.remove("is-loading"); btn.removeAttribute("aria-busy"); btn.textContent = "로그인"; btn.disabled = false; }
+          if (o3[uid] >= MAX) { setLock(true); return; }
+          pwIn.value = ""; pwIn.focus();
+          authErr("아이디 또는 비밀번호가 맞지 않아요 (남은 시도 " + (MAX - o3[uid]) + "회)");
+        }, 700);
         return;
       }
       location.href = (window.aprismHref || String)(landing());
@@ -195,7 +248,7 @@
 
     var RULES = {
       // 4자 이상
-      length: function (pw) { return pw.length >= 4; },
+      length: function (pw) { return pw.length >= (V2 ? 8 : 4); },   // [11/20 정의서 CM-04 Q1] v2 는 8자
 
       // 영문 · 숫자 · 특수문자 중 2종 이상
       kinds: function (pw) {
@@ -258,10 +311,38 @@
 
     // 붙일 서버가 없는 퍼블리싱 화면이라 값을 보내지 않고 다음 화면으로 넘긴다.
     // 비밀번호를 바꾸고 나면 그대로 들어가는 흐름이라 로그인과 같은 자리로 간다.
+    // [11/20 정의서 CM-04 Q4] v2 — 현재 비밀번호가 틀리면(시연: wrong) 현재 칸 오류 + 남은 시도. 로그인 실패와 같이 세고 5회면 잠금 → 로그인 화면(잠금 안내)
+    var curErr = function (msg) {
+      var field = current.closest(".field"), help = field.querySelector(".field-helper");
+      field.classList.toggle("is-error", !!msg); current.setAttribute("aria-invalid", msg ? "true" : "false");
+      if (msg && !help) { help = document.createElement("p"); help.className = "field-helper t-caption"; help.setAttribute("role", "alert"); help.id = "pwx-current-help"; current.setAttribute("aria-describedby", help.id); field.appendChild(help); }
+      if (help) { help.textContent = msg || ""; help.hidden = !msg; }
+    };
+    if (V2) { current.addEventListener("input", function () { curErr(null); }); }
     pwForm.addEventListener("submit", function (event) {
       event.preventDefault();
       if (submit.disabled) { return; }
-      if (V2) { try { sessionStorage.setItem(SIGNED, "1"); } catch (e) { /* 막힘 */ } }
+      if (V2) {
+        var label = submit.textContent, bad = current.value === "wrong";
+        submit.disabled = true; submit.classList.add("is-loading"); submit.setAttribute("aria-busy", "true");
+        submit.innerHTML = '<span class="i i-20 login-spin" aria-hidden="true"></span><span class="sr-only">변경 중</span>';
+        window.setTimeout(function () {   // 시연 — 서버 응답 자리
+          if (!bad) {
+            try { sessionStorage.setItem(SIGNED, "1"); } catch (e) { /* 막힘 */ }
+            location.href = (window.aprismHref || String)(landing()); return;
+          }
+          var uid = "", o = {};
+          try { uid = sessionStorage.getItem("aprism.user") || ""; } catch (e) { uid = ""; }
+          try { o = JSON.parse(sessionStorage.getItem("aprism.fails") || "{}"); } catch (e) { o = {}; }
+          o[uid] = (o[uid] || 0) + 1;
+          try { sessionStorage.setItem("aprism.fails", JSON.stringify(o)); } catch (e) { /* 막힘 */ }
+          if (o[uid] >= 5) { location.href = (window.aprismHref || String)("./login-v2.html"); return; }
+          submit.classList.remove("is-loading"); submit.removeAttribute("aria-busy"); submit.textContent = label;
+          current.value = ""; current.focus(); check();
+          curErr("현재 비밀번호가 맞지 않아요 (남은 시도 " + (5 - o[uid]) + "회)");
+        }, 700);
+        return;
+      }
       location.href = (window.aprismHref || String)(landing());
     });
   }

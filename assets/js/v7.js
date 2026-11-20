@@ -110,3 +110,33 @@ document.addEventListener("DOMContentLoaded", function () {
     window.addEventListener("resize", function () { clearTimeout(t); t = setTimeout(fit, 120); });
   });
 })();
+
+// [11/20 정의서 CM-02 · 기존 기획 UI_04] 자동 로그인 = 마지막 접속부터 72시간 — v7 화면을 열 때마다 기한을 다시 72시간으로 늘린다(auth.js 가 처음 적는다)
+(function () {
+  try {
+    var v = Number(localStorage.getItem("aprism.signedIn") || 0);
+    if (v > Date.now()) { localStorage.setItem("aprism.signedIn", String(Date.now() + 72 * 3600 * 1000)); }
+  } catch (e) { /* 막힘 */ }
+})();
+
+/*
+ * [11/20 정의서 CM-06] 자동 로그아웃 — 입력(마우스 · 키 · 휠 · 터치)이 일정 시간 없으면 안내 모달(screen.js 가 띄우고 35초를 센다).
+ *   기준 시간은 확인 필요(정의서). 퍼블리싱은 화면을 오래 들여다볼 때 튕기지 않도록 기본은 끄고, 주소 ?idle=초 로만 켠다(시연).
+ *   모달이 떠 있는 동안의 입력은 세지 않는다 — [연장하기] · 닫기로만 연장된다.
+ */
+document.addEventListener("DOMContentLoaded", function () {
+  "use strict";
+  var m = /[?&]idle=(\d+)/.exec(location.search);
+  var opener = document.querySelector("[data-autologout-open]");
+  var scrim = document.querySelector('[data-modal="autologout"]');
+  if (!m || !opener || !scrim) { return; }
+  var sec = Math.max(3, parseInt(m[1], 10)), t = null;
+  var slot = scrim.querySelector("[data-idle-min]");
+  if (slot) { slot.textContent = String(Math.max(1, Math.round(sec / 60))); }
+  function arm() { clearTimeout(t); t = setTimeout(function () { if (scrim.hidden) { opener.click(); } }, sec * 1000); }
+  ["pointerdown", "pointermove", "keydown", "wheel", "touchstart"].forEach(function (ev) {
+    document.addEventListener(ev, function () { if (scrim.hidden) { arm(); } }, { passive: true, capture: true });
+  });
+  new MutationObserver(function () { if (scrim.hidden) { arm(); } }).observe(scrim, { attributes: true, attributeFilter: ["hidden"] });
+  arm();
+});
