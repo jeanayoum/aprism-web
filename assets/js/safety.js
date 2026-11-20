@@ -532,9 +532,12 @@
       g += '<defs><filter id="m2sh" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000" flood-opacity=".55"/></filter><filter id="m2bl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2"/></filter></defs>';
       g += V7 ? window.APRISM_MINI.road(L, u) : `<polyline class="road" points="${cut2(L, 0, L.len)}" stroke-width="${u(13)}"/>`;   // [11/20 v7] 2D 지도 공통(mini-plan.js road, 공통 CSS .ds-map-road)
     }
-    P.equipment.forEach((r, ei) => { if(rich && (r[2] < 12 || r[3] < 12)) return;   // 3px 띠 같은 조각은 덩이가 아니다
+    // [11/20 v7] 바닥 C안: 설비, 벽은 관제 오른쪽 [지도]와 같은 그림(mini-plan.js eqRects, wallRect). hover 용 .eqr, data-e 는 그대로 붙임
+    if(rich && V7){ P.equipment.forEach((r, ei) => { if(r[2] >= 12 && r[3] >= 12) g += window.APRISM_MINI.eqRects(r, u, {cls:'eqr', data:` data-e="${ei}"`}); });
+      P.wall.forEach(r => { g += window.APRISM_MINI.wallRect(r); }); }
+    else P.equipment.forEach((r, ei) => { if(rich && (r[2] < 12 || r[3] < 12)) return;   // 3px 띠 같은 조각은 덩이가 아니다
       g += `<rect class="${big ? 'eqb' : 'eq'}${rich ? ' eqr' : ''}"${rich ? ` data-e="${ei}"` : ''} x="${r[0]}" y="${r[1]}" width="${r[2]}" height="${r[3]}"${rich ? ' rx="4"' : ''}/>`; });
-    if(rich) P.wall.forEach(r => { g += `<rect class="wlr" x="${r[0]}" y="${r[1]}" width="${r[2]}" height="${r[3]}"/>`; });
+    if(rich && !V7) P.wall.forEach(r => { g += `<rect class="wlr" x="${r[0]}" y="${r[1]}" width="${r[2]}" height="${r[3]}"/>`; });
     if(big){ P.stairs.forEach(r => { g += `<rect class="stz" x="${r[0]}" y="${r[1]}" width="${r[2]}" height="${r[3]}" stroke-width=".6"/>`; });
       P.wall.forEach(r => { g += `<rect class="wl" x="${r[0]}" y="${r[1]}" width="${r[2]}" height="${r[3]}"/>`; }); }
     const sw = big ? 1 : 1.15;
