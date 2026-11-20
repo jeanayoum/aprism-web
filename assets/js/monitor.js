@@ -836,7 +836,7 @@
     // 다른 미션에서 난 위험을 미션을 바꿔야만 알게 되면 안 된다.
     var mine = all;
     if (scoped) {
-      mine = all.filter(function (a) { return missionOf(a) === mission; });
+      mine = all.filter(function (a) { return a.net || missionOf(a) === mission; });   // [11/20] 서버 끊김은 모든 미션의 알림
       tellLevels(all);
     }
 
@@ -1009,6 +1009,21 @@
           ",width=" + other.availWidth + ",height=" + other.availHeight);
       }).catch(function () { window.open(url, name); });
     });
+  });
+
+  // [11/20 정의서 공통-00 Q3] 서버 연결이 끊기면 위험 알림 1건 — 관제 화면이 멈춘 값을 보이고 있다는 뜻(v7.js APRISM_NET)
+  document.addEventListener("aprism:net", function (event) {
+    var down = event.detail && event.detail.state === "down";
+    extra = extra.filter(function (x) { return !x.net; });
+    if (down) {
+      extra.unshift({ sev: "critical", where: "관제 서버 · AI Server", time: clock(),
+        title: "서버 연결 끊김 · AI Server",
+        robot: null, wp: "",   // 지점 · 로봇이 없는 알림 — 지도에 번호를 찍지 않는다
+        sum: "AI Server 가 3번 연속 응답하지 않았습니다. 화면의 값이 마지막으로 받은 값에서 멈춰 있을 수 있습니다.",
+        acts: ["서버 담당자 연락", "현장 무전으로 로봇 상태 확인"],
+        brief: ["서버 연결이 끊겼어요.", "화면 값이 멈춰 있을 수 있어요."], net: true });
+    }
+    render();
   });
 
   // 비상정지는 위험 알림이다(알림 정책) — 목록에 쌓고 그것을 고른다.

@@ -54,6 +54,21 @@
     });
   })();
 
+  (function () {   // [11/20 정의서 공통-00 Q3] 통신 시뮬레이션 — v7 만. 정상 · 느림 · 서버 끊김(v7.js APRISM_NET)
+    if (!window.APRISM_NET) { return; }
+    var g = document.createElement("span");
+    g.className = "rsim-dsim rsim-net";
+    g.setAttribute("role", "group");
+    g.setAttribute("aria-label", "통신 시뮬레이션");
+    g.innerHTML = '<span>통신</span><button type="button" data-net="ok" aria-pressed="true">정상</button><button type="button" data-net="slow" aria-pressed="false">느림</button><button type="button" data-net="down" aria-pressed="false">서버 끊김</button>';
+    box.querySelector(".rsim-chips").appendChild(g);
+    g.addEventListener("click", function (e) {
+      var b = e.target.closest("[data-net]"); if (!b) { return; }
+      Array.prototype.forEach.call(g.querySelectorAll("[data-net]"), function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      window.APRISM_NET(b.getAttribute("data-net"));
+    });
+  })();
+
   (function () {   // [11/11 디자이너] 요청 기록 지우기 — 시연을 처음부터. v7 공용 기록(alert-data-v7.js S7.req) + v6 탭 기록(sessionStorage 'aprism-handled')을 비우고 다시 불러온다
     var b = document.createElement("button");
     b.type = "button";
