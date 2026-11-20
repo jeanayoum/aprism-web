@@ -447,7 +447,11 @@ body.ver-7 .ds-act-text { flex: 1 1 auto !important; min-width: 0 !important; di
 body.ver-7 .ds-act-text > b { font-weight: inherit !important; color: inherit; }
 body.ver-7 .ds-act-text > small { display: block; font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; color: var(--text-tertiary) !important; }
 /* 체크 상자 (11/20, 한 곳): 조치 목록(.ds-act-box, span 이든 실제 체크박스 입력이든), 알림센터 등급 거르기(.ds-chip.is-check), 미션설정 점검 줄(.check-row)
- *   18, 모서리 2. 꺼짐: 면 없음 + 테 회색 600(어느 바탕에서도 보이게, 거르기 체크 상자 원래 값). 켜짐: 면 --comp-gnb-brand(어두운 바탕 파랑 700, 밝은 판 파랑 600) + 흰 체크 12 */
+ *   18, 모서리 2. 꺼짐: 면 없음 + 테 회색 600(어느 바탕에서도 보이게, 거르기 체크 상자 원래 값). 켜짐: 면 --ds-check-on(어두운 바탕 파랑 700, 밝은 판 파랑 600) + 흰 체크 12
+ *   11/20: 켜짐 색을 GNB 브랜드 색(--comp-gnb-brand)에서 떼어 냄. v6.css 가 화면마다 그 변수를 청록 700 으로 덮어 거르기, 점검 줄만 다른 파랑이었음
+ *   보고서 문서 구성 체크도 같은 상자(input.ds-act-box) */
+:root[data-theme="dark"] body.ver-7 :is(.ds-act-box, .ds-chip.is-check .check-box, .check-row .check-box), :root[data-theme="light"] body.ver-7 .is-dark-scope :is(.ds-act-box, .ds-chip.is-check .check-box, .check-row .check-box) { --ds-check-on: var(--color-blue-700); }
+:root[data-theme="light"] body.ver-7 :is(.ds-act-box, .ds-chip.is-check .check-box, .check-row .check-box), :root[data-theme="dark"] body.ver-7 .is-light-scope :is(.ds-act-box, .ds-chip.is-check .check-box, .check-row .check-box) { --ds-check-on: var(--color-blue-600); }
 body.ver-7 :is(.ds-act-box, .ds-chip.is-check .check-box, .check-row .check-box) {
   flex: none !important; position: relative; display: grid !important; place-items: center !important; box-sizing: border-box !important;
   width: var(--ds-act-box) !important; height: var(--ds-act-box) !important; margin: var(--space-0) !important; padding: var(--space-0) !important;
@@ -456,7 +460,7 @@ body.ver-7 :is(.ds-act-box, .ds-chip.is-check .check-box, .check-row .check-box)
 }
 body.ver-7 :is(.ds-act-box, .ds-chip.is-check .check-box, .check-row .check-box) > .i { width: 12px !important; height: 12px !important; opacity: 0; }
 body.ver-7 input.ds-act-box::after { content: ""; width: 12px; height: 12px; background-color: var(--color-gray-0); -webkit-mask: var(--ic-check) center / contain no-repeat; mask: var(--ic-check) center / contain no-repeat; opacity: 0; }
-body.ver-7 :is(.ds-act[aria-checked="true"] .ds-act-box, input.ds-act-box:checked, .ds-chip.is-check:is([aria-pressed="true"], [aria-checked="true"]) .check-box, .check-row[aria-checked="true"] .check-box) { border-color: transparent !important; background-color: var(--comp-gnb-brand) !important; }
+body.ver-7 :is(.ds-act[aria-checked="true"] .ds-act-box, input.ds-act-box:checked, .ds-chip.is-check:is([aria-pressed="true"], [aria-checked="true"]) .check-box, .check-row[aria-checked="true"] .check-box) { border-color: transparent !important; background-color: var(--ds-check-on, var(--color-blue-700)) !important; }
 body.ver-7 :is(.ds-act[aria-checked="true"] .ds-act-box > .i, input.ds-act-box:checked::after, .ds-chip.is-check:is([aria-pressed="true"], [aria-checked="true"]) .check-box > .i, .check-row[aria-checked="true"] .check-box > .i) { opacity: 1; }
 /* 결과: 체크 아이콘 16 (체크 상자 자리 18 가운데) */
 body.ver-7 .ds-act-ic { flex: none !important; display: grid !important; place-items: center !important; width: var(--ds-act-box) !important; height: var(--ds-act-box) !important; color: var(--text-tertiary) !important; }

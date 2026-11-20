@@ -357,7 +357,9 @@
       box.setAttribute("role", "dialog");
       box.setAttribute("aria-label", "문서 구성");
       box.innerHTML = '<h4 class="t-title-2">내려받을 문서 구성</h4><p class="rp-fx t-caption">1쪽(기본 정보, 요약, 유형별 현황)은 항상 들어가요</p><div>' +
-        doc.flow.map(function (f) { return '<label class="rp-ck t-body-4"><input type="checkbox" value="' + f[0] + '"' + (opt[id].has(f[0]) ? " checked" : "") + ">" + f[1] + "</label>"; }).join("") +
+        doc.flow.map(function (f) {   // [11/20 v7] 체크 상자 + 글 = 공통 조치 목록 줄(.ds-act, 상자 .ds-act-box, 글 .ds-act-text)
+          var V7c = document.body.classList.contains("ver-7");
+          return '<label class="rp-ck' + (V7c ? " ds-act" : " t-body-4") + '"><input type="checkbox"' + (V7c ? ' class="ds-act-box"' : "") + ' value="' + f[0] + '"' + (opt[id].has(f[0]) ? " checked" : "") + ">" + (V7c ? '<span class="ds-act-text">' + f[1] + "</span>" : f[1]) + "</label>"; }).join("") +
         '</div><div class="rp-sep"></div><div class="rp-sum t-caption" data-cfg-sum></div>';
       actsEl.appendChild(box);
       Array.prototype.forEach.call(box.querySelectorAll("input[value]"), function (c) {
