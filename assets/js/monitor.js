@@ -1655,7 +1655,7 @@
       }).join("");
       document.body.appendChild(svg);
     }
-    // [11/20] 완료 물결 색 = 공통 모션 완료 색(초록 --ds-motion-done 세 단). 예전 파랑, 청록, 보라에서 바꿈(다른 완료 움직임과 같은 초록)
+    // [11/20] 완료 물결 색 = 공통 모션 완료 색 세 단(--ds-motion-done, -2, -3 = 파랑, 청록, 보라). 값은 공통 CSS 에서
     function wvPal(a) {
       var p = Math.round(a * 100);
       return ["--ds-motion-done", "--ds-motion-done-2", "--ds-motion-done-3"].map(function (n) { return "color-mix(in srgb, var(" + n + ") " + p + "%, transparent)"; });

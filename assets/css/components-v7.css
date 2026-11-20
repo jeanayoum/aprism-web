@@ -214,6 +214,7 @@ body.ver-7, body.ds-auth {   /* body.ds-auth: 로그인 쪽 화면(안내 상자
   --ds-motion-exit: 300ms;                        /* 떠 있는 판 나가기 */
   --ds-motion-enter: 420ms;                       /* 떠 있는 판 들어오기 */
   --ds-motion-slow: 820ms;                        /* 완료 물결(조치 요청 뒤 팝업이 바뀌는 물결) */
+  --ds-motion-flash: 1200ms;                      /* 새 기록 줄 반짝임(조치 요청된 알림 목록에 줄이 들어올 때) */
   --ds-ease-base: ease-out;                       /* 나타남, 상태 바뀜 */
   --ds-ease-enter: cubic-bezier(.22, 1, .36, 1);  /* 들어오기: 빨리 와서 천천히 멈춤 */
   --ds-ease-exit: cubic-bezier(.55, 0, .8, .25);  /* 나가기: 천천히 떠나 빨리 사라짐 */
@@ -861,12 +862,18 @@ body.ver-7 .mp-hq-tags > .ds-badge { position: absolute; max-width: 100%; overfl
  *   나가기    떠 있는 판이 나감: --ds-motion-exit + --ds-ease-exit (들어오기보다 짧게)
  *   나타남    판 안에 새 상자, 토스트: --ds-motion-base + --ds-ease-base, 아래에서 --ds-motion-rise 만큼 올라오며 흐림 → 또렷 (.ds-appear, @keyframes ds-appear)
  *   상태 바뀜 올림, 고름, 화살표 돌기: --ds-motion-fast
- *   완료      조치가 끝난 순간(완료 물결, 새 기록 줄 반짝임)은 초록 --ds-motion-done 한 색. 정보 파랑을 쓰지 않음
+ *   완료      조치가 끝난 순간(완료 물결, 새 기록 줄 반짝임)은 파랑, 청록, 보라 세 단 --ds-motion-done(-2, -3). 초록(판정 정상 색)을 쓰지 않음(11/20 정함)
  *   움직임 줄이기(prefers-reduced-motion) 이면 길이 모두 0. JS 는 같은 값을 읽고 따로 끔
  *   팝업마다 무엇이 어떤 순서로 움직이는지(안무)는 그 사례에 적고, 숫자는 이 값만 씀
  * ========================================================================== */
-body.ver-7 { --ds-motion-done: var(--status-safe-icon); --ds-motion-done-2: color-mix(in srgb, var(--status-safe-icon) 60%, var(--color-gray-0)); --ds-motion-done-3: color-mix(in srgb, var(--status-safe-icon) 70%, var(--status-info-icon)); }
-@media (prefers-reduced-motion: reduce) { body.ver-7 { --ds-motion-fast: 0ms; --ds-motion-base: 0ms; --ds-motion-exit: 0ms; --ds-motion-enter: 0ms; --ds-motion-slow: 0ms; } }
+/* 완료 색 세 단: 파랑, 청록, 보라(완료 물결 원래 값). 청록, 보라는 기본 색 토큰이 없어 숫자 */
+body.ver-7 { --ds-motion-done: var(--color-blue-700); --ds-motion-done-2: rgb(86 200 230); --ds-motion-done-3: rgb(150 110 240); }
+:root[data-theme="light"] body.ver-7 { --ds-motion-done: rgb(40 100 200); --ds-motion-done-2: rgb(20 150 190); --ds-motion-done-3: rgb(120 80 210); }
+@media (prefers-reduced-motion: reduce) { body.ver-7 { --ds-motion-fast: 0ms; --ds-motion-base: 0ms; --ds-motion-exit: 0ms; --ds-motion-enter: 0ms; --ds-motion-slow: 0ms; --ds-motion-flash: 0ms; } }
+@keyframes ds-done-flash { 0%, 25% { opacity: 1; } 100% { opacity: 0; } }
+/* 새 기록 줄 반짝임: 예전 초록 면(monitor.css done-new) → 완료 색 세 단 띠가 옅어짐 */
+body.ver-7 .done-item.is-new { position: relative; animation: none !important; }
+body.ver-7 .done-item.is-new::after { content: ""; position: absolute; inset: 0; pointer-events: none; background-image: linear-gradient(90deg, color-mix(in srgb, var(--ds-motion-done) 30%, transparent), color-mix(in srgb, var(--ds-motion-done-2) 30%, transparent), color-mix(in srgb, var(--ds-motion-done-3) 30%, transparent)); animation: ds-done-flash var(--ds-motion-flash) var(--ds-ease-base) both; }
 @keyframes ds-appear { from { opacity: 0; translate: 0 var(--ds-motion-rise, 8px); } to { opacity: 1; translate: 0 0; } }
 body.ver-7 .ds-appear { animation: ds-appear var(--ds-motion-base) var(--ds-ease-base) both; }
 /* 토스트: 나타남 (자리 잡는 transform 과 겹치지 않게 translate 로 움직임) */
@@ -918,7 +925,7 @@ body.ver-7 .sb-more-menu .sb-tab-sev { flex: none; }
  * 조합: 머리(판정 배지 + 제목 + 값 + 닫기) → 사진(+ 위치 줄 알약) → 아래 칸(기준 초과 + 제안 문장 + 조치 목록 .ds-acts + 메모 접기 + 버튼 둘)
  * 부품은 모두 컴포넌트(배지, 번호 원, 조치 목록, 체크 상자, 버튼, 아이콘 버튼). 여기는 틀과 배치, 간격만 (값 11/20 그대로)
  * 상태(접힘 .is-folded, 붙음 .is-docked, 요청됨 .is-requested, 대화형 .d3-chat)가 바꾸는 높이, 보임, 머리 모서리, 아래 칸 위 여백은 v7.css 규칙이 맡아 여기선 강제하지 않음
- * 안무: 들어오기(왼쪽 밖에서 밀려옴, --ds-motion-enter), 나가기([확인함] 뒤 왼쪽으로, --ds-motion-exit), 요청 뒤 완료 물결(--ds-motion-slow, 초록 --ds-motion-done), 조치 요청됨 상자 나타남(ds-appear) */
+ * 안무: 들어오기(왼쪽 밖에서 밀려옴, --ds-motion-enter), 나가기([확인함] 뒤 왼쪽으로, --ds-motion-exit), 요청 뒤 완료 물결(--ds-motion-slow, 완료 색 세 단 --ds-motion-done), 조치 요청됨 상자 나타남(ds-appear) */
 body.ver-7 { --ds-alertpop-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-gray-0) 8%, transparent), 0 6px 16px color-mix(in srgb, var(--color-gray-950) 35%, transparent); }
 :root[data-theme="light"] body.ver-7 { --ds-alertpop-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-gray-950) 6%, transparent), 0 6px 16px color-mix(in srgb, var(--color-gray-950) 14%, transparent); }
 body.ver-7 .ds-alertpop { padding: var(--space-4) !important; border-radius: var(--ds-pop-radius) !important; background-color: var(--ds-mappop-bg) !important; -webkit-backdrop-filter: blur(12px) !important; backdrop-filter: blur(12px) !important; box-shadow: var(--ds-alertpop-shadow) !important; }
