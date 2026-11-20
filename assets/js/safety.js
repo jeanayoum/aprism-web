@@ -613,7 +613,7 @@
     const nw = nowOf(i), robotF = m.fls ? (nw ? flOf(m, nw) : fls[0]) : m.ab;
     return {fls, robotF, cur:mapF[i] && fls.includes(mapF[i]) ? mapF[i] : robotF}; }
   function floorBar(i, big){ const {fls, robotF, cur} = viewF(i);
-    if(fls.length < 2) return `<span class="m2f"><span>${fls[0]}</span></span>`;
+    if(fls.length < 2 && !V7) return `<span class="m2f"><span>${fls[0]}</span></span>`;   // [11/20 v7] 층이 하나여도 여러 층 미션과 같은 층 구간 전환(단추 하나)
     return `<span class="m2f${V7 ? ' ds-seg' : ''}" role="group" aria-label="층">${fls.map(f => `<button type="button" data-mf="${f}" data-mi="${i}" class="${V7 ? 'ds-tab ' : ''}${f===cur ? 'on' : ''}" aria-pressed="${f===cur}"${V7 && f===robotF ? ` aria-label="${f}, 로봇 있는 층"` : ''}>${f}${f===robotF ? (V7 ? '<i class="ds-dot is-info" title="로봇 있는 층"></i>' : '<i title="로봇 있는 층"></i>') : ''}</button>`).join('')}</span>`; }
   const LEG = '<div class="mlg"><span class="mli"><i class="c"></i>위험</span> <span class="mli"><i class="w"></i>주의</span> <span class="mli"><i class="o"></i>정상 범위</span> <span class="mli"><i class="p"></i>예정</span> <span class="mli"><svg viewBox="-9 -9 20 18" width="11" height="10"><path class="rbt" d="M10 0-7.5 8.5-3.6 0-7.5-8.5Z" stroke="none"/></svg>로봇</span></div>';
   // [11/02 v6] 범례 로봇도 지도와 같은 3D 탑뷰 그림(코가 오른쪽)
@@ -667,7 +667,7 @@
       }
       const i = scope, m = M[i], h = hits(i);
       const cur = dt && dt.wp ? flOf(m, dt.wp) : viewF(i).cur, sel = dt ? dt.wp : undefined, lk = dt ? dt.lk : undefined;
-      const fl = m.fls && m.fls.length > 1 ? floorBar(i) : `<span class="sfx-fl${V7 ? ' ds-floor' : ''}">${m.ab}</span>`;
+      const fl = (m.fls && m.fls.length > 1) || V7 ? floorBar(i) : `<span class="sfx-fl${V7 ? ' ds-floor' : ''}">${m.ab}</span>`;   // [11/20 v7] 한 층 미션도 층 구간 전환 꼴
       // [10/30] 층 · [관제에서 보기]는 지도 판 안 위로, 로봇 · 측정 · 요청 전은 판 안 아래 3칸 한 줄로(디자이너)
       const kv3 = (k, v) => `<span class="sfx-kv"><span class="k">${k}</span><span class="v">${v}</span></span>`;
       return `<div class="sfx"><div class="sfx-h"><b class="sfx-t">${m.mis}</b></div>
