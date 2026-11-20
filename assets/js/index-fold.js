@@ -1,7 +1,7 @@
 // 인덱스 보기 정리.
 //
-// [11/20 디자이너] 화면 줄마다 최신 판을 제목 바로 옆에 두고, 이전 판은 [이전 버전 N개 ▾] 하나로 접는다.
-//   펼치면 최신 → 오래된 순(내림차순)으로 이어서 보인다. HTML 은 예전처럼 시간순(오름차순)으로 카드를 더해 두면
+// [11/20 디자이너] 화면 줄마다 최신 판을 제목 바로 옆(왼쪽 카드)에, 이전 판은 오른쪽에 한 줄짜리 목록으로 늘 보인다.
+//   이전 판은 최신 → 오래된 순(내림차순). HTML 은 예전처럼 시간순(오름차순)으로 카드를 더해 두면
 //   여기서 순서를 뒤집는다 — 새 판을 올릴 때 카드를 오른쪽에 더하고 is-latest 만 옮기면 된다.
 //   순서는 카드 날짜(.ver-date) 내림차순, 같은 날짜는 HTML 차례 그대로. 버전 묶음(.ver-group) 열 구분은 접은 보기에서 쓰지 않는다.
 //   화면 이름 링크는 최신 판 링크로 맞춘다.
@@ -30,27 +30,19 @@
 
     var area = document.createElement("div");
     area.className = "ver-area";
-    var list = document.createElement("ol");
-    list.className = "ver-list ver-flow";
-    list.id = "ver-flow-" + r;
-    list.appendChild(latest);
-    prev.forEach(function (c) { c.classList.add("is-prev"); list.appendChild(c); });
-
+    var label = function (t, n) { var p = document.createElement("p"); p.className = "ver-area-label"; p.textContent = t; if (n) { var c = document.createElement("span"); c.className = "num"; c.textContent = n; p.appendChild(c); } return p; };
+    var now = document.createElement("ol");
+    now.className = "ver-list ver-now";
+    now.appendChild(latest);
+    area.appendChild(label("최신"));
+    if (prev.length) { area.appendChild(label("이전 버전", prev.length)); }
+    area.appendChild(now);
     if (prev.length) {
-      var btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "ver-prev-toggle";
-      btn.setAttribute("aria-controls", list.id);
-      btn.innerHTML = "<span>이전 버전 " + prev.length + "개</span>" + CHEV;
-      var set = function (open) {
-        area.classList.toggle("is-open", open);
-        btn.setAttribute("aria-expanded", String(open));
-      };
-      btn.addEventListener("click", function () { set(!area.classList.contains("is-open")); });
-      area.appendChild(btn);
-      set(false);
+      var list = document.createElement("ol");
+      list.className = "ver-prev";
+      prev.forEach(function (c) { c.classList.add("is-prev"); list.appendChild(c); });
+      area.appendChild(list);
     }
-    area.appendChild(list);
 
     (groups || lists[0]).replaceWith(area);
     // 화면 이름 → 최신 판
