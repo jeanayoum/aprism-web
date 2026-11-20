@@ -532,3 +532,26 @@ a.screen-name:hover {
 .ver-fold[aria-expanded="true"] svg { transform: rotate(180deg); }
 .ver-card.is-folded .ver-pages { display: none; }
 @media (prefers-reduced-motion: reduce) { .ver-fold svg { transition: none; } }
+
+/* 화면 줄 보기(11/20 디자이너, assets/js/index-fold.js) — 왼쪽 최신 판 카드, 오른쪽 이전 판 한 줄 목록(날짜 내림차순).
+   이전 판은 줄 높이를 같게 — 이름 · 태그 · 날짜 · 노트 · [화면 N개] 를 한 줄에, 긴 태그는 말줄임. 스크립트가 없으면 예전처럼 시간순 그대로. */
+.ver-area { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: var(--space-8) var(--space-16); align-items: start; min-width: 0; }
+.ver-area-label { margin: 0; color: var(--text-tertiary); font-size: var(--font-size-12); font-weight: 600; line-height: var(--font-line-height-18); }
+.ver-area-label .num { margin-left: var(--space-4); font-family: var(--font-family-mono); font-weight: 500; }
+.ver-area > .ver-now { grid-column: 1; grid-row: 2; }
+.ver-area > .ver-prev { grid-column: 2; grid-row: 2; display: flex; flex-direction: column; gap: var(--space-8); max-width: 640px; margin: 0; padding: 0; list-style: none; }
+/* 한 줄 = [이름 · 태그 | 날짜 | 화면 N개 또는 노트] — 날짜 · 오른쪽 칸이 줄마다 같은 자리 */
+.ver-card.is-prev { display: grid; grid-template-columns: minmax(0, 1fr) 84px 88px; align-items: center; column-gap: var(--space-12); min-height: 44px; padding: var(--space-10, 10px) var(--space-16); }
+.ver-card.is-prev .ver-link { min-width: 0; overflow: hidden; }
+.ver-card.is-prev .ver-tag { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.ver-card.is-prev .ver-date { grid-column: 2; color: var(--text-tertiary); font-family: var(--font-family-mono); font-size: var(--font-size-12); }
+.ver-card.is-prev .ver-extra, .ver-card.is-prev .ver-fold { grid-column: 3; justify-self: end; margin: 0; font-size: var(--font-size-12); white-space: nowrap; }
+.ver-card.is-prev .ver-pages { grid-column: 1 / -1; }
+@media (max-width: 960px) {
+  .ver-area { grid-template-columns: 1fr; }
+  .ver-area > .ver-prev { grid-column: 1; grid-row: auto; max-width: none; }
+}
+
+/* 영문판 접기(11/20 디자이너) — 내부 문서와 같은 꼴. 펼치면 화면 줄과 띄우고, 바로 아래 내부 문서와는 가깝게. */
+.en-fold > .screens { margin-top: var(--space-16); }
+.en-fold + .internal { margin-top: var(--space-24); }

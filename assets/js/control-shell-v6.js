@@ -24,6 +24,13 @@
   var mission = (/[?&]mission=([^&#]+)/.exec(q) || [])[1];
   var floor = (/[?&]floor=(B\d+)/.exec(q) || [])[1];
   var startMain = !!mission && !/[?&]view=building/.test(q);
+  // [11/20 정의서 공통-00 Q5] v7 — GNB [관제](?view=last)는 마지막에 보던 탭으로 연다. 처음이면 전체 미션
+  var LAST = "aprism-v7-last-view", REMEMBER = VER === "v7" && !EN;
+  if (REMEMBER && /[?&]view=last/.test(q)) {
+    var seen = null;
+    try { seen = localStorage.getItem(LAST); } catch (e) { /* 저장소 막힘 */ }
+    if (seen && seen !== "building") { mission = seen; startMain = true; }
+  }
   bld.src = src(BLD);
   main.src = src(MAIN, mission ? ["mission=" + mission].concat(floor ? ["floor=" + floor] : []) : []);
 
@@ -35,7 +42,12 @@
     // 숨어 있던 동안 크기가 안 바뀌었어도 3D 판이 제 크기를 다시 재게 한다
     try { on.contentWindow.dispatchEvent(new Event("resize")); } catch (e) { /* 아직 안 열림 */ }
   }
-  function setUrl(extra) { history.replaceState(null, "", SELF + "?" + keep.concat(extra).join("&")); }
+  function setUrl(extra) {
+    history.replaceState(null, "", SELF + "?" + keep.concat(extra).join("&"));
+    if (!REMEMBER) { return; }
+    var v = extra[0] === "view=building" ? "building" : (/^mission=(.+)$/.exec(extra[0] || "") || [])[1];
+    try { if (v) { localStorage.setItem(LAST, v); } } catch (e) { /* 저장소 막힘 */ }
+  }
 
   function toMain(url) {
     var m = (/[?&]mission=([^&#]+)/.exec(url) || [])[1];

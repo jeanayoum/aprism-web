@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>스플래시 — APRISM</title>
+  <meta name="description" content="APRISM 공장 환경점검 로봇 관제 시스템 진입 화면" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/static/woff2/SUIT.css" />
+  <link rel="stylesheet" href="../assets/css/tokens.css?v=6fc89e68" />
+  <link rel="stylesheet" href="../assets/css/app-shell.css?v=62513183" />
+  <link rel="stylesheet" href="../assets/css/auth.css?v=3b3aa4ff" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+
+    body {
+      background-color: var(--bg-page);
+      color: var(--text-primary);
+      font-family: var(--font-family-sans);
+      -webkit-font-smoothing: antialiased;
+    }
+  </style>
+</head>
+<body>
+<!-- [11/20 v2] 스플래시 v1 복제 — 로고 = CI 보고서의 로고 + 문구 조합(단색 워드마크 + APRO ROBOT INTELLIGENT SITE MANAGEMENT). 나머지는 v1 과 같다. -->
+
+<!-- ============================================================
+     UI_01 / CM-01 스플래시   (node 630:3480)
+     락업 + 태그라인 한 덩어리가 화면 한가운데 선다.
+     잠깐 머문 뒤 로그인으로 넘어간다 — 아무 데나 누르면 바로 넘어간다.
+     ============================================================ -->
+<div class="auth auth-splash" data-splash>
+
+  <div class="brand-block">
+    <span class="brand-logo" role="img" aria-label="APRISM">
+      <img class="brand-logo-dark" src="../assets/img/logo/aprism-dark.svg" alt="" />
+      <img class="brand-logo-light" src="../assets/img/logo/aprism.svg" alt="" />
+    </span>
+
+    <p class="brand-claim">APRO ROBOT INTELLIGENT SITE MANAGEMENT</p>
+  </div>
+
+</div>
+
+<script src="../assets/js/theme.js?v=c86093d9"></script>
+<script src="../assets/js/auth.js?v=2ad8354e"></script>
+</body>
+</html>

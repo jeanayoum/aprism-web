@@ -108,7 +108,7 @@ CDN 이 죽으면 서체가 무너지고, 사용자 브라우저가 외부에 �
 
 ### IBM Plex Sans / Mono — SIL OFL 1.1
 
-- `tone-lab.html` 의 서체 비교용입니다(`type-lab.html` 은 2026-10-13 삭제). 제품 화면에는 쓰지 않습니다.
+- 로봇개 모션 원본(`assets/robot-dog/`)에서만 씁니다. 서체 비교 페이지(`type-lab.html` 2026-10-13, `tone-lab.html` 2026-11-20)는 삭제했습니다. 제품 화면에는 쓰지 않습니다.
 - <https://github.com/IBM/plex> · `LICENSE.txt`
 
 ### SUIT Variable — 확인 필요

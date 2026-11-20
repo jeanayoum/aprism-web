@@ -496,3 +496,41 @@
   .login-card { padding-top: var(--space-20); }
   .auth-panel { padding-top: var(--space-16); padding-bottom: var(--space-16); }
 }
+
+/* [11/20 v2] 로고 + 문구 조합 — CI 보고서(assets/source/26.11.10_에이프로즘 로고/APRISM_DELTA_CI_Design_Portfolio.docx 그림 1).
+   단색 워드마크(assets/img/logo/aprism*.svg — 다크 = 흰색 -dark, 라이트 = #111) 아래 가운데에 "APRO ROBOT INTELLIGENT SITE MANAGEMENT".
+   보고서 비례: 문구 폭 ≈ 로고 폭의 83%, 로고 아래 간격 ≈ 로고 높이의 절반, 가는 대문자 산세리프, 워드마크보다 한 톤 옅은 색.
+   폭은 스플래시 400, 로그인 · 비밀번호 변경 360. 문구는 --claim 으로 로고 폭에 맞춘다. */
+.brand-logo { --w: 400px; display: block; width: var(--w); line-height: 0; }
+.auth-brand .brand-logo { --w: 360px; }
+.brand-logo img { display: block; width: 100%; height: auto; }
+.brand-logo .brand-logo-light { display: none; }
+:root[data-theme="light"] .brand-logo .brand-logo-dark { display: none; }
+:root[data-theme="light"] .brand-logo .brand-logo-light { display: block; }
+.brand-block:has(.brand-claim) { gap: 0; }
+.brand-claim {
+  margin: 24px 0 0;
+  color: var(--text-secondary);
+  font-family: "SUIT", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: 0.032em;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+.auth-brand .brand-claim { margin-top: 22px; font-size: 12.6px; }
+.auth-splash .brand-logo { animation: splash-in 560ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+.auth-splash .brand-claim { animation: splash-in 560ms cubic-bezier(0.2, 0.7, 0.3, 1) 120ms both; }
+@media (prefers-reduced-motion: reduce) { .auth-splash .brand-logo, .auth-splash .brand-claim { animation: none; } }
+/* [11/20 정의서 CM-01 Q2] 스플래시 서버 연결 실패 — 문구 아래 안내 한 줄 + [다시 시도] */
+.auth-splash .brand-block { position: relative; }
+/* 로고가 밀려 올라가지 않게 블록 아래에 띄운다 */
+.splash-error { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: var(--space-12); margin-top: var(--space-32); white-space: nowrap; }
+.splash-error-text { margin: 0; color: var(--status-critical-text); font-size: 14px; line-height: 20px; }
+/* [11/20 정의서 CM-02 Q2] 로그인 요청 중 — 버튼 안 로딩, 다시 못 누름 */
+.login-submit.is-loading { cursor: progress; }
+.login-submit .login-spin { --i: var(--ic-spinner); animation: login-spin 900ms steps(12) infinite; }
+@keyframes login-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .login-submit .login-spin { animation: none; } }
+.login-submit .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

@@ -1143,7 +1143,7 @@ window.APRISM_TEXT = (function () {
   // 상태바 시계가 지금이다(퍼블리싱이라 멈춰 있는 시각이다).
   function nowMinutes() {
     var clock = document.querySelector(".utc-clock .num");
-    var m = clock && clock.textContent.match(/T([0-9]{2}):([0-9]{2})/);
+    var m = clock && clock.textContent.match(/[T ]([0-9]{2}):([0-9]{2})/);
     return m ? Number(m[1]) * 60 + Number(m[2]) : null;
   }
 

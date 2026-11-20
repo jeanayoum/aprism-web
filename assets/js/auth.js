@@ -8,25 +8,62 @@
   // 로고를 읽을 만큼만 머문다. 기다리기 싫으면 아무 데나 누르거나 키를 치면 바로 넘어간다.
   // ?hold=0 으로 열면 멈춰 있는다 — 화면을 캡처하거나 들여다볼 때 쓴다.
   var splash = document.querySelector("[data-splash]");
+  var V2 = /-v2\.html$/.test(location.pathname);
+  var SIGNED = "aprism.signedIn";   // [11/20 정의서 CM-01 Q1] 로그인 유지 표시 — 브라우저를 닫으면 사라진다(sessionStorage)
   if (splash) {
     var HOLD = 2000;
     var m = /[?&]hold=(\d+)/.exec(location.search);
     var hold = m ? parseInt(m[1], 10) : HOLD;
     var gone = false;
+    // [11/20 정의서 CM-01] v2 — 서버 연결을 확인한 뒤에만 넘어간다(Q2). 2초가 지나도 확인이 안 끝났으면 끝날 때까지 기다린다.
+    //   로그인이 유지되어 있으면 로그인을 건너뛰고 통합 관제 메인으로(Q1). ?server=fail 로 열면 연결 실패를 보인다(시연)
+    var ready = !V2, timeUp = false;
+    var next = V2 ? "./login-v2.html" : "./login.html";
+    if (V2) {
+      var signed = false;
+      try { signed = sessionStorage.getItem(SIGNED) === "1" || Number(localStorage.getItem(SIGNED) || 0) > Date.now(); } catch (e) { signed = false; }
+      if (signed) { next = "./control-v7.html"; }
+    }
 
     var leave = function () {
-      if (gone) { return; }
+      if (gone || !ready) { return; }
       gone = true;
       splash.classList.add("is-leaving");
       // 빠지는 동안만 기다렸다 넘어간다. 애니메이션이 꺼진 환경이면 곧바로 끝난다.
-      window.setTimeout(function () { location.href = (window.aprismHref || String)("./login.html"); }, 240);
+      window.setTimeout(function () { location.href = (window.aprismHref || String)(next); }, 240);
     };
 
+    var fail = null;
+    var check = function (failing) {
+      window.setTimeout(function () {
+        if (failing) {
+          if (!fail) {
+            fail = document.createElement("div");
+            fail.className = "splash-error";
+            fail.setAttribute("role", "alert");
+            fail.innerHTML = '<p class="splash-error-text">서버에 연결할 수 없어요</p><button type="button" class="btn btn-secondary splash-retry">다시 시도</button>';
+            splash.querySelector(".brand-block").appendChild(fail);
+            fail.querySelector(".splash-retry").addEventListener("click", function () {
+              fail.remove(); fail = null; check(false);   // 시연 — 다시 시도는 붙는다
+            });
+          }
+          return;
+        }
+        ready = true;
+        if (timeUp) { leave(); }
+      }, failing ? 1200 : 600);
+    };
+    if (V2) { check(/[?&]server=fail/.test(location.search)); }
+
     if (hold > 0) {
-      window.setTimeout(leave, hold);
-      document.addEventListener("pointerdown", leave);
-      document.addEventListener("keydown", leave);
+      window.setTimeout(function () { timeUp = true; leave(); }, hold);
+      document.addEventListener("pointerdown", function (e) { if (!e.target.closest(".splash-error")) { leave(); } });
+      document.addEventListener("keydown", function () { leave(); });
     }
+  }
+  // 로그인 화면에 오면 로그인 유지가 풀린다(로그아웃 · 자동 로그아웃 뒤에 오는 곳)
+  if (V2 && document.querySelector("[data-login-form]")) {
+    try { sessionStorage.removeItem(SIGNED); localStorage.removeItem(SIGNED); } catch (e) { /* 막힘 */ }
   }
 
   // ---------- 비밀번호 보기 ----------
@@ -60,6 +97,8 @@
    * 서버가 붙으면 이 자리가 요청으로 바뀐다.
    */
   function landing() {
+    // [11/20 v2 디자이너] v2 화면(로그인 · 비밀번호 변경)은 통합 관제 메인(control-v7, 인덱스 Screen 04.1)으로 들어간다
+    if (/-v2\.html$/.test(location.pathname)) { return "./control-v7.html"; }
     var running = "0";
     try { running = window.sessionStorage.getItem("aprism.running") || "0"; } catch (e) { running = "0"; }
     // [11/03] v6 화면으로 — 돌고 있으면 v6 관제(main-v6), 아니면 v6 미션 설정
@@ -69,8 +108,39 @@
   }
   var form = document.querySelector("[data-login-form]");
   if (form) {
+    // [11/20 정의서 CM-02] v2 — 빈 칸이면 요청하지 않고 첫 빈 칸으로(Q1), 요청 중에는 버튼 안 로딩 · 다시 못 누름(Q2),
+    //   자동 로그인 켜면 12시간, 끄면 시스템을 닫을 때까지 로그인 유지(Q3)
+    var EMPTY = { "login-id": "아이디를 입력하세요", "login-pw": "비밀번호를 입력하세요" };
+    var setErr = function (input, on) {
+      var field = input.closest(".field"); if (!field) { return; }
+      field.classList.toggle("is-error", on);
+      input.setAttribute("aria-invalid", on ? "true" : "false");
+      var help = field.querySelector(".field-helper");
+      if (on && !help) {
+        help = document.createElement("p"); help.className = "field-helper t-caption"; help.setAttribute("role", "alert");
+        help.id = input.id + "-help"; input.setAttribute("aria-describedby", help.id); field.appendChild(help);
+      }
+      if (help) { help.textContent = on ? EMPTY[input.id] : ""; help.hidden = !on; }
+    };
+    if (V2) {
+      Object.keys(EMPTY).forEach(function (k) {
+        var el = document.getElementById(k);
+        if (el) { el.addEventListener("input", function () { if (el.value.trim()) { setErr(el, false); } }); }
+      });
+    }
     form.addEventListener("submit", function (event) {
       event.preventDefault();
+      var btn = form.querySelector(".login-submit");
+      if (V2) {
+        if (btn && btn.disabled) { return; }
+        var first = null;
+        Object.keys(EMPTY).forEach(function (k) {
+          var el = document.getElementById(k); if (!el) { return; }
+          var empty = !el.value.trim(); setErr(el, empty);
+          if (empty && !first) { first = el; }
+        });
+        if (first) { first.focus(); return; }
+      }
       // 친 아이디만 남긴다. 비밀번호 변경 화면의 "아이디와 3자 이상 연속 일치 금지" 가
       // 이 값을 본다 — 그 화면에는 아이디 칸이 없다. 비밀번호는 남기지 않는다.
       var id = form.querySelector("#login-id");
@@ -78,6 +148,19 @@
         sessionStorage.setItem("aprism.user", id ? id.value.trim() : "");
       } catch (e) {
         // 사파리 프라이빗 모드처럼 막힌 곳에서는 그냥 넘어간다 — 규칙 3 이 통과로 잡힌다.
+      }
+      if (V2) {
+        var keep = form.querySelector('input[name="remember"]');
+        try {
+          if (keep && keep.checked) { localStorage.setItem(SIGNED, String(Date.now() + 12 * 3600 * 1000)); }
+          else { sessionStorage.setItem(SIGNED, "1"); }
+        } catch (e) { /* 막힘 */ }
+        if (btn) {
+          btn.disabled = true; btn.classList.add("is-loading"); btn.setAttribute("aria-busy", "true");
+          btn.innerHTML = '<span class="i i-20 login-spin" aria-hidden="true"></span><span class="sr-only">로그인 중</span>';
+        }
+        window.setTimeout(function () { location.href = (window.aprismHref || String)(landing()); }, 700);   // 시연 — 서버 응답 자리
+        return;
       }
       location.href = (window.aprismHref || String)(landing());
     });
@@ -178,6 +261,7 @@
     pwForm.addEventListener("submit", function (event) {
       event.preventDefault();
       if (submit.disabled) { return; }
+      if (V2) { try { sessionStorage.setItem(SIGNED, "1"); } catch (e) { /* 막힘 */ } }
       location.href = (window.aprismHref || String)(landing());
     });
   }
