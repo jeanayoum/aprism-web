@@ -784,11 +784,11 @@
     if (r.total) {
       // 진행 막대 — 미션 관제 진행 막대와 같은 부품(Figma Progress Bar 1054:20548 · 채움 bg/inverse · way 표식).
       var prog = el("span", "bld-rc2-prog");
-      var bar = el("span", "progress-track");
+      var bar = el("span", "progress-track ds-progress");
       bar.style.setProperty("--progress", Math.round(r.done / r.total * 100) + "%");
-      bar.appendChild(el("span", "progress-fill"));
-      var knob = el("span", "progress-knob");
-      knob.appendChild(icon("way", 16));
+      bar.appendChild(el("span", "progress-fill ds-progress-fill"));
+      var knob = el("span", "progress-knob ds-progress-cursor");
+      var kic = icon("way", 16); kic.classList.add("ds-progress-icon"); knob.appendChild(kic);
       bar.appendChild(knob);
       prog.appendChild(bar);
       prog.appendChild(el("span", "t-caption num", r.done + "/" + r.total));
