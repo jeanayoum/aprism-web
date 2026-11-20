@@ -48,6 +48,35 @@
     try { if (mq) { sessionStorage.setItem("aprism.missions", mq[1]); } demoN = Number(sessionStorage.getItem("aprism.missions") || 0); } catch (e) { demoN = mq ? Number(mq[1]) : 0; }
     for (var di = MNO.length + 1; di <= Math.min(demoN, 30); di++) { var dn = "추가 순회 점검 " + di; MNO.push(dn); IDLE.push(dn); }
   }
+  /*
+   * [11/20 정의서 공통-01 Q3] 새 위험 점 — 다른 미션에 위험이 새로 생기면 그 미션 탭에 빨간 점. 꺼지는 때는 둘:
+   *   ① 그 미션을 연다(탭이 선택됨)  ② 그 미션의 위험을 처리한다(위험 알림이 모두 조치 요청됨 — alert-data-v7.js req)
+   *   시연: 주소 ?newrisk=1 → M3 전기실 열화상 점검에 새 위험(차압 312 Pa). ?newrisk=0 이면 끔. 관제 탭을 옮겨도 유지
+   */
+  var NEWKEY = "aprism.newrisk";
+  function newRisks() { try { return JSON.parse(sessionStorage.getItem(NEWKEY) || "[]"); } catch (e) { return []; } }
+  function setNewRisks(a) { try { sessionStorage.setItem(NEWKEY, JSON.stringify(a)); } catch (e) { /* 막힘 */ } }
+  if (V7KO) {
+    var nq = /[?&]newrisk=(\d)/.exec(qs);
+    if (nq) {
+      var seen = ""; try { seen = sessionStorage.getItem("aprism.newrisk.q") || ""; } catch (e) { seen = ""; }
+      if (seen !== nq[0]) {   // 같은 주소로 다시 와도 끈 점을 되살리지 않는다 — 주소가 바뀔 때만 새로 켠다
+        setNewRisks(nq[1] === "1" ? ["전기실 열화상 점검"] : []);
+        // 다시 켜면 그 위험의 조치 요청 기록도 지운다 — 시연을 처음부터 되풀이할 수 있게
+        var A7 = window.APRISM_ALERTS7;
+        if (nq[1] === "1" && A7) { A7.list.forEach(function (a) { if (a.mission === "전기실 열화상 점검" && a.sev === "critical") { A7.req.clear(a.id); } }); }
+        try { sessionStorage.setItem("aprism.newrisk.q", nq[0]); } catch (e) { /* 막힘 */ }
+      }
+    }
+  }
+  // 그 미션의 위험 알림이 모두 조치 요청됐으면 처리된 것
+  function riskHandled(name) {
+    var A = window.APRISM_ALERTS7;
+    if (!A) { return false; }
+    var done = A.req.all();
+    var crit = A.list.filter(function (a) { return a.mission === name && a.sev === "critical"; });
+    return crit.length > 0 && crit.every(function (a) { return !!done[a.id]; });
+  }
   function mno(name) { var i = MNO.indexOf(name); return i >= 0 ? i : MNO_EN.indexOf(name); }
   // 탭 밖에서 같은 번호를 쓰는 곳(전체 미션 층 카드 · building.js)이 읽는다
   window.APRISM_MISSION_NO = function (name) { var i = mno(name); return i >= 0 ? "M" + (i + 1) : ""; };
@@ -117,7 +146,12 @@
         label += " · " + (sev === "critical" ? "위험" : "주의") + " 알림 있음";
       }
       // 다른 미션에 새 위험(안전진단 시연 — 메뉴 줄의 data-new) — 탭 이름 앞 점이 깜빡이고 "새로"가 붙는다. 그 미션을 열면 사라진다
-      if (item.getAttribute("data-new")) {
+      var nr = V7KO ? newRisks() : [], fresh = !!item.getAttribute("data-new");
+      if (V7KO && nr.indexOf(nm.textContent) >= 0) {
+        if (on || riskHandled(nm.textContent)) { setNewRisks(nr.filter(function (x) { return x !== nm.textContent; })); }   // ① 열었다 ② 처리했다 → 끈다
+        else { fresh = true; }   // 메뉴 줄은 건드리지 않는다(바꾸면 감시가 다시 그려 되풀이된다)
+      }
+      if (fresh) {
         t.classList.add("is-new");
         var nd = document.createElement("i"); nd.className = "sb-tab-new"; nd.setAttribute("aria-hidden", "true");
         t.insertBefore(nd, t.firstChild);
@@ -353,6 +387,11 @@
   }
 
   build();
+  if (V7KO) {
+    document.addEventListener("aprism:requested", function () { if (newRisks().length && !(drag && drag.moved)) { build(); } });
+    // 다른 화면(관제 안 다른 틀)에서 점을 껐으면 여기도
+    window.addEventListener("storage", function (event) { if (event.key === NEWKEY && !(drag && drag.moved)) { build(); } });
+  }
   // 메뉴가 다시 그려지면(알림 단계 · 미션) 탭도 — 끄는 중이면 놓은 뒤에
   // 상태바 왼쪽 전체를 본다 — 메뉴가 통째로 바뀌는 화면(안전진단)도 있다. 탭 줄 자신이 바뀐 것은 무시한다
   new MutationObserver(function (list) {
