@@ -36,7 +36,7 @@
   <!-- v6 전용 규칙 — v5 는 10/30 부로 멈췄다. v6 에서 바꾸는 것은 여기(body.ver-6)에. -->
   <link rel="stylesheet" href="../assets/css/v6.css?v=c384b14c" />
   <link rel="stylesheet" href="../assets/css/v7.css?v=3c9355ed" />
-  <link rel="stylesheet" href="../assets/css/components-v7.css?v=e7355917" />
+  <link rel="stylesheet" href="../assets/css/components-v7.css?v=80baf851" />
   <script src="../assets/js/ds-v7.js?v=c4cba4fd"></script>
   <!-- [10/29] v5 지도(map-v6.js)가 그리는 설비 이름표 · 충전 스테이션 · 번호 핀 꼴 — 메인과 같다 -->
   <link rel="stylesheet" href="../assets/css/route-rules.css?v=06eba321" />
@@ -501,8 +501,8 @@
                                assets/js/map.js 가 채운다. 기본은 hidden 이다. -->
                           <!-- 웨이포인트를 누르면 뜨는 쪽지. 자리와 내용은 assets/js/map.js 가 잡는다.
                                값은 우측 미션 목록의 같은 웨이포인트에서 그대로 읽어 온다. -->
-                          <div class="map-wp" data-map-wp hidden>
-                            <div class="map-card-head">
+                          <div class="map-wp ds-mappop" data-map-wp hidden>
+                            <div class="map-card-head ds-mappop-head">
                               <span class="map-card-tag" data-map-wp-chip>정상</span>
                               <span class="map-card-name" data-map-wp-name>WP-01</span>
                               <button type="button" class="map-card-close" data-map-wp-close aria-label="닫기">
@@ -513,8 +513,8 @@
                             <button type="button" class="btn btn-ghost map-wp-more" data-map-wp-more>상세보기</button>
                           </div>
                           <div class="map-bot" data-map-bot hidden>
-                            <div class="map-bot-tip" data-map-bot-tip hidden>
-                              <div class="map-card-head">
+                            <div class="map-bot-tip ds-mappop" data-map-bot-tip hidden>
+                              <div class="map-card-head ds-mappop-head">
                                 <span class="map-card-tag" data-map-bot-tag>로봇</span>
                                 <span class="map-card-name" data-map-bot-title>ROBOT 01</span>
                                 <button type="button" class="map-card-close" data-map-bot-close aria-label="닫기">
@@ -531,8 +531,8 @@
                           </div>
                           <!-- 설비를 누르면 뜨는 카드. 자리와 내용은 assets/js/map.js 가 잡는다.
                                기본은 hidden — 아무것도 안 골랐을 때는 지도만 보인다. -->
-                          <div class="map-card" data-map-card hidden>
-                            <div class="map-card-head">
+                          <div class="map-card ds-mappop" data-map-card hidden>
+                            <div class="map-card-head ds-mappop-head">
                               <span class="map-card-tag" data-map-card-tag>설비</span>
                               <span class="map-card-name" data-map-card-name>설비</span>
                               <button type="button" class="map-card-close" data-map-card-close aria-label="닫기">
