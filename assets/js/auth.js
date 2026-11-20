@@ -122,6 +122,43 @@
       }
       if (help) { help.textContent = on ? EMPTY[input.id] : ""; help.hidden = !on; }
     };
+    // [11/20 정의서 CM-03] v2 — 인증 실패 · 계정 잠금. 시연: 비밀번호 "wrong" 이면 실패, 같은 아이디로 5번 실패하면 잠김.
+    //   주소 ?demo=fail · ?demo=lock 으로 바로 그 상태를 연다(캡처용). 남은 횟수 · 잠금은 서버가 정하는 값의 자리
+    var MAX = 5, FAILS = "aprism.fails";
+    var idIn = document.getElementById("login-id"), pwIn = document.getElementById("login-pw");
+    var fails = function () { try { return JSON.parse(sessionStorage.getItem(FAILS) || "{}"); } catch (e) { return {}; } };
+    var saveFails = function (o) { try { sessionStorage.setItem(FAILS, JSON.stringify(o)); } catch (e) { /* 막힘 */ } };
+    var authErr = function (msg) {
+      [idIn, pwIn].forEach(function (el) { if (el) { setErr(el, false); el.closest(".field").classList.toggle("is-error", !!msg); el.setAttribute("aria-invalid", msg ? "true" : "false"); } });
+      if (!msg || !pwIn) { return; }
+      var field = pwIn.closest(".field"), help = field.querySelector(".field-helper");
+      if (!help) { help = document.createElement("p"); help.className = "field-helper t-caption"; help.setAttribute("role", "alert"); help.id = "login-pw-help"; pwIn.setAttribute("aria-describedby", help.id); field.appendChild(help); }
+      help.textContent = msg; help.hidden = false;
+    };
+    var lockBox = null;
+    var setLock = function (on) {
+      var btn0 = form.querySelector(".login-submit");
+      if (on && !lockBox) {
+        lockBox = document.createElement("div");
+        lockBox.className = "login-alert"; lockBox.setAttribute("role", "alert");
+        lockBox.innerHTML = '<span class="i i-20" aria-hidden="true"></span><div><p class="login-alert-title">계정이 잠겼어요</p>' +
+          '<p class="login-alert-text">비밀번호를 ' + MAX + '회 잘못 입력했어요. 설비운영팀(내선 2400)에 잠금 해제를 요청하세요.</p></div>';
+        form.querySelector(".login-head").insertAdjacentElement("afterend", lockBox);
+      } else if (!on && lockBox) { lockBox.remove(); lockBox = null; }
+      if (btn0) { btn0.disabled = on; }
+      if (pwIn) { pwIn.disabled = on; }
+      if (on) { authErr(null); }
+    };
+    var isLocked = function () { var id0 = idIn ? idIn.value.trim() : ""; return (fails()[id0] || 0) >= MAX; };
+    if (V2 && idIn) {
+      idIn.addEventListener("input", function () { setLock(isLocked()); if (!lockBox) { authErr(null); } });
+      var demo = (/[?&]demo=(fail|lock)/.exec(location.search) || [])[1];
+      if (demo) {
+        idIn.value = "hong.gd";
+        var o = {}; o["hong.gd"] = demo === "lock" ? MAX : 2; saveFails(o);
+        if (demo === "lock") { setLock(true); } else { authErr("아이디 또는 비밀번호가 맞지 않아요 (남은 시도 " + (MAX - 2) + "회)"); }
+      }
+    }
     if (V2) {
       Object.keys(EMPTY).forEach(function (k) {
         var el = document.getElementById(k);
@@ -140,6 +177,7 @@
           if (empty && !first) { first = el; }
         });
         if (first) { first.focus(); return; }
+        if (isLocked()) { setLock(true); return; }
       }
       // 친 아이디만 남긴다. 비밀번호 변경 화면의 "아이디와 3자 이상 연속 일치 금지" 가
       // 이 값을 본다 — 그 화면에는 아이디 칸이 없다. 비밀번호는 남기지 않는다.
@@ -159,7 +197,19 @@
           btn.disabled = true; btn.classList.add("is-loading"); btn.setAttribute("aria-busy", "true");
           btn.innerHTML = '<span class="i i-20 login-spin" aria-hidden="true"></span><span class="sr-only">로그인 중</span>';
         }
-        window.setTimeout(function () { location.href = (window.aprismHref || String)(landing()); }, 700);   // 시연 — 서버 응답 자리
+        var uid = idIn ? idIn.value.trim() : "", bad = pwIn && pwIn.value === "wrong";
+        window.setTimeout(function () {   // 시연 — 서버 응답 자리
+          if (!bad) {
+            var o2 = fails(); delete o2[uid]; saveFails(o2);
+            location.href = (window.aprismHref || String)(landing()); return;
+          }
+          try { sessionStorage.removeItem(SIGNED); localStorage.removeItem(SIGNED); } catch (e) { /* 막힘 */ }
+          var o3 = fails(); o3[uid] = (o3[uid] || 0) + 1; saveFails(o3);
+          if (btn) { btn.classList.remove("is-loading"); btn.removeAttribute("aria-busy"); btn.textContent = "로그인"; btn.disabled = false; }
+          if (o3[uid] >= MAX) { setLock(true); return; }
+          pwIn.value = ""; pwIn.focus();
+          authErr("아이디 또는 비밀번호가 맞지 않아요 (남은 시도 " + (MAX - o3[uid]) + "회)");
+        }, 700);
         return;
       }
       location.href = (window.aprismHref || String)(landing());
