@@ -1621,8 +1621,9 @@
       var S7t = window.APRISM_ALERTS7, to = S7t && S7t.req.to ? S7t.req.to(a).text : "현장 작업자";
       $(".ma-req-to", reqBox7).textContent = to + "에게 조치 요청됨";
       var acts = $(".ma-req-acts", reqBox7); acts.textContent = "";
-      picks.forEach(function (h) { var li = el("li"); li.textContent = h; acts.appendChild(li); });
-      if (rec.memo) { var mm = el("li", "is-memo"); mm.textContent = "메모 · " + rec.memo; acts.appendChild(mm); }
+      // [11/20] 가운뎃점 금지: "로봇 정지 · 현장 점검 요청"처럼 한 조치 이름에 둘이 묶인 것은 줄을 나눔
+      picks.forEach(function (h) { String(h).split("·").forEach(function (t) { t = t.trim(); if (!t) { return; } var li = el("li"); li.textContent = t; acts.appendChild(li); }); });
+      if (rec.memo) { var mm = el("li", "is-memo"); mm.textContent = "메모 " + rec.memo; acts.appendChild(mm); }
       var undo = $("[data-req-undo]", reqBox7); undo.hidden = false;
       var left = 5;
       var tick = function () { undo.textContent = "되돌리기 " + left; };
