@@ -26,7 +26,8 @@ body.ver-7 {
   --ds-badge-line-height: var(--font-line-height-18);
   --ds-badge-font-weight: var(--font-weight-medium);
   --ds-badge-row-gap: var(--space-8);             /* 표 칸 배지와 글자 사이 */
-  /* --ds-badge-neutral-bg: 다크 --bg-glass, 라이트 회색 300 (아래 블록, 11/20) */
+  /* --ds-badge-neutral-bg: var(--bg-map-chip); */   /* 그 밖 회색 배지 */
+  /* 판정 정상 면 --ds-badge-ok-bg, AI 추천 면 --ds-badge-ai-bg: 테마마다 달라 아래 블록 (11/20) */
   --ds-ai-ramp: #1B77EE 0%, #0A49D7 12.5%, #1E2FB0 25%, #493891 37.5%, #74608B 50%, #858DA3 62.5%, #71A7C9 75%, #459EE9 87.5%, #1B77EE 100%;   /* AI 추천 Delta 아이콘 (Delta 스펙트럼) */
 
   /* WP 번호 원 */
@@ -145,11 +146,14 @@ body.ver-7 .sf-scope .wd.crit, body.ver-7 .sf-scope .wd.warn { width: 12px; heig
 /* 화면에는 안 보이고 읽어 주기만 하는 글자 */
 body.ver-7 .ds-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
-/* 회색 배지 면(판정 정상, AI 추천)이 바탕과 같아져 안 보이던 것 (11/20, 안전진단 표와 상세의 정상 범위)
- *   다크: --bg-map-chip(회색 900의 50%)이 어두운 바탕에 묻힘 → --bg-glass(회색 600의 40%)
- *   라이트: v6.css가 --bg-map-chip 을 회색 200으로 두어 회색 200 바탕(안전진단 판정 칸)과 같음 → 회색 300 */
-:root[data-theme="dark"] body.ver-7 { --ds-badge-neutral-bg: var(--bg-glass); }
-:root[data-theme="light"] body.ver-7 { --ds-badge-neutral-bg: var(--color-gray-300); }
+/* 판정 정상 면 (11/20): 위험, 주의와 같은 판정 배지. 원래 회색 배지 면(--bg-map-chip)이 바탕에 묻혀 안 보였음(안전진단 표와 상세)
+ *   다크 --bg-map-chip(회색 900의 50%) → 회색 600의 40%, 라이트 회색 200(v6.css가 바꿈, 판정 칸 바탕과 같음) → 회색 300 */
+/*   값은 배지마다 걸어 판 범위를 따라감(다크 화면 안 밝은 Delta 판 .is-light-scope 등). 어두운 바탕은 회색 600의 40%, 밝은 바탕은 회색 300 */
+:root[data-theme="dark"] body.ver-7 .ds-badge, :root[data-theme="light"] body.ver-7 .is-dark-scope .ds-badge { --ds-badge-ok-bg: var(--color-alpha-gray-600-40); }
+:root[data-theme="light"] body.ver-7 .ds-badge, :root[data-theme="dark"] body.ver-7 .is-light-scope .ds-badge { --ds-badge-ok-bg: var(--color-gray-300); }
+/* AI 추천 면 (11/20 보는 중, 정하기 전): 지금은 판정 정상과 같은 값을 띄워 봄. 아래 두 줄을 지우면 예전 회색 배지 면(--bg-map-chip) */
+:root[data-theme="dark"] body.ver-7 .ds-badge, :root[data-theme="light"] body.ver-7 .is-dark-scope .ds-badge { --ds-badge-ai-bg: var(--color-alpha-gray-600-40); }
+:root[data-theme="light"] body.ver-7 .ds-badge, :root[data-theme="dark"] body.ver-7 .is-light-scope .ds-badge { --ds-badge-ai-bg: var(--color-gray-300); }
 
 /* ---------- 배지와 태그: 누르지 않음, 상태 없음 ----------
  * 화면 코드는 예전 클래스 옆에 .ds-badge 를 덧붙인다(v7만, 11/19 4단계). 모양 값은 !important 로 예전 클래스 규칙을 이김
@@ -171,6 +175,8 @@ body.ver-7 .ds-badge.is-crit { background-color: var(--status-critical-bg) !impo
 body.ver-7 .ds-badge.is-warn { background-color: var(--status-warning-bg) !important; color: var(--status-warning-text) !important; --ds-i-color: var(--status-warning-icon); --ds-i: var(--ic-warning); }
 body.ver-7 .ds-badge.is-info { background-color: var(--status-info-bg) !important; color: var(--status-info-text) !important; --ds-i-color: var(--status-info-icon); }
 body.ver-7 .ds-badge.is-safe { background-color: var(--status-safe-bg) !important; color: var(--status-safe-text) !important; --ds-i-color: var(--status-safe-icon); }
+/* 판정 정상: 판정 배지 면 */
+body.ver-7 .ds-badge.is-ok { background-color: var(--ds-badge-ok-bg, var(--ds-badge-neutral-bg, var(--bg-map-chip))) !important; }
 /* 측정 전, 대상 아님: 판정이 아니라 상태. 지금 모양(점선 테, 면 없음) 그대로 */
 body.ver-7 .ds-badge.is-plan,
 body.ver-7 .ds-badge.is-na { border: var(--border-width-thin) dashed var(--border-strong) !important; background-color: transparent !important; color: var(--text-tertiary) !important; }
@@ -215,7 +221,7 @@ body.ver-7 .ds-badge.ds-i-clock { --ds-i: var(--ic-clock); }
 body.ver-7 .ds-badge.ds-i-dot:not(.ds-i-none)::before { width: 6px !important; height: 6px !important; margin: 0 calc((12px - 6px) / 2) !important; border-radius: var(--radius-pill) !important; -webkit-mask: none !important; mask: none !important; }
 body.ver-7 .ds-badge:is(.ds-i-big, .is-ok:not([class*="ds-i-"])):not(.ds-i-none)::before { width: 8px !important; height: 8px !important; margin: 0 calc((12px - 8px) / 2) !important; border-radius: var(--radius-pill) !important; -webkit-mask: none !important; mask: none !important; }
 /* 출처 AI 추천 (A안, 11/19): 회색 면 + Delta 스펙트럼 색 Delta 아이콘 */
-body.ver-7 .ds-badge.ds-i-delta { --ds-i: var(--ic-delta); }
+body.ver-7 .ds-badge.ds-i-delta { --ds-i: var(--ic-delta); background-color: var(--ds-badge-ai-bg, var(--ds-badge-neutral-bg, var(--bg-map-chip))) !important; }
 body.ver-7 .ds-badge.ds-i-delta::before { background: linear-gradient(135deg, var(--ds-ai-ramp)) !important; }
 
 /* 표 칸 안 배지 + 글자 */
