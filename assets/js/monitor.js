@@ -1256,18 +1256,19 @@
         a.acts.slice().sort(function (x, y) { return (y.ai ? 1 : 0) - (x.ai ? 1 : 0); }).forEach(function (src) {
           var act = src;
           if (src.ai) { if (aiLeft > 0) { aiLeft--; } else { act = { t: src.t }; } }
-          var row = el("button", "ma-check");
+          var DS7 = document.body.classList.contains("ver-7");   // [11/20 v7] 조치 목록은 공통 CSS .ds-act
+          var row = el("button", "ma-check" + (DS7 ? " ds-act" : ""));
           row.type = "button";
           row.setAttribute("role", "checkbox");
           row.setAttribute("data-act", act.t);
           row.setAttribute("aria-checked", act.ai ? "true" : "false");
-          var boxEl = el("span", "ma-check-box");
+          var boxEl = el("span", "ma-check-box" + (DS7 ? " ds-act-box" : ""));
           var mark = el("span", "i");
           mark.style.setProperty("--i", "var(--ic-check)");
           mark.setAttribute("aria-hidden", "true");
           boxEl.appendChild(mark);
           row.appendChild(boxEl);
-          row.appendChild(el("span", "ma-check-label", act.t));
+          row.appendChild(el("span", "ma-check-label" + (DS7 ? " ds-act-text" : ""), act.t));
           if (act.ai) { row.appendChild(el("span", "ma-check-tag" + (document.body.classList.contains("ver-7") ? " ds-badge is-neutral ds-i-delta" : ""), "AI 추천")); }   // [11/19 v7] 출처 배지 A안
           options.appendChild(row);
         });

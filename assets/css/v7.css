@@ -1561,10 +1561,7 @@ body.ver-7 .signal-chip .net-sev { flex: none; color: var(--status-critical-icon
   body.ver-7 { min-width: 1600px; }
 }
 
-/* [11/20] 알림센터 조치 요청된 알림 상세: 조치 내용은 한 일 목록(체크 아이콘 16 + 글자 14, 아이콘과 글자 사이 4, 줄 사이 4). 알약 칩(.ac-chip-done)을 쓰지 않음 */
-body.ver-7 .ac-done-acts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-4); }
-body.ver-7 .ac-done-acts > li { display: flex; align-items: center; gap: var(--space-4); color: var(--text-primary); }
-body.ver-7 .ac-done-acts > li > .i { flex: none; color: var(--text-tertiary); }
+/* [11/20] 알림센터 조치 요청된 알림 상세의 조치 내용은 공통 조치 목록(.ds-acts, 결과 상태)으로 옮김(components-v7.css) */
 
 /* [11/20] 알림센터 조치 요청된 알림: 이미 처리를 맡긴 일이라 신호색을 뺌(목록 패널은 신호색 하나만). 원 등급은 모양과 글자만 회색으로 남김
  *   목록: 원 등급 태그 회색, 알림 이름 보통 굵기, 머리 건수 회색. 상세: 원 등급은 보통 판정 배지(색 그대로), 값과 판정 글자 기본 색 */

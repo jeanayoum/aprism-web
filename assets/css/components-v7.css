@@ -4,6 +4,7 @@
  * - 디자인 값은 바로 아래 "디자인 값" 블록 한 곳에서만 고친다. 공통 CSS 규칙과 미리보기(tools/ds-preview)가 모두 이 값을 본다
  * - 값은 토큰만 쓴다(tokens.css). 높이처럼 토큰이 없는 것만 숫자
  * - 배지, 칩, 탭: .ds-badge, .ds-wp, .ds-floor, .ds-chip, .ds-tab-line, .ds-tab-chip, .ds-seg (화면 코드를 이 클래스로 바꾸는 중, assets/js/ds-v7.js 가 같은 마크업을 만들어 줌)
+ * - 파일 차례: 디자인 값 → 컴포넌트(배지, 태그, 점 배지, WP 번호 원, 층, 조치 목록과 체크 상자, 칩, 탭, 구간 전환, 버튼) → 맨 끝 사례(Case Studies: 컴포넌트를 엮은 화면 한 덩이, 예: DELTA 조치 제안 카드)
  * - 버튼: 지금 화면이 쓰는 .btn, .icon-button 등에 바로 걸림 (파일 아래쪽 "버튼")
  * - 나누는 기준: 누르지 않는 표시는 배지, 조건을 켜거나 값을 고르면 칩, 보이는 내용이 통째로 바뀌면 탭, 행동과 이동은 버튼
  * - 인계 문서: https://claude.ai/artifact/P6i1TzG3SDpNn9gPTiF1mg
@@ -40,6 +41,15 @@ body.ver-7 {
   --ds-floor-h: 18px;
   --ds-floor-pad-x: var(--space-4);
   --ds-floor-radius: var(--radius-2);
+
+  /* DELTA 조치 제안 카드, 조치 목록 (11/20) */
+  --ds-delta-pad: var(--space-12);
+  --ds-delta-gap: var(--space-12);
+  --ds-delta-radius: var(--radius-8);
+  --ds-act-h: 32px;                               /* 조치 줄 최소 높이 */
+  --ds-act-pad-x: var(--space-8);
+  --ds-act-gap: var(--space-8);                   /* 체크 상자(결과는 체크 아이콘)와 글자 사이 (입력 요소 규칙 8) */
+  --ds-act-box: 18px;                             /* 체크 상자 */
 
   /* 칩 */
   --ds-chip-h: 26px;
@@ -257,6 +267,43 @@ body.ver-7 .ds-floor {
 }
 :root[data-theme="light"] body.ver-7 .ds-floor { background-color: var(--color-gray-100) !important; color: var(--text-tertiary) !important; }
 
+/* ---------- 컴포넌트: 조치 목록과 체크 상자 (11/20, 한 곳에서 정의) ----------
+ * 조치 목록 .ds-acts > .ds-act: 두 상태, 글자, 줄, 간격은 같음
+ *   고르기(누름): 체크 상자 18 + 글자, 줄 전체가 체크(role=checkbox, aria-checked). 안전진단은 실제 체크박스 입력(input.ds-act-box)
+ *   결과(.is-result, 누르지 않음): 체크 아이콘 16 + 글자. 요청을 보낸 뒤, 조치 요청된 알림
+ * 체크 상자는 조치 목록, 거르기 체크형 칩, 점검 줄이 함께 씀(아래)
+ * 쓰는 곳: 관제 알림 팝오버, 알림센터 조치 필요와 조치 요청된 알림 상세, 안전진단 상세 */
+
+body.ver-7 .ds-acts { display: flex !important; flex-direction: column !important; gap: 0 !important; margin: 0; padding: 0 !important; border: var(--border-width-thin) solid var(--border-default) !important; border-radius: var(--radius-4) !important; background-color: var(--bg-raised) !important; overflow: hidden; list-style: none; }
+body.ver-7 .ds-act {
+  display: flex !important; align-items: center !important; gap: var(--ds-act-gap) !important; box-sizing: border-box !important; width: 100%;
+  min-height: var(--ds-act-h) !important; margin: 0 !important; padding: var(--space-4) var(--ds-act-pad-x) !important;
+  border: 0 !important; border-radius: 0 !important; background: transparent !important; color: var(--text-primary) !important;
+  font-family: inherit; font-size: var(--font-size-14) !important; line-height: var(--font-line-height-22) !important; font-weight: var(--font-weight-regular) !important; text-align: left;
+}
+body.ver-7 .ds-act + .ds-act { border-top: var(--border-width-thin) solid var(--border-divider) !important; }
+body.ver-7 .ds-act:not(.is-result) { cursor: pointer; }
+body.ver-7 .ds-act:focus-visible { outline: var(--border-width-strong) solid var(--border-focus); outline-offset: calc(var(--space-2) * -1); }
+/* 글자: 조치 이름 14/22, 받는 사람 같은 보조 줄은 12/18 */
+body.ver-7 .ds-act-text { flex: 1 1 auto !important; min-width: 0 !important; display: flex; flex-direction: column; }
+body.ver-7 .ds-act-text > b { font-weight: inherit !important; color: inherit; }
+body.ver-7 .ds-act-text > small { display: block; font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; color: var(--text-tertiary) !important; }
+/* 체크 상자 (11/20, 한 곳): 조치 목록(.ds-act-box, span 이든 실제 체크박스 입력이든), 알림센터 등급 거르기(.ds-chip.is-check), 미션설정 점검 줄(.check-row)
+ *   18, 모서리 2. 꺼짐: 면 없음 + 테 회색 600(어느 바탕에서도 보이게, 거르기 체크 상자 원래 값). 켜짐: 면 --comp-gnb-brand(어두운 바탕 파랑 700, 밝은 판 파랑 600) + 흰 체크 12 */
+body.ver-7 :is(.ds-act-box, .ds-chip.is-check .check-box, .check-row .check-box) {
+  flex: none !important; position: relative; display: grid !important; place-items: center !important; box-sizing: border-box !important;
+  width: var(--ds-act-box) !important; height: var(--ds-act-box) !important; margin: 0 !important; padding: 0 !important;
+  -webkit-appearance: none; appearance: none;
+  border: var(--border-width-thin) solid var(--color-gray-600) !important; border-radius: var(--radius-2) !important; background-color: transparent !important; color: var(--color-gray-0) !important;
+}
+body.ver-7 :is(.ds-act-box, .ds-chip.is-check .check-box, .check-row .check-box) > .i { width: 12px !important; height: 12px !important; opacity: 0; }
+body.ver-7 input.ds-act-box::after { content: ""; width: 12px; height: 12px; background-color: var(--color-gray-0); -webkit-mask: var(--ic-check) center / contain no-repeat; mask: var(--ic-check) center / contain no-repeat; opacity: 0; }
+body.ver-7 :is(.ds-act[aria-checked="true"] .ds-act-box, input.ds-act-box:checked, .ds-chip.is-check:is([aria-pressed="true"], [aria-checked="true"]) .check-box, .check-row[aria-checked="true"] .check-box) { border-color: transparent !important; background-color: var(--comp-gnb-brand) !important; }
+body.ver-7 :is(.ds-act[aria-checked="true"] .ds-act-box > .i, input.ds-act-box:checked::after, .ds-chip.is-check:is([aria-pressed="true"], [aria-checked="true"]) .check-box > .i, .check-row[aria-checked="true"] .check-box > .i) { opacity: 1; }
+/* 결과: 체크 아이콘 16 (체크 상자 자리 18 가운데) */
+body.ver-7 .ds-act-ic { flex: none !important; display: grid !important; place-items: center !important; width: var(--ds-act-box) !important; height: var(--ds-act-box) !important; color: var(--text-tertiary) !important; }
+body.ver-7 .ds-act-ic > .i { width: 16px !important; height: 16px !important; }
+
 /* ---------- 칩: 누름. 기존 거르기 칩 모양 (꺼짐 흰 면 + 회색 테, 켜짐 진한 면 + 흰 글자)
  * 화면: 관제와 전체 미션 거르기, 전체 미션 로봇 상태 거르기, 미션설정 거르기, Delta 질문, 알림센터 체크형 거르기
  * 모양 값은 !important (예전 클래스 규칙을 이기게), 배치는 :where 로 세기를 낮춰 기존 배치 규칙이 이기게 ---------- */
@@ -451,3 +498,20 @@ body.ver-7 .dc6-btn { border-radius: var(--ds-btn-delta-radius) !important; }
 
 /* ---------- 버튼과 버튼 사이 ---------- */
 body.ver-7 .dc6-btns { gap: var(--ds-btn-between) !important; }   /* Delta 답변 버튼 */
+
+/* ==========================================================================
+ * 사례 (Case Studies, 11/20): 컴포넌트를 실제 화면 한 덩이로 엮은 것. 새 부품이 아니라 조합 규칙만 둔다
+ * ========================================================================== */
+
+/* ---------- 사례: DELTA 조치 제안 카드 ----------
+ * 조합: 머리(Delta 아이콘 16 + "DELTA 조치 제안" 12/18) + 제안 한 줄 + 조치 목록(.ds-acts, 컴포넌트) + AI 추천 배지(.ds-badge.ds-i-delta, 컴포넌트) + 메모 칸
+ * 카드 .ds-delta-card: 반대색 판은 .is-light-scope.is-dark-scope 가 맡음(다크 화면에선 흰 판, 라이트 화면에선 짙은 판). 안쪽 12, 사이 12, 모서리 8
+ * 화면: 알림센터 조치 필요 상세(.ac-dl), 안전진단 상세(.sf .dl). 관제 알림 팝오버(.ma-delta)는 팝오버가 판을 맡아 카드 틀 없이 조치 목록만 씀 */
+body.ver-7 .ds-delta-card {
+  display: flex !important; flex-direction: column !important; gap: var(--ds-delta-gap) !important;
+  padding: var(--ds-delta-pad) !important; border: 0 !important; border-radius: var(--ds-delta-radius) !important; box-shadow: none !important;
+  background-color: var(--bg-raised) !important; color: var(--text-primary);
+}
+body.ver-7 .ds-delta-head { display: flex !important; align-items: center !important; justify-content: space-between !important; gap: var(--space-8) !important; margin: 0 !important; }
+body.ver-7 .ds-delta-mark { display: inline-flex !important; align-items: center !important; gap: var(--space-4) !important; color: var(--text-secondary) !important; font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-regular) !important; }
+body.ver-7 .ds-delta-mark > :is(.i, .dlogo) { flex: none !important; width: 16px !important; height: 16px !important; margin: 0 !important; vertical-align: middle !important; background-color: var(--comp-gnb-text-brand) !important; }

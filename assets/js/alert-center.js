@@ -887,15 +887,17 @@
     var fp = a.fp || 0;
     var rows = a.acts.slice().sort(function (x, y) { return (y.delta ? 1 : 0) - (x.delta ? 1 : 0); }).map(function (c) {
       var on = chosen.indexOf(c.t) > -1;
+      // [11/20 v7] 조치 목록 한 줄은 ds.act (공통 CSS). 누름 처리는 예전 이름(.ma-check, data-act)을 그대로 봄
+      if (V7 && window.ds) { return window.ds.act(esc(c.t), { on: on, ai: !!c.delta, cls: 'ma-check', boxCls: 'ma-check-box', textCls: 'ma-check-label', attrs: 'data-act="' + esc(c.t) + '"' }); }
       return '<button type="button" class="ma-check" role="checkbox" data-act="' + esc(c.t) + '" aria-checked="' + (on ? "true" : "false") + '">' +
         '<span class="ma-check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>' +
         '<span class="ma-check-label">' + esc(c.t) + '</span>' +
         (c.delta ? '<span class="ma-check-tag' + (document.body.classList.contains("ver-7") ? " ds-badge is-neutral ds-i-delta" : "") + '">AI 추천</span>' : "") +
       '</button>';
     }).join("");
-    return '<section class="ac-dl is-light-scope is-dark-scope" aria-labelledby="ac-dl-label">' +
-      '<div class="ac-dl-head">' +
-        '<span class="ac-dl-mark">' + icon("--ic-delta", 16) + '<span class="t-caption" id="ac-dl-label">DELTA 조치 제안</span></span>' +
+    return '<section class="ac-dl is-light-scope is-dark-scope' + (V7 ? ' ds-delta-card' : '') + '" aria-labelledby="ac-dl-label">' +
+      '<div class="ac-dl-head' + (V7 ? ' ds-delta-head' : '') + '">' +
+        '<span class="ac-dl-mark' + (V7 ? ' ds-delta-mark' : '') + '">' + icon("--ic-delta", 16) + '<span class="t-caption" id="ac-dl-label">DELTA 조치 제안</span></span>' +
         '<span class="ac-dl-fp t-caption">오탐 가능성 <span class="ac-dl-fpv' + (fp >= 40 ? " is-high" : fp >= 20 ? " is-mid" : "") + '">' +
           esc(a.fpLabel || "") + '(' + fp + '%)</span></span>' +
       '</div>' +
@@ -903,7 +905,7 @@
       // 근거 — 팝오버에는 자리가 없어 빠진 줄. 알림 센터는 넉넉해 제안 바로 아래에 둔다(11/02 디자이너)
       (a.why && a.why.length ? '<ul class="ac-dl-why">' +
         a.why.map(function (w) { return '<li class="t-body-4">' + esc(w) + '</li>'; }).join("") + '</ul>' : "") +
-      '<div class="ma-checks" role="group" aria-label="조치 내용">' + rows + '</div>' +
+      '<div class="ma-checks' + (V7 ? ' ds-acts' : '') + '" role="group" aria-label="조치 내용">' + rows + '</div>' +
       '<div class="ac-dl-memo">' +
         '<label class="t-label-2" for="ac-memo">메모 (선택)</label>' +
         '<textarea class="ma-memo-field" id="ac-memo" data-ac-memo data-ma-memo-field rows="2" maxlength="500" ' +
@@ -931,7 +933,7 @@
       '<section class="ac-record-section">' +
         '<h3 class="t-caption">조치 내용</h3>' +
         (V7   // [11/20 v7] 조치 내용은 누르는 칩이 아니라 한 일 목록 — 체크 아이콘 16 + 글자 14, 줄 사이 4
-          ? '<ul class="ac-done-acts">' + d.picked.map(function (t) { return '<li>' + icon("--ic-check", 16) + '<span class="t-body-4">' + esc(t) + '</span></li>'; }).join("") + '</ul>'
+          ? '<div class="ds-acts" role="list">' + d.picked.map(function (t) { return window.ds.act(esc(t), { result: true }); }).join("") + '</div>'   // [11/20] 공통 조치 목록, 결과 상태
           : '<div class="ac-chips">' +
           d.picked.map(function (t) {
             return '<span class="ac-chip-done t-label-2">' + esc(t) + '</span>';

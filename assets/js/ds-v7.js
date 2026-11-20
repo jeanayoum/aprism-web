@@ -51,6 +51,25 @@
     var v = (STATUS[key] || 'neutral dot').split(' ');
     return cls('ds-badge', !(o && o.face) && 'is-plain', 'is-' + v[0], v[1] && 'ds-i-' + v[1]);
   }
+  /*
+   * 조치 목록 한 줄 (DELTA 조치 제안, 11/20). 목록은 '<div class="ds-acts" role="group">' 로 감쌈
+   *   ds.act('작업 중지 요청', { on: true, ai: true })          고르기: 체크 상자, 줄 전체가 체크(role=checkbox)
+   *   ds.act('작업 중지 요청', { result: true, sub: '현장 작업자' })   결과: 체크 아이콘, 누르지 않음
+   *   o.cls, o.attrs 덧붙임. o.sub 는 받는 사람 같은 보조 줄
+   */
+  function act(text, o) {
+    o = o || {};
+    var lead = o.result ? '<span class="ds-act-ic" aria-hidden="true"><span class="i" style="--i:var(--ic-check)"></span></span>'
+      : '<span class="ds-act-box' + (o.boxCls ? ' ' + o.boxCls : '') + '"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>';
+    var body = '<span class="' + cls('ds-act-text', o.textCls) + '">' + text + (o.sub ? '<small>' + o.sub + '</small>' : '') + '</span>' +
+      (o.ai ? badge('neutral', 'AI 추천', { icon: 'delta', cls: 'ma-check-tag' }) : '');
+    return o.result
+      ? '<div class="' + cls('ds-act', 'is-result', o.cls) + '" role="listitem"' + sp(o.attrs) + '>' + lead + body + '</div>'
+      : '<button type="button" class="' + cls('ds-act', o.cls) + '" role="checkbox" aria-checked="' + (o.on ? 'true' : 'false') + '"' + sp(o.attrs) + '>' + lead + body + '</button>';
+  }
+  function deltaHead(id) {
+    return '<div class="ds-delta-head"><span class="ds-delta-mark"><span class="i" style="--i:var(--ic-delta)" aria-hidden="true"></span><span' + (id ? ' id="' + id + '"' : '') + '>DELTA 조치 제안</span></span></div>';
+  }
   function badgeRow(badgeHtml, text, o) {
     o = o || {};
     return '<span class="' + cls('ds-badge-row', o.cls) + '"' + sp(o.attrs) + '>' + badgeHtml + (text ? '<span>' + text + '</span>' : '') + '</span>';
@@ -79,7 +98,7 @@
     }).join('') + '</div>';
   }
   window.ds = {
-    badge: badge, badgeRow: badgeRow, statusCls: statusCls, wp: wp, floor: floor, chip: chip,
+    badge: badge, badgeRow: badgeRow, statusCls: statusCls, act: act, deltaHead: deltaHead, wp: wp, floor: floor, chip: chip,
     tabsLine: function (items, o) { return tabs('ds-tab-line', items, o); },
     tabsChip: function (items, o) { return tabs('ds-tab-chip', items, o); },
     seg: function (items, o) { return tabs('ds-seg', items, o); },
