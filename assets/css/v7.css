@@ -1560,3 +1560,7 @@ body.ver-7 .signal-chip .net-sev { flex: none; color: var(--status-critical-icon
   html:has(body.ver-7) { overflow-x: auto; }
   body.ver-7 { min-width: 1600px; }
 }
+
+/* [11/20 정의서 CM-06] 자동 로그아웃의 [로그아웃] = 보조 행동, 무채색 글자(색상 위계 3) — 주요 행동 [연장하기]만 파랑 */
+body.ver-7 [data-autologout-now] { color: var(--text-secondary); }
+body.ver-7 [data-autologout-now]:hover { color: var(--text-primary); }
