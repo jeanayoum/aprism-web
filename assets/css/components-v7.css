@@ -65,6 +65,19 @@ body.ver-7 {
   --ds-menu-item-radius: var(--radius-2);
   --ds-menu-shadow: 0 4px 16px var(--color-alpha-gray-950-55);
 
+  /* 떠 있는 것: 대화상자, 지도 위 카드, 토스트 (11/20) */
+  --ds-modal-w: 480px;
+  --ds-modal-w-wide: 744px;
+  --ds-modal-pad-y: var(--space-20);
+  --ds-modal-pad-x: var(--space-16);
+  --ds-modal-gap: var(--space-20);
+  --ds-modal-radius: var(--radius-8);
+  --ds-pop-radius: var(--radius-8);
+  --ds-pop-shadow: 0 8px 20px -4px var(--color-alpha-gray-950-55);
+  --ds-toast-h: 32px;
+  --ds-toast-pad-x: var(--space-16);
+  --ds-toast-gap: var(--space-12);
+
   /* 칩 */
   --ds-chip-h: 26px;
   --ds-chip-pad-x: var(--space-8);
@@ -348,6 +361,26 @@ body.ver-7 :is(.dropdown-menu .menu-item:not(.scope-item), .field-option, .ma-me
   width: 100%; height: auto !important; min-height: var(--ds-menu-item-h) !important; padding: 0 var(--ds-menu-item-pad-x) !important;
   border-radius: var(--ds-menu-item-radius) !important; font-size: var(--font-size-14) !important; line-height: var(--font-line-height-22) !important;
 }
+
+/* ---------- 컴포넌트: 떠 있는 것 (11/20, 한 곳에서 정의) ----------
+ * 대화상자 .modal: 로봇 선택(.is-wide), 자동 로그아웃, 관제사 교대(.is-shift, 로그인 칸이 있어 따로 둔 폭과 안쪽)
+ *   폭 480(넓은 것 744), 안쪽 위아래 20 좌우 16, 덩이 사이 20, 모서리 8, 테 1, 유리 면. 닫기는 아이콘 버튼 32
+ * 지도 위 떠 있는 카드(툴팁): 지도 로봇 카드(.map-bot-tip), 전체 미션 층 카드(.bld-tip). 모서리 8, 그림자 하나. 안쪽은 머리 줄과 맞물려 카드마다 그대로
+ * 토스트 .toast: 알림 처리, 안전진단 요청, 로그인. 높이 32 이상, 안쪽 4(왼쪽 16), 사이 12, 완전 둥글게, 반전 면 */
+body.ver-7 .modal {
+  box-sizing: border-box !important; border-width: var(--border-width-thin) !important; border-radius: var(--ds-modal-radius) !important;
+}
+body.ver-7 .modal:not(.is-shift) { gap: var(--ds-modal-gap) !important; padding: var(--ds-modal-pad-y) var(--ds-modal-pad-x) !important; }
+body.ver-7 .modal:not(.is-wide):not(.is-shift) { width: var(--ds-modal-w) !important; }
+body.ver-7 .modal.is-wide { width: var(--ds-modal-w-wide) !important; }
+body.ver-7 .modal-foot { gap: var(--space-8) !important; }
+body.ver-7 :is(.map-bot-tip, .bld-tip) { border-radius: var(--ds-pop-radius) !important; box-shadow: var(--ds-pop-shadow) !important; }
+body.ver-7 .map-bot-tip .map-card-head { border-radius: var(--ds-pop-radius) var(--ds-pop-radius) 0 0 !important; }
+body.ver-7 .toast {
+  box-sizing: border-box !important; gap: var(--ds-toast-gap) !important; min-height: var(--ds-toast-h) !important;
+  padding: var(--space-4) var(--space-4) var(--space-4) var(--ds-toast-pad-x) !important; border-radius: var(--radius-pill) !important;
+}
+body.ver-7 .toast:not(:has(.toast-undo:not([hidden]))) { padding-right: var(--ds-toast-pad-x) !important; }
 
 /* ---------- 칩: 누름. 기존 거르기 칩 모양 (꺼짐 흰 면 + 회색 테, 켜짐 진한 면 + 흰 글자)
  * 화면: 관제와 전체 미션 거르기, 전체 미션 로봇 상태 거르기, 미션설정 거르기, Delta 질문, 알림센터 체크형 거르기
