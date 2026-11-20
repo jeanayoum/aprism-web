@@ -201,6 +201,8 @@
         // 사파리 프라이빗 모드처럼 막힌 곳에서는 그냥 넘어간다 — 규칙 3 이 통과로 잡힌다.
       }
       if (V2) {
+        // [11/20 정의서 CM-07] 로그인으로 들어오면 첫 화면(전체 미션) Delta 가 인계 알림부터 알린다 — 자동 로그인 재접속은 같은 사람이라 없음
+        try { sessionStorage.setItem("aprism.handover", "1"); } catch (e) { /* 막힘 */ }
         var keep = form.querySelector('input[name="remember"]');
         try {
           if (keep && keep.checked) { localStorage.setItem(SIGNED, String(Date.now() + 72 * 3600 * 1000)); }

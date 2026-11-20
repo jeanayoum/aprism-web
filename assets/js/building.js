@@ -1179,6 +1179,34 @@
    * 근거 줄(v3-panel.js)도 APRISM_DELTA_SCOPE 로 범위를 앞에 붙인다.
    */
   var deltaFirst = null;
+  /*
+   * [11/20 정의서 CM-07] 인계 인사 — 로그인 v2 가 sessionStorage "aprism.handover" 를 남긴다(한글 v7 만).
+   *   [살펴보기](Delta 답 단추) → 알림 센터. 다른 곳을 누르면 인사를 끝내고 평소 문구로(전체 미션 그대로).
+   */
+  function handoverName() {
+    var on = false; try { on = sessionStorage.getItem("aprism.handover") === "1"; } catch (e) { on = false; }
+    if (!on || !V6) { return ""; }
+    var chip = document.querySelector(".account-chip .t-label-2");
+    return chip ? chip.textContent.trim() : "관제사";
+  }
+  function endHandover() {
+    try { sessionStorage.removeItem("aprism.handover"); } catch (e) { /* 막힘 */ }
+    renderLeft();
+  }
+  if (handoverName()) {
+    if (!window.APRISM_DELTA_DO) {
+      window.APRISM_DELTA_DO = function () {
+        if (!handoverName()) { return; }
+        try { sessionStorage.removeItem("aprism.handover"); } catch (e) { /* 막힘 */ }
+        var go = document.querySelector("[data-ah-all]:not([data-ah-all='done'])"); if (go) { go.click(); }
+      };
+    }
+    document.addEventListener("pointerdown", function end(e) {
+      if (e.target.closest && e.target.closest(".delta3")) { return; }
+      document.removeEventListener("pointerdown", end, true);
+      endHandover();
+    }, true);
+  }
   function deltaSay(top, list) {
     var d = { level: top, glow: top };
     if (!V3) { return d; }
@@ -1202,6 +1230,13 @@
         var nc = list.filter(function (a) { return a.sev === "critical"; }).length;
         if (!V6) { d.line2 = deltaFirst.line2.replace(/위험 알림 \d+건, 주의 알림 \d+건/, "위험 알림 " + nc + "건, 주의 알림 " + (list.length - nc) + "건"); }
         else if (!list.length) { d.line2 = "알림이 없어요. 순회는 정상이에요."; }
+        else if (handoverName()) {
+          // [11/20 정의서 CM-07] 로그인 직후 첫 화면 = 전체 미션. 인계 알림이 있으면 Delta 가 먼저 인사하고 [살펴보기] → 알림 센터
+          var hn = handoverName();
+          var hs = { l: ["어서오세요 " + hn + "님", "인계된 알림 " + list.length + "건이 있어요. 살펴볼까요?"], clue: "인계 알림 " + list.length + "건", yes: "살펴보기" };
+          window.APRISM_DELTA_SAY = hs;
+          d.line2 = hs.l.join("\n");
+        }
         else {
           /*
            * [11/06 v6] 개별 미션(monitor.js COPY.brief)과 같은 두 줄 — 1줄 건수, 2줄 "[M번호 미션]부터 확인하세요."(회색, 미션 표식은 v3-panel.js).
