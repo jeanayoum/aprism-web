@@ -253,8 +253,8 @@
       var p = power(ids, bot.spec);
       var blocked = !n || p.state === "no";
       cta.disabled = blocked;
-      cta.textContent = !n ? "점검항목을 1개 이상 골라 주세요"
-        : p.state === "no" ? "배터리가 모자라 시작할 수 없어요"
+      cta.textContent = !n ? "점검항목 1개 이상 선택 필요"
+        : p.state === "no" ? "배터리 부족으로 시작 불가"
         : "사전 점검 시작";
     }
   }
@@ -270,7 +270,7 @@
       batBar.querySelector(".rest").style.width = spec.bat + "%";
       batBar.querySelector(".use").style.cssText = "left:" + spec.bat + "%;width:0%";
       batBar.querySelector(".mark").style.left = RESERVE + "%";
-      if (batNote) { batNote.className = "mp-bat-note t-caption"; batNote.innerHTML = "고른 점검항목이 없어요."; }
+      if (batNote) { batNote.className = "mp-bat-note t-caption"; batNote.innerHTML = "고른 점검항목 없음"; }
       return;
     }
 
@@ -300,10 +300,10 @@
       batNote.className = "mp-bat-note t-caption" + (p.state === "ok" ? "" : " is-" + p.state);
       batNote.innerHTML = p.state === "no"
         ? "복귀 예비 " + RESERVE + "%를 남기려면 약 <b>" + Math.ceil(RESERVE - p.left) +
-          "%</b>가 더 필요해요. 점검항목을 줄이거나 다른 로봇을 골라 주세요."
+          "%</b> 더 필요함. 점검항목을 줄이거나 다른 로봇 선택"
         : p.state === "low"
-        ? "끝나면 약 <b>" + Math.round(p.left) + "%</b>가 남아요. 복귀 예비 " + RESERVE + "%에 가까워 여유가 적어요."
-        : "예상 소모 약 <b>" + Math.round(p.use) + "%</b>, 끝나면 약 <b>" + Math.round(p.left) + "%</b>가 남아요.";
+        ? "끝나면 약 <b>" + Math.round(p.left) + "%</b> 남음. 복귀 예비 " + RESERVE + "%에 가까워 여유 적음"
+        : "예상 소모 약 <b>" + Math.round(p.use) + "%</b>, 끝나면 약 <b>" + Math.round(p.left) + "%</b> 남음";
     }
   }
 

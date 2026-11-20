@@ -462,6 +462,13 @@ window.APRISM_EN = {"APRISM 공장 환경점검 로봇 관제 시스템 진입 �
 "예상 소모 약":"Uses about ",
 ", 끝나면 약":", with about ",
 "가 남아요.":" left at the end.",
+"점검항목 1개 이상 선택 필요":"Pick at least 1 inspection item",   // [11/20] 한글 명사형 문구(영문은 그대로)
+"배터리 부족으로 시작 불가":"Not enough battery to start",
+"고른 점검항목 없음":"No inspection items selected.",
+"더 필요함. 점검항목을 줄이거나 다른 로봇 선택":" more. Remove some items or pick another robot.",
+"남음. 복귀 예비":" left at the end. Close to the return reserve of ",
+"%에 가까워 여유 적음":"%, so the margin is thin.",
+"남음":" left at the end.",
 "사전점검 진행중입니다.":"Pre-check in progress.",
 "통합 순회 현황":"Patrol Overview",
 "ROBOT 01 확인중..":"Checking ROBOT 01..",
