@@ -2158,16 +2158,16 @@
     if (box.style.getPropertyValue("--y") !== y) box.style.setProperty("--y", y);
   }
   // v7 에 없는 상태 · 알림을 이 영상에서만 덧입힌다 — 글은 속성(data-k)으로 얹어 관제 화면이 글을 다시 써도 유지된다
-  // d.__kWp = [이름, "danger" | "ok"] — danger: 위험(빨강) / ok: 처리 끝난 평소 색(알림 · 보류 표시 지움, 지난 지점이면 결과 safe)
+  // d.__kWp = [이름, "danger" | "ok"] — danger: 위험(빨강) / ok: 처리된 곳(알림 · 보류 지움 + data-wp-cleared → 지도 번호 회색, monitor.js '해결한 알림' 표시)
   function kWpRed(d) {
     const [name, mode] = d.__kWp || [];
-    const WANT = mode === "ok" ? { "data-wp-alert": null, "data-rr-hold": null, "data-wp-result": "safe" } : { "data-wp-alert": "danger", "data-rr-hold": "danger", "data-wp-result": "danger" };
+    const WANT = mode === "ok" ? { "data-wp-alert": null, "data-rr-hold": null, "data-wp-result": "safe", "data-wp-cleared": "" } : { "data-wp-alert": "danger", "data-rr-hold": "danger", "data-wp-result": "danger", "data-wp-cleared": null };
     d.querySelectorAll("[data-timeline] [data-waypoint]").forEach(n => {
       const want = name && n.textContent.includes(name);
-      for (const at of ["data-wp-alert", "data-wp-result", "data-rr-hold"]) {
+      for (const at of ["data-wp-alert", "data-wp-result", "data-rr-hold", "data-wp-cleared"]) {
         const keep = "data-kista-" + at.slice(5);
         if (want) {
-          if (!n.hasAttribute(at) && !n.hasAttribute(keep) && at !== "data-wp-alert") continue;   // 결과 · 보류는 있는 것만
+          if (!n.hasAttribute(at) && !n.hasAttribute(keep) && (at === "data-wp-result" || at === "data-rr-hold")) continue;   // 결과 · 보류는 있는 것만
           if (!n.hasAttribute(keep)) n.setAttribute(keep, n.getAttribute(at) ?? "");
           const v = WANT[at];
           if (v == null) { if (n.hasAttribute(at)) n.removeAttribute(at); } else if (n.getAttribute(at) !== v) n.setAttribute(at, v);
@@ -2213,7 +2213,7 @@
     const rail = d.querySelector("[data-timeline]");
     if (rail && !d.__kWpObs) {
       d.__kWpObs = new d.defaultView.MutationObserver(() => kWpRed(d));
-      d.__kWpObs.observe(rail, { subtree: true, attributes: true, attributeFilter: ["data-wp-alert", "data-wp-result", "data-rr-hold"] });
+      d.__kWpObs.observe(rail, { subtree: true, attributes: true, attributeFilter: ["data-wp-alert", "data-wp-result", "data-rr-hold", "data-wp-cleared"] });
     }
     kWpRed(d);   // 지금 지점 카드의 상태 줄(긴급정지 · 일시정지 [재개])도 숨긴다
     if (o.quiet) { const rail = d.querySelector("[data-timeline]"); if (rail) rail.classList.remove("rr-estop", "rr-frozen"); }
