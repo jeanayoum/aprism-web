@@ -207,8 +207,6 @@ body.ver-7, body.ds-auth {   /* body.ds-auth: 로그인 쪽 화면(안내 상자
   --ds-list-gap: var(--space-8);                 /* 앞(아이콘, 체크) - 글 - 뒤 사이 */
   --ds-list-s-h: 32px;                           /* 작게: 고르기 목록(체크, 라디오, 스위치) */
   --ds-list-m-h: 40px;                           /* 보통: 한 줄 목록 */
-  --ds-radio: 18px;                              /* 라디오 표식(체크 상자와 같은 18) */
-  --ds-radio-dot: 8px;
 
   /* 모션 (11/20) 1층: 값. 쓰는 법(2층)은 아래 "모션" 절과 CLAUDE.md. JS 움직임도 이 값을 읽음(monitor.js) */
   --ds-motion-fast: 160ms;                        /* 상태 바뀜: 올림, 화살표 돌기, 사진 올림 */
@@ -415,7 +413,7 @@ body.ver-7 .ds-mappop > .map-card-photo { margin: calc(var(--ds-mappop-gap) * -1
  *   (보고서 목록 올림은 예전 반투명 유리 면이었는데 다른 목록과 같은 --state-hover 로)
  * 줄 안 칸(새로 만들 때): .ds-list-prefix(앞), .ds-list-content(.ds-list-title 14/20 중간, .ds-list-detail 12/18 흐린 글, 사이 2), .ds-list-suffix(뒤, 오른쪽 끝)
  * 고르기 줄(SEED: 줄 전체가 누르는 곳, 줄 안에 따로 누르는 단추를 같이 두지 않음):
- *   체크 .is-check = 앞에 체크 상자(.ds-act-box), 여러 개 고를 때 / 라디오 .is-radio = 앞에 라디오 표식(.ds-radio), 하나만 고를 때(2개 이상)
+ *   체크 .is-check = 체크 상자(.ds-act-box, 체크 모양은 아이콘 --ic-check), 여러 개 고를 때
  *   스위치 .is-switch = 뒤에 토글(.ds-switch), 누르는 즉시 적용되는 설정만. 저장을 눌러야 반영되면 체크를 씀 */
 body.ver-7 :is(.ds-list-item, .ds-act) { box-sizing: border-box !important; gap: var(--ds-list-gap) !important; border-radius: var(--space-0) !important; }
 body.ver-7 :is(.ds-list-item.is-s, .ds-act) { min-height: var(--ds-list-s-h) !important; padding: var(--space-4) var(--space-8) !important; align-items: center; }
@@ -436,12 +434,6 @@ body.ver-7 .ds-list-detail { font-size: var(--font-size-12); line-height: var(--
 body.ver-7 .ds-list.is-boxed { border: var(--border-width-thin) solid var(--border-default) !important; border-radius: var(--radius-8) !important; overflow: hidden; }
 body.ver-7 .ds-list.is-divided > .ds-list-item { border-bottom: var(--border-width-thin) solid var(--border-default) !important; }
 body.ver-7 .ds-list.is-divided > .ds-list-item:last-child { border-bottom: 0 !important; }
-/* 라디오 표식: 18 원, 꺼짐 테 회색 600, 켜짐 테 + 가운데 점 8 = 체크 상자 켜짐 색(--ds-check-on). 실제 입력(input type=radio)이든 span 이든 */
-body.ver-7 .ds-radio { flex: none; position: relative; display: inline-grid; place-items: center; box-sizing: border-box; width: var(--ds-radio); height: var(--ds-radio); margin: var(--space-0); -webkit-appearance: none; appearance: none; border: var(--border-width-thin) solid var(--color-gray-600); border-radius: var(--radius-pill); background: transparent; --ds-check-on: var(--color-blue-700); }
-:root[data-theme="light"] body.ver-7 .ds-radio, :root[data-theme="dark"] body.ver-7 .is-light-scope .ds-radio { --ds-check-on: var(--color-blue-600); }
-body.ver-7 .ds-radio::after { content: ""; width: var(--ds-radio-dot); height: var(--ds-radio-dot); border-radius: var(--radius-pill); background-color: var(--ds-check-on); opacity: 0; }
-body.ver-7 :is(.ds-radio:checked, .ds-list-item.is-radio[aria-checked="true"] .ds-radio) { border-color: var(--ds-check-on); }
-body.ver-7 :is(.ds-radio:checked, .ds-list-item.is-radio[aria-checked="true"] .ds-radio)::after { opacity: 1; }
 
 /* ---------- WP 번호 원: 왼쪽 알림 목록, 지도 팝오버, 점검 줄, 오른쪽 경로 목록, Delta 어디서 쓰든 하나 ----------
  * 크기는 아이콘과 같은 4의 배수 두 단계(11/19): 번호 칸, 지도, 팝오버 머리 20(.ds-wp), 글자 줄 안 16(.ds-wp.is-s)
