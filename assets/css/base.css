@@ -551,3 +551,7 @@ a.screen-name:hover {
   .ver-area { grid-template-columns: 1fr; }
   .ver-area > .ver-prev { grid-column: 1; grid-row: auto; max-width: none; }
 }
+
+/* 영문판 접기(11/20 디자이너) — 내부 문서와 같은 꼴. 펼치면 화면 줄과 띄우고, 바로 아래 내부 문서와는 가깝게. */
+.en-fold > .screens { margin-top: var(--space-16); }
+.en-fold + .internal { margin-top: var(--space-24); }
