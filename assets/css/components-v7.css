@@ -51,6 +51,20 @@ body.ver-7 {
   --ds-act-gap: var(--space-8);                   /* 체크 상자(결과는 체크 아이콘)와 글자 사이 (입력 요소 규칙 8) */
   --ds-act-box: 18px;                             /* 체크 상자 */
 
+  /* 입력 요소: 칸, 메모, 떠 있는 메뉴 (11/20) */
+  --ds-field-h: 36px;
+  --ds-field-h-s: 32px;
+  --ds-field-pad-x: var(--space-12);
+  --ds-field-radius: var(--radius-4);
+  --ds-memo-pad: var(--space-12);
+  --ds-menu-pad: var(--space-4);
+  --ds-menu-gap: var(--space-2);
+  --ds-menu-radius: var(--radius-4);
+  --ds-menu-item-h: 36px;
+  --ds-menu-item-pad-x: var(--space-12);
+  --ds-menu-item-radius: var(--radius-2);
+  --ds-menu-shadow: 0 4px 16px var(--color-alpha-gray-950-55);
+
   /* 칩 */
   --ds-chip-h: 26px;
   --ds-chip-pad-x: var(--space-8);
@@ -304,6 +318,37 @@ body.ver-7 :is(.ds-act[aria-checked="true"] .ds-act-box > .i, input.ds-act-box:c
 body.ver-7 .ds-act-ic { flex: none !important; display: grid !important; place-items: center !important; width: var(--ds-act-box) !important; height: var(--ds-act-box) !important; color: var(--text-tertiary) !important; }
 body.ver-7 .ds-act-ic > .i { width: 16px !important; height: 16px !important; }
 
+/* ---------- 컴포넌트: 입력 요소 (11/20, 한 곳에서 정의) ----------
+ * 칸(선택 칸, 입력 칸) .field-box: 알림센터 거르기, 미션설정 로봇과 지역 고르기, 관제사 교대 로그인, 로봇 검색
+ *   높이 36(작은 칸 .is-sm 32), 좌우 12, 테 1, 모서리 4, 글자 14/22. 읽기 전용(.is-readonly)은 테와 면 없이 글자만
+ * 메모 칸: 관제 알림 팝오버(.ma-memo-field), 알림센터(.ma-memo-field), 안전진단(.fd). 안쪽 12, 모서리 4, 글자 14/22
+ * 떠 있는 메뉴: 계정, 통신(.dropdown-menu), 선택 칸 목록(.field-menu), 알림 카드 더보기(.ma-menu), 미션 범위(.scope-menu)
+ *   안쪽 4, 항목 사이 2, 테 1(--border-default), 모서리 4, 면 --bg-raised
+ *   항목: 높이 36 이상, 좌우 12, 아이콘과 글자 사이 8, 모서리 2, 글자 14/22. 미션 범위 항목은 칸이 여럿인 줄이라 틀만 따름
+ * 색은 지금 토큰 그대로(칸 면 --bg-map-chip, 칸 테 회색 650), 크기와 모양만 여기서 정함 */
+body.ver-7 .field-box:not(.is-readonly) {
+  box-sizing: border-box !important; height: var(--ds-field-h) !important; min-height: var(--ds-field-h) !important; padding: 0 var(--ds-field-pad-x) !important;
+  border-width: var(--border-width-thin) !important; border-style: solid !important; border-radius: var(--ds-field-radius) !important;
+  font-size: var(--font-size-14) !important; line-height: var(--font-line-height-22) !important;
+}
+body.ver-7 .field-box.is-sm:not(.is-readonly) { height: var(--ds-field-h-s) !important; min-height: var(--ds-field-h-s) !important; }
+body.ver-7 .field-box.is-readonly { height: var(--ds-field-h) !important; padding: 0 !important; border-color: transparent !important; background: transparent !important; font-size: var(--font-size-14) !important; line-height: var(--font-line-height-22) !important; }
+body.ver-7 :is(.ma-memo-field, .sf textarea.fd) {
+  box-sizing: border-box !important; padding: var(--ds-memo-pad) !important; border-radius: var(--ds-field-radius) !important;
+  font-family: inherit; font-size: var(--font-size-14) !important; line-height: var(--font-line-height-22) !important;
+}
+body.ver-7 :is(.dropdown-menu, .field-menu, .ma-menu) {
+  box-sizing: border-box !important; gap: var(--ds-menu-gap) !important; padding: var(--ds-menu-pad) !important;
+  border: var(--border-width-thin) solid var(--border-default) !important; border-radius: var(--ds-menu-radius) !important;
+  background-color: var(--bg-raised) !important; box-shadow: var(--ds-menu-shadow) !important;
+}
+body.ver-7 .ma-menu:not([hidden]) { display: flex !important; flex-direction: column !important; }
+body.ver-7 :is(.dropdown-menu .menu-item:not(.scope-item), .field-option, .ma-menu button) {
+  display: flex !important; align-items: center !important; gap: var(--space-8) !important; box-sizing: border-box !important;
+  width: 100%; height: auto !important; min-height: var(--ds-menu-item-h) !important; padding: 0 var(--ds-menu-item-pad-x) !important;
+  border-radius: var(--ds-menu-item-radius) !important; font-size: var(--font-size-14) !important; line-height: var(--font-line-height-22) !important;
+}
+
 /* ---------- 칩: 누름. 기존 거르기 칩 모양 (꺼짐 흰 면 + 회색 테, 켜짐 진한 면 + 흰 글자)
  * 화면: 관제와 전체 미션 거르기, 전체 미션 로봇 상태 거르기, 미션설정 거르기, Delta 질문, 알림센터 체크형 거르기
  * 모양 값은 !important (예전 클래스 규칙을 이기게), 배치는 :where 로 세기를 낮춰 기존 배치 규칙이 이기게 ---------- */
@@ -451,7 +496,11 @@ body.ver-7 .rp-ib, body.ver-7 .icon-button.modal-close { box-sizing: border-box 
 /* 24, 아이콘 16, 안쪽 여백 4 */
 body.ver-7 .btn.is-xs.ah-report:not(:has(*:not(.i))):not(.z1):not(.z2):not(.z3),
 body.ver-7 .done-fold:not(.z1):not(.z2):not(.z3), body.ver-7 .delta3-close:not(.z1):not(.z2):not(.z3),
-body.ver-7 .ac-nav:not(.z1):not(.z2):not(.z3), body.ver-7 .icon-button.is-xs:not(.z1):not(.z2):not(.z3) { width: var(--ds-iconbtn-s) !important; height: var(--ds-iconbtn-s) !important; min-width: var(--ds-iconbtn-s) !important; min-height: var(--ds-iconbtn-s) !important; padding: var(--ds-iconbtn-pad-s) !important; box-sizing: border-box !important; }
+body.ver-7 .ac-nav:not(.z1):not(.z2):not(.z3), body.ver-7 .icon-button.is-xs:not(.z1):not(.z2):not(.z3),
+body.ver-7 :is(.check-act, .map-card-close, .field-eye, .rc-arrow):not(.z1):not(.z2):not(.z3) { width: var(--ds-iconbtn-s) !important; height: var(--ds-iconbtn-s) !important; min-width: var(--ds-iconbtn-s) !important; min-height: var(--ds-iconbtn-s) !important; padding: var(--ds-iconbtn-pad-s) !important; box-sizing: border-box !important; }
+/* 화면 전용 아이콘 버튼도 24 (11/20): 미션설정 점검 줄 지도 보기와 순서 바꾸기, 지도 팝오버 닫기, 비밀번호 보기, 로봇 카드 넘기기 화살표 */
+body.ver-7 :is(.check-act, .map-card-close, .field-eye, .rc-arrow):not(.z1):not(.z2):not(.z3) { display: inline-grid !important; place-items: center !important; border: 0 !important; border-radius: var(--ds-btn-radius) !important; }
+body.ver-7 :is(.check-act, .map-card-close, .field-eye, .rc-arrow) > .i { width: 16px !important; height: 16px !important; }
 /* 패널 접기 24, 아이콘 20, 안쪽 여백 2 */
 body.ver-7 .sf-ptog:not(.z1):not(.z2):not(.z3), body.ver-7 .rp-ptog:not(.z1):not(.z2):not(.z3), body.ver-7 [data-panel-toggle]:not(.z1):not(.z2):not(.z3) { width: var(--ds-iconbtn-s) !important; height: var(--ds-iconbtn-s) !important; min-width: var(--ds-iconbtn-s) !important; min-height: var(--ds-iconbtn-s) !important; padding: var(--ds-paneltoggle-pad) !important; box-sizing: border-box !important; }
 
