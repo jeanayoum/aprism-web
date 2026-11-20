@@ -386,6 +386,12 @@
     return ALERTS.filter(function (a) { return a.sev === sev && isDone(a) === done; }).length;
   }
 
+  // [11/20 v7] 문구에 가운데점(·) 구분자를 쓰지 않음 — 데이터 글의 " · " 를 쉼표로
+  var V7 = document.body.classList.contains("ver-7");
+  function nd(t) { return V7 ? String(t).replace(/\s*·\s*/g, ", ") : t; }
+  // [11/20 v7] 처리 정보 DELTA 줄: 고른 조치는 위 조치 내용이 말하므로 괄호 목록을 되풀이하지 않음(쓰지 않은 경우의 추천 목록만 남김)
+  function deltaLine(t) { return V7 && !/쓰지 않음/.test(t) ? String(t).replace(/\s*\([^)]*\)\s*$/, "") : nd(t); }
+
   function icon(name, size) {
     return '<span class="i i-' + size + '" style="--i:var(' + name + ')" aria-hidden="true"></span>';
   }
@@ -403,8 +409,8 @@
     colHead.innerHTML = state.tab === "done"
       ? '<span class="ac-dc-check" role="columnheader"><span class="ac-sr">상태</span></span>' +
         '<span class="ac-dc-time" role="columnheader">조치</span>' +
-        '<span class="ac-dc-body" role="columnheader">알림 · 조치 내용</span>' +
-        '<span class="ac-dc-sev" role="columnheader">원 등급 · 발생</span>' +
+        '<span class="ac-dc-body" role="columnheader">' + nd("알림 · 조치 내용") + '</span>' +
+        '<span class="ac-dc-sev" role="columnheader">' + nd("원 등급 · 발생") + '</span>' +
         '<span class="ac-dc-who" role="columnheader">담당</span>'
       : '<span class="ac-c-sev" role="columnheader"><span class="ac-sr">단계</span></span>' +
         '<span class="ac-c-time" role="columnheader">발생</span>' +
@@ -912,7 +918,7 @@
       head6(a, "원 등급 ",
         '<p class="ac-record-age">' +
           '<span class="ac-record-at t-label-1">' + esc(DAYS[d.day].label) + ' ' + esc(d.at) + '</span>' +
-          '<span class="ac-record-by t-caption">조치 · ' + esc(d.by) + ' · ' + esc(d.took) + '</span>' +
+          '<span class="ac-record-by t-caption">' + (V7 ? '조치 ' + esc(d.by) + ', ' + esc(d.took) : '조치 · ' + esc(d.by) + ' · ' + esc(d.took)) + '</span>' +
         '</p>') +
       snap6(a,
         metaRow("발생", '<span class="ac-mono">' + esc(a.stamp) + '</span>') +
@@ -920,11 +926,13 @@
 
       '<section class="ac-record-section">' +
         '<h3 class="t-caption">조치 내용</h3>' +
-        '<div class="ac-chips">' +
+        (V7   // [11/20 v7] 조치 내용은 누르는 칩이 아니라 한 일 목록 — 체크 아이콘 16 + 글자 14, 줄 사이 4
+          ? '<ul class="ac-done-acts">' + d.picked.map(function (t) { return '<li>' + icon("--ic-check", 16) + '<span class="t-body-4">' + esc(t) + '</span></li>'; }).join("") + '</ul>'
+          : '<div class="ac-chips">' +
           d.picked.map(function (t) {
             return '<span class="ac-chip-done t-label-2">' + esc(t) + '</span>';
           }).join("") +
-        '</div>' +
+        '</div>') +
       '</section>' +
 
       '<section class="ac-record-section">' +
@@ -938,7 +946,7 @@
         '<dl class="ac-info">' +
           infoRow("담당", '<span class="t-body-4">' + esc(d.by) + '</span>') +
           infoRow("소요", '<span class="t-body-4">' + esc(d.took) + '</span>') +
-          infoRow("DELTA", '<span class="ac-info-delta t-body-4">' + esc(d.delta) + '</span>') +
+          infoRow("DELTA", '<span class="ac-info-delta t-body-4">' + esc(deltaLine(d.delta)) + '</span>') +
         '</dl>' +
       '</section>' +
     '</div>';
@@ -1005,9 +1013,10 @@
   function deltaUse(a, acts) {
     var rec = a.acts.filter(function (c) { return c.delta; }).map(function (c) { return c.t; });
     var used = rec.filter(function (t) { return acts.indexOf(t) > -1; });
-    if (!used.length) { return "AI 추천을 쓰지 않음 (추천: " + rec.join(" · ") + ")"; }
-    if (used.length === rec.length) { return "AI 추천 그대로 사용 (" + rec.join(" · ") + ")"; }
-    return "AI 추천 가운데 일부만 사용 (" + used.join(" · ") + ")";
+    var J = V7 ? ", " : " · ";
+    if (!used.length) { return "AI 추천을 쓰지 않음 (추천: " + rec.join(J) + ")"; }
+    if (used.length === rec.length) { return "AI 추천 그대로 사용 (" + rec.join(J) + ")"; }
+    return "AI 추천 가운데 일부만 사용 (" + used.join(J) + ")";
   }
 
   function nowHM() {
@@ -1047,7 +1056,7 @@
         // [11/02 v6] Delta 표식은 DELTA 조치 제안 판과 같은 Delta 로고(예전 판은 cpu)
         '<span class="ac-handover-mark">' + icon(V6 ? "--ic-delta" : "--ic-cpu", 16) +
           '<span class="t-label-2">DELTA 인수인계 요약</span></span>' +
-        '<span class="ac-handover-when t-caption">' + esc(HANDOVER.when) + '</span>' +
+        '<span class="ac-handover-when t-caption">' + esc(nd(HANDOVER.when)) + '</span>' +
         '<span class="ac-head-spacer"></span>' +
         '<button type="button" class="btn btn-ghost is-xs" data-ac-handover-close>닫기</button>' +
       '</div>' +
@@ -1055,7 +1064,7 @@
         HANDOVER.items.map(function (it) {
           return '<div class="ac-handover-row">' +
             '<dt class="t-label-2">' + esc(it[0]) + '</dt>' +
-            '<dd class="t-body-4">' + esc(it[1]) + '</dd></div>';
+            '<dd class="t-body-4">' + esc(nd(it[1])) + '</dd></div>';
         }).join("") +
       '</dl>' +
       '<div class="ac-handover-actions">' +

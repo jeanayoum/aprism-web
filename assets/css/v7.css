@@ -1560,3 +1560,15 @@ body.ver-7 .signal-chip .net-sev { flex: none; color: var(--status-critical-icon
   html:has(body.ver-7) { overflow-x: auto; }
   body.ver-7 { min-width: 1600px; }
 }
+
+/* [11/20] 알림센터 조치 요청된 알림 상세: 조치 내용은 한 일 목록(체크 아이콘 16 + 글자 14, 아이콘과 글자 사이 4, 줄 사이 4). 알약 칩(.ac-chip-done)을 쓰지 않음 */
+body.ver-7 .ac-done-acts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-4); }
+body.ver-7 .ac-done-acts > li { display: flex; align-items: center; gap: var(--space-4); color: var(--text-primary); }
+body.ver-7 .ac-done-acts > li > .i { flex: none; color: var(--text-tertiary); }
+
+/* [11/20] 알림센터 조치 요청된 알림: 이미 처리를 맡긴 일이라 신호색을 뺌(목록 패널은 신호색 하나만). 원 등급은 모양과 글자만 회색으로 남김
+ *   목록: 원 등급 태그 회색, 알림 이름 보통 굵기. 상세: 원 등급 배지 회색 면, 값과 판정 글자 기본 색 */
+body.ver-7 .ac-done-row .ds-badge:is(.is-crit, .is-warn) { color: var(--text-tertiary) !important; --ds-i-color: var(--text-tertiary); }
+body.ver-7 .ac-done-row .ac-dc-title { font-weight: var(--font-weight-regular); }
+body.ver-7 .ac-record .verdict-chip.ds-badge { background-color: var(--ds-badge-neutral-bg, var(--bg-map-chip)) !important; color: var(--text-secondary) !important; --ds-i-color: var(--text-tertiary); }
+body.ver-7 .ac-record .ac-d6-val, body.ver-7 .ac-record .ac-d6-vd { color: var(--text-primary) !important; }
