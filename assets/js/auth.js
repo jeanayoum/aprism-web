@@ -62,6 +62,8 @@
    * 서버가 붙으면 이 자리가 요청으로 바뀐다.
    */
   function landing() {
+    // [11/20 v2 디자이너] v2 화면(로그인 · 비밀번호 변경)은 통합 관제 메인(control-v7, 인덱스 Screen 04.1)으로 들어간다
+    if (/-v2\.html$/.test(location.pathname)) { return "./control-v7.html"; }
     var running = "0";
     try { running = window.sessionStorage.getItem("aprism.running") || "0"; } catch (e) { running = "0"; }
     // [11/03] v6 화면으로 — 돌고 있으면 v6 관제(main-v6), 아니면 v6 미션 설정
@@ -81,11 +83,7 @@
       } catch (e) {
         // 사파리 프라이빗 모드처럼 막힌 곳에서는 그냥 넘어간다 — 규칙 3 이 통과로 잡힌다.
       }
-      // [11/20 v2] 로그인 v2 → 비밀번호 변경 v2 → 관제. 시연에서는 처음 한 번만 변경 화면을 거친다
-      //   (변경을 마치면 aprism.pwChanged = 1). 서버가 붙으면 "비밀번호 만료" 응답이 이 자리를 정한다.
-      var v2 = /-v2\.html$/.test(location.pathname), changed = "0";
-      try { changed = sessionStorage.getItem("aprism.pwChanged") || "0"; } catch (e) { changed = "0"; }
-      location.href = (window.aprismHref || String)(v2 && changed !== "1" ? "./password-expired-v2.html" : landing());
+      location.href = (window.aprismHref || String)(landing());
     });
   }
 
@@ -184,7 +182,6 @@
     pwForm.addEventListener("submit", function (event) {
       event.preventDefault();
       if (submit.disabled) { return; }
-      try { sessionStorage.setItem("aprism.pwChanged", "1"); } catch (e) { /* 막힌 곳에서는 다음에도 변경 화면을 거친다 */ }
       location.href = (window.aprismHref || String)(landing());
     });
   }
