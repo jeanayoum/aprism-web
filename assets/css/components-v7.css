@@ -5,7 +5,7 @@
  * - 값은 토큰만 쓴다(tokens.css). 높이처럼 토큰이 없는 것만 숫자
  * - 배지, 칩, 탭: .ds-badge, .ds-wp, .ds-floor, .ds-chip, .ds-tab-line, .ds-tab-chip, .ds-seg (화면 코드를 이 클래스로 바꾸는 중, assets/js/ds-v7.js 가 같은 마크업을 만들어 줌)
  * - 상단 미션 탭: .sb-tab, .sb-tab-more, .sb-more-menu (11/20 정의서 공통-01 Q6 으로 등록, 그리는 곳은 assets/js/mission-tabs-v6.js, 값은 파일 끝 "상단 미션 탭" 블록)
- * - 파일 차례: 디자인 값 → 컴포넌트(아이콘, 패널 머리, 배지, 태그, 점 배지, WP 번호 원, 층, 조치 목록과 체크 상자, 칩, 탭, 구간 전환, 버튼) → Delta 부품 → 지도 부품(2D 지도 경로, 번호 원) → 맨 끝 사례(Case Studies: 컴포넌트를 엮은 화면 한 덩이, 예: DELTA 조치 제안 카드)
+ * - 파일 차례: 디자인 값 → 컴포넌트(아이콘, 패널 머리, 안내 상자, 배지, 태그, 점 배지, WP 번호 원, 층, 조치 목록과 체크 상자, 칩, 탭, 구간 전환, 버튼) → Delta 부품 → 지도 부품(2D 지도 경로, 번호 원) → 맨 끝 사례(Case Studies: 컴포넌트를 엮은 화면 한 덩이, 예: DELTA 조치 제안 카드)
  * - 버튼: 지금 화면이 쓰는 .btn, .icon-button 등에 바로 걸림 (파일 아래쪽 "버튼")
  * - 나누는 기준: 누르지 않는 표시는 배지, 조건을 켜거나 값을 고르면 칩, 보이는 내용이 통째로 바뀌면 탭, 행동과 이동은 버튼
  * - 인계 문서: https://claude.ai/artifact/P6i1TzG3SDpNn9gPTiF1mg
@@ -17,7 +17,7 @@
  * 색: 주석으로 둔 줄은 비워 두면 오른쪽 기본 토큰을 쓴다(패널마다 토큰이 달라지는 곳도 그대로 따라감).
  *     바꾸려면 주석을 풀고 토큰을 넣는다. 그러면 모든 화면에 같은 색으로 덮인다
  * ========================================================================== */
-body.ver-7 {
+body.ver-7, body.ds-auth {   /* body.ds-auth: 로그인 쪽 화면(안내 상자만 받음)도 값은 같이 씀 */
   /* 배지 */
   --ds-badge-h: 22px;
   --ds-badge-pad-x: var(--space-8);               /* 면 있는 배지 */
@@ -184,6 +184,12 @@ body.ver-7 {
   --ds-iconbtn-pad: var(--space-8);
   --ds-paneltoggle-pad: var(--space-2);
 
+  /* 안내 상자 (11/20, 지금 값 그대로) */
+  --ds-notice-pad: var(--space-12);
+  --ds-notice-gap: var(--space-8);               /* 아이콘과 글 사이 */
+  --ds-notice-radius: var(--radius-4);
+  --ds-notice-text-gap: var(--space-4);          /* 제목과 본문 사이 */
+
   /* 패널 머리 (11/20, 관제 기준) */
   --ds-phead-h: 45px;                             /* 안쪽 12 + 이름 줄 20 + 12 + 구분선 1 */
   --ds-phead-pad: var(--space-12);
@@ -314,6 +320,21 @@ body.ver-7 .ds-phead-t { flex: 1 1 auto !important; min-width: 0 !important; mar
 body.ver-7 .ds-phead > button { order: 1 !important; }
 body.ver-7 :is(.context-panel.is-collapsed, .sf.is-fold, .rp-body.is-fold) .ds-phead { gap: 0 !important; }
 body.ver-7 :is(.context-panel.is-collapsed, .sf.is-fold, .rp-body.is-fold) .ds-phead::after { opacity: 0 !important; }
+
+/* ---------- 안내 상자 (11/20, .ds-notice): 아이콘 16 + 제목(굵게) + 본문 ----------
+ * 화면: 사전 점검, 미션설정 안내(정보), 관제 로봇 상세 서랍 알림(주의, 위험), 비밀번호 변경(로그인 쪽, 주의). 예전 .inline-notice 옆에 .ds-notice
+ * 단계: 기본 정보(파랑), .is-warning 주의, .is-critical 위험 (예전 클래스 이름 그대로, screen.js 가 서랍에서 바꿔 끼움)
+ * 아이콘 색은 배지처럼 단계 아이콘 색(11/20 통일: 예전엔 로그인 쪽 주의만 아이콘 색, 나머지는 글자 색)
+ * 로그인 쪽 화면은 v7 규칙 전체가 아니라 이 상자만 받게 body.ds-auth 범위를 따로 둠 */
+:is(body.ver-7, body.ds-auth) .ds-notice { display: flex !important; gap: var(--ds-notice-gap) !important; box-sizing: border-box !important; padding: var(--ds-notice-pad) !important; border: var(--border-width-thin) solid var(--status-info-border) !important; border-radius: var(--ds-notice-radius) !important; background-color: var(--status-info-bg) !important; color: var(--status-info-text) !important; }
+:is(body.ver-7, body.ds-auth) .ds-notice > .i { flex: none !important; width: var(--ds-icon-16, 16px) !important; height: var(--ds-icon-16, 16px) !important; margin-top: var(--space-4) !important; color: var(--status-info-icon) !important; }
+:is(body.ver-7, body.ds-auth) .ds-notice > .body { display: flex !important; flex-direction: column !important; gap: var(--ds-notice-text-gap) !important; min-width: 0; }
+:is(body.ver-7, body.ds-auth) .ds-notice .title { font-size: var(--font-size-14) !important; line-height: var(--font-line-height-22) !important; font-weight: var(--font-weight-bold) !important; }
+:is(body.ver-7, body.ds-auth) .ds-notice .desc { font-size: var(--font-size-14) !important; line-height: var(--font-line-height-22) !important; font-weight: var(--font-weight-regular) !important; opacity: .8; }
+:is(body.ver-7, body.ds-auth) .ds-notice.is-warning { border-color: var(--status-warning-border) !important; background-color: var(--status-warning-bg) !important; color: var(--status-warning-text) !important; }
+:is(body.ver-7, body.ds-auth) .ds-notice.is-warning > .i { color: var(--status-warning-icon) !important; }
+:is(body.ver-7, body.ds-auth) .ds-notice.is-critical { border-color: var(--status-critical-border) !important; background-color: var(--status-critical-bg) !important; color: var(--status-critical-text) !important; }
+:is(body.ver-7, body.ds-auth) .ds-notice.is-critical > .i { color: var(--status-critical-icon) !important; }
 
 /* ---------- WP 번호 원: 왼쪽 알림 목록, 지도 팝오버, 점검 줄, 오른쪽 경로 목록, Delta 어디서 쓰든 하나 ----------
  * 크기는 아이콘과 같은 4의 배수 두 단계(11/19): 번호 칸, 지도, 팝오버 머리 20(.ds-wp), 글자 줄 안 16(.ds-wp.is-s)
