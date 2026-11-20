@@ -45,6 +45,43 @@
     return { pts: pts, cum: cum, len: len, sAt: sAt };
   }
 
+  /*
+   * [11/20 v7] 2D 지도 공통 경로: 관제 오른쪽 [지도](svgHQ)와 안전진단 왼쪽 지도(safety.js svg2)가 같이 씀.
+   *   네 구간 = 남은 구간(옅은 실선 + 테), 진행 방향 꺾쇠, 지난 구간(둥근 점선), 현재 구간(진한 실선)
+   *   굵기는 공통 CSS(components-v7.css "디자인 값")의 --ds-map-* 를 읽고(화면 px, 단위 없는 숫자), 색은 .ds-map-* 클래스가 칠함
+   *   u = 화면 px → 지도 좌표 바꾸기(각 지도가 넘겨 줌)
+   */
+  var MV = { "road-w": 13, "past-w": 2.6, "past-gap": 5.2, "cur-w": 3.4, "ahead-w": 3.4, "ahead-case": 1.6, "dir-gap": 34 };
+  function mapVals() {
+    var cs = document.body ? getComputedStyle(document.body) : null, o = {};
+    Object.keys(MV).forEach(function (k) { var v = cs ? parseFloat(cs.getPropertyValue("--ds-map-" + k)) : NaN; o[k] = isNaN(v) ? MV[k] : v; });
+    return o;
+  }
+  function road(L, u) { return '<polyline class="ds-map-road" points="' + cut2(L, 0, L.len) + '" stroke-width="' + u(mapVals()["road-w"]) + '"/>'; }
+  function route(L, sCut, sNext, u, marks) {
+    var V = mapVals(), g = "";
+    if (sNext < L.len) {
+      var a = cut2(L, sNext, L.len);
+      g += '<polyline class="ds-map-ahead-case" points="' + a + '" stroke-width="' + u(V["ahead-w"] + V["ahead-case"]) + '"/>';
+      g += '<polyline class="ds-map-ahead" points="' + a + '" stroke-width="' + u(V["ahead-w"]) + '"/>';
+      // 진행 방향 꺾쇠: 남은 구간 위에 간격을 두고, 지점 표식 근처는 비움
+      var gap = +u(V["dir-gap"]);
+      for (var sv = sNext + gap * 0.6; sv < L.len - gap * 0.3; sv += gap) {
+        var q = pos2(L, sv);
+        if ((marks || []).some(function (m) { return Math.hypot(m.x - q.x, m.y - q.y) < +u(9); })) { continue; }
+        g += '<path class="ds-map-dir" transform="translate(' + q.x.toFixed(1) + "," + q.y.toFixed(1) + ") rotate(" + (q.ang * 180 / Math.PI).toFixed(1) + ')" d="M' + u(-2.2) + " " + u(-2.6) + " " + u(1) + " 0 " + u(-2.2) + " " + u(2.6) + '" stroke-width="' + u(1.3) + '"/>';
+      }
+    }
+    if (sCut > 0) { g += '<polyline class="ds-map-past" points="' + cut2(L, 0, sCut) + '" stroke-width="' + u(V["past-w"]) + '" stroke-dasharray="0 ' + u(V["past-gap"]) + '"/>'; }
+    if (sNext > sCut) { g += '<polyline class="ds-map-cur" points="' + cut2(L, sCut, sNext) + '" stroke-width="' + u(V["cur-w"]) + '"/>'; }
+    return g;
+  }
+  // WP 번호 원 크기와 테: 공통 CSS .ds-wp 값(--ds-wp-size 20, --ds-wp-size-s 16, --ds-wp-ring, --ds-wp-font-size)을 그대로 씀
+  function wpVals() {
+    var cs = document.body ? getComputedStyle(document.body) : null, f = function (k, d) { var v = cs ? parseFloat(cs.getPropertyValue(k)) : NaN; return isNaN(v) ? d : v; };
+    return { big: f("--ds-wp-size", 20), small: f("--ds-wp-size-s", 16), ring: f("--ds-wp-ring", 2), font: f("--ds-wp-font-size", 12) };
+  }
+
   function svg(o) {
     var P = PLAN2[o.floor] || PLAN2.B4, L = (o.mission && routeL(o.mission, o.floor, Math.max(1, o.n))) || tour2(o.floor in TOUR2 ? o.floor : "B4", Math.max(1, o.n));
     var px = 888 / (o.w || 220), u = function (v) { return +(v * px).toFixed(1); };
@@ -114,15 +151,12 @@
       g += '<rect class="mp-eq-top" x="' + r[0] + '" y="' + r[1] + '" width="' + r[2] + '" height="' + r[3] + '" rx="' + u(1.5) + '" stroke-width="' + u(0.6) + '"/>';
     });
     P.wall.forEach(function (r) { g += '<rect class="mp-wl2" x="' + r[0] + '" y="' + r[1] + '" width="' + r[2] + '" height="' + r[3] + '"/>'; });
-    g += '<polyline class="mp-case" points="' + all + '" stroke-width="' + u(5.6) + '"/>';
-    g += '<polyline class="mp-line-ahead" points="' + all + '" stroke-width="' + u(2.6) + '"/>';
-    if (sCut > 0) {
-      var pastPts = cut2(L, 0, sCut);
-      g += '<polyline class="mp-line-glow" points="' + pastPts + '" stroke-width="' + u(5) + '" filter="url(#mphq-gl)"/>';
-      g += '<polyline class="mp-line" points="' + pastPts + '" stroke-width="' + u(2.6) + '"/>';
-    }
+    // [11/20] 경로 = 2D 지도 공통 네 구간(route). 예전 한 줄 파랑 + 빛(지나온 길만 진하게)은 안전진단 지도와 같은 규칙으로 바꿈
+    var sNext = sR !== null && done < n ? Math.max(sCut, L.sAt[done]) : sCut;
     var labels = "", placed = [], dots = [];
     for (var k0 = 0; k0 < n; k0 += 1) { var q0 = pos2(L, L.sAt[k0]); dots.push({ x: q0.x, y: q0.y }); }
+    g += route(L, sCut, sNext, u, dots);
+    var WV = wpVals();
     // 지금 지점 · 위험 · 주의를 먼저 앉힌다 — 좋은 자리는 중요한 번호가 갖는다
     var order = [];
     for (var j0 = 0; j0 < n; j0 += 1) { order.push(j0); }
@@ -140,7 +174,8 @@
       nx -= tx * dt; ny -= ty * dt; nl = Math.hypot(nx, ny);
       if (nl < 0.01) { nx = -ty; ny = tx; nl = 1; }
       nx /= nl; ny /= nl;
-      var R = u(cur ? 7.5 : 6.5), Ld = u(cur ? 15 : 13), lx = q.x + nx * Ld, ly = q.y + ny * Ld;
+      // [11/20] 번호 원 = 공통 WP 번호 원 크기(기본 16, 지금 지점 20). 지시선 길이는 반지름의 두 배
+      var R = u((cur ? WV.big : WV.small) / 2), Ld = R * 2, lx = q.x + nx * Ld, ly = q.y + ny * Ld;
       // 겹침 피하기 — 왕복 길은 같은 자리에 지점이 둘 놓인다. 바깥 → 안쪽 → 더 멀리(1.9 · 2.8배) 차례로 빈자리를 찾는다
       var pick = null;
       [1, 1.9, 2.8, 3.7].some(function (k) {
@@ -158,8 +193,10 @@
       var tone = mk === "crit" ? "c" : mk === "warn" ? "w" : cur ? "now" : j < done ? "past" : "plan";
       g += '<circle class="mp-dot2 is-' + tone + '" cx="' + q.x.toFixed(1) + '" cy="' + q.y.toFixed(1) + '" r="' + u(2.3) + '" stroke-width="' + u(1) + '"/>';
       labels += '<line class="mp-lead is-' + tone + '" x1="' + q.x.toFixed(1) + '" y1="' + q.y.toFixed(1) + '" x2="' + (lx - nx * R).toFixed(1) + '" y2="' + (ly - ny * R).toFixed(1) + '" stroke-width="' + u(0.8) + '"/>';
-      labels += '<g class="mp-no is-' + tone + '" transform="translate(' + lx.toFixed(1) + ',' + ly.toFixed(1) + ')"><circle r="' + R + '" stroke-width="' + u(1.2) + '"/>' +
-        '<text y="' + u(0.5) + '" font-size="' + u(cur ? 8 : 7) + '" text-anchor="middle" dominant-baseline="middle">' + ((o.nos && o.nos[j]) || j + 1) + '</text></g>';
+      // 테: 위험, 주의, 지금 지점은 .ds-wp 테 굵기(2), 나머지 1. 원 반지름에서 테 반을 빼 바깥 지름이 16, 20 이 되게
+      var ring = u(tone === "c" || tone === "w" || tone === "now" ? WV.ring : 1);
+      labels += '<g class="mp-no is-' + tone + '" transform="translate(' + lx.toFixed(1) + ',' + ly.toFixed(1) + ')"><circle r="' + (R - ring / 2).toFixed(2) + '" stroke-width="' + ring + '"/>' +
+        '<text y="' + u(0.5) + '" font-size="' + u(WV.font) + '" text-anchor="middle" dominant-baseline="middle">' + ((o.nos && o.nos[j]) || j + 1) + '</text></g>';
       var name = j === 0 && !cur ? "출발" : (cur && o.names ? o.names[j] : "");
       if (name) {
         var fs = u(8), bw = Math.min(u(150), name.length * fs * 0.92 + u(12)), bh = u(16);
@@ -176,12 +213,13 @@
     if (sR !== null) {
       var rq = pos2(L, sR), S = u(30), h = (S / 2).toFixed(1);
       g += '<g transform="translate(' + rq.x.toFixed(1) + "," + rq.y.toFixed(1) + ") rotate(" + (rq.ang * 180 / Math.PI).toFixed(1) + ')">' +
-        '<ellipse class="mp-sh" cx="' + u(1) + '" cy="' + u(1.5) + '" rx="' + u(13) + '" ry="' + u(8) + '" filter="url(#mpbl2)"/>' +
+        '<ellipse class="ds-map-robot-sh" cx="' + u(1) + '" cy="' + u(1.5) + '" rx="' + u(13) + '" ry="' + u(8) + '" filter="url(#mpbl2)"/>' +
         '<image href="../assets/img/safety/robot-top-' + (o.kind || "spot") + '.png" x="-' + h + '" y="-' + h + '" width="' + S + '" height="' + S + '" transform="rotate(90)"/></g>';
     }
     return g + labels + "</svg>";
   }
 
 
-  window.APRISM_MINI = { svgHQ: svgHQ, svg: svg, PLAN2: PLAN2, tour2: tour2, routeL: routeL };
+  // [11/20] 안전진단(safety.js)도 평면 데이터와 선 셈을 여기서 빌려 씀(예전엔 두 벌). road, route = 2D 지도 공통 경로
+  window.APRISM_MINI = { svgHQ: svgHQ, svg: svg, PLAN2: PLAN2, tour2: tour2, pos2: pos2, cut2: cut2, routeL: routeL, road: road, route: route };
 })();

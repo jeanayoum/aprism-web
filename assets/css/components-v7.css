@@ -4,7 +4,7 @@
  * - 디자인 값은 바로 아래 "디자인 값" 블록 한 곳에서만 고친다. 공통 CSS 규칙과 미리보기(tools/ds-preview)가 모두 이 값을 본다
  * - 값은 토큰만 쓴다(tokens.css). 높이처럼 토큰이 없는 것만 숫자
  * - 배지, 칩, 탭: .ds-badge, .ds-wp, .ds-floor, .ds-chip, .ds-tab-line, .ds-tab-chip, .ds-seg (화면 코드를 이 클래스로 바꾸는 중, assets/js/ds-v7.js 가 같은 마크업을 만들어 줌)
- * - 파일 차례: 디자인 값 → 컴포넌트(배지, 태그, 점 배지, WP 번호 원, 층, 조치 목록과 체크 상자, 칩, 탭, 구간 전환, 버튼) → 맨 끝 사례(Case Studies: 컴포넌트를 엮은 화면 한 덩이, 예: DELTA 조치 제안 카드)
+ * - 파일 차례: 디자인 값 → 컴포넌트(배지, 태그, 점 배지, WP 번호 원, 층, 조치 목록과 체크 상자, 칩, 탭, 구간 전환, 버튼) → Delta 부품 → 지도 부품(2D 지도 경로, 번호 원) → 맨 끝 사례(Case Studies: 컴포넌트를 엮은 화면 한 덩이, 예: DELTA 조치 제안 카드)
  * - 버튼: 지금 화면이 쓰는 .btn, .icon-button 등에 바로 걸림 (파일 아래쪽 "버튼")
  * - 나누는 기준: 누르지 않는 표시는 배지, 조건을 켜거나 값을 고르면 칩, 보이는 내용이 통째로 바뀌면 탭, 행동과 이동은 버튼
  * - 인계 문서: https://claude.ai/artifact/P6i1TzG3SDpNn9gPTiF1mg
@@ -89,6 +89,16 @@ body.ver-7 {
   --ds-delta-bubble-pad-y: var(--space-12);
   --ds-delta-bubble-pad-x: var(--space-16);
   --ds-delta-orb: 56px;                           /* 대화형 Delta 구슬 */
+
+  /* 지도 (11/20): 2D 지도 두 곳(관제 오른쪽 [지도], 안전진단 왼쪽 지도) 공통. 지도 그림(mini-plan.js)이 읽어 씀
+   *   굵기는 화면 px 를 단위 없는 숫자로 적음(SVG 좌표로 바꿀 때 지도 크기를 곱함). 색은 아래 "지도 부품" 절 */
+  --ds-map-road-w: 13;                            /* 로봇이 다니는 길 바닥 띠 (안전진단 지도) */
+  --ds-map-past-w: 2.6;                           /* 지난 구간: 둥근 점선 굵기 */
+  --ds-map-past-gap: 5.2;                         /* 지난 구간: 점과 점 사이 */
+  --ds-map-cur-w: 3.4;                            /* 현재 구간(로봇 → 다음 지점): 진한 실선 */
+  --ds-map-ahead-w: 3.4;                          /* 남은 구간: 옅은 실선 */
+  --ds-map-ahead-case: 1.6;                       /* 남은 구간 테 (양쪽 합) */
+  --ds-map-dir-gap: 34;                           /* 남은 구간 위 진행 방향 꺾쇠 사이 */
 
   /* 칩 */
   --ds-chip-h: 26px;
@@ -619,6 +629,79 @@ body.ver-7 .dchat-orb { width: var(--ds-delta-orb) !important; height: var(--ds-
 /* 인수인계 요약 (알림센터 조치 요청된 알림) */
 body.ver-7 .ac-handover-mark { display: inline-flex !important; align-items: center !important; gap: var(--space-4) !important; }
 body.ver-7 .ac-handover-mark > .i { width: 16px !important; height: 16px !important; }
+
+/* ==========================================================================
+ * 지도 부품 (11/20): 2D 지도 두 곳(관제 오른쪽 [지도] mini-plan.js svgHQ, 안전진단 왼쪽 지도 safety.js svg2)이 같이 씀
+ *   굵기는 맨 위 "디자인 값"의 --ds-map-*, 색은 바로 아래 --ds-map-* 색 값(토큰)만 고침. 다크, 라이트 모두 토큰을 따라감
+ *   경로 네 구간: 지난 구간(둥근 점선), 현재 구간(진한 실선), 남은 구간(옅은 실선 + 테), 진행 방향 꺾쇠 (그리는 함수 mini-plan.js route)
+ *   번호 원은 공통 WP 번호 원(.ds-wp)과 같은 크기, 테, 색 (기본 16, 지금 지점 20)
+ *   3D 지도(map-v6.js)는 아직 따로 (다음 단계: 이 값을 읽어 쓰게)
+ * ========================================================================== */
+body.ver-7 {
+  --ds-map-bg: var(--bg-map-chip);                                                      /* 지도 바닥 */
+  --ds-map-route: var(--status-info-icon);                                              /* 경로 파랑 */
+  --ds-map-route-past: color-mix(in srgb, var(--ds-map-route) 80%, var(--ds-map-bg));   /* 지난 구간 */
+  --ds-map-route-ahead: color-mix(in srgb, var(--ds-map-route) 38%, var(--ds-map-bg));  /* 남은 구간 */
+  --ds-map-route-case: color-mix(in srgb, var(--text-primary) 22%, transparent);        /* 남은 구간 테 */
+  --ds-map-road: color-mix(in srgb, var(--text-primary) 7%, transparent);               /* 길 바닥 띠 */
+  --ds-map-eq: var(--bg-cell);                    /* 설비 윗면 */
+  --ds-map-eq-line: var(--border-strong);         /* 설비 윗테 */
+  --ds-map-eq-side: var(--color-gray-900);        /* 설비 아래 오른쪽 그림자 띠 */
+  --ds-map-wall: var(--color-gray-600);           /* 벽 */
+  --ds-map-halo: var(--bg-page);                  /* 지점 점 테, 이름표 면: 바닥에서 떠 보이게 */
+  --ds-map-lead: var(--text-tertiary);            /* 번호 지시선, 이름표 테 */
+  --ds-map-robot-sh: var(--color-gray-950);       /* 로봇 그림자 */
+  --ds-map-robot-sh-op: .5;
+}
+:root[data-theme="light"] body.ver-7 {
+  --ds-map-road: color-mix(in srgb, var(--bg-raised) 80%, transparent);
+  --ds-map-eq: var(--bg-raised);
+  --ds-map-eq-line: var(--border-default);
+  --ds-map-eq-side: var(--color-gray-300);
+  --ds-map-wall: var(--color-gray-400);
+  --ds-map-halo: var(--bg-raised);
+  --ds-map-robot-sh-op: .25;
+}
+/* 경로 */
+body.ver-7 :is(.ds-map-road, .ds-map-past, .ds-map-cur, .ds-map-ahead, .ds-map-ahead-case, .ds-map-dir) { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+body.ver-7 .ds-map-road { stroke: var(--ds-map-road); }
+body.ver-7 .ds-map-past { stroke: var(--ds-map-route-past); }
+body.ver-7 .ds-map-cur { stroke: var(--ds-map-route); }
+body.ver-7 .ds-map-ahead { stroke: var(--ds-map-route-ahead); }
+body.ver-7 .ds-map-ahead-case { stroke: var(--ds-map-route-case); }
+body.ver-7 .ds-map-dir { stroke: var(--ds-map-bg); stroke-opacity: .75; }
+/* 로봇 그림자 */
+body.ver-7 .ds-map-robot-sh { fill: var(--ds-map-robot-sh); opacity: var(--ds-map-robot-sh-op); }
+
+/* 관제 오른쪽 [지도] (mini-plan.js svgHQ): 판 바닥은 .rr-wp-mini 의 --bg-map-chip(v7.css) */
+body.ver-7 .mp-hq .mp-eq-side { fill: var(--ds-map-eq-side); }
+body.ver-7 .mp-hq .mp-eq-top { fill: var(--ds-map-eq); stroke: var(--ds-map-eq-line); }
+body.ver-7 .mp-hq .mp-wl2 { fill: var(--ds-map-wall); }
+/* 지점 점: 지나온 곳 밝은 점, 예정 회색, 지금 파랑, 위험 주의 단계 색 */
+body.ver-7 .mp-hq .mp-dot2 { fill: var(--text-primary); stroke: var(--ds-map-halo); }
+body.ver-7 .mp-hq .mp-dot2.is-plan { fill: var(--text-tertiary); }
+body.ver-7 .mp-hq .mp-dot2.is-now { fill: var(--ds-map-route); }
+body.ver-7 .mp-hq .mp-dot2.is-c { fill: var(--status-critical-icon); }
+body.ver-7 .mp-hq .mp-dot2.is-w { fill: var(--status-warning-icon); }
+body.ver-7 .mp-hq .mp-lead { stroke: var(--ds-map-lead); }
+body.ver-7 .mp-hq .mp-lead.is-now { stroke: var(--ds-map-route); }
+body.ver-7 .mp-hq .mp-lead.is-c { stroke: var(--status-critical-icon); }
+body.ver-7 .mp-hq .mp-lead.is-w { stroke: var(--status-warning-icon); }
+/* 번호 원 = .ds-wp 색: 기본 bg-cell 면 + 지도 핀 회색 테, 지나온 곳 파랑 테, 위험 주의 속 비운 원 + 단계 색, 지금 지점 강조 면 */
+body.ver-7 .mp-hq .mp-no circle { fill: var(--bg-cell); stroke: var(--pin-plain); }
+body.ver-7 .mp-hq .mp-no text { fill: var(--text-secondary); font-family: inherit; font-weight: var(--font-weight-medium); }
+body.ver-7 .mp-hq .mp-no.is-past circle { stroke: var(--ds-map-route); }
+body.ver-7 .mp-hq .mp-no.is-c circle { fill: var(--bg-raised); stroke: var(--status-critical-icon); }
+body.ver-7 .mp-hq .mp-no.is-c text { fill: var(--status-critical-icon); font-weight: var(--font-weight-bold); }
+body.ver-7 .mp-hq .mp-no.is-w circle { fill: var(--bg-raised); stroke: var(--status-warning-icon); }
+body.ver-7 .mp-hq .mp-no.is-w text { fill: var(--status-warning-text); font-weight: var(--font-weight-bold); }
+body.ver-7 .mp-hq .mp-no.is-now circle { fill: var(--comp-button-accent-bg-default); stroke: var(--ds-map-halo); }
+body.ver-7 .mp-hq .mp-no.is-now text { fill: var(--comp-button-accent-text-default); }
+/* 이름표(출발, 지금 지점) */
+body.ver-7 .mp-hq .mp-tag line { stroke: var(--ds-map-lead); }
+body.ver-7 .mp-hq .mp-tag rect { fill: var(--ds-map-halo); stroke: var(--ds-map-lead); }
+body.ver-7 .mp-hq .mp-tag text { fill: var(--text-primary); font-family: inherit; font-weight: var(--font-weight-semibold, 600); }
+body.ver-7 .mp-hq .mp-tag.is-now line, body.ver-7 .mp-hq .mp-tag.is-now rect { stroke: var(--ds-map-route); }
 
 /* ==========================================================================
  * 사례 (Case Studies, 11/20): 컴포넌트를 실제 화면 한 덩이로 엮은 것. 새 부품이 아니라 조합 규칙만 둔다
