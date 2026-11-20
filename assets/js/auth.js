@@ -19,7 +19,9 @@
       gone = true;
       splash.classList.add("is-leaving");
       // 빠지는 동안만 기다렸다 넘어간다. 애니메이션이 꺼진 환경이면 곧바로 끝난다.
-      window.setTimeout(function () { location.href = (window.aprismHref || String)(/-v2\.html$/.test(location.pathname) ? "./login-v2.html" : "./login.html");   // [11/20] v2 스플래시는 v2 로그인으로 }, 240);
+      // [11/20] v2 스플래시는 v2 로그인으로
+      var next = /-v2\.html$/.test(location.pathname) ? "./login-v2.html" : "./login.html";
+      window.setTimeout(function () { location.href = (window.aprismHref || String)(next); }, 240);
     };
 
     if (hold > 0) {
@@ -79,7 +81,11 @@
       } catch (e) {
         // 사파리 프라이빗 모드처럼 막힌 곳에서는 그냥 넘어간다 — 규칙 3 이 통과로 잡힌다.
       }
-      location.href = (window.aprismHref || String)(landing());
+      // [11/20 v2] 로그인 v2 → 비밀번호 변경 v2 → 관제. 시연에서는 처음 한 번만 변경 화면을 거친다
+      //   (변경을 마치면 aprism.pwChanged = 1). 서버가 붙으면 "비밀번호 만료" 응답이 이 자리를 정한다.
+      var v2 = /-v2\.html$/.test(location.pathname), changed = "0";
+      try { changed = sessionStorage.getItem("aprism.pwChanged") || "0"; } catch (e) { changed = "0"; }
+      location.href = (window.aprismHref || String)(v2 && changed !== "1" ? "./password-expired-v2.html" : landing());
     });
   }
 
@@ -178,6 +184,7 @@
     pwForm.addEventListener("submit", function (event) {
       event.preventDefault();
       if (submit.disabled) { return; }
+      try { sessionStorage.setItem("aprism.pwChanged", "1"); } catch (e) { /* 막힌 곳에서는 다음에도 변경 화면을 거친다 */ }
       location.href = (window.aprismHref || String)(landing());
     });
   }
