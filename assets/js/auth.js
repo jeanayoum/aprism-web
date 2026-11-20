@@ -152,9 +152,9 @@
       var btn0 = form.querySelector(".login-submit");
       if (on && !lockBox) {
         lockBox = document.createElement("div");
-        lockBox.className = "login-alert"; lockBox.setAttribute("role", "alert");
-        lockBox.innerHTML = '<span class="i i-20" aria-hidden="true"></span><div><p class="login-alert-title">계정이 잠겼어요</p>' +
-          '<p class="login-alert-text">비밀번호를 ' + MAX + '회 잘못 입력했어요. 설비운영팀(내선 2400)에 잠금 해제를 요청하세요.</p></div>';
+        lockBox.className = "login-alert ds-notice is-critical"; lockBox.setAttribute("role", "alert");   // [11/20] 공통 안내 상자(.ds-notice) 위험 (login-v2 body.ds-auth)
+        lockBox.innerHTML = '<span class="i i-16" style="--i:var(--ic-error)" aria-hidden="true"></span><span class="body"><p class="login-alert-title title">계정이 잠겼어요</p>' +
+          '<p class="login-alert-text desc">비밀번호를 ' + MAX + '회 잘못 입력했어요. 설비운영팀(내선 2400)에 잠금 해제를 요청하세요.</p></span>';
         form.querySelector(".login-head").insertAdjacentElement("afterend", lockBox);
       } else if (!on && lockBox) { lockBox.remove(); lockBox = null; }
       if (btn0) { btn0.disabled = on; }

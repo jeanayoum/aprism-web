@@ -670,7 +670,7 @@ body.ver-7 .map-alert.ma-v3.is-requested > .ma-head .ma-more-box,
 body.ver-7 .map-alert.ma-v3.is-requested > .ma-head [data-ma-close] { display: none; }
 body.ver-7 .map-alert.ma-v3.is-requested > .ma-lower { padding-top: 0; }
 body.ver-7 .ma-req { gap: var(--space-8); }
-body.ver-7 .ma-req-head { gap: var(--space-4); padding: var(--space-8) var(--space-12); border: 1px solid var(--status-info-border); border-radius: var(--radius-4); background-color: var(--status-info-bg); box-shadow: none; }
+/* [11/20] 조치 요청됨 상자(.ma-req-head)는 공통 안내 상자 .ds-notice 로 옮김(테 없음, 안쪽 12, 아이콘 + 제목 + 목록) */
 body.ver-7 .ma-req-to { margin: 0; color: var(--status-info-text); font-size: var(--font-size-16); line-height: var(--font-line-height-24); font-weight: var(--font-weight-bold); }
 body.ver-7 .ma-req-acts { margin: 0; padding: 0 0 0 var(--space-20); list-style: disc; color: var(--status-info-text); opacity: 0.8; font-size: var(--font-size-14); line-height: var(--font-line-height-22); }
 body.ver-7 .ma-req-acts:empty { display: none; }

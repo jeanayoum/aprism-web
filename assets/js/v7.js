@@ -220,8 +220,8 @@ document.addEventListener("DOMContentLoaded", function () {
   var sh = mk(
     '<div class="modal-scrim" data-v7m="shift" hidden><div class="modal is-shift" role="dialog" aria-modal="true" aria-labelledby="v7m-sh-t" aria-describedby="v7m-sh-d">' +
     '<div class="shift-head"><h2 class="t-heading-3" id="v7m-sh-t">관제사 교대</h2><p class="t-body-2" id="v7m-sh-d"></p>' + X + "</div>" +
-    '<div class="v7m-alert" role="alert" hidden><span class="i i-20" aria-hidden="true"></span><div><p class="v7m-alert-title">계정이 잠겼어요</p>' +
-    '<p class="v7m-alert-text">비밀번호를 5회 잘못 입력했어요. 설비운영팀(내선 2400)에 잠금 해제를 요청하세요.</p></div></div>' +
+    '<div class="v7m-alert ds-notice is-critical" role="alert" hidden><span class="i i-16" style="--i:var(--ic-error)" aria-hidden="true"></span><span class="body"><p class="v7m-alert-title title">계정이 잠겼어요</p>' +   // [11/20] 공통 안내 상자(.ds-notice) 위험
+    '<p class="v7m-alert-text desc">비밀번호를 5회 잘못 입력했어요. 설비운영팀(내선 2400)에 잠금 해제를 요청하세요.</p></span></div>' +
     '<div class="shift-fields">' +
     '<label class="field"><span class="field-label">아이디</span><span class="field-box"><span class="i i-20" style="--i:var(--ic-user)" aria-hidden="true"></span>' +
     '<input type="text" class="field-input" id="v7m-sh-id" placeholder="사번 또는 아이디를 입력하세요" autocomplete="off" data-v7m-focus /></span></label>' +

@@ -1606,7 +1606,7 @@
         reqBox7 = el("div", "ma-req");
         // [11/11 v7 디자이너] 정보를 줄여 "누구에게 갔나"만 크게 — 받은 팀 · 사람 한 줄(정보 상자) + 요청한 조치 + [되돌리기 5] [확인함](Figma UI_00 1733:14619)
         reqBox7.innerHTML =
-          '<div class="ma-req-head" role="status"><p class="ma-req-to"></p><ul class="ma-req-acts"></ul></div>' +
+          '<div class="ma-req-head ds-notice" role="status"><span class="i i-16" style="--i:var(--ic-check-circle)" aria-hidden="true"></span><span class="body"><p class="ma-req-to title"></p><ul class="ma-req-acts desc"></ul></span></div>' +   // [11/20] 공통 안내 상자(.ds-notice) 정보
           '<div class="ma-req-actions"><button type="button" class="btn btn-secondary" data-req-undo></button><button type="button" class="btn btn-primary" data-req-ok>확인함</button></div>';
         $(".ma-lower", box).appendChild(reqBox7);
         $("[data-req-undo]", reqBox7).addEventListener("click", function () {
