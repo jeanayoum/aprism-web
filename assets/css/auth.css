@@ -528,3 +528,9 @@
 /* 로고가 밀려 올라가지 않게 블록 아래에 띄운다 */
 .splash-error { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: var(--space-12); margin-top: var(--space-32); white-space: nowrap; }
 .splash-error-text { margin: 0; color: var(--status-critical-text); font-size: 14px; line-height: 20px; }
+/* [11/20 정의서 CM-02 Q2] 로그인 요청 중 — 버튼 안 로딩, 다시 못 누름 */
+.login-submit.is-loading { cursor: progress; }
+.login-submit .login-spin { --i: var(--ic-spinner); animation: login-spin 900ms steps(12) infinite; }
+@keyframes login-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .login-submit .login-spin { animation: none; } }
+.login-submit .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

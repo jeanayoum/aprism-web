@@ -21,7 +21,7 @@
     var next = V2 ? "./login-v2.html" : "./login.html";
     if (V2) {
       var signed = false;
-      try { signed = sessionStorage.getItem(SIGNED) === "1"; } catch (e) { signed = false; }
+      try { signed = sessionStorage.getItem(SIGNED) === "1" || Number(localStorage.getItem(SIGNED) || 0) > Date.now(); } catch (e) { signed = false; }
       if (signed) { next = "./control-v7.html"; }
     }
 
@@ -63,7 +63,7 @@
   }
   // 로그인 화면에 오면 로그인 유지가 풀린다(로그아웃 · 자동 로그아웃 뒤에 오는 곳)
   if (V2 && document.querySelector("[data-login-form]")) {
-    try { sessionStorage.removeItem(SIGNED); } catch (e) { /* 막힘 */ }
+    try { sessionStorage.removeItem(SIGNED); localStorage.removeItem(SIGNED); } catch (e) { /* 막힘 */ }
   }
 
   // ---------- 비밀번호 보기 ----------
@@ -108,8 +108,39 @@
   }
   var form = document.querySelector("[data-login-form]");
   if (form) {
+    // [11/20 정의서 CM-02] v2 — 빈 칸이면 요청하지 않고 첫 빈 칸으로(Q1), 요청 중에는 버튼 안 로딩 · 다시 못 누름(Q2),
+    //   자동 로그인 켜면 12시간, 끄면 시스템을 닫을 때까지 로그인 유지(Q3)
+    var EMPTY = { "login-id": "아이디를 입력하세요", "login-pw": "비밀번호를 입력하세요" };
+    var setErr = function (input, on) {
+      var field = input.closest(".field"); if (!field) { return; }
+      field.classList.toggle("is-error", on);
+      input.setAttribute("aria-invalid", on ? "true" : "false");
+      var help = field.querySelector(".field-helper");
+      if (on && !help) {
+        help = document.createElement("p"); help.className = "field-helper t-caption"; help.setAttribute("role", "alert");
+        help.id = input.id + "-help"; input.setAttribute("aria-describedby", help.id); field.appendChild(help);
+      }
+      if (help) { help.textContent = on ? EMPTY[input.id] : ""; help.hidden = !on; }
+    };
+    if (V2) {
+      Object.keys(EMPTY).forEach(function (k) {
+        var el = document.getElementById(k);
+        if (el) { el.addEventListener("input", function () { if (el.value.trim()) { setErr(el, false); } }); }
+      });
+    }
     form.addEventListener("submit", function (event) {
       event.preventDefault();
+      var btn = form.querySelector(".login-submit");
+      if (V2) {
+        if (btn && btn.disabled) { return; }
+        var first = null;
+        Object.keys(EMPTY).forEach(function (k) {
+          var el = document.getElementById(k); if (!el) { return; }
+          var empty = !el.value.trim(); setErr(el, empty);
+          if (empty && !first) { first = el; }
+        });
+        if (first) { first.focus(); return; }
+      }
       // 친 아이디만 남긴다. 비밀번호 변경 화면의 "아이디와 3자 이상 연속 일치 금지" 가
       // 이 값을 본다 — 그 화면에는 아이디 칸이 없다. 비밀번호는 남기지 않는다.
       var id = form.querySelector("#login-id");
@@ -118,7 +149,19 @@
       } catch (e) {
         // 사파리 프라이빗 모드처럼 막힌 곳에서는 그냥 넘어간다 — 규칙 3 이 통과로 잡힌다.
       }
-      if (V2) { try { sessionStorage.setItem(SIGNED, "1"); } catch (e) { /* 막힘 */ } }
+      if (V2) {
+        var keep = form.querySelector('input[name="remember"]');
+        try {
+          if (keep && keep.checked) { localStorage.setItem(SIGNED, String(Date.now() + 12 * 3600 * 1000)); }
+          else { sessionStorage.setItem(SIGNED, "1"); }
+        } catch (e) { /* 막힘 */ }
+        if (btn) {
+          btn.disabled = true; btn.classList.add("is-loading"); btn.setAttribute("aria-busy", "true");
+          btn.innerHTML = '<span class="i i-20 login-spin" aria-hidden="true"></span><span class="sr-only">로그인 중</span>';
+        }
+        window.setTimeout(function () { location.href = (window.aprismHref || String)(landing()); }, 700);   // 시연 — 서버 응답 자리
+        return;
+      }
       location.href = (window.aprismHref || String)(landing());
     });
   }
