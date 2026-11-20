@@ -313,6 +313,9 @@
     @keyframes mlLev { 0%, 100% { clip-path: inset(72% 0 0 0); } 20% { clip-path: inset(28% 0 0 0); } 40% { clip-path: inset(55% 0 0 0); } 60% { clip-path: inset(12% 0 0 0); } 80% { clip-path: inset(45% 0 0 0); } }
     /* 5 사람 감지 — 가로선이 위→아래로 훑음 */
     .c1 .pscan { opacity: 0; animation: mlScan 2.4s ease-in-out infinite; }
+    /* 7 온도계(11/20) — 수은이 아래에서 위로 차오름 */
+    .c1 .thm { animation: mlThm 2.4s cubic-bezier(.4,0,.2,1) infinite; }
+    @keyframes mlThm { 0% { clip-path: inset(85% 0 0 0); } 60%, 100% { clip-path: inset(0 0 0 0); } }
     @keyframes mlScan { 0% { transform: translateY(0); opacity: 0; } 8% { opacity: 1; } 60% { transform: translateY(196px); opacity: 1; } 68%, 100% { transform: translateY(196px); opacity: 0; } }
     /* 6 계단 — 계단이 그려진 뒤 점(로봇)이 한 칸씩 오름 */
     .c1 .stp path { animation-duration: 2.4s; }
@@ -501,6 +504,7 @@ const I={
   uturn:`<svg viewBox="0 0 240 240"><path class="drw" pathLength="1" d="M170 190V90C170 67.9086 152.091 50 130 50H120C97.9086 50 80 67.9086 80 90V135" fill="none" stroke="currentColor" stroke-width="30"/><path class="hd h-dn" d="M80 200L130 120H30L80 200Z" fill="currentColor"/></svg>`,
   stairs:`<svg viewBox="0 0 240 240" class="stp"><path pathLength="40" d="M40 170H100V120H150V70H200" fill="none" stroke="currentColor" stroke-width="30" stroke-linejoin="round"/><circle class="sdot" cx="70" cy="142" r="13" fill="currentColor"/></svg>`,
   diag:`<svg viewBox="0 0 240 240"><path class="drw" pathLength="1" d="M60 180.5L141 99.5" stroke="currentColor" stroke-width="30"/><path class="hd h-ne" d="M186.924 53.3553L165.71 145.279L94.9998 74.5685L186.924 53.3553Z" fill="currentColor"/></svg>`,
+  thermo:`<svg viewBox="0 0 240 240"><path d="M95 150V55C95 41.1929 106.193 30 120 30C133.807 30 145 41.1929 145 55V150" fill="none" stroke="currentColor" stroke-width="20"/><circle cx="120" cy="175" r="40" fill="currentColor"/><rect class="thm" x="111" y="62" width="18" height="110" fill="currentColor"/><path d="M165 60H195M165 92H195M165 124H190" stroke="currentColor" stroke-width="14"/></svg>`,  /* 11/20 KISTA 2-2 설비 고온 — 수은이 아래에서 차오름 */
   tablet:`<svg viewBox="0 0 240 240"><rect x="70" y="50" width="100" height="140" rx="10" fill="none" stroke="currentColor" stroke-width="20"/><path d="M95 120L111.667 136L145 104" fill="none" stroke="currentColor" stroke-width="20" stroke-miterlimit="10" stroke-linejoin="round"/></svg>`,  /* 11/17 초록 화면 뺌 — 단색, 판 규칙대로(노랑 판 = 검은 원 + 노란 기호) */
   bat:`<span class="ic fx"><svg viewBox="0 0 240 240" class="fx"><rect x="30" y="60" width="160" height="120" rx="20" fill="#111"/><rect x="205" y="105" width="10" height="30" rx="5" fill="none" stroke="#111" stroke-width="10"/><rect class="bfill" x="50" y="80" width="60" height="80" rx="10" style="fill:var(--pl)"/><path d="M112.695 86.3656C114.492 84.21 118 85.4803 118 88.2861V112H135.595C138.138 112 139.528 114.967 137.9 116.921L107.305 153.634C105.508 155.79 102 154.52 102 151.714V128H84.4051C81.8616 128 80.4721 125.033 82.1005 123.079L112.695 86.3656Z" fill="#fff"/></svg></span>`,  /* 11/17 Figma 수정본: 볼트 외곽선 뺌 · 둥근 모서리 · 안쪽 칸 rx10 */
   batLow:`<span class="ic fx"><svg viewBox="0 0 240 240" class="fx"><rect x="30" y="60" width="160" height="120" rx="20" fill="#111"/><rect class="chg" x="50" y="80" width="30" height="80" rx="10" style="fill:var(--pl)"/><rect x="205" y="105" width="10" height="30" rx="5" fill="none" stroke="#111" stroke-width="10"/></svg></span>`,
@@ -614,6 +618,18 @@ const SCENES=[
   {n:'05',t:['이동완료 · 근로자 통행','Done · workers pass'],src:['계단 이동 완료','Stair climb complete'],m:['체크 0.6초 팝, 머무는 동안 3.2초마다 다시 그려짐','Check pops, 0.6s, then redraws every 3.2s'],
    s:()=>A('g',badge(I.check,{anim:'pop'}),KL(['이동','완료'],['ALL','CLEAR']),L('지나가세요','GO AHEAD'))},
  ],notes:[['경사 이동 중에는 조명이 적색이므로 2–4단계를 빨강으로 했습니다. 단, 계단 위/아래에서는 A형 화면의 모서리만 보이므로 이 구간은 음성·조명이 주 신호이고 화면은 보조입니다.','Steps 2–4 are red to match the red lighting on slopes. From above or below the stairs only the edge of the A-frame screens is visible, so voice and lighting are the main signals here and the screen is secondary.']]},
+ {id:'s9',no:9,lv:['danger',['위험단계','Danger']],title:['설비 고온 감지 · 근로자 대피 — 위험단계','Equipment overheating · worker evacuation — danger level'],file:'KISTA 2-2',steps:[
+  {n:'01',t:['정지 및 정밀확인','Stop & inspect'],src:['현재 이상현상을 확인하고 있습니다 (냉각 펌프 P-2 온도 확인)','Checking an anomaly (cooling pump P-2 temperature)'],m:['온도계 수은이 아래에서 차오름, 2.4초 반복','Thermometer fills from the bottom, 2.4s loop'],
+   s:()=>A('b',badge(I.thermo,{ring:1}),KL(['온도','확인 중'],['TEMP','CHECK']),L('냉각 펌프 P-2','COOLING PUMP P-2'))},
+  {n:'02',t:['이상 감지 및 판단','Overheat confirmed'],src:['설비 온도가 위험 기준을 넘었습니다 (92℃ · 기준 80℃)','Equipment temperature is over the danger limit (92℃ · limit 80℃)'],m:['온도계 수은이 아래에서 차오름, 2.4초 반복','Thermometer fills from the bottom, 2.4s loop'],
+   s:()=>A('r',badge(I.thermo),KL(['고온','92℃'],['HOT','92℃']),L('위험 기준 초과','OVER LIMIT'))},
+  {n:'03',t:['작업자 대피 안내','Evacuation'],src:['위험 구역입니다. 현장에서 즉시 벗어나 주세요','Danger zone. Leave the area now'],m:['↗ 화살표가 대각선으로 그려짐, 1.6초 반복, 바닥 대피 방향 초록 화살표와 함께','↗ arrow draws diagonally, 1.6s loop, with green floor arrows toward the exit'],
+   s:()=>A('r',badge(I.diag,{anim:'dia'}),KL(['즉시','대피'],['EVACUATE','NOW']),L('현장에서 벗어나세요','LEAVE THE AREA'))},
+  {n:'04',t:['현장 조치 및 상태안내','On-site action'],src:['— (관제사가 설비 담당자 현장 조치 요청) · 고온 설비 접근 금지','— (control asks the equipment owner to act) · keep away from the hot equipment'],m:['원이 그려진 뒤 같은 점에서 사선이 그어짐, 2.8초 반복','Ring draws, then a slash from the same point, 2.8s loop'],
+   s:()=>A('r',badge(I.ban,{anim:'pls'}),KL(['접근','금지'],['KEEP','OUT']),L('고온 설비 · 92℃','HOT EQUIPMENT'))},
+  {n:'05',t:['임무복귀','Back to mission'],src:['안전 조치가 완료됐습니다','Safety measures are complete'],m:['체크 0.6초 팝, 머무는 동안 3.2초마다 다시 그려짐','Check pops, 0.6s, then redraws every 3.2s'],
+   s:()=>A('g',badge(I.check,{anim:'pop'}),KL(['조치','완료'],['ALL','CLEAR']),L('이동 재개','RESUMING'))},
+ ],notes:[['KISTA 발표 2-2(11/20) — 펜스 · 표지판이 없는 곳에서 근로자가 모르는 사이 설비 온도가 위험 기준을 넘은 상황. 로봇이 먼저 알아채 대피시킨다. 시나리오 3(배관 이상)은 그대로 두고 새로 더한 화면이다.','KISTA demo 2-2 (11/20) — no fences or signs; equipment overheats while the worker does not notice, and the robot gets them out first. Added alongside scenario 3 (pipe fault).']]},
 ];
 
 const PICTO=[
