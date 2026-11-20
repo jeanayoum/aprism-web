@@ -109,7 +109,7 @@
   var form = document.querySelector("[data-login-form]");
   if (form) {
     // [11/20 정의서 CM-02] v2 — 빈 칸이면 요청하지 않고 첫 빈 칸으로(Q1), 요청 중에는 버튼 안 로딩 · 다시 못 누름(Q2),
-    //   자동 로그인 켜면 12시간, 끄면 시스템을 닫을 때까지 로그인 유지(Q3)
+    //   자동 로그인 켜면 마지막 접속부터 72시간(기존 기획 UI_04), 끄면 시스템을 닫을 때까지 로그인 유지(Q3)
     var EMPTY = { "login-id": "아이디를 입력하세요", "login-pw": "비밀번호를 입력하세요" };
     var setErr = function (input, on) {
       var field = input.closest(".field"); if (!field) { return; }
@@ -193,7 +193,7 @@
       if (V2) {
         var keep = form.querySelector('input[name="remember"]');
         try {
-          if (keep && keep.checked) { localStorage.setItem(SIGNED, String(Date.now() + 12 * 3600 * 1000)); }
+          if (keep && keep.checked) { localStorage.setItem(SIGNED, String(Date.now() + 72 * 3600 * 1000)); }
           else { sessionStorage.setItem(SIGNED, "1"); }
         } catch (e) { /* 막힘 */ }
         if (btn) {
