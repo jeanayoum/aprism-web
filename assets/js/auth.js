@@ -8,27 +8,62 @@
   // 로고를 읽을 만큼만 머문다. 기다리기 싫으면 아무 데나 누르거나 키를 치면 바로 넘어간다.
   // ?hold=0 으로 열면 멈춰 있는다 — 화면을 캡처하거나 들여다볼 때 쓴다.
   var splash = document.querySelector("[data-splash]");
+  var V2 = /-v2\.html$/.test(location.pathname);
+  var SIGNED = "aprism.signedIn";   // [11/20 정의서 CM-01 Q1] 로그인 유지 표시 — 브라우저를 닫으면 사라진다(sessionStorage)
   if (splash) {
     var HOLD = 2000;
     var m = /[?&]hold=(\d+)/.exec(location.search);
     var hold = m ? parseInt(m[1], 10) : HOLD;
     var gone = false;
+    // [11/20 정의서 CM-01] v2 — 서버 연결을 확인한 뒤에만 넘어간다(Q2). 2초가 지나도 확인이 안 끝났으면 끝날 때까지 기다린다.
+    //   로그인이 유지되어 있으면 로그인을 건너뛰고 통합 관제 메인으로(Q1). ?server=fail 로 열면 연결 실패를 보인다(시연)
+    var ready = !V2, timeUp = false;
+    var next = V2 ? "./login-v2.html" : "./login.html";
+    if (V2) {
+      var signed = false;
+      try { signed = sessionStorage.getItem(SIGNED) === "1"; } catch (e) { signed = false; }
+      if (signed) { next = "./control-v7.html"; }
+    }
 
     var leave = function () {
-      if (gone) { return; }
+      if (gone || !ready) { return; }
       gone = true;
       splash.classList.add("is-leaving");
       // 빠지는 동안만 기다렸다 넘어간다. 애니메이션이 꺼진 환경이면 곧바로 끝난다.
-      // [11/20] v2 스플래시는 v2 로그인으로
-      var next = /-v2\.html$/.test(location.pathname) ? "./login-v2.html" : "./login.html";
       window.setTimeout(function () { location.href = (window.aprismHref || String)(next); }, 240);
     };
 
+    var fail = null;
+    var check = function (failing) {
+      window.setTimeout(function () {
+        if (failing) {
+          if (!fail) {
+            fail = document.createElement("div");
+            fail.className = "splash-error";
+            fail.setAttribute("role", "alert");
+            fail.innerHTML = '<p class="splash-error-text">서버에 연결할 수 없어요</p><button type="button" class="btn btn-secondary splash-retry">다시 시도</button>';
+            splash.querySelector(".brand-block").appendChild(fail);
+            fail.querySelector(".splash-retry").addEventListener("click", function () {
+              fail.remove(); fail = null; check(false);   // 시연 — 다시 시도는 붙는다
+            });
+          }
+          return;
+        }
+        ready = true;
+        if (timeUp) { leave(); }
+      }, failing ? 1200 : 600);
+    };
+    if (V2) { check(/[?&]server=fail/.test(location.search)); }
+
     if (hold > 0) {
-      window.setTimeout(leave, hold);
-      document.addEventListener("pointerdown", leave);
-      document.addEventListener("keydown", leave);
+      window.setTimeout(function () { timeUp = true; leave(); }, hold);
+      document.addEventListener("pointerdown", function (e) { if (!e.target.closest(".splash-error")) { leave(); } });
+      document.addEventListener("keydown", function () { leave(); });
     }
+  }
+  // 로그인 화면에 오면 로그인 유지가 풀린다(로그아웃 · 자동 로그아웃 뒤에 오는 곳)
+  if (V2 && document.querySelector("[data-login-form]")) {
+    try { sessionStorage.removeItem(SIGNED); } catch (e) { /* 막힘 */ }
   }
 
   // ---------- 비밀번호 보기 ----------
@@ -83,6 +118,7 @@
       } catch (e) {
         // 사파리 프라이빗 모드처럼 막힌 곳에서는 그냥 넘어간다 — 규칙 3 이 통과로 잡힌다.
       }
+      if (V2) { try { sessionStorage.setItem(SIGNED, "1"); } catch (e) { /* 막힘 */ } }
       location.href = (window.aprismHref || String)(landing());
     });
   }
@@ -182,6 +218,7 @@
     pwForm.addEventListener("submit", function (event) {
       event.preventDefault();
       if (submit.disabled) { return; }
+      if (V2) { try { sessionStorage.setItem(SIGNED, "1"); } catch (e) { /* 막힘 */ } }
       location.href = (window.aprismHref || String)(landing());
     });
   }
