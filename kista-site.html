@@ -244,7 +244,7 @@
     // (11/20) 근로자가 모르는 사이 설비(냉각 펌프 P-2)가 위험 온도를 넘음 → 로봇이 먼저 알아채 대피시킨다. 펜스 · 표지판 없는 곳(HAZ 묶음을 이 장면에서만 숨김)
     { id: "2-2", title: "위험 · 설비 고온 감지 · 대피", zone: "펌프 구역(펜스 없음)",
       steps: ["정지 및 정밀 확인", "이상 감지 및 판단", "작업자 대피 안내", "현장 조치 및 상태 안내", "임무 복귀"],
-      cam: { pos: [6.2, 4.4, 6.4], target: [13.2, 1.0, -3.0], fov: 42, view: { from: [0.38, 0.93], pitch: 32 } } },
+      cam: { pos: [6.2, 4.4, 6.4], target: [13.2, 1.0, -3.0], fov: 42, view: { from: [0.38, 0.93], pitch: 32 }, near: 9, maxK: 1.2 } },   // (11/20) 점검 중인 근로자(로봇에서 약 5.7m)도 늘 화면에
     { id: "3-1", title: "배터리 부족 · 자율복귀 가능", zone: "통로 → 도킹 구역",
       steps: ["배터리 부족", "복귀 가능성 계산", "복귀 의사 예고", "저속 자율 복귀", "충전 시작"],
       cam: { pos: [-4.6, 3.4, 4.2], target: [-12.4, 0.6, -3.0], fov: 40, view: { from: [0.45, 0.89], pitch: 32 } } },
@@ -1034,14 +1034,16 @@
         { d: 3.6, clip: "idle" }, { d: 2.0, clip: "idle", faceAt: [-2.6, -1.6], turn: 0.9 }, { d: 2.8, clip: "idle", face: 0, turn: 0.9 },
         { d: 3.6, clip: "phone", off: 2.0 }, { d: 1.4, clip: "nod", faceAt: [-2.6, -1.6], turn: 0.6 }, { d: 4.6, clip: "idle", face: 0 }] } },
     // (11/20) 정지 및 정밀 확인 → 이상 감지 및 판단(고온) → 작업자 대피 안내 → 현장 조치 및 상태 안내 → 임무 복귀
-    //   근로자는 냉각 펌프 P-2(펌프 스키드 11.6, -4.4) 앞에 무릎 꿇고 작업 중 — 등이 로봇 쪽이라 모른다. 5.7초 대피 음성에 놀라 돌아보고 통로 쪽으로 벗어난다
+    //   (11/20 2차) 근로자는 위험 설비 바로 앞이 아니라 그 옆 탱크 TK-101 을 점검 중(서서 살펴봄) — 냉각 펌프 P-2 가 달아오르는 걸 모른다.
+    //   로봇이 먼저 고온을 감지하고 5.7초 대피 음성 → 근로자가 돌아보고 로봇이 비춘 대피 화살표 방향(앞 통로 → 서쪽)으로 벗어난다
     "2-2": { dur: 14, st: [0, 2.8, 5.6, 8.4, 11.2], sign: [[0, "inspect"], [2.8, "hot"], [5.6, "evac"], [8.4, "keepout"], [11.2, "resume"]],
       voice: [[1.5, "2-2-a"], [5.7, "2-2-c"], [11.3, "2-2-e"]],
       robot: { start: [6.4, -0.7], face: E_, segs: [{ d: 1.4, mode: "walk", to: [8.9, -1.0] }, { d: 9.8, mode: "inspect", faceAt: [11.2, -4.4] },
         { d: 2.8, mode: "walk", to: [11.6, -0.5] }] },
-      a: { start: [11.1, -3.15], helmet: true, segs: [
-        { d: 5.8, clip: "kneel", faceAt: [11.1, -4.4] }, { d: 1.3, clip: "react", faceAt: [8.9, -1.0], turn: 0.5 },
-        { d: 1.1, clip: "walk", to: [12.6, -2.0] }, { d: 2.6, clip: "walk", to: [15.4, 0.8] }, { d: 3.2, clip: "idle", faceAt: [11.4, -4.4] }] } },
+      a: { start: [14.3, -2.8], helmet: true, segs: [
+        { d: 3.0, clip: "idle", faceAt: [15.6, -4.6] }, { d: 2.8, clip: "lookAround", faceAt: [15.6, -4.6] },
+        { d: 1.3, clip: "react", faceAt: [8.9, -1.0], turn: 0.5 },
+        { d: 1.4, clip: "walk", to: [13.7, 0.4] }, { d: 2.2, clip: "walk", to: [11.0, 2.4] }, { d: 3.3, clip: "idle", faceAt: [11.4, -4.4] }] } },
     // 배터리 부족 → 복귀 가능성 계산 → 복귀 의사 예고 → 저속 자율 복귀 → 충전 시작(도킹 02)
     // (11/18 음성) 1 · 2 · 3단계 음성(2.6 · 4.2 · 5.2초)이 겹치지 않게 18 → 24초. 4단계 음성은 표에 '근로자가 가까울 때만' — 이 장면엔 없어 뺌
     "3-1": { dur: 24, st: [0, 3.0, 7.3, 12.6, 21.0], sign: [[0, "bat20"], [7.3, "goDock"], [21.0, "charging"]],
@@ -1095,16 +1097,14 @@
       halo: [[0, 2.8, "Y", "walk", { aim: "b" }], [2.8, 12.0, "Y", "stand", { aim: "b" }], [12.0, 15.8, "S", "stand", { aim: "b" }], [15.8, 18, "T", "walk"]], fx: [
       { t: [2.8, 12.0], k: "icon", icon: "helmet", fwd: 1.3, size: 1.3, c: "Y" },
       { t: [12.0, 15.8], k: "icon", icon: "check", fwd: 1.3, size: 1.3, c: "S" }] },
-    // (11/20) 고온 · 대피 — 펜스가 없으니 위험 범위는 로봇이 바닥에 비춘다(설비 둘레 빨간 고리 · 점멸). 대피 방향은 근로자 쪽 초록 화살표 띠
+    // (11/20) 고온 · 대피 — 바닥 투사는 로봇 빔이 닿는 곳만(로봇 둘레 호 · 경고 표지 · 근로자 쪽 대피 화살표 띠). 설비 둘레 큰 고리 · 바닥 빛은 뺐다(2차, 기능상 무리)
     //   heat = 설비(모터) 달아오름 [시작, 끝, 처음, 끝] 0~1 — 모터 붉은 빛 · 위 열기
     "2-2": { body: [[0, 1.4, "B"], [1.4, 2.8, "W"], [2.8, 11.2, "R"], [11.2, 14, "T"]],
       heat: [[0, 2.8, 0.3, 1], [2.8, 14, 1, 1]],
       halo: [[0, 1.4, "B", "walk"], [1.4, 2.8, "W", "inspect", { aim: [11.2, -4.4] }], [2.8, 5.6, "R", "stand", { aim: [11.2, -4.4] }],
         [5.6, 11.2, "R", "stand", { aim: "a" }], [11.2, 14, "T", "walk"]], fx: [
-      { t: [2.8, 11.2], k: "ring", at: [11.3, -4.3], r: [2.0, 2.0], c: "R", blink: 1.2 },
-      { t: [2.8, 14], k: "glow", at: [11.1, -4.3], r: 2.2, c: "R", blink: 1.6 },
       { t: [2.8, 5.6], k: "icon", icon: "warn", fwd: 1.1, size: 0.9, c: "R" },
-      { t: [5.6, 8.4], k: "band", near: "a", dirTo: [15.4, 0.8], toward: [15.4, 0.8], c: "G" }] },
+      { t: [5.6, 8.4], k: "band", near: "a", dirTo: [11.0, 2.4], toward: [11.0, 2.4], c: "G" }] },
     // 자율 복귀는 v7 처럼 회색. 도킹해 앉으면(21초) 끈다 — v7 도 도킹 중엔 호를 숨긴다
     "3-1": { body: [[0, 12.6, "Y"], [12.6, 21.0, "Y", "blink"], [21.0, 24, "G", "level", 0.4]],
       halo: [[0, 7.3, "Y", "stand"], [7.3, 12.6, "Y", "stand", { aim: [-11.6, -1.4] }], [12.6, 21.0, "N", "walk"]], fx: [
@@ -1834,9 +1834,9 @@
       [15.9, "run", { title: "이동 재개", left: "다음 점검 지점으로" }]],
     "2-2": [
       [0, "inspect", { title: "냉각 펌프 P-2 온도 확인 중", left: "열화상 · 이상 징후 확인 중" }],
-      [2.8, "alert", { badge: ["위험 감지", "danger"], title: "설비 고온 감지 · 92℃", left: "냉각 펌프 P-2 · 위험 기준 80℃ 초과" }],
-      [5.6, "alert", { badge: ["위험 감지", "danger"], title: "작업자 대피 안내 중", left: "근로자 1명 · 현장 이탈 안내" }],
-      [8.4, "alert", { badge: ["조치 요청", "danger"], title: "현장 조치 요청됨", left: "로봇은 안전거리에서 감시" }],
+      [2.8, "alert", { wpRed: "냉각 펌프 P-2", badge: ["위험 감지", "danger"], title: "설비 고온 감지 · 92℃", left: "냉각 펌프 P-2 · 위험 기준 80℃ 초과" }],
+      [5.6, "alert", { wpRed: "냉각 펌프 P-2", badge: ["위험 감지", "danger"], title: "작업자 대피 안내 중", left: "근로자 1명 · 현장 이탈 안내" }],
+      [8.4, "alert", { wpRed: "냉각 펌프 P-2", badge: ["조치 요청", "danger"], title: "현장 조치 요청됨", left: "로봇은 안전거리에서 감시" }],
       [11.2, "run", { title: "다음 점검 지점으로 이동", left: "근로자 대피 확인 · 설비 담당자 조치 중" }]],
     "3-1": [
       [0, "pause", { badge: ["점검 중단", "warning"], bat: 20, title: "배터리 부족 · 점검 중단", left: "안정 자세로 대기" }],
@@ -1927,7 +1927,7 @@
    *   2-1: 안전모 알림 WP-07 바로 앞 / 2-2: 냉각 펌프 P-2 WP-05 에 선다(온도 측정, 11/20)
    *   나머지 장면은 v7 기본 자리(WP-07 과 WP-08 사이 · route-sim.js 시작값)
    *   모드 버튼(inspect 는 가장 가까운 앞 지점에 선다)보다 먼저 옮긴다 */
-  const CTRL_POS = { "1-1": [-1, 0], "1-2": [2, 0.45], "2-1": [5, 0.6], "2-2": [4, 0], "3-1": [17, 0.15], "3-2": [6, 0.4] }, CTRL_POS_BASE = [6, 0.55];
+  const CTRL_POS = { "1-1": [-1, 0], "1-2": [2, 0.45], "2-1": [5, 0.6], "2-2": [3, 0.97], "3-1": [17, 0.15], "3-2": [6, 0.4] }, CTRL_POS_BASE = [6, 0.55];
   function ctlPlace(d) {
     const rr = d.defaultView && d.defaultView.APRISM_RR;
     try {
@@ -1987,9 +1987,10 @@
   const POP_HELMET = { key: "안전모", sev: "warn" };
   const POP_PIPE = { key: "N₂ 배관", sev: "crit" };
   // (11/20) 2-2 고온 — 목록의 '최고 온도'(냉각 펌프 P-2 · WP-05) 알림 판을 열어 위험으로 · 값 · 사진(작업현장 3D) 을 바꾼다
-  const POP_TEMP = { key: "최고 온도", sev: "crit", title: "최고 온도 92.4 ℃", shot: 4.2 };
-  const POP_BAT1 = { key: "안전모", solo: true, sev: "warn", kind: "배터리", place: "B4 통로", shot: 1.5, fp: false };
-  const POP_BAT2 = { key: "안전모", solo: true, sev: "crit", kind: "배터리", title: "자율 복귀 불가 · 잔량 18%", place: "B4 통로", shot: 3.0, fp: false };
+  // (11/20) 사진 = 로봇 카메라 화면(pov). 2-2 는 열화상(thermal) — aim 은 카메라가 볼 곳, hot 은 측정 표시를 얹을 곳
+  const POP_TEMP = { key: "최고 온도", sev: "crit", title: "최고 온도 92.4 ℃", shot: { t: 4.2, pov: true, thermal: true, aim: [12.3, 0.7, -3.9], hot: [11.1, 0.58, -4.4], temp: "92.4℃" } };
+  const POP_BAT1 = { key: "안전모", solo: true, sev: "warn", kind: "배터리", place: "B4 통로", shot: { t: 1.5, pov: true }, fp: false };
+  const POP_BAT2 = { key: "안전모", solo: true, sev: "crit", kind: "배터리", title: "자율 복귀 불가 · 잔량 18%", place: "B4 통로", shot: { t: 3.0, pov: true }, fp: false };
   const POP = {
     "2-1": [
       [0, { ...POP_HELMET, lead: "고소 작업 발판 근처 근로자 1명이 안전모를 쓰지 않았어요. 로봇이 착용을 안내할게요.",
@@ -1999,7 +2000,7 @@
       [15.9, null]],
     "2-2": [
       [0, null],
-      [2.8, { ...POP_TEMP, lead: "냉각 펌프 P-2 온도가 위험 기준(80℃)을 넘었어요. 근처에 근로자 1명이 작업 중이에요.",
+      [2.8, { ...POP_TEMP, lead: "냉각 펌프 P-2 온도가 위험 기준(80℃)을 넘었어요. 옆 탱크를 점검하던 근로자 1명이 이를 모르고 있어요.",
         checks: ["근로자 대피 안내", "설비 담당자 현장 조치 요청", "로봇 정지"], primary: "근로자 대피 안내" }],
       [5.6, { ...POP_TEMP, lead: "로봇이 근로자에게 즉시 대피하라고 안내하고 있어요. 설비 담당자에게 현장 조치를 요청해 주세요.",
         checks: ["설비 담당자 현장 조치 요청", "로봇 정지", "도크로 복귀"], primary: "현장 조치 요청" }],
@@ -2022,12 +2023,68 @@
       [22.0, { ...POP_BAT2, req: { to: "회수 완료", acts: ["로봇은 충전 · 점검 후 운영을 재개해요"], ok: true } }]],
   };
   function popAt(t) { const tl = POP[cur.id]; if (!tl) return null; let sp = null; for (const [ts, x] of tl) if (t >= ts) sp = x; return sp; }
-  // 작업현장 3D 의 한 장면(머리 위 디스플레이 판 없이) — 장면마다 한 번 구워 둔다
+  /* 알림 판 사진 = 로봇이 찍고 있는 화면(11/20) — 작업현장 3D 를 로봇 머리 카메라 자리에서 한 장 굽는다. 장면마다 한 번.
+   *   sh = 초(숫자) 또는 { t, pov, thermal, aim, hot, temp }. pov: 로봇 머리(높이 0.62m, 몸 앞 0.5m)에서 aim(없으면 앞 5m)을 본다 · 로봇 몸은 숨김.
+   *   thermal: 열화상 흉내 — 모든 면을 차가운 회색으로 칠해 그늘만 남기고, 모터(M.motor)는 흰색, 근로자는 따뜻한 회색 → 밝기를 iron 색표로.
+   *            위에 측정 십자선 · 온도 · 색 막대를 얹는다. 바닥 투사(FX) 는 열화상에 안 보이니 숨긴다 */
   const shotCache = {};
-  function shot3d(T) {
-    const k = cur.id + "@" + T; if (shotCache[k]) return shotCache[k];
-    const t0 = curT; seek(T); renderer.render(scene, camera);
-    const url = renderer.domElement.toDataURL("image/jpeg", 0.86);
+  const povCam = new THREE.PerspectiveCamera(62, 1.45, 0.05, 80);
+  const IRON = [[0, [8, 4, 40]], [0.28, [70, 12, 110]], [0.5, [168, 36, 92]], [0.68, [232, 92, 40]], [0.84, [250, 190, 50]], [1, [255, 252, 225]]];
+  function iron(v) { for (let i = 1; i < IRON.length; i++) if (v <= IRON[i][0]) { const [a, ca] = IRON[i - 1], [b, cb] = IRON[i], u = (v - a) / (b - a); return ca.map((c, j) => c + (cb[j] - c) * u); } return IRON[IRON.length - 1][1]; }
+  function shot3d(sh) {
+    const o = typeof sh === "number" ? { t: sh } : sh, k = cur.id + "@" + JSON.stringify(o); if (shotCache[k]) return shotCache[k];
+    const t0 = curT; seek(o.t);
+    let url;
+    if (!o.pov) { renderer.render(scene, camera); url = renderer.domElement.toDataURL("image/jpeg", 0.86); }
+    else {
+      const OW = 580, OH = 400, sz = renderer.getSize(new THREE.Vector2());
+      const rp = robotPose(o.t);
+      povCam.aspect = OW / OH; povCam.updateProjectionMatrix();
+      povCam.position.set(rp.x + rp.fx * 0.5, 0.62, rp.z + rp.fz * 0.5);
+      povCam.lookAt(o.aim ? new THREE.Vector3(...o.aim) : new THREE.Vector3(rp.x + rp.fx * 5, 0.5, rp.z + rp.fz * 5));
+      const keep = [], hide = o2 => { if (o2) { keep.push([o2, o2.visible]); o2.visible = false; } };
+      if (spot) hide(spot.group);
+      const swaps = [], bg = scene.background, fog = scene.fog, tm = renderer.toneMapping;
+      if (o.thermal) {
+        hide(FX); hide(beam);
+        const cool = new THREE.MeshLambertMaterial({ color: 0x3c3c3c }), warm = new THREE.MeshLambertMaterial({ color: 0x9a9a9a, emissive: 0x3a3a3a }),
+          hotM = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const isWorker = m => { for (let p2 = m; p2; p2 = p2.parent) if (p2 === wkA || p2 === wkB) return true; return false; };
+        scene.traverse(m => { if (!m.isMesh || m === heatGlow || !m.material || m.material.transparent && m.material.blending === THREE.AdditiveBlending) return;
+          swaps.push([m, m.material]); m.material = m.material === M.motor ? hotM : isWorker(m) ? warm : cool; });
+        scene.background = new THREE.Color(0x000000); scene.fog = null; renderer.toneMapping = THREE.NoToneMapping;
+      }
+      renderer.setSize(OW, OH, false); renderer.render(scene, povCam);
+      const cv = document.createElement("canvas"); cv.width = OW; cv.height = OH; const g = cv.getContext("2d");
+      g.drawImage(renderer.domElement, 0, 0, OW, OH);
+      for (const [m, mat] of swaps) m.material = mat;
+      scene.background = bg; scene.fog = fog; renderer.toneMapping = tm;
+      for (const [o2, v] of keep) o2.visible = v;
+      renderer.setSize(sz.x, sz.y, false);
+      if (o.thermal) {
+        // 밝기 → iron 색표(아래 2% · 위 0.5% 를 잘라 대비를 맞춘다)
+        const id = g.getImageData(0, 0, OW, OH), px = id.data, n = OW * OH, lum = new Float32Array(n), hist = new Uint32Array(256);
+        for (let i = 0; i < n; i++) { const l = (0.3 * px[i * 4] + 0.59 * px[i * 4 + 1] + 0.11 * px[i * 4 + 2]); lum[i] = l; hist[Math.min(255, l | 0)]++; }
+        const pct = q => { let a = 0; for (let v = 0; v < 256; v++) { a += hist[v]; if (a >= q * n) return v; } return 255; };
+        const lo = pct(0.02), hi = Math.max(lo + 1, pct(0.995));
+        for (let i = 0; i < n; i++) { const c = iron(Math.max(0, Math.min(1, (lum[i] - lo) / (hi - lo)))); px[i * 4] = c[0]; px[i * 4 + 1] = c[1]; px[i * 4 + 2] = c[2]; }
+        g.putImageData(id, 0, 0);
+        // 측정 표시 — 뜨거운 곳 십자선 · 온도, 오른쪽 색 막대, 왼쪽 위 'IR'
+        g.font = '700 18px "Noto Sans KR", sans-serif'; g.textBaseline = "middle"; g.lineWidth = 2;
+        if (o.hot) {
+          const v = new THREE.Vector3(...o.hot).project(povCam), hx = (v.x + 1) / 2 * OW, hy = (1 - v.y) / 2 * OH;
+          g.strokeStyle = "#fff"; g.beginPath(); g.moveTo(hx - 16, hy); g.lineTo(hx - 5, hy); g.moveTo(hx + 5, hy); g.lineTo(hx + 16, hy); g.moveTo(hx, hy - 16); g.lineTo(hx, hy - 5); g.moveTo(hx, hy + 5); g.lineTo(hx, hy + 16); g.stroke();
+          g.strokeRect(hx - 34, hy - 26, 68, 52);
+          const tw = g.measureText(o.temp).width + 16; g.fillStyle = "rgba(0,0,0,.6)"; g.fillRect(hx + 40, hy - 15, tw, 30);
+          g.fillStyle = "#fff"; g.fillText(o.temp, hx + 48, hy + 1);
+        }
+        const bx = OW - 26, by = 40, bh = OH - 80;
+        for (let y = 0; y < bh; y++) { const c = iron(1 - y / bh); g.fillStyle = `rgb(${c[0] | 0},${c[1] | 0},${c[2] | 0})`; g.fillRect(bx, by + y, 10, 1); }
+        g.font = '500 13px "Noto Sans KR", sans-serif'; g.fillStyle = "#fff"; g.textAlign = "right"; g.fillText("95", bx - 6, by + 2); g.fillText("25", bx - 6, by + bh - 2); g.textAlign = "left";
+        g.fillStyle = "rgba(0,0,0,.55)"; g.fillRect(12, 12, 54, 24); g.fillStyle = "#fff"; g.font = '700 13px "Noto Sans KR", sans-serif'; g.fillText("IR ℃", 20, 25);
+      }
+      url = cv.toDataURL("image/jpeg", 0.88);
+    }
     seek(t0); dirty = true;
     return (shotCache[k] = url);
   }
@@ -2054,7 +2111,7 @@
     if (sp.kind && $b("[data-ma-kind]")) $b("[data-ma-kind]").textContent = sp.kind;
     if (sp.title) $b("[data-ma-title]").textContent = sp.title;
     if (sp.place) { const pl = $b(".ma-st-place"), pin = $b(".ma-stamp .mbt-pin"); if (pl) pl.textContent = sp.place; if (pin) pin.style.display = "none"; }
-    if (sp.shot != null) { const img = $b("[data-ma-img]"); img.src = shot3d(sp.shot); img.alt = "작업현장"; img.hidden = false; box.classList.remove("no-snap"); }
+    if (sp.shot != null) { const img = $b("[data-ma-img]"); img.src = shot3d(sp.shot); img.alt = "로봇 카메라 화면"; img.hidden = false; box.classList.remove("no-snap"); }
     const fp = $b("[data-ma-fp]"); if (fp) fp.style.visibility = sp.fp === false ? "hidden" : "";
     if (sp.lead) $b("[data-ma-lead]").textContent = sp.lead;
     if (sp.checks) {
@@ -2101,6 +2158,23 @@
     if (box.style.getPropertyValue("--y") !== y) box.style.setProperty("--y", y);
   }
   // v7 에 없는 상태 · 알림을 이 영상에서만 덧입힌다 — 글은 속성(data-k)으로 얹어 관제 화면이 글을 다시 써도 유지된다
+  function kWpRed(d) {
+    const name = d.__kWpRed;
+    d.querySelectorAll("[data-timeline] [data-waypoint]").forEach(n => {
+      const want = name && n.textContent.includes(name);
+      for (const at of ["data-wp-alert", "data-wp-result", "data-rr-hold"]) {
+        const keep = "data-kista-" + at.slice(5);
+        if (want) {
+          if (!n.hasAttribute(at) && at !== "data-wp-alert") continue;   // 결과 · 보류는 있는 것만
+          if (!n.hasAttribute(keep)) n.setAttribute(keep, n.getAttribute(at) ?? "");
+          if (n.getAttribute(at) !== "danger") n.setAttribute(at, "danger");
+        } else if (n.hasAttribute(keep)) {
+          const v = n.getAttribute(keep); n.removeAttribute(keep);
+          if (v) n.setAttribute(at, v); else n.removeAttribute(at);
+        }
+      }
+    });
+  }
   function ctlOverlay(d, o) {
     if (!d.getElementById("kista-ov-css")) {
       const st = d.createElement("style"); st.id = "kista-ov-css";
@@ -2129,7 +2203,16 @@
       if (!el.style.getPropertyValue("--k-fs")) { const prev = el.getAttribute("data-k"); el.removeAttribute("data-k"); el.style.setProperty("--k-fs", getComputedStyle(el).fontSize); if (prev != null) el.setAttribute("data-k", prev); }
       el.setAttribute("data-k", txt); };
     // quiet — 띠는 지도가 계속 다시 만들어 뺄 수 없다. 띠 글을 진행 제목으로 바꾸고(ban) 기호 점만 숨겨 평소(run) 제목처럼 보인다
-    d.body.classList.toggle("kista-quiet", !!o.quiet);   // 지금 지점 카드의 상태 줄(긴급정지 · 일시정지 [재개])도 숨긴다
+    d.body.classList.toggle("kista-quiet", !!o.quiet);
+    // (11/20) wpRed — 그 이름의 웨이포인트를 위험(빨강)으로. 관제 화면(monitor.js · route-sim)이 알림 단계로 계속 다시 칠하므로
+    //   목록에 감시(MutationObserver)를 걸어 칠할 때마다 바로 덮는다(그림 전에 돈다). 없으면 원래 값으로 되돌린다
+    d.__kWpRed = o.wpRed || null;
+    const rail = d.querySelector("[data-timeline]");
+    if (rail && !d.__kWpObs) {
+      d.__kWpObs = new d.defaultView.MutationObserver(() => kWpRed(d));
+      d.__kWpObs.observe(rail, { subtree: true, attributes: true, attributeFilter: ["data-wp-alert", "data-wp-result", "data-rr-hold"] });
+    }
+    kWpRed(d);   // 지금 지점 카드의 상태 줄(긴급정지 · 일시정지 [재개])도 숨긴다
     if (o.quiet) { const rail = d.querySelector("[data-timeline]"); if (rail) rail.classList.remove("rr-estop", "rr-frozen"); }
     const card0 = d.querySelector('.robot-strip .robot-card[aria-pressed="true"]') || d.querySelector(".robot-strip .robot-card");
     // 배지
