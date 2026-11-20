@@ -1987,9 +1987,10 @@
   const POP_HELMET = { key: "안전모", sev: "warn" };
   const POP_PIPE = { key: "N₂ 배관", sev: "crit" };
   // (11/20) 2-2 고온 — 목록의 '최고 온도'(냉각 펌프 P-2 · WP-05) 알림 판을 열어 위험으로 · 값 · 사진(작업현장 3D) 을 바꾼다
-  const POP_TEMP = { key: "최고 온도", sev: "crit", title: "최고 온도 92.4 ℃", shot: 4.2 };
-  const POP_BAT1 = { key: "안전모", solo: true, sev: "warn", kind: "배터리", place: "B4 통로", shot: 1.5, fp: false };
-  const POP_BAT2 = { key: "안전모", solo: true, sev: "crit", kind: "배터리", title: "자율 복귀 불가 · 잔량 18%", place: "B4 통로", shot: 3.0, fp: false };
+  // (11/20) 사진 = 로봇 카메라 화면(pov). 2-2 는 열화상(thermal) — aim 은 카메라가 볼 곳, hot 은 측정 표시를 얹을 곳
+  const POP_TEMP = { key: "최고 온도", sev: "crit", title: "최고 온도 92.4 ℃", shot: { t: 4.2, pov: true, thermal: true, aim: [12.3, 0.7, -3.9], hot: [11.1, 0.58, -4.4], temp: "92.4℃" } };
+  const POP_BAT1 = { key: "안전모", solo: true, sev: "warn", kind: "배터리", place: "B4 통로", shot: { t: 1.5, pov: true }, fp: false };
+  const POP_BAT2 = { key: "안전모", solo: true, sev: "crit", kind: "배터리", title: "자율 복귀 불가 · 잔량 18%", place: "B4 통로", shot: { t: 3.0, pov: true }, fp: false };
   const POP = {
     "2-1": [
       [0, { ...POP_HELMET, lead: "고소 작업 발판 근처 근로자 1명이 안전모를 쓰지 않았어요. 로봇이 착용을 안내할게요.",
@@ -2022,12 +2023,68 @@
       [22.0, { ...POP_BAT2, req: { to: "회수 완료", acts: ["로봇은 충전 · 점검 후 운영을 재개해요"], ok: true } }]],
   };
   function popAt(t) { const tl = POP[cur.id]; if (!tl) return null; let sp = null; for (const [ts, x] of tl) if (t >= ts) sp = x; return sp; }
-  // 작업현장 3D 의 한 장면(머리 위 디스플레이 판 없이) — 장면마다 한 번 구워 둔다
+  /* 알림 판 사진 = 로봇이 찍고 있는 화면(11/20) — 작업현장 3D 를 로봇 머리 카메라 자리에서 한 장 굽는다. 장면마다 한 번.
+   *   sh = 초(숫자) 또는 { t, pov, thermal, aim, hot, temp }. pov: 로봇 머리(높이 0.62m, 몸 앞 0.5m)에서 aim(없으면 앞 5m)을 본다 · 로봇 몸은 숨김.
+   *   thermal: 열화상 흉내 — 모든 면을 차가운 회색으로 칠해 그늘만 남기고, 모터(M.motor)는 흰색, 근로자는 따뜻한 회색 → 밝기를 iron 색표로.
+   *            위에 측정 십자선 · 온도 · 색 막대를 얹는다. 바닥 투사(FX) 는 열화상에 안 보이니 숨긴다 */
   const shotCache = {};
-  function shot3d(T) {
-    const k = cur.id + "@" + T; if (shotCache[k]) return shotCache[k];
-    const t0 = curT; seek(T); renderer.render(scene, camera);
-    const url = renderer.domElement.toDataURL("image/jpeg", 0.86);
+  const povCam = new THREE.PerspectiveCamera(62, 1.45, 0.05, 80);
+  const IRON = [[0, [8, 4, 40]], [0.28, [70, 12, 110]], [0.5, [168, 36, 92]], [0.68, [232, 92, 40]], [0.84, [250, 190, 50]], [1, [255, 252, 225]]];
+  function iron(v) { for (let i = 1; i < IRON.length; i++) if (v <= IRON[i][0]) { const [a, ca] = IRON[i - 1], [b, cb] = IRON[i], u = (v - a) / (b - a); return ca.map((c, j) => c + (cb[j] - c) * u); } return IRON[IRON.length - 1][1]; }
+  function shot3d(sh) {
+    const o = typeof sh === "number" ? { t: sh } : sh, k = cur.id + "@" + JSON.stringify(o); if (shotCache[k]) return shotCache[k];
+    const t0 = curT; seek(o.t);
+    let url;
+    if (!o.pov) { renderer.render(scene, camera); url = renderer.domElement.toDataURL("image/jpeg", 0.86); }
+    else {
+      const OW = 580, OH = 400, sz = renderer.getSize(new THREE.Vector2());
+      const rp = robotPose(o.t);
+      povCam.aspect = OW / OH; povCam.updateProjectionMatrix();
+      povCam.position.set(rp.x + rp.fx * 0.5, 0.62, rp.z + rp.fz * 0.5);
+      povCam.lookAt(o.aim ? new THREE.Vector3(...o.aim) : new THREE.Vector3(rp.x + rp.fx * 5, 0.5, rp.z + rp.fz * 5));
+      const keep = [], hide = o2 => { if (o2) { keep.push([o2, o2.visible]); o2.visible = false; } };
+      if (spot) hide(spot.group);
+      const swaps = [], bg = scene.background, fog = scene.fog, tm = renderer.toneMapping;
+      if (o.thermal) {
+        hide(FX); hide(beam);
+        const cool = new THREE.MeshLambertMaterial({ color: 0x3c3c3c }), warm = new THREE.MeshLambertMaterial({ color: 0x9a9a9a, emissive: 0x3a3a3a }),
+          hotM = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const isWorker = m => { for (let p2 = m; p2; p2 = p2.parent) if (p2 === wkA || p2 === wkB) return true; return false; };
+        scene.traverse(m => { if (!m.isMesh || m === heatGlow || !m.material || m.material.transparent && m.material.blending === THREE.AdditiveBlending) return;
+          swaps.push([m, m.material]); m.material = m.material === M.motor ? hotM : isWorker(m) ? warm : cool; });
+        scene.background = new THREE.Color(0x000000); scene.fog = null; renderer.toneMapping = THREE.NoToneMapping;
+      }
+      renderer.setSize(OW, OH, false); renderer.render(scene, povCam);
+      const cv = document.createElement("canvas"); cv.width = OW; cv.height = OH; const g = cv.getContext("2d");
+      g.drawImage(renderer.domElement, 0, 0, OW, OH);
+      for (const [m, mat] of swaps) m.material = mat;
+      scene.background = bg; scene.fog = fog; renderer.toneMapping = tm;
+      for (const [o2, v] of keep) o2.visible = v;
+      renderer.setSize(sz.x, sz.y, false);
+      if (o.thermal) {
+        // 밝기 → iron 색표(아래 2% · 위 0.5% 를 잘라 대비를 맞춘다)
+        const id = g.getImageData(0, 0, OW, OH), px = id.data, n = OW * OH, lum = new Float32Array(n), hist = new Uint32Array(256);
+        for (let i = 0; i < n; i++) { const l = (0.3 * px[i * 4] + 0.59 * px[i * 4 + 1] + 0.11 * px[i * 4 + 2]); lum[i] = l; hist[Math.min(255, l | 0)]++; }
+        const pct = q => { let a = 0; for (let v = 0; v < 256; v++) { a += hist[v]; if (a >= q * n) return v; } return 255; };
+        const lo = pct(0.02), hi = Math.max(lo + 1, pct(0.995));
+        for (let i = 0; i < n; i++) { const c = iron(Math.max(0, Math.min(1, (lum[i] - lo) / (hi - lo)))); px[i * 4] = c[0]; px[i * 4 + 1] = c[1]; px[i * 4 + 2] = c[2]; }
+        g.putImageData(id, 0, 0);
+        // 측정 표시 — 뜨거운 곳 십자선 · 온도, 오른쪽 색 막대, 왼쪽 위 'IR'
+        g.font = '700 18px "Noto Sans KR", sans-serif'; g.textBaseline = "middle"; g.lineWidth = 2;
+        if (o.hot) {
+          const v = new THREE.Vector3(...o.hot).project(povCam), hx = (v.x + 1) / 2 * OW, hy = (1 - v.y) / 2 * OH;
+          g.strokeStyle = "#fff"; g.beginPath(); g.moveTo(hx - 16, hy); g.lineTo(hx - 5, hy); g.moveTo(hx + 5, hy); g.lineTo(hx + 16, hy); g.moveTo(hx, hy - 16); g.lineTo(hx, hy - 5); g.moveTo(hx, hy + 5); g.lineTo(hx, hy + 16); g.stroke();
+          g.strokeRect(hx - 34, hy - 26, 68, 52);
+          const tw = g.measureText(o.temp).width + 16; g.fillStyle = "rgba(0,0,0,.6)"; g.fillRect(hx + 40, hy - 15, tw, 30);
+          g.fillStyle = "#fff"; g.fillText(o.temp, hx + 48, hy + 1);
+        }
+        const bx = OW - 26, by = 40, bh = OH - 80;
+        for (let y = 0; y < bh; y++) { const c = iron(1 - y / bh); g.fillStyle = `rgb(${c[0] | 0},${c[1] | 0},${c[2] | 0})`; g.fillRect(bx, by + y, 10, 1); }
+        g.font = '500 13px "Noto Sans KR", sans-serif'; g.fillStyle = "#fff"; g.textAlign = "right"; g.fillText("95", bx - 6, by + 2); g.fillText("25", bx - 6, by + bh - 2); g.textAlign = "left";
+        g.fillStyle = "rgba(0,0,0,.55)"; g.fillRect(12, 12, 54, 24); g.fillStyle = "#fff"; g.font = '700 13px "Noto Sans KR", sans-serif'; g.fillText("IR ℃", 20, 25);
+      }
+      url = cv.toDataURL("image/jpeg", 0.88);
+    }
     seek(t0); dirty = true;
     return (shotCache[k] = url);
   }
@@ -2054,7 +2111,7 @@
     if (sp.kind && $b("[data-ma-kind]")) $b("[data-ma-kind]").textContent = sp.kind;
     if (sp.title) $b("[data-ma-title]").textContent = sp.title;
     if (sp.place) { const pl = $b(".ma-st-place"), pin = $b(".ma-stamp .mbt-pin"); if (pl) pl.textContent = sp.place; if (pin) pin.style.display = "none"; }
-    if (sp.shot != null) { const img = $b("[data-ma-img]"); img.src = shot3d(sp.shot); img.alt = "작업현장"; img.hidden = false; box.classList.remove("no-snap"); }
+    if (sp.shot != null) { const img = $b("[data-ma-img]"); img.src = shot3d(sp.shot); img.alt = "로봇 카메라 화면"; img.hidden = false; box.classList.remove("no-snap"); }
     const fp = $b("[data-ma-fp]"); if (fp) fp.style.visibility = sp.fp === false ? "hidden" : "";
     if (sp.lead) $b("[data-ma-lead]").textContent = sp.lead;
     if (sp.checks) {
