@@ -5,7 +5,7 @@
  * - 값은 토큰만 쓴다(tokens.css). 높이처럼 토큰이 없는 것만 숫자
  * - 배지, 칩, 탭: .ds-badge, .ds-wp, .ds-floor, .ds-chip, .ds-tab-line, .ds-tab-chip, .ds-seg (화면 코드를 이 클래스로 바꾸는 중, assets/js/ds-v7.js 가 같은 마크업을 만들어 줌)
  * - 상단 미션 탭: .sb-tab, .sb-tab-more, .sb-more-menu (11/20 정의서 공통-01 Q6 으로 등록, 그리는 곳은 assets/js/mission-tabs-v6.js, 값은 파일 끝 "상단 미션 탭" 블록)
- * - 파일 차례: 디자인 값 → 컴포넌트(아이콘, 배지, 태그, 점 배지, WP 번호 원, 층, 조치 목록과 체크 상자, 칩, 탭, 구간 전환, 버튼) → Delta 부품 → 지도 부품(2D 지도 경로, 번호 원) → 맨 끝 사례(Case Studies: 컴포넌트를 엮은 화면 한 덩이, 예: DELTA 조치 제안 카드)
+ * - 파일 차례: 디자인 값 → 컴포넌트(아이콘, 패널 머리, 배지, 태그, 점 배지, WP 번호 원, 층, 조치 목록과 체크 상자, 칩, 탭, 구간 전환, 버튼) → Delta 부품 → 지도 부품(2D 지도 경로, 번호 원) → 맨 끝 사례(Case Studies: 컴포넌트를 엮은 화면 한 덩이, 예: DELTA 조치 제안 카드)
  * - 버튼: 지금 화면이 쓰는 .btn, .icon-button 등에 바로 걸림 (파일 아래쪽 "버튼")
  * - 나누는 기준: 누르지 않는 표시는 배지, 조건을 켜거나 값을 고르면 칩, 보이는 내용이 통째로 바뀌면 탭, 행동과 이동은 버튼
  * - 인계 문서: https://claude.ai/artifact/P6i1TzG3SDpNn9gPTiF1mg
@@ -183,6 +183,13 @@ body.ver-7 {
   --ds-iconbtn-pad-s: var(--space-4);
   --ds-iconbtn-pad: var(--space-8);
   --ds-paneltoggle-pad: var(--space-2);
+
+  /* 패널 머리 (11/20, 관제 기준) */
+  --ds-phead-h: 45px;                             /* 안쪽 12 + 이름 줄 20 + 12 + 구분선 1 */
+  --ds-phead-pad: var(--space-12);
+  --ds-phead-gap: var(--space-8);
+  --ds-phead-font-size: var(--font-size-14);
+  --ds-phead-line-height: var(--font-line-height-20);
 }
 
 /* ---------- 아이콘 상자 12 (4의 배수): 작은 점(지름 6), 큰 원, 삼각형 ---------- */
@@ -296,6 +303,17 @@ body.ver-7 .ds-badge.ds-i-delta::before { background: linear-gradient(135deg, va
 
 /* 표 칸 안 배지 + 글자 */
 body.ver-7 .ds-badge-row { display: inline-flex; align-items: center; gap: var(--ds-badge-row-gap); white-space: nowrap; font-size: var(--ds-badge-font-size); line-height: var(--ds-badge-line-height); }
+
+/* ---------- 패널 머리 (11/20): 왼쪽 패널 맨 위 이름 + 접기 단추. 관제 기준으로 통일 ----------
+ * 화면: 관제, 전체 미션, 미션설정, 사전 점검(.panel-head), 안전진단(.sf-phead), 보고서(.rp-phead). 예전 클래스 옆에 .ds-phead, 이름에 .ds-phead-t
+ * 높이 45, 안쪽 12, 사이 8, 이름 14/20 중간 굵기 흐린 글자, 접기 단추(24)는 오른쪽 끝, 아래 구분선은 양끝까지(::after, 선 자리 1 은 테로 지킴)
+ * 접힌 상태(관제 .context-panel.is-collapsed, 안전진단 .sf.is-fold, 보고서 .rp-body.is-fold)는 사이 0, 구분선 숨김. 이름 숨김은 화면 규칙 그대로 */
+body.ver-7 .ds-phead { position: relative !important; flex: none; display: flex !important; align-items: center !important; gap: var(--ds-phead-gap) !important; box-sizing: border-box !important; height: var(--ds-phead-h) !important; padding: var(--ds-phead-pad) !important; border-bottom: var(--border-width-thin) solid transparent !important; }
+body.ver-7 .ds-phead::after { content: "" !important; position: absolute !important; left: 0 !important; right: 0 !important; bottom: calc(var(--border-width-thin) * -1) !important; height: var(--border-width-thin) !important; background-color: var(--border-default) !important; }
+body.ver-7 .ds-phead-t { flex: 1 1 auto !important; min-width: 0 !important; margin: 0 !important; overflow: hidden !important; white-space: nowrap !important; font-size: var(--ds-phead-font-size) !important; line-height: var(--ds-phead-line-height) !important; font-weight: var(--font-weight-medium) !important; letter-spacing: 0.04em !important; color: var(--text-tertiary) !important; }
+body.ver-7 .ds-phead > button { order: 1 !important; }
+body.ver-7 :is(.context-panel.is-collapsed, .sf.is-fold, .rp-body.is-fold) .ds-phead { gap: 0 !important; }
+body.ver-7 :is(.context-panel.is-collapsed, .sf.is-fold, .rp-body.is-fold) .ds-phead::after { opacity: 0 !important; }
 
 /* ---------- WP 번호 원: 왼쪽 알림 목록, 지도 팝오버, 점검 줄, 오른쪽 경로 목록, Delta 어디서 쓰든 하나 ----------
  * 크기는 아이콘과 같은 4의 배수 두 단계(11/19): 번호 칸, 지도, 팝오버 머리 20(.ds-wp), 글자 줄 안 16(.ds-wp.is-s)

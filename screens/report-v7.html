@@ -25,7 +25,7 @@
   <!-- v6 전용 규칙 — v5 는 10/30 부로 멈췄다. v6 에서 바꾸는 것은 여기(body.ver-6)에. -->
   <link rel="stylesheet" href="../assets/css/v6.css?v=c384b14c" />
   <link rel="stylesheet" href="../assets/css/v7.css?v=ae96270e" />
-  <link rel="stylesheet" href="../assets/css/components-v7.css?v=72b2d250" />
+  <link rel="stylesheet" href="../assets/css/components-v7.css?v=85e668a0" />
   <script src="../assets/js/ds-v7.js?v=c4cba4fd"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
@@ -137,11 +137,11 @@
       <!-- 왼쪽 — 보고서 목록(Figma UI_09 · 보고서 1432:40952). 미션과 하루 근무가 끝나면 자동으로 만들어지고, 월 보고서는 목록 맨 위 "월 보고서 자리"의 [만들기]로 만든다(10/29 — 따로 있던 전체 폭 단추를 목록 안으로).
            날짜 줄 = 그날의 일일 보고서(1:1 이라 합쳤다), 그 아래 └ 가지로 미션 보고서. 오늘처럼 근무가 안 끝난 날은 "작성 중"으로 못 누른다. -->
       <aside class="rp-side" data-rp-side aria-label="보고서 목록">
-        <div class="rp-phead">
+        <div class="rp-phead ds-phead">
           <button type="button" class="rp-ptog" data-rp-fold aria-expanded="true" aria-label="보고서 목록 접기">
             <span class="i i-20" style="--i:var(--ic-panel-left)" aria-hidden="true"></span>
           </button>
-          <p class="t-overline rp-plabel">보고서</p>
+          <p class="t-overline rp-plabel ds-phead-t">보고서</p>
         </div>
         <div class="rp-sbody">
           <div class="rp-mrow">
