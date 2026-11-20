@@ -748,6 +748,7 @@
   }
   function head(title, done, total, n){
     // [10/30] 'n건 현장 조치 요청 전'은 뺐다 — 왼쪽 목록의 '요청 전'(전체 · 고른 미션)과 같은 숫자다. 요청을 보내면 목록 값이 줄어 피드백이 된다
+    if(V7) return '';   // [11/20 v7] 라이브 표시와 카드/표 전환을 뺌(표 보기 삭제) → 머리 줄 없음
     return `<div class="hd"><span class="lvh t-caption" title="6종 영상과 센서를 실시간으로 받는 중"><span class="lvd" aria-hidden="true"></span>라이브</span><span class="sp"></span>${LAYB()}</div>`;
   }
   function crumb(){
@@ -774,10 +775,10 @@
       return '<span class="nm"></span>' + (pl && st !== 'ok' ? `<span class="verdict-chip${V7 ? ' ds-badge' : ''} is-${st}">${w}${cnt}</span>` : ''); });
     if(named) c = c.replace('</div>', `</div><span class="knm">${k}</span>`);   // 첫 </div> = 배지 줄 끝
     return c.replace(/<span class="sm">([^<]*), (\d\d:\d\d)<\/span>/, '<span class="mt lc">$1</span><span class="mt tm">$2</span>')
-      .replace(/<span class="mt tm">([^<]*)<\/span>(<span class="req">[^<]*<\/span>)?/, (q, t, r) => `<span class="mt trow"><span class="tm">${t}</span>${r || ''}</span>`);
+      .replace(/<span class="mt tm">([^<]*)<\/span>(<span class="req">[^<]*<\/span>)?/, (q, t, r) => `<span class="mt trow"><span class="tm">${V7 ? '<span class="tm-k">발생 시간</span>' : ''}${t}</span>${r || ''}</span>`);
   }
   function secsAll(){
-    const mh = `<div class="mhead" aria-hidden="true">${K.map(k => `<span><b>${k}</b><small>${STD[k]}</small></span>`).join('')}</div>`;   // 감지 이름은 머리 줄이 말한다(스크롤해도 붙어 있다)
+    const mh = `<div class="mhead" aria-hidden="true">${K.map(k => `<span><b>${k}</b>${V7 ? '' : `<small>${STD[k]}</small>`}</span>`).join('')}</div>`;   // 감지 이름은 머리 줄이 말한다(스크롤해도 붙어 있다)
     return '<div class="msecs">' + mh + M.map((m, i) => { const fl = K;   // [10/29] 열 고정 — 표 · 미션 하나(3×2) · 감지 탭과 같은 순서. 급한 것은 ⓧ/△ 기호와 위험 글자색이 알린다
       const w = worst(i);
       // [10/30 GUI · Figma 1467:8854] 카드 — 배지 왼쪽 · 건수 오른쪽, 위치(핀) · 시각(시계) 두 줄, 아래 사진은 카드 안 4 만 띄워 꽉 채운다
@@ -798,7 +799,7 @@
       return head('통합 순회 현황', done, total, n) + (lay==='table' ? tableAll() : secsAll()); }
     const m = M[scope];
     // [10/30 Figma 1468:8819] 미션 하나 — 칸마다 위에 감지 이름 · 기준, 아래 카드
-    return head(m.mis, m.done, m.total, hits(scope)) + (lay==='table' ? tableOne(scope) : `<div class="g6 cx vC mmg">${K.map(k => `<div class="mcell"><div class="mch"><b>${k}</b><small>${STD[k]}</small></div>${cardX(cardM(M.indexOf(m), k), k, false)}</div>`).join('')}</div>`);
+    return head(m.mis, m.done, m.total, hits(scope)) + (lay==='table' ? tableOne(scope) : `<div class="g6 cx vC mmg">${K.map(k => `<div class="mcell"><div class="mch"><b>${k}</b>${V7 ? '' : `<small>${STD[k]}</small>`}</div>${cardX(cardM(M.indexOf(m), k), k, false)}</div>`).join('')}</div>`);
   }
   function spec3(cv){ const W = cv.clientWidth || 400, H = cv.clientHeight || 160; cv.width = W; cv.height = H; let seed = 7; const R = () => { seed = seed + 0x6D2B79F5 | 0; let q = Math.imul(seed ^ seed >>> 15, 1 | seed); q = q + Math.imul(q ^ q >>> 7, 61 | q) ^ q; return ((q ^ q >>> 14) >>> 0) / 4294967296; }; const c = cv.getContext('2d'); for(let x = 0; x < 40; x++) for(let y = 0; y < 18; y++){ const vv = .25 + (y / 18) * .35 + R() * .3, h = x / 40 > .6 && x / 40 < .78 && y / 18 > .5 && y / 18 < .85; c.fillStyle = h ? `rgb(250,${190 + R() * 50 | 0},60)` : `rgb(${30 + 50 * vv | 0},${70 + 110 * vv | 0},${150 + 90 * vv | 0})`; c.fillRect(x * W / 40, y * H / 18, W / 40 + .6, H / 18 + .6); } }
   const pv = document.createElement('div'); pv.className = 'pvx'; pv.hidden = true; sf.appendChild(pv);
@@ -943,7 +944,7 @@
     const kd = e.target.closest('.kd[data-n][role="button"]');
     if(kd && !dt){ const sec = kd.closest('[data-mi]'); const mi = sec ? +sec.dataset.mi : scope==='all' ? null : scope; if(mi !== null){ return zoomIn(kd, () => { dt = {mi, k:kd.dataset.n}; render(); }); } }
     const tdc = e.target.closest('[data-dk][data-dm]'); if(tdc && !dt){ pv.hidden = true; const cell = tdc.closest('td') || tdc; return zoomIn(cell, () => { dt = {mi:+tdc.dataset.dm, k:tdc.dataset.dk, w:tdc.dataset.dw}; render(); }); }
-    const ly = e.target.closest('[data-lay]'); if(ly){ lay = ly.dataset.lay; return render(); }
+    const ly = !V7 && e.target.closest('[data-lay]'); if(ly){ lay = ly.dataset.lay; return render(); }
     const sc = e.target.closest('[data-sc]'); if(sc) return go(sc.dataset.sc);
     if(menu){ menu = false; bc.innerHTML = crumb(); }
   });
@@ -961,7 +962,7 @@
   document.addEventListener('keydown', e => { if(e.key==='Escape' && menu){ menu = false; bc.innerHTML = crumb(); } });
   // 주소로 장면을 바로 연다(인덱스 링크) — #table 표 · #all 전체 미션 · #detail 자세히 보기(정기 순회 점검 안전감지)
   const h = location.hash.slice(1);
-  if(h==='table') lay = 'table'; else if(h==='all') scope = 'all'; else if(h==='detail') dt = {mi:0, k:'안전감지'};
+  if(h==='table' && !V7) lay = 'table'; else if(h==='all') scope = 'all'; else if(h==='detail') dt = {mi:0, k:'안전감지'};
   // 관제 최신 알림의 [안전진단](10/30) — ?mission=관제 미션 이름&detect=감지 종류. 그 미션의 그 감지 카드 자세히 보기를 연다.
   //   관제 미션(screen.js)과 이 화면 미션은 아직 임시 값이라 이름이 어긋날 수 있다 — 같은 이름, 이름 포함 순으로 찾고 못 찾으면 미션 전체.
   //   감지 종류가 이 화면 여섯에 없거나(진동감지) 그 미션이 판정하지 않으면 미션 카드 화면까지만 간다.

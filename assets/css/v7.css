@@ -848,13 +848,14 @@ body.ver-7 .status-bar-logo .i { transform: translateY(6px); }
 body.ver-7.v2 { --lp-w: 320px; }
 body.ver-7.sian .context-panel:not(.is-collapsed) { flex-basis: 320px; }
 body.ver-7.sian .lp-body { width: 320px; }
-body.ver-7 .sf { grid-template-columns: 320px minmax(0, 1fr); }
-body.ver-7 .rp-body { grid-template-columns: 320px minmax(0, 1fr); }
+/* [11/20] 접힌 상태(.is-fold)는 빼야 접기 단추가 먹음(320 이 접힌 폭을 덮어 안 닫히던 것) */
+body.ver-7 .sf:not(.is-fold) { grid-template-columns: 320px minmax(0, 1fr); }
+body.ver-7 .rp-body:not(.is-fold) { grid-template-columns: 320px minmax(0, 1fr); }
 @media (max-width: 1600px) {
   body.ver-7.v2 { --lp-w: 308px; }
   body.ver-7.sian .context-panel:not(.is-collapsed) { flex-basis: 308px; }
   body.ver-7.sian .lp-body { width: 308px; }
-  body.ver-7 .sf, body.ver-7 .rp-body { grid-template-columns: 308px minmax(0, 1fr); }
+  body.ver-7 .sf:not(.is-fold), body.ver-7 .rp-body:not(.is-fold) { grid-template-columns: 308px minmax(0, 1fr); }
 }
 
 /* [11/11 디자이너] Delta 번호 원(.dl-wp) = 지도 위험 · 주의 핀 머리(map-v6.js rrPins v7 분기)와 같은 꼴 — 채움 원 → 속 비운 단계색 테 + 단계색 숫자.
@@ -1555,3 +1556,7 @@ body.ver-7 [data-autologout-now]:hover { color: var(--text-primary); }
 .v7m-alert-title { margin: 0 0 var(--space-4); color: var(--status-critical-text); font-size: 14px; font-weight: 700; line-height: 20px; }
 .v7m-alert-text { margin: 0; color: var(--text-secondary); font-size: 13px; line-height: 20px; word-break: keep-all; }
 .modal.is-shift .shift-go[aria-busy="true"] { cursor: progress; }
+
+/* [11/20 v7 디자이너] 안전진단 카드 시각 줄: 숫자만 있어 무엇인지 안 읽힘 → 앞에 "발생 시간" 이름표(흐린 글자), 시각은 한 단 진하게 */
+body.ver-7 .sf .cx .kd .tm { display: inline-flex; align-items: center; gap: var(--space-4); color: var(--text-secondary); }
+body.ver-7 .sf .cx .kd .tm-k { color: var(--text-tertiary); }
