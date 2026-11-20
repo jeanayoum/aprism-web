@@ -35,7 +35,7 @@
   <link rel="stylesheet" href="../assets/css/v5.css?v=9f626280" />
   <!-- v6 전용 규칙 — v5 는 10/30 부로 멈췄다. v6 에서 바꾸는 것은 여기(body.ver-6)에. -->
   <link rel="stylesheet" href="../assets/css/v6.css?v=c384b14c" />
-  <link rel="stylesheet" href="../assets/css/v7.css?v=3c9355ed" />
+  <link rel="stylesheet" href="../assets/css/v7.css?v=517eb98d" />
   <link rel="stylesheet" href="../assets/css/components-v7.css?v=60c9171b" />
   <script src="../assets/js/ds-v7.js?v=1b798677"></script>
   <!-- [10/29] v5 지도(map-v6.js)가 그리는 설비 이름표 · 충전 스테이션 · 번호 핀 꼴 — 메인과 같다 -->
@@ -245,20 +245,11 @@
                                   <input type="text" class="field-box is-readonly" value="정기 순회 점검" aria-label="미션 이름" readonly />
                                 </label>
 
-                                <div class="field">
-                                  <span class="field-label" id="mp-lbl-site">대상 설비</span>
-                                  <div class="field-select" data-select>
-                                    <button type="button" class="field-box is-select" data-select-trigger aria-haspopup="listbox" aria-expanded="false" aria-labelledby="mp-lbl-site">
-                                      <span data-select-value>터빈 2 / Unit 03</span>
-                                      <span class="i i-20" style="--i:var(--ic-chevron-down)" aria-hidden="true"></span>
-                                    </button>
-                                    <ul class="field-menu" role="listbox" aria-label="대상 설비" hidden>
-                                      <li class="field-option" role="option">터빈 1 / Unit 01</li>
-                                      <li class="field-option" role="option" aria-selected="true">터빈 2 / Unit 03</li>
-                                      <li class="field-option" role="option">터빈 3 / Unit 05</li>
-                                    </ul>
-                                  </div>
-                                </div>
+                                <label class="field">
+                                  <!-- [11/20 정의서 관제화면-01 Q4] 대상 설비도 미션이 정한 값 — 미션 이름처럼 읽기 전용(바꾸려면 미션 관리) -->
+                                  <span class="field-label">대상 설비</span>
+                                  <input type="text" class="field-box is-readonly" value="터빈 2 / Unit 03" aria-label="대상 설비" readonly data-mp-site />
+                                </label>
 
                                 <div class="field">
                                   <span class="field-label" id="mp-lbl-robot">실행 로봇</span>
@@ -271,6 +262,9 @@
                                       <li class="field-option" role="option" aria-selected="true">ROBOT 01 · 배터리 96%</li>
                                       <li class="field-option" role="option">ROBOT 02 · 배터리 31%</li>
                                       <li class="field-option" role="option">ROBOT 03 · 배터리 91%</li>
+                                      <!-- [11/20 정의서 관제화면-01 Q5] 대기 로봇만 고를 수 있다 — 나머지는 흐리게 두고 이유를 붙인다(수행 중 · 충전 중 · 통신 끊김) -->
+                                      <li class="field-option" role="option" aria-disabled="true"><span class="field-option-name">ROBOT 04</span><span class="field-option-why">충전 중</span></li>
+                                      <li class="field-option" role="option" aria-disabled="true"><span class="field-option-name">ROBOT 05</span><span class="field-option-why">수행 중</span></li>
                                     </ul>
                                   </div>
                                 </div>
@@ -1148,7 +1142,8 @@
       </button>
     </div>
     <div class="modal-body" id="m-discard-desc">
-      <p class="t-body-2 modal-desc-1">바꾼 설정은 저장되지 않고 <span data-discard-to>미션</span>(으)로 이동합니다.</p>
+      <!-- [11/20 정의서 관제화면-01 Q7] 해요체 · 조사는 setup-tabs-v6.js 가 이름에 맞춰 붙인다(data-josa) -->
+      <p class="t-body-2 modal-desc-1">바꾼 설정은 저장되지 않아요. <span data-discard-to data-josa>미션으로</span> 이동할까요?</p>
     </div>
     <div class="modal-foot">
       <button type="button" class="btn is-md btn-secondary" data-modal-dismiss>계속 작성</button>
@@ -1659,6 +1654,6 @@
 <!-- 미션 설정 — 점검항목 · 순서 · 로봇이 소요시간과 배터리를 움직인다. screen.js 뒤에 온다. -->
 <script src="../assets/js/mission-setup.js?v=5bf3b313"></script>
 <script src="../assets/js/grid-overlay.js?v=39b45309"></script>
-<script src="../assets/js/setup-tabs-v6.js?v=a7de47b9"></script>
+<script src="../assets/js/setup-tabs-v6.js?v=13ff7170"></script>
 </body>
 </html>
