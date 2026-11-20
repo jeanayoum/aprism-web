@@ -36,14 +36,17 @@
   var EN = window.APRISM_EN || {};
   var MNO_EN = MNO.map(function (k) { return EN[k]; });
   var IDLE = ["소방 설비 점검", "주간 설비 점검"];   // 데모 대기 미션(screen.js ver-6 블록과 같다)
-  // [11/20 정의서 공통-01 Q1] v7 한글 — 미션 탭은 8개까지, 넘치면 줄 끝 [+N] 더보기 메뉴. 시연: 주소 ?missions=12 (관제 탭을 옮겨도 유지)
+  // [11/20 정의서 공통-01 Q1] v7 한글 — 미션 탭이 탭 줄 폭을 넘으면 넘친 미션을 줄 끝 [+N] 더보기 메뉴로. 보이는 개수는 화면 폭에 따름
+  //   시연: 주소 ?missions=30 (관제 탭을 옮겨도 유지) — 창 폭을 줄이면 [+N] 숫자가 는다
   var V7KO = document.body.classList.contains("ver-7") && document.documentElement.lang !== "en";
-  var MAXTAB = 8;
+  var FIT_GAP = 24;      // 탭 줄 끝과 오른쪽 계정 영역 사이 최소 간격 (components-v7.css --ds-mtab-right-gap 과 같게)
+  var SPARE = 40;        // 알림 아이콘 두 개(16 + 간격 4) 만큼 여유 — 알림이 새로 붙어도 탭이 바로 밀려나지 않게
+  var MORE_W = 80;       // [+N] 버튼 자리(번호 + 알림 아이콘) — 늘 미리 비워 둔다
   if (V7KO) {
     var demoN = 0, qs = location.search; try { qs += (window.top || window).location.search; } catch (e) { /* 다른 출처 */ }
     var mq = /[?&]missions=(\d+)/.exec(qs);
     try { if (mq) { sessionStorage.setItem("aprism.missions", mq[1]); } demoN = Number(sessionStorage.getItem("aprism.missions") || 0); } catch (e) { demoN = mq ? Number(mq[1]) : 0; }
-    for (var di = MNO.length + 1; di <= Math.min(demoN, 20); di++) { var dn = "추가 순회 점검 " + di; MNO.push(dn); IDLE.push(dn); }
+    for (var di = MNO.length + 1; di <= Math.min(demoN, 30); di++) { var dn = "추가 순회 점검 " + di; MNO.push(dn); IDLE.push(dn); }
   }
   function mno(name) { var i = MNO.indexOf(name); return i >= 0 ? i : MNO_EN.indexOf(name); }
   // 탭 밖에서 같은 번호를 쓰는 곳(전체 미션 층 카드 · building.js)이 읽는다
@@ -151,10 +154,13 @@
   }
 
   /*
-   * [11/20 정의서 공통-01 Q1] 넘침 — 미션 탭 차례대로 8개까지 보이고 나머지는 [+N] 메뉴로. 지금 보는 미션이 숨을 자리면 8번째 탭과 자리를 바꾼다.
+   * [11/20 정의서 공통-01 Q1] 넘침 — 미션 탭을 차례대로 폭이 허락하는 만큼 보이고 나머지는 [+N] 메뉴로.
+   *   폭 = 오른쪽 계정 영역 왼쪽 끝 − 24, [+N] 자리와 아이콘 두 개 여유는 미리 뺀다.
+   *   개수는 창 크기 · 미션 수 · 지금 미션이 바뀔 때만 다시 센다. 그 사이 알림 아이콘이 붙고 빠져도 개수는 그대로(넘칠 때만 줄인다) — 탭이 들락날락하지 않게.
+   *   지금 보는 미션이 숨을 자리면 마지막으로 보이는 탭과 자리를 바꾼다. 아무리 좁아도 [전체 미션] · 지금 미션 · [+N] 은 남는다.
    *   [+N] 에는 숨은 미션 중 가장 높은 알림 단계 아이콘(숨어 있어도 위험을 놓치지 않게), 새 위험이 있으면 점.
    */
-  var more = null, moreMenu = null;
+  var more = null, moreMenu = null, fitKey = "", fitCount = 0;
   function closeMore() {
     if (moreMenu) { moreMenu.remove(); moreMenu = null; }
     if (more) { more.setAttribute("aria-expanded", "false"); }
@@ -165,10 +171,35 @@
     if (more) { more.remove(); more = null; }
     var all = Array.prototype.slice.call(bar.querySelectorAll(".sb-tab[data-mission]"));
     all.forEach(function (t) { t.hidden = false; });
-    if (all.length <= MAXTAB) { return; }
-    var vis = all.slice(0, MAXTAB), hid = all.slice(MAXTAB);
-    var cur = hid.filter(function (t) { return t.classList.contains("is-on"); })[0];
-    if (cur) { hid.splice(hid.indexOf(cur), 1); hid.unshift(vis.pop()); }
+    if (!all.length) { return; }
+    var br = bar.getBoundingClientRect();
+    if (!br.width) { return; }   // 숨은 화면(보이지 않는 틀) — 보일 때 크기 변화로 다시 센다
+    var gap = parseFloat(getComputedStyle(bar).columnGap) || 0;
+    var x0 = all[0].getBoundingClientRect().left;
+    var w = all.map(function (t) { return t.getBoundingClientRect().width + gap; });
+    // 오른쪽 끝은 탭을 다 숨긴 채로 잰다 — 다 펼친 채로 재면 넘친 탭에 계정 영역이 밀려 있다
+    all.forEach(function (t) { t.hidden = true; });
+    var right = document.querySelector(".status-bar-right");
+    br = bar.getBoundingClientRect();
+    var limit = right ? Math.min(br.right, right.getBoundingClientRect().left - FIT_GAP) : br.right - FIT_GAP;
+    all.forEach(function (t) { t.hidden = false; });
+    var sum = function (arr) { return arr.reduce(function (a, b) { return a + b; }, 0); };
+    var ci = all.findIndex(function (t) { return t.classList.contains("is-on"); });
+    var key = window.innerWidth + "|" + all.length + "|" + (ci >= 0 ? all[ci].getAttribute("data-mission") : "");
+    var same = key === fitKey;
+    fitKey = key;
+    var fitsAll = x0 + sum(w) - gap <= limit - (same ? 0 : SPARE);
+    if (fitsAll && !(same && fitCount < all.length)) { fitCount = all.length; return; }   // 다 들어간다
+    var room = limit - x0 - MORE_W - (same ? 0 : SPARE);
+    var keep = [], used = ci >= 0 ? w[ci] : 0, cap = same ? fitCount : Infinity;
+    all.forEach(function (t, i) {
+      if (i === ci) { keep.push(i); return; }
+      if (keep.length < cap && used + w[i] <= room) { used += w[i]; keep.push(i); } else { used = Infinity; }   // 한 번 넘치면 뒤는 모두 숨김(차례 유지)
+    });
+    fitCount = keep.length;
+    var vis = all.filter(function (t, i) { return keep.indexOf(i) >= 0; });
+    var hid = all.filter(function (t, i) { return keep.indexOf(i) < 0; });
+    if (!hid.length) { return; }
     hid.forEach(function (t) { t.hidden = true; });
     more = document.createElement("button");
     more.type = "button";
@@ -213,6 +244,11 @@
     bar.appendChild(more);
   }
   if (V7KO) {
+    // 창 크기가 바뀌면(숨었던 틀이 보일 때 포함) 다시 센다 — 폭만 본다
+    var lastW = -1, raf = 0;
+    var refit = function () { cancelAnimationFrame(raf); raf = requestAnimationFrame(function () { var wd = window.innerWidth; if (wd !== lastW && !drag) { lastW = wd; fit(); } }); };
+    window.addEventListener("resize", refit);
+    if (document.fonts && document.fonts.ready) { document.fonts.ready.then(function () { if (!drag) { fit(); } }); }   // 글꼴이 늦게 오면 폭이 달라진다
     document.addEventListener("click", function (event) { if (moreMenu && !moreMenu.contains(event.target)) { closeMore(); } });
     document.addEventListener("keydown", function (event) { if (event.key === "Escape" && moreMenu) { closeMore(); if (more) { more.focus(); } } });
   }
