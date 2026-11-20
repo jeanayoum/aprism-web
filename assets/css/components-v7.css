@@ -201,6 +201,17 @@ body.ver-7, body.ds-auth {   /* body.ds-auth: 로그인 쪽 화면(안내 상자
   --ds-maptools-gap: var(--space-8);
   --ds-maptools-radius: var(--radius-8);
 
+  /* 모션 (11/20) 1층: 값. 쓰는 법(2층)은 아래 "모션" 절과 CLAUDE.md. JS 움직임도 이 값을 읽음(monitor.js) */
+  --ds-motion-fast: 160ms;                        /* 상태 바뀜: 올림, 화살표 돌기, 사진 올림 */
+  --ds-motion-base: 240ms;                        /* 나타남: 판 안에 새 상자, 토스트 */
+  --ds-motion-exit: 300ms;                        /* 떠 있는 판 나가기 */
+  --ds-motion-enter: 420ms;                       /* 떠 있는 판 들어오기 */
+  --ds-motion-slow: 820ms;                        /* 완료 물결(조치 요청 뒤 팝업이 바뀌는 물결) */
+  --ds-ease-base: ease-out;                       /* 나타남, 상태 바뀜 */
+  --ds-ease-enter: cubic-bezier(.22, 1, .36, 1);  /* 들어오기: 빨리 와서 천천히 멈춤 */
+  --ds-ease-exit: cubic-bezier(.55, 0, .8, .25);  /* 나가기: 천천히 떠나 빨리 사라짐 */
+  --ds-motion-rise: var(--space-8);               /* 나타날 때 아래에서 올라오는 거리 */
+
   /* 지도 팝오버 (11/20): 로봇, 지점, 설비 */
   --ds-mappop-pad: var(--space-12);              /* 예전 14(토큰 밖) → 12 */
   --ds-mappop-gap: var(--space-4);
@@ -808,6 +819,23 @@ body.ver-7 .mp-hq-tags { position: absolute; inset: 0; pointer-events: none; }
 body.ver-7 .mp-hq-tags > .ds-badge { position: absolute; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
 
 /* ==========================================================================
+ * 모션 (11/20) 2층: 쓰는 법. 값은 맨 위 디자인 값 --ds-motion-*, --ds-ease-* (1층)
+ *   들어오기  떠 있는 판(팝업, 서랍)이 화면 밖에서 들어옴: --ds-motion-enter + --ds-ease-enter
+ *   나가기    떠 있는 판이 나감: --ds-motion-exit + --ds-ease-exit (들어오기보다 짧게)
+ *   나타남    판 안에 새 상자, 토스트: --ds-motion-base + --ds-ease-base, 아래에서 --ds-motion-rise 만큼 올라오며 흐림 → 또렷 (.ds-appear, @keyframes ds-appear)
+ *   상태 바뀜 올림, 고름, 화살표 돌기: --ds-motion-fast
+ *   완료      조치가 끝난 순간(완료 물결, 새 기록 줄 반짝임)은 초록 --ds-motion-done 한 색. 정보 파랑을 쓰지 않음
+ *   움직임 줄이기(prefers-reduced-motion) 이면 길이 모두 0. JS 는 같은 값을 읽고 따로 끔
+ *   팝업마다 무엇이 어떤 순서로 움직이는지(안무)는 그 사례에 적고, 숫자는 이 값만 씀
+ * ========================================================================== */
+body.ver-7 { --ds-motion-done: var(--status-safe-icon); --ds-motion-done-2: color-mix(in srgb, var(--status-safe-icon) 60%, var(--color-gray-0)); --ds-motion-done-3: color-mix(in srgb, var(--status-safe-icon) 70%, var(--status-info-icon)); }
+@media (prefers-reduced-motion: reduce) { body.ver-7 { --ds-motion-fast: 0ms; --ds-motion-base: 0ms; --ds-motion-exit: 0ms; --ds-motion-enter: 0ms; --ds-motion-slow: 0ms; } }
+@keyframes ds-appear { from { opacity: 0; translate: 0 var(--ds-motion-rise, 8px); } to { opacity: 1; translate: 0 0; } }
+body.ver-7 .ds-appear { animation: ds-appear var(--ds-motion-base) var(--ds-ease-base) both; }
+/* 토스트: 나타남 (자리 잡는 transform 과 겹치지 않게 translate 로 움직임) */
+body.ver-7 .toast:not([hidden]) { animation: ds-appear var(--ds-motion-base) var(--ds-ease-base) both; }
+
+/* ==========================================================================
  * 사례 (Case Studies, 11/20): 컴포넌트를 실제 화면 한 덩이로 엮은 것. 새 부품이 아니라 조합 규칙만 둔다
  * ========================================================================== */
 
@@ -847,3 +875,26 @@ body.ver-7 .sb-more-menu .menu-item { display: flex; align-items: center; gap: v
 body.ver-7 .sb-more-menu .sb-tab-no { flex: none; min-width: 28px; color: var(--text-secondary); }
 body.ver-7 .sb-more-menu .sb-more-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
 body.ver-7 .sb-more-menu .sb-tab-sev { flex: none; }
+
+/* ---------- 사례: 관제 알림 팝업 (11/20, .ds-alertpop) ----------
+ * 화면: 관제(대화형, 넓은 화면 포함) 지도에서 알림을 고르면 뜨는 팝업 section.map-alert.ma-v3 옆에 .ds-alertpop
+ * 조합: 머리(판정 배지 + 제목 + 값 + 닫기) → 사진(+ 위치 줄 알약) → 아래 칸(기준 초과 + 제안 문장 + 조치 목록 .ds-acts + 메모 접기 + 버튼 둘)
+ * 부품은 모두 컴포넌트(배지, 번호 원, 조치 목록, 체크 상자, 버튼, 아이콘 버튼). 여기는 틀과 배치, 간격만 (값 11/20 그대로)
+ * 상태(접힘 .is-folded, 붙음 .is-docked, 요청됨 .is-requested, 대화형 .d3-chat)가 바꾸는 높이, 보임, 머리 모서리, 아래 칸 위 여백은 v7.css 규칙이 맡아 여기선 강제하지 않음
+ * 안무: 들어오기(왼쪽 밖에서 밀려옴, --ds-motion-enter), 나가기([확인함] 뒤 왼쪽으로, --ds-motion-exit), 요청 뒤 완료 물결(--ds-motion-slow, 초록 --ds-motion-done), 조치 요청됨 상자 나타남(ds-appear) */
+body.ver-7 { --ds-alertpop-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-gray-0) 8%, transparent), 0 6px 16px color-mix(in srgb, var(--color-gray-950) 35%, transparent); }
+:root[data-theme="light"] body.ver-7 { --ds-alertpop-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-gray-950) 6%, transparent), 0 6px 16px color-mix(in srgb, var(--color-gray-950) 14%, transparent); }
+body.ver-7 .ds-alertpop { padding: var(--space-4) !important; border-radius: var(--ds-pop-radius) !important; background-color: var(--ds-mappop-bg) !important; -webkit-backdrop-filter: blur(12px) !important; backdrop-filter: blur(12px) !important; box-shadow: var(--ds-alertpop-shadow) !important; }
+body.ver-7 .ds-alertpop > .ma-head { margin: calc(var(--space-4) * -1) calc(var(--space-4) * -1) 0 !important; padding: var(--space-8) var(--space-8) var(--space-8) var(--space-12) !important; gap: var(--space-12) !important; background-color: var(--bg-raised) !important; border-radius: var(--ds-pop-radius) var(--ds-pop-radius) 0 0; }
+body.ver-7 .ds-alertpop .ma-title-block, body.ver-7 .ds-alertpop .ma-top { gap: var(--space-8) !important; }
+body.ver-7 .ds-alertpop .ma-title { font-size: var(--font-size-16) !important; line-height: var(--font-line-height-24) !important; font-weight: var(--font-weight-bold) !important; }
+body.ver-7 .ds-alertpop .ma-snap { border-radius: var(--ds-pop-radius) !important; }
+body.ver-7 .ds-alertpop .ma-shot { transition-duration: var(--ds-motion-fast) !important; }
+body.ver-7 .ds-alertpop .ma-stamp { left: var(--space-8) !important; right: var(--space-8) !important; bottom: var(--space-8) !important; padding: var(--space-4) var(--space-8) var(--space-4) var(--space-4) !important; gap: var(--space-8) !important; border-radius: var(--radius-pill) !important; font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; }
+body.ver-7 .ds-alertpop .ma-lower { padding-top: var(--space-8); padding-right: var(--space-8) !important; padding-bottom: var(--space-4) !important; padding-left: var(--space-8) !important; gap: var(--space-8) !important; }
+body.ver-7 .ds-alertpop .ma-reason { margin: var(--space-0) var(--space-0) var(--space-4) !important; font-size: var(--font-size-13) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-semibold, 600) !important; }
+body.ver-7 .ds-alertpop :is(.ma-delta, .ma-act, .ma-memo) { gap: var(--space-8) !important; }
+body.ver-7 .ds-alertpop .ma-delta-lead { font-size: var(--font-size-14) !important; line-height: var(--font-line-height-20) !important; font-weight: var(--font-weight-semibold, 600) !important; }
+body.ver-7 .ds-alertpop .ma-memo-row { gap: var(--space-4) !important; }
+body.ver-7 .ds-alertpop .ma-actions { grid-template-columns: 1fr 1fr !important; gap: var(--space-8) !important; }
+body.ver-7 .ds-alertpop .ma-req { animation: ds-appear var(--ds-motion-base) var(--ds-ease-base) both; }

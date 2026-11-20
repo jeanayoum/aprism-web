@@ -1576,6 +1576,8 @@
       var off = clip ? br.left - clip.getBoundingClientRect().left : 40;
       return -(Math.max(0, Math.round(off)) + Math.round(br.width || box.offsetWidth || 370) + 8) + "px";
     }
+    // [11/20] 모션 값은 공통 CSS 디자인 값(--ds-motion-*, --ds-ease-*)에서 읽음. 없으면 예전 숫자
+    function mv(name, dflt) { var v = getComputedStyle(document.body).getPropertyValue(name).trim(); if (!v) { return dflt; } var n = parseFloat(v); return /ms$|s$/.test(v) && !isNaN(n) ? (/ms$/.test(v) ? n : n * 1000) : v; }
     function maSlide(enter, done) {
       if (maAnim) { maAnim.cancel(); maAnim = null; }
       var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -1583,8 +1585,8 @@
       // 나올 때는 아직 지도 스크립트가 자리를 잡기 전이라 잴 수 없다 — 폭 + 48(판 끝 ~ 팝오버 왼쪽 여백 20 남짓보다 넉넉히)
       var out = enter ? "calc(-100% - 48px) 0" : maDrawerX() + " 0";
       maAnim = enter
-        ? box.animate([{ translate: out }, { translate: "0 0" }], { duration: 420, easing: "cubic-bezier(.22, 1, .36, 1)" })
-        : box.animate([{ translate: "0 0" }, { translate: out }], { duration: 300, easing: "cubic-bezier(.55, 0, .8, .25)", fill: "forwards" });
+        ? box.animate([{ translate: out }, { translate: "0 0" }], { duration: mv("--ds-motion-enter", 420), easing: mv("--ds-ease-enter", "cubic-bezier(.22, 1, .36, 1)") })
+        : box.animate([{ translate: "0 0" }, { translate: out }], { duration: mv("--ds-motion-exit", 300), easing: mv("--ds-ease-exit", "cubic-bezier(.55, 0, .8, .25)"), fill: "forwards" });
       var a = maAnim;
       a.onfinish = function () { if (maAnim === a) { maAnim = null; } if (done) { done(); } if (!enter) { a.cancel(); } };
     }
@@ -1653,9 +1655,10 @@
       }).join("");
       document.body.appendChild(svg);
     }
+    // [11/20] 완료 물결 색 = 공통 모션 완료 색(초록 --ds-motion-done 세 단). 예전 파랑, 청록, 보라에서 바꿈(다른 완료 움직임과 같은 초록)
     function wvPal(a) {
-      var lt = document.documentElement.getAttribute("data-theme") === "light";
-      return (lt ? ["40 100 200", "20 150 190", "120 80 210"] : ["59 121 213", "86 200 230", "150 110 240"]).map(function (c) { return "rgb(" + c + " / " + a + ")"; });
+      var p = Math.round(a * 100);
+      return ["--ds-motion-done", "--ds-motion-done-2", "--ds-motion-done-3"].map(function (n) { return "color-mix(in srgb, var(" + n + ") " + p + "%, transparent)"; });
     }
     function wvRing(ox, oy, r, band, a) {
       var cols = wvPal(a), n = cols.length, st = ["transparent " + Math.max(0, r - band) + "px"];
@@ -1666,6 +1669,7 @@
     function wave7(after) {
       if (slow.matches) { after(); return; }
       wvDefs();
+      WV.dur = mv("--ds-motion-slow", 820);   // [11/20] 완료 물결 길이 = 공통 모션 값
       var W = box.offsetWidth, H = box.offsetHeight;
       var br = confirm.getBoundingClientRect(), pr = box.getBoundingClientRect();
       var ox = br.left + br.width / 2 - pr.left, oy = br.top + br.height / 2 - pr.top;
