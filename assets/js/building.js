@@ -375,7 +375,7 @@
   var filter = "all";
 
   function alertRow(a) {
-    var node = el("button", "ah-item is-" + a.sev);
+    var node = el("button", "ah-item is-" + a.sev + (document.body.classList.contains("ver-7") ? " ds-list-item is-l" : ""));   // [11/20 v7] 공통 리스트 줄(크게)
     node.type = "button";
     node.setAttribute("role", "listitem");
     node.setAttribute("aria-pressed", "false");

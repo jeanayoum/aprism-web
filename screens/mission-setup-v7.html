@@ -36,7 +36,7 @@
   <!-- v6 전용 규칙 — v5 는 10/30 부로 멈췄다. v6 에서 바꾸는 것은 여기(body.ver-6)에. -->
   <link rel="stylesheet" href="../assets/css/v6.css?v=c384b14c" />
   <link rel="stylesheet" href="../assets/css/v7.css?v=3c9355ed" />
-  <link rel="stylesheet" href="../assets/css/components-v7.css?v=53611ff1" />
+  <link rel="stylesheet" href="../assets/css/components-v7.css?v=4566c6aa" />
   <script src="../assets/js/ds-v7.js?v=c4cba4fd"></script>
   <!-- [10/29] v5 지도(map-v6.js)가 그리는 설비 이름표 · 충전 스테이션 · 번호 핀 꼴 — 메인과 같다 -->
   <link rel="stylesheet" href="../assets/css/route-rules.css?v=06eba321" />
@@ -286,20 +286,20 @@
                                     <button type="button" class="btn btn-ghost is-xs check-reset" data-mp-reset hidden>순서 되돌리기</button>
                                     <span class="count" data-mp-count>4개 선택</span>
                                   </div>
-                                  <div class="check-list is-plan" data-mp-list>
-                                    <div class="check-row" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-01" data-dwell="1080">
+                                  <div class="check-list is-plan ds-list is-boxed is-divided" data-mp-list>
+                                    <div class="check-row ds-list-item is-s is-check" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-01" data-dwell="1080">
                                       <span>WP-01 FFU-01 토출구</span>
                                       <span class="check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>
                                     </div>
-                                    <div class="check-row" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-02" data-dwell="1200">
+                                    <div class="check-row ds-list-item is-s is-check" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-02" data-dwell="1200">
                                       <span>WP-02 HEPA Filter 차압계</span>
                                       <span class="check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>
                                     </div>
-                                    <div class="check-row" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-03" data-dwell="900">
+                                    <div class="check-row ds-list-item is-s is-check" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-03" data-dwell="900">
                                       <span>WP-03 냉각수 배관 밸브</span>
                                       <span class="check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>
                                     </div>
-                                    <div class="check-row" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-04" data-dwell="900">
+                                    <div class="check-row ds-list-item is-s is-check" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-04" data-dwell="900">
                                       <span>WP-04 N₂ 배관 압력계</span>
                                       <span class="check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>
                                     </div>
@@ -357,27 +357,27 @@
             </div>
 
             <div class="mp-scroll is-spacer">
-              <div class="precheck-list" data-sian-precheck>
+              <div class="precheck-list ds-list is-boxed is-divided" data-sian-precheck>
                 <div class="precheck-head">
                   <span class="label">점검 항목</span>
                   <span class="tag-running ds-badge is-plain is-info ds-i-play" data-precheck-tag>Running</span>
                 </div>
-                <div class="precheck-row is-running is-active" data-precheck-row data-done-meta="4s">
+                <div class="precheck-row ds-list-item is-l is-running is-active" data-precheck-row data-done-meta="4s">
                   <span class="i i-20" aria-hidden="true"></span>
                   <span class="label">Manager</span>
                   <span class="meta is-plain">확인중..</span>
                 </div>
-                <div class="precheck-row is-pending" data-precheck-row data-done-meta="5s">
+                <div class="precheck-row ds-list-item is-l is-pending" data-precheck-row data-done-meta="5s">
                   <span class="i i-20" aria-hidden="true"></span>
                   <span class="label">Spot</span>
                   <span class="meta is-plain">대기</span>
                 </div>
-                <div class="precheck-row is-pending" data-precheck-row data-done-meta="3s" data-running-meta="ROBOT 02 확인중..">
+                <div class="precheck-row ds-list-item is-l is-pending" data-precheck-row data-done-meta="3s" data-running-meta="ROBOT 02 확인중..">
                   <span class="i i-20" aria-hidden="true"></span>
                   <span class="label">Battery</span>
                   <span class="meta is-plain">대기</span>
                 </div>
-                <div class="precheck-row is-pending" data-precheck-row data-done-meta="2s">
+                <div class="precheck-row ds-list-item is-l is-pending" data-precheck-row data-done-meta="2s">
                   <span class="i i-20" aria-hidden="true"></span>
                   <span class="label">Mission</span>
                   <span class="meta is-plain">대기</span>
@@ -1657,7 +1657,7 @@
 <script src="../assets/js/robot-spot.js?v=2a3061e4"></script>
 <script src="../assets/js/sian.js?v=fd9b139b"></script>
 <!-- 미션 설정 — 점검항목 · 순서 · 로봇이 소요시간과 배터리를 움직인다. screen.js 뒤에 온다. -->
-<script src="../assets/js/mission-setup.js?v=c8ad924b"></script>
+<script src="../assets/js/mission-setup.js?v=3333deeb"></script>
 <script src="../assets/js/grid-overlay.js?v=39b45309"></script>
 <script src="../assets/js/setup-tabs-v6.js?v=a7de47b9"></script>
 </body>

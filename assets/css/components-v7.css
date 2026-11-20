@@ -5,7 +5,7 @@
  * - 값은 토큰만 쓴다(tokens.css). 높이처럼 토큰이 없는 것만 숫자
  * - 배지, 칩, 탭: .ds-badge, .ds-wp, .ds-floor, .ds-chip, .ds-tab-line, .ds-tab-chip, .ds-seg (화면 코드를 이 클래스로 바꾸는 중, assets/js/ds-v7.js 가 같은 마크업을 만들어 줌)
  * - 상단 미션 탭: .sb-tab, .sb-tab-more, .sb-more-menu (11/20 정의서 공통-01 Q6 으로 등록, 그리는 곳은 assets/js/mission-tabs-v6.js, 값은 파일 끝 "상단 미션 탭" 블록)
- * - 파일 차례: 디자인 값 → 컴포넌트(아이콘, 패널 머리, 안내 상자, 토글, 지도 도구 상자, 지도 팝오버, 배지, 태그, 점 배지, WP 번호 원, 층, 조치 목록과 체크 상자, 칩, 탭, 구간 전환, 버튼) → Delta 부품 → 지도 부품(2D 지도 경로, 번호 원) → 맨 끝 사례(Case Studies: 컴포넌트를 엮은 화면 한 덩이, 예: DELTA 조치 제안 카드)
+ * - 파일 차례: 디자인 값 → 컴포넌트(아이콘, 리스트, 패널 머리, 안내 상자, 토글, 지도 도구 상자, 지도 팝오버, 배지, 태그, 점 배지, WP 번호 원, 층, 조치 목록과 체크 상자, 칩, 탭, 구간 전환, 버튼) → Delta 부품 → 지도 부품(2D 지도 경로, 번호 원) → 맨 끝 사례(Case Studies: 컴포넌트를 엮은 화면 한 덩이, 예: DELTA 조치 제안 카드)
  * - 버튼: 지금 화면이 쓰는 .btn, .icon-button 등에 바로 걸림 (파일 아래쪽 "버튼")
  * - 나누는 기준: 누르지 않는 표시는 배지, 조건을 켜거나 값을 고르면 칩, 보이는 내용이 통째로 바뀌면 탭, 행동과 이동은 버튼
  * - 인계 문서: https://claude.ai/artifact/P6i1TzG3SDpNn9gPTiF1mg
@@ -200,6 +200,15 @@ body.ver-7, body.ds-auth {   /* body.ds-auth: 로그인 쪽 화면(안내 상자
   --ds-maptools-pad: var(--space-4);
   --ds-maptools-gap: var(--space-8);
   --ds-maptools-radius: var(--radius-8);
+
+  /* 리스트 (11/20, SEED List 참고) */
+  --ds-list-pad-x: var(--space-12);              /* 좌우: 패널 머리와 같은 선 */
+  --ds-list-pad-x-wide: var(--space-16);         /* 보고서 목록만 16 (11/20 정함) */
+  --ds-list-gap: var(--space-8);                 /* 앞(아이콘, 체크) - 글 - 뒤 사이 */
+  --ds-list-s-h: 32px;                           /* 작게: 고르기 목록(체크, 라디오, 스위치) */
+  --ds-list-m-h: 40px;                           /* 보통: 한 줄 목록 */
+  --ds-radio: 18px;                              /* 라디오 표식(체크 상자와 같은 18) */
+  --ds-radio-dot: 8px;
 
   /* 모션 (11/20) 1층: 값. 쓰는 법(2층)은 아래 "모션" 절과 CLAUDE.md. JS 움직임도 이 값을 읽음(monitor.js) */
   --ds-motion-fast: 160ms;                        /* 상태 바뀜: 올림, 화살표 돌기, 사진 올림 */
@@ -397,6 +406,42 @@ body.ver-7 .ds-mappop { box-sizing: border-box !important; min-width: var(--ds-m
 body.ver-7 .ds-mappop > .ds-mappop-head { display: flex !important; align-items: center !important; gap: var(--space-8) !important; margin: calc(var(--ds-mappop-pad) * -1) calc(var(--ds-mappop-pad) * -1) 0 !important; padding: var(--ds-mappop-pad) !important; border-radius: var(--ds-pop-radius) var(--ds-pop-radius) 0 0 !important; background-color: var(--bg-raised) !important; }
 body.ver-7 .ds-mappop-head > .map-card-name { flex: 1 1 auto; min-width: 0; font-size: var(--ds-mappop-name-size) !important; line-height: var(--ds-mappop-name-line) !important; font-weight: var(--font-weight-bold) !important; }
 body.ver-7 .ds-mappop > .map-card-photo { margin: calc(var(--ds-mappop-gap) * -1) calc(var(--ds-mappop-pad) * -1) 0 !important; }
+
+/* ---------- 리스트 (11/20, .ds-list-item, SEED List 참고): 가로 한 줄에 앞 + 글(제목, 보조) + 뒤 ----------
+ * 크기: .is-s 작게 32(안쪽 4 / 8, 고르기 목록), .is-m 보통 40(안쪽 8 / 12, 한 줄), .is-l 크게(높이 자동, 안쪽 12 / 12, 여러 줄). 보고서는 .is-wide(좌우 16)
+ * 화면: 관제 개별, 전체 미션 알림 목록(.ah-item .is-l), 보고서 왼쪽 목록(.rp-item .is-m .is-wide), 조치 선택지(.ds-act = 작게 + 체크 항목)
+ *   알림센터 목록은 칸이 나뉜 표라 여기 넣지 않음(표로 따로, 11/20 정함)
+ * 상태: 올림 --state-hover, 고름(aria-pressed, aria-current, aria-selected) --bg-selected, 포커스 테 2 안쪽, 못 누름은 커서만
+ *   (보고서 목록 올림은 예전 반투명 유리 면이었는데 다른 목록과 같은 --state-hover 로)
+ * 줄 안 칸(새로 만들 때): .ds-list-prefix(앞), .ds-list-content(.ds-list-title 14/20 중간, .ds-list-detail 12/18 흐린 글, 사이 2), .ds-list-suffix(뒤, 오른쪽 끝)
+ * 고르기 줄(SEED: 줄 전체가 누르는 곳, 줄 안에 따로 누르는 단추를 같이 두지 않음):
+ *   체크 .is-check = 앞에 체크 상자(.ds-act-box), 여러 개 고를 때 / 라디오 .is-radio = 앞에 라디오 표식(.ds-radio), 하나만 고를 때(2개 이상)
+ *   스위치 .is-switch = 뒤에 토글(.ds-switch), 누르는 즉시 적용되는 설정만. 저장을 눌러야 반영되면 체크를 씀 */
+body.ver-7 :is(.ds-list-item, .ds-act) { box-sizing: border-box !important; gap: var(--ds-list-gap) !important; border-radius: var(--space-0) !important; }
+body.ver-7 :is(.ds-list-item.is-s, .ds-act) { min-height: var(--ds-list-s-h) !important; padding: var(--space-4) var(--space-8) !important; align-items: center; }
+body.ver-7 .ds-list-item.is-m { min-height: var(--ds-list-m-h) !important; padding: var(--space-8) var(--ds-list-pad-x) !important; align-items: center; }
+body.ver-7 .ds-list-item.is-l { padding: var(--space-12) var(--ds-list-pad-x) !important; }
+body.ver-7 .ds-list-item.is-wide { padding-left: var(--ds-list-pad-x-wide) !important; padding-right: var(--ds-list-pad-x-wide) !important; }
+body.ver-7 :is(.ds-list-item, .ds-act):is(button, a, label, [role]):not(:disabled):not([aria-disabled="true"]):hover { background-color: var(--state-hover) !important; }
+body.ver-7 .ds-list-item:is([aria-pressed="true"], [aria-current="true"], [aria-selected="true"], .is-selected), body.ver-7 .ds-list-item:is([aria-pressed="true"], [aria-current="true"], [aria-selected="true"], .is-selected):hover { background-color: var(--bg-selected) !important; }
+body.ver-7 .ds-list-item:focus-visible { outline: var(--border-width-strong) solid var(--border-focus); outline-offset: calc(var(--space-2) * -1); }
+body.ver-7 .ds-list-item:is(:disabled, [aria-disabled="true"]) { cursor: default !important; }
+body.ver-7 .ds-list-prefix, body.ver-7 .ds-list-suffix { flex: none; display: inline-flex; align-items: center; gap: var(--space-4); }
+body.ver-7 .ds-list-suffix { margin-left: auto; }
+body.ver-7 .ds-list-content { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+body.ver-7 .ds-list-title { font-size: var(--font-size-14); line-height: var(--font-line-height-20); font-weight: var(--font-weight-medium); color: var(--text-primary); }
+body.ver-7 .ds-list-detail { font-size: var(--font-size-12); line-height: var(--font-line-height-18); color: var(--text-tertiary); }
+/* 상자 목록 .ds-list.is-boxed(테 1, 모서리 8) + 줄 사이 구분선 .is-divided(SEED ListDivider: 테 1, 마지막 줄 아래는 없음)
+ *   화면: 미션설정 점검 줄(.check-list > .check-row: 작게 + 체크, 체크 상자는 뒤), 사전 점검 줄(.precheck-list > .precheck-row: 크게, 높이 45 그대로) */
+body.ver-7 .ds-list.is-boxed { border: var(--border-width-thin) solid var(--border-default) !important; border-radius: var(--radius-8) !important; overflow: hidden; }
+body.ver-7 .ds-list.is-divided > .ds-list-item { border-bottom: var(--border-width-thin) solid var(--border-default) !important; }
+body.ver-7 .ds-list.is-divided > .ds-list-item:last-child { border-bottom: 0 !important; }
+/* 라디오 표식: 18 원, 꺼짐 테 회색 600, 켜짐 테 + 가운데 점 8 = 체크 상자 켜짐 색(--ds-check-on). 실제 입력(input type=radio)이든 span 이든 */
+body.ver-7 .ds-radio { flex: none; position: relative; display: inline-grid; place-items: center; box-sizing: border-box; width: var(--ds-radio); height: var(--ds-radio); margin: var(--space-0); -webkit-appearance: none; appearance: none; border: var(--border-width-thin) solid var(--color-gray-600); border-radius: var(--radius-pill); background: transparent; --ds-check-on: var(--color-blue-700); }
+:root[data-theme="light"] body.ver-7 .ds-radio, :root[data-theme="dark"] body.ver-7 .is-light-scope .ds-radio { --ds-check-on: var(--color-blue-600); }
+body.ver-7 .ds-radio::after { content: ""; width: var(--ds-radio-dot); height: var(--ds-radio-dot); border-radius: var(--radius-pill); background-color: var(--ds-check-on); opacity: 0; }
+body.ver-7 :is(.ds-radio:checked, .ds-list-item.is-radio[aria-checked="true"] .ds-radio) { border-color: var(--ds-check-on); }
+body.ver-7 :is(.ds-radio:checked, .ds-list-item.is-radio[aria-checked="true"] .ds-radio)::after { opacity: 1; }
 
 /* ---------- WP 번호 원: 왼쪽 알림 목록, 지도 팝오버, 점검 줄, 오른쪽 경로 목록, Delta 어디서 쓰든 하나 ----------
  * 크기는 아이콘과 같은 4의 배수 두 단계(11/19): 번호 칸, 지도, 팝오버 머리 20(.ds-wp), 글자 줄 안 16(.ds-wp.is-s)

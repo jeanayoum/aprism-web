@@ -602,7 +602,7 @@
   }
 
   function item(a) {
-    var node = el("button", "ah-item is-" + a.sev);
+    var node = el("button", "ah-item is-" + a.sev + (document.body.classList.contains("ver-7") ? " ds-list-item is-l" : ""));   // [11/20 v7] 공통 리스트 줄(크게)
     node.type = "button";
     node.setAttribute("role", "listitem");
     node.setAttribute("aria-pressed", a === picked ? "true" : "false");
@@ -1503,7 +1503,7 @@
 
     function showToast(a) {
       if (!toast) { return; }
-      toastMsg.textContent = (window.APRISM_ALERT6 ? window.APRISM_ALERT6.title(a.title) : a.title) + " 조치를 요청했어요";   // [10/30] 버튼이 [조치 요청] 으로 바뀜   // 가운뎃점 구분 대신 문장으로(10/29 피드백)
+      toastMsg.textContent = (window.APRISM_ALERT6 ? window.APRISM_ALERT6.title(a.title) : a.title) + " 조치 요청됨";   // [10/30] 버튼이 [조치 요청] 으로 바뀜   // 가운뎃점 구분 대신 문장으로(10/29 피드백)
       toast.hidden = false;
       clearTimeout(toastTimer);
       toastTimer = setTimeout(hideToast, 5000);

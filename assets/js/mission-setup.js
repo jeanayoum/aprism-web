@@ -189,7 +189,7 @@
       var w = BY_ID[id];
       var yes = on[id];
       if (yes) { nth += 1; }
-      return '<div class="check-row" role="checkbox" aria-checked="' + (yes ? "true" : "false") +
+      return '<div class="check-row ds-list-item is-s is-check" role="checkbox" aria-checked="' + (yes ? "true" : "false") +
         '" tabindex="0" data-wp="' + id + '" data-dwell="' + w.dwell + '">' +
         '<span class="check-ord' + (document.body.classList.contains("ver-7") ? " ds-wp is-s" : "") + '" title="방문 순서">' + (yes ? nth : "") + "</span>" +
         '<span class="check-text">' + w.text + "</span>" +

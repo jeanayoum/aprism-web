@@ -313,7 +313,7 @@
       var b = e.target.closest("[data-ev]");
       if (b) { openLB(+b.getAttribute("data-ev")); return; }
       var l = e.target.closest("[data-doc]");
-      if (l) { if (DOCS[l.getAttribute("data-doc")]) { selectDoc(l.getAttribute("data-doc")); } else { plainToast("시안에서는 연결되지 않은 보고서예요"); } }
+      if (l) { if (DOCS[l.getAttribute("data-doc")]) { selectDoc(l.getAttribute("data-doc")); } else { plainToast("시안에서 연결되지 않은 보고서"); } }
     });
     function closePops() { Array.prototype.forEach.call(actsEl.querySelectorAll(".rp-pop"), function (p) { p.remove(); }); }
     // 특이 사항 입력(일일 · 월간)
@@ -342,7 +342,7 @@
         NOTE[id] = tx.value.trim(); box.remove(); render();
         var el = pagesEl.querySelector('[data-sec="n"]');
         if (el) { pagesEl.scrollTo({ top: topOf(el) - over() - 60, behavior: "smooth" }); }
-        plainToast(NOTE[id] ? "특이 사항을 저장했어요" : "특이 사항을 비웠어요");
+        plainToast(NOTE[id] ? "특이 사항 저장됨" : "특이 사항 비움");
       };
     }
     if (qa("note")) { qa("note").onclick = openNote; }
@@ -375,7 +375,7 @@
       qa("pdf").disabled = qa("docx").disabled = true;
       setTimeout(function () {
         busy = false; btn.innerHTML = label; qa("pdf").disabled = qa("docx").disabled = false;
-        toast(doc.file + "_" + doc.no + "." + ext + " 내려받기 완료", "열기", function () { plainToast("내려받은 파일 열기는 실제 서비스에서 동작해요"); });
+        toast(doc.file + "_" + doc.no + "." + ext + " 내려받기 완료", "열기", function () { plainToast("내려받은 파일 열기는 실제 서비스에서 동작함"); });
       }, 1300);
     }
     qa("pdf").onclick = function () { download("pdf"); };
@@ -421,11 +421,11 @@
    * 미션 줄(is-mission) = └ 가지 · Body/3, 오른쪽 시각. 근무가 안 끝난 날(live)은 "작성 중"으로 못 누른다.
    */
   function dayRow(id, name, meta, isOn, live) {
-    return '<button type="button" class="rp-item is-day' + (live ? " is-live" : "") + '" data-id="' + (id || "") + '"' + (isOn ? ' aria-current="true"' : "") + (live ? " disabled" : "") + ">" +
+    return '<button type="button" class="rp-item is-day' + (document.body.classList.contains("ver-7") ? " ds-list-item is-m is-wide" : "") + (live ? " is-live" : "") + '" data-id="' + (id || "") + '"' + (isOn ? ' aria-current="true"' : "") + (live ? " disabled" : "") + ">" +
       '<span class="rp-a t-label-1">' + ic("document") + "<b>" + name + '</b></span><span class="rp-tm t-caption num">' + meta + "</span></button>";
   }
   function missionRow(id, time, isOn) {
-    return '<button type="button" class="rp-item is-mission" data-id="' + (id || "") + '"' + (isOn ? ' aria-current="true"' : "") + ">" +
+    return '<button type="button" class="rp-item is-mission' + (document.body.classList.contains("ver-7") ? " ds-list-item is-m is-wide" : "") + '" data-id="' + (id || "") + '"' + (isOn ? ' aria-current="true"' : "") + ">" +
       '<span class="rp-a t-body-4"><span class="rp-br" aria-hidden="true"></span><b>' + NAME + '</b></span><span class="rp-tm t-caption num">' + time + "</span></button>";
   }
 
@@ -445,10 +445,10 @@
             : '<button type="button" class="btn btn-secondary is-xs" data-mo-go aria-label="' + name + ' 생성">생성</button>') + "</div>";
   }
   function makeMonth() {
-    if (vm !== 10) { plainToast("시안에서는 10월만 연결돼요"); return; }
+    if (vm !== 10) { plainToast("시안에서는 10월만 연결됨"); return; }
     moState = "busy"; renderList();
     setTimeout(function () {
-      moState = "made"; selectDoc("mo10"); plainToast("10월 월 보고서를 만들었어요");
+      moState = "made"; selectDoc("mo10"); plainToast("10월 월 보고서 생성됨");
       // 막 생긴 월 보고서 줄이 잠깐 초록으로 빛난다 — 관제 "오늘 확인 완료"에 막 들어온 줄(monitor.css done-new)과 같은 인터랙션
       var row = list.querySelector(".rp-grp.is-month .rp-item");
       if (row) { row.classList.add("is-new"); setTimeout(function () { row.classList.remove("is-new"); }, 1300); }
@@ -482,7 +482,7 @@
     Array.prototype.forEach.call(list.querySelectorAll(".rp-item"), function (b) {
       b.onclick = function () {
         var id = b.getAttribute("data-id");
-        if (!id) { plainToast("시안에서는 10월 13일 보고서 두 건과 월 보고서만 연결돼요"); return; }
+        if (!id) { plainToast("시안에서는 10월 13일 보고서 두 건과 월 보고서만 연결됨"); return; }
         if (id !== cur) { selectDoc(id); }
       };
     });
