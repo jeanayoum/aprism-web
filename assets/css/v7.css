@@ -1544,3 +1544,7 @@ body.ver-7 .tag-running::before { margin-left: calc((12px - 6px) / 2) !important
 :root[data-theme] body.ver-7.sian .map-tools > .map-tools-box:not(.is-floors) { display: flex; flex-direction: column; gap: var(--space-8); padding: var(--space-4); border-radius: var(--radius-container); background-color: var(--color-gray-800); }
 :root[data-theme="light"] body.ver-7.sian .map-tools > .map-tools-box:not(.is-floors) { background-color: color-mix(in srgb, var(--color-gray-100) 80%, transparent); }
 :root[data-theme] body.ver-7.sian .map-tools > .map-tools-box.is-floors { display: flex; flex-direction: column; }
+
+/* [11/20 정의서 공통-00 Q4] 화면이 없는 메뉴 = 비활성(개발 전) — v7.js 가 aria-disabled 를 붙인다 */
+body.ver-7 .gnb-item[aria-disabled="true"],
+body.ver-7 .menu-item[aria-disabled="true"] { opacity: 0.38; pointer-events: none; }

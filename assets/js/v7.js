@@ -41,3 +41,22 @@
     });
   }
 })();
+
+/*
+ * [11/20 디자이너 · 정의서 공통-00]
+ *   Q4 화면이 없는 메뉴는 비활성(개발 전) — GNB 로봇 · AI · 스케줄러 · Delta · 계정관리 · 환경설정, 계정 메뉴 내 계정 정보 · 비밀번호 변경
+ *   Q5 GNB [관제]는 마지막에 보던 탭으로 — 껍데기(control-v7)에 ?view=last 를 붙여 연다(control-shell-v6.js 가 읽는다)
+ */
+document.addEventListener("DOMContentLoaded", function () {
+  "use strict";
+  var off = document.querySelectorAll('.gnb-item[href="#"]:not([aria-current]), .account-menu a.menu-item[href="#"]');
+  for (var i = 0; i < off.length; i++) {
+    off[i].removeAttribute("href");
+    off[i].setAttribute("aria-disabled", "true");
+    off[i].setAttribute("title", "개발 전");
+  }
+  var home = document.querySelectorAll(".gnb-item[href]");
+  for (var j = 0; j < home.length; j++) {
+    if (/control-v[67]\.html$/.test(home[j].getAttribute("href"))) { home[j].setAttribute("href", "./control-v7.html?view=last"); }
+  }
+});
