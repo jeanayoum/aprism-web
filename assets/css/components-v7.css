@@ -91,11 +91,12 @@ body.ver-7, body.ds-auth {   /* body.ds-auth: 로그인 쪽 화면(안내 상자
   --ds-delta-bubble-pad-x: var(--space-16);
   --ds-delta-orb: 56px;                           /* 대화형 Delta 구슬 */
 
-  /* 글자 단계 (11/20, 관제 왼쪽 패널 기준). 1층 토큰(--font-size-*, --font-line-height-*, --font-weight-* = 400, 500, 600, 700)을 엮은 2층 값. 굵기 800 은 토큰에 없어 쓰지 않음 */
+  /* 글자 단계 (11/20, 관제 왼쪽 패널 기준). 1층 토큰(--font-size-*, --font-line-height-*, --font-weight-* = 400, 500, 600, 700, 800)을 엮은 2층 값. 800(--font-weight-extrabold)은 위쪽 미션 탭 이름에만 */
   --ds-type-title-size: var(--font-size-16);   --ds-type-title-line: var(--font-line-height-24);   --ds-type-title-weight: var(--font-weight-bold);      /* 영역 제목: 조치 필요 알림, 미션 설정 */
   --ds-type-label-size: var(--font-size-14);   --ds-type-label-line: var(--font-line-height-20);   --ds-type-label-weight: var(--font-weight-medium);    /* 항목 이름: 알림 제목, 입력 칸 이름, 요약 이름과 값 */
   --ds-type-body-size: var(--font-size-14);    --ds-type-body-line: var(--font-line-height-22);    --ds-type-body-weight: var(--font-weight-regular);    /* 본문: 고른 값, 점검 줄 글 */
   --ds-type-meta-size: var(--font-size-12);    --ds-type-meta-line: var(--font-line-height-18);    --ds-type-meta-weight: var(--font-weight-medium);     /* 칩, 작은 단추, 건수 */
+  --ds-type-tab-size: var(--font-size-14);     --ds-type-tab-line: var(--font-line-height-20);     --ds-type-tab-weight: var(--font-weight-extrabold);   /* 위쪽 미션 탭 이름: 전체 미션, M1 (11/20 정함, 800 유지) */
   --ds-type-caption-size: var(--font-size-12); --ds-type-caption-line: var(--font-line-height-18); --ds-type-caption-weight: var(--font-weight-regular); /* 보조 글: 시각, 위치, 설명 */
 
   /* 아이콘 크기 (11/20, SEED 아이콘 규칙: 12, 16, 20, 24 네 단계). 16 이상은 토큰, 12는 토큰이 없어 숫자 */
@@ -264,6 +265,7 @@ body.ver-7 .ds-ic.is-tri.is-warn-ic::before { -webkit-mask-image: var(--ic-warni
  * 값은 맨 위 디자인 값 --ds-type-*(1층 글자 토큰을 엮음). 글자 스타일 클래스(.t-*)는 이름과 실제 크기가 어긋난 곳이 있어(예: .t-label-2 는 13/18 인데 관제 알림 제목은 14/20 으로 덮임) 화면에 보이는 값을 기준으로 맞춤
  * 미션설정, 사전 점검 왼쪽 패널: 입력 칸 이름, "점검항목", 요약 이름, 사전 점검 줄 이름 14/20/800 → 항목 이름(500). 요약 값 14/22/400 파랑 → 항목 이름(500) 기본 글자색(색은 신호에만) */
 body.ver-7 :is(.mp-form .field-label, .check-group-head .label, .sum-row .label, .precheck-row .label) { font-size: var(--ds-type-label-size) !important; line-height: var(--ds-type-label-line) !important; font-weight: var(--ds-type-label-weight) !important; }
+body.ver-7 :is(.sb-tab-name, .sb-tab-no):not(.sb-more-menu *) { font-size: var(--ds-type-tab-size) !important; line-height: var(--ds-type-tab-line) !important; font-weight: var(--ds-type-tab-weight) !important; }   /* 위쪽 미션 탭 이름: 예전 .t-label-1 의 숫자 800 → 토큰 */
 body.ver-7 .sum-row .value { font-size: var(--ds-type-label-size) !important; line-height: var(--ds-type-label-line) !important; font-weight: var(--ds-type-label-weight) !important; color: var(--text-primary) !important; }
 
 /* ---------- 아이콘 (11/20): 크기 클래스 네 단계 .i-12, .i-16, .i-20, .i-24 ----------
