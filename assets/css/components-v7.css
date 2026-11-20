@@ -193,7 +193,7 @@ body.ver-7 .sf .ixd.crit, body.ver-7 .sf .ixd.warn,
 body.ver-7 .sf-scope .wd.crit, body.ver-7 .sf-scope .wd.warn { width: 12px; height: 12px; }
 
 /* 화면에는 안 보이고 읽어 주기만 하는 글자 */
-body.ver-7 .ds-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+body.ver-7 .ds-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: var(--space-0); overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
 /* 회색 배지 면 하나 (11/20): 판정 정상, 처리 상태(응답 대기, 조치 완료) 등 회색 배지는 모두 이 면
  *   원래 --bg-map-chip 이 바탕에 묻혀 안 보였음(다크 회색 900의 50%, 라이트는 v6.css가 회색 200으로 바꿔 판정 칸 바탕과 같음)
@@ -210,7 +210,7 @@ body.ver-7 .ds-sr { position: absolute; width: 1px; height: 1px; margin: -1px; p
  *   .ds-i-dot 작은 점, .ds-i-big 큰 점, .ds-i-play 재생, .ds-i-ok 체크 원, .ds-i-power 전원, .ds-i-check 체크, .ds-i-clock 시계, .ds-i-delta Delta, .ds-i-none 아이콘 없음 */
 body.ver-7 .ds-badge {
   display: inline-flex !important; align-items: center !important; gap: var(--ds-badge-gap) !important; flex: none; box-sizing: border-box !important;
-  height: var(--ds-badge-h) !important; min-height: var(--ds-badge-h) !important; padding: 0 var(--ds-badge-pad-x) !important;
+  height: var(--ds-badge-h) !important; min-height: var(--ds-badge-h) !important; padding: var(--space-0) var(--ds-badge-pad-x) !important;
   border: 0 !important; box-shadow: none !important; border-radius: var(--ds-badge-radius) !important;
   background-color: var(--ds-badge-neutral-bg, var(--bg-map-chip)) !important; color: var(--text-secondary) !important;
   font-family: inherit; font-size: var(--ds-badge-font-size) !important; line-height: var(--ds-badge-line-height) !important; font-weight: var(--ds-badge-font-weight) !important;
@@ -226,9 +226,9 @@ body.ver-7 .ds-badge.is-safe { background-color: var(--status-safe-bg) !importan
 body.ver-7 .ds-badge.is-plan,
 body.ver-7 .ds-badge.is-na { border: var(--border-width-thin) dashed var(--border-strong) !important; background-color: transparent !important; color: var(--text-tertiary) !important; }
 /* 태그 (건수, 운영 상태, 진행 상태, 통신 상태): 면 없이 아이콘과 글자 색만 */
-body.ver-7 .ds-badge.is-plain { background-color: transparent !important; padding: 0 var(--ds-badge-plain-pad-x) !important; }
+body.ver-7 .ds-badge.is-plain { background-color: transparent !important; padding: var(--space-0) var(--ds-badge-plain-pad-x) !important; }
 /* 아이콘만 (글자는 읽어 주기만): 정사각형 */
-body.ver-7 .ds-badge.is-icon { width: var(--ds-badge-h) !important; padding: 0 !important; justify-content: center !important; }
+body.ver-7 .ds-badge.is-icon { width: var(--ds-badge-h) !important; padding: var(--space-0) !important; justify-content: center !important; }
 /* 번호 (로봇 번호): 최소 너비 = 높이, 글자 가운데 */
 body.ver-7 .ds-badge.is-num { width: auto !important; min-width: var(--ds-badge-h) !important; justify-content: center !important; font-variant-numeric: tabular-nums; }
 /* 지도 위 배지 (전체 미션 지도 로봇 번호): 크기, 여백, 모서리, 글자는 배지 규칙, 색은 지금 그대로(11/19 정함)
@@ -242,7 +242,7 @@ body.ver-7 .bld-bot.is-marked > .ds-badge.is-onmap { background-color: var(--tex
 
 /* 점 배지 (11/20): 글자 없는 상태 점. 지름 6(아이콘의 작은 점과 같음), 누르지 않음, 항목 하나에 점 하나
  * .is-crit 위험 알림, .is-warn 주의 알림, .is-info 로봇 있음. 색만으로는 뜻을 못 전하므로 항목 이름(aria-label)에 같이 읽힘 */
-body.ver-7 .ds-dot { display: inline-block; flex: none; box-sizing: border-box; width: 6px !important; height: 6px !important; padding: 0 !important; border: 0 !important; border-radius: var(--radius-pill) !important; background-color: var(--text-tertiary); }
+body.ver-7 .ds-dot { display: inline-block; flex: none; box-sizing: border-box; width: 6px !important; height: 6px !important; padding: var(--space-0) !important; border: 0 !important; border-radius: var(--radius-pill) !important; background-color: var(--text-tertiary); }
 body.ver-7 .ds-dot.is-crit { background-color: var(--status-critical-icon) !important; }
 body.ver-7 .ds-dot.is-warn { background-color: var(--status-warning-icon) !important; }
 body.ver-7 .ds-dot.is-info { background-color: var(--status-info-icon) !important; }
@@ -253,7 +253,7 @@ body.ver-7 .ds-badge > :is(.badge-dot, .bld-sev-dot, .ac-count-ic, .ac-sev-dot),
 body.ver-7 .ds-badge.bld-rc-badge > i { display: none !important; }   /* 예전 점, 아이콘 자식 */
 body.ver-7 .ds-badge:is(.is-crit, .is-warn, .is-ok, [class*="ds-i-"]):not(.ds-i-none)::before {
   content: "" !important; display: block !important; flex: none !important; position: static !important; box-sizing: border-box !important;
-  width: 12px !important; height: 12px !important; margin: 0 !important; border: 0 !important; border-radius: 0 !important; transform: none !important;
+  width: 12px !important; height: 12px !important; margin: var(--space-0) !important; border: 0 !important; border-radius: 0 !important; transform: none !important;
   background: var(--ds-i-color) !important;
   -webkit-mask: var(--ds-i) center / contain no-repeat !important; mask: var(--ds-i) center / contain no-repeat !important;
 }
@@ -263,8 +263,8 @@ body.ver-7 .ds-badge.ds-i-power { --ds-i: var(--ic-power); }
 body.ver-7 .ds-badge.ds-i-check { --ds-i: var(--ic-check); }
 body.ver-7 .ds-badge.ds-i-clock { --ds-i: var(--ic-clock); }
 /* 점은 마스크 없이 원. 작은 점 지름 6, 큰 점 8(11/20, 10은 삼각형보다 커 보여 줄임)을 상자 12 가운데에 (앞뒤 여백은 상자 안 여백, 간격 토큰이 아님) */
-body.ver-7 .ds-badge.ds-i-dot:not(.ds-i-none)::before { width: 6px !important; height: 6px !important; margin: 0 calc((12px - 6px) / 2) !important; border-radius: var(--radius-pill) !important; -webkit-mask: none !important; mask: none !important; }
-body.ver-7 .ds-badge:is(.ds-i-big, .is-ok:not([class*="ds-i-"])):not(.ds-i-none)::before { width: 8px !important; height: 8px !important; margin: 0 calc((12px - 8px) / 2) !important; border-radius: var(--radius-pill) !important; -webkit-mask: none !important; mask: none !important; }
+body.ver-7 .ds-badge.ds-i-dot:not(.ds-i-none)::before { width: 6px !important; height: 6px !important; margin: var(--space-0) calc((12px - 6px) / 2) !important; border-radius: var(--radius-pill) !important; -webkit-mask: none !important; mask: none !important; }
+body.ver-7 .ds-badge:is(.ds-i-big, .is-ok:not([class*="ds-i-"])):not(.ds-i-none)::before { width: 8px !important; height: 8px !important; margin: var(--space-0) calc((12px - 8px) / 2) !important; border-radius: var(--radius-pill) !important; -webkit-mask: none !important; mask: none !important; }
 /* 출처 AI 추천 (A안, 11/19): 회색 면 + Delta 스펙트럼 색 Delta 아이콘 */
 body.ver-7 .ds-badge.ds-i-delta { --ds-i: var(--ic-delta); background-color: var(--ds-badge-ai-bg, var(--bg-map-chip)) !important; }
 body.ver-7 .ds-badge.ds-i-delta::before { background: linear-gradient(135deg, var(--ds-ai-ramp)) !important; }
@@ -277,7 +277,7 @@ body.ver-7 .ds-badge-row { display: inline-flex; align-items: center; gap: var(-
  * 크기, 모양, 글자는 !important. 색은 :where 로 세기를 0으로 둬 화면의 상태 색(지금 가는 곳, 지나온 곳 등) 규칙이 이김 */
 body.ver-7 .ds-wp {
   display: inline-grid !important; place-items: center !important; flex: none; box-sizing: border-box !important;
-  width: var(--ds-wp-size) !important; height: var(--ds-wp-size) !important; min-width: var(--ds-wp-size) !important; min-height: 0 !important; padding: 0 !important; border-radius: var(--radius-pill) !important;
+  width: var(--ds-wp-size) !important; height: var(--ds-wp-size) !important; min-width: var(--ds-wp-size) !important; min-height: 0 !important; padding: var(--space-0) !important; border-radius: var(--radius-pill) !important;
   font-family: inherit; font-size: var(--ds-wp-font-size) !important; line-height: 1 !important; letter-spacing: 0 !important; font-variant-numeric: normal !important;   /* 고정폭 숫자는 1이 칸 오른쪽에 그려져 원 가운데에서 밀림(11/20 캡처 확인) */
 }
 body.ver-7 .ds-wp.is-s { width: var(--ds-wp-size-s) !important; height: var(--ds-wp-size-s) !important; min-width: var(--ds-wp-size-s) !important; }
@@ -299,7 +299,7 @@ body.ver-7 .check-row .check-ord.ds-wp { border: var(--border-width-thin) solid 
  * 라이트 gray-100 면 + text-tertiary, 다크 bg-raised 면 + text-secondary, 고정폭 12/18, 굵기 400 ---------- */
 body.ver-7 .ds-floor {
   display: inline-flex !important; align-items: center !important; flex: none; box-sizing: border-box !important;
-  width: auto !important; height: var(--ds-floor-h) !important; min-height: var(--ds-floor-h) !important; padding: 0 var(--ds-floor-pad-x) !important;
+  width: auto !important; height: var(--ds-floor-h) !important; min-height: var(--ds-floor-h) !important; padding: var(--space-0) var(--ds-floor-pad-x) !important;
   border: 0 !important; box-shadow: none !important; border-radius: var(--ds-floor-radius) !important;
   background-color: var(--bg-raised) !important; color: var(--text-secondary) !important;
   font-family: var(--font-family-mono) !important; font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-regular) !important; white-space: nowrap;
@@ -313,10 +313,10 @@ body.ver-7 .ds-floor {
  * 체크 상자는 조치 목록, 거르기 체크형 칩, 점검 줄이 함께 씀(아래)
  * 쓰는 곳: 관제 알림 팝오버, 알림센터 조치 필요와 조치 요청된 알림 상세, 안전진단 상세 */
 
-body.ver-7 .ds-acts { display: flex !important; flex-direction: column !important; gap: 0 !important; margin: 0; padding: 0 !important; border: var(--border-width-thin) solid var(--border-default) !important; border-radius: var(--radius-4) !important; background-color: var(--bg-raised) !important; overflow: hidden; list-style: none; }
+body.ver-7 .ds-acts { display: flex !important; flex-direction: column !important; gap: var(--space-0) !important; margin: var(--space-0); padding: var(--space-0) !important; border: var(--border-width-thin) solid var(--border-default) !important; border-radius: var(--radius-4) !important; background-color: var(--bg-raised) !important; overflow: hidden; list-style: none; }
 body.ver-7 .ds-act {
   display: flex !important; align-items: center !important; gap: var(--ds-act-gap) !important; box-sizing: border-box !important; width: 100%;
-  min-height: var(--ds-act-h) !important; margin: 0 !important; padding: var(--space-4) var(--ds-act-pad-x) !important;
+  min-height: var(--ds-act-h) !important; margin: var(--space-0) !important; padding: var(--space-4) var(--ds-act-pad-x) !important;
   border: 0 !important; border-radius: 0 !important; background: transparent !important; color: var(--text-primary) !important;
   font-family: inherit; font-size: var(--font-size-14) !important; line-height: var(--font-line-height-22) !important; font-weight: var(--font-weight-regular) !important; text-align: left;
 }
@@ -331,7 +331,7 @@ body.ver-7 .ds-act-text > small { display: block; font-size: var(--font-size-12)
  *   18, 모서리 2. 꺼짐: 면 없음 + 테 회색 600(어느 바탕에서도 보이게, 거르기 체크 상자 원래 값). 켜짐: 면 --comp-gnb-brand(어두운 바탕 파랑 700, 밝은 판 파랑 600) + 흰 체크 12 */
 body.ver-7 :is(.ds-act-box, .ds-chip.is-check .check-box, .check-row .check-box) {
   flex: none !important; position: relative; display: grid !important; place-items: center !important; box-sizing: border-box !important;
-  width: var(--ds-act-box) !important; height: var(--ds-act-box) !important; margin: 0 !important; padding: 0 !important;
+  width: var(--ds-act-box) !important; height: var(--ds-act-box) !important; margin: var(--space-0) !important; padding: var(--space-0) !important;
   -webkit-appearance: none; appearance: none;
   border: var(--border-width-thin) solid var(--color-gray-600) !important; border-radius: var(--radius-2) !important; background-color: transparent !important; color: var(--color-gray-0) !important;
 }
@@ -352,12 +352,12 @@ body.ver-7 .ds-act-ic > .i { width: 16px !important; height: 16px !important; }
  *   항목: 높이 36 이상, 좌우 12, 아이콘과 글자 사이 8, 모서리 2, 글자 14/22. 미션 범위 항목은 칸이 여럿인 줄이라 틀만 따름
  * 색은 지금 토큰 그대로(칸 면 --bg-map-chip, 칸 테 회색 650), 크기와 모양만 여기서 정함 */
 body.ver-7 .field-box:not(.is-readonly) {
-  box-sizing: border-box !important; height: var(--ds-field-h) !important; min-height: var(--ds-field-h) !important; padding: 0 var(--ds-field-pad-x) !important;
+  box-sizing: border-box !important; height: var(--ds-field-h) !important; min-height: var(--ds-field-h) !important; padding: var(--space-0) var(--ds-field-pad-x) !important;
   border-width: var(--border-width-thin) !important; border-style: solid !important; border-radius: var(--ds-field-radius) !important;
   font-size: var(--font-size-14) !important; line-height: var(--font-line-height-22) !important;
 }
 body.ver-7 .field-box.is-sm:not(.is-readonly) { height: var(--ds-field-h-s) !important; min-height: var(--ds-field-h-s) !important; }
-body.ver-7 .field-box.is-readonly { height: var(--ds-field-h) !important; padding: 0 !important; border-color: transparent !important; background: transparent !important; font-size: var(--font-size-14) !important; line-height: var(--font-line-height-22) !important; }
+body.ver-7 .field-box.is-readonly { height: var(--ds-field-h) !important; padding: var(--space-0) !important; border-color: transparent !important; background: transparent !important; font-size: var(--font-size-14) !important; line-height: var(--font-line-height-22) !important; }
 body.ver-7 :is(.ma-memo-field, .sf textarea.fd) {
   box-sizing: border-box !important; padding: var(--ds-memo-pad) !important; border-radius: var(--ds-field-radius) !important;
   font-family: inherit; font-size: var(--font-size-14) !important; line-height: var(--font-line-height-22) !important;
@@ -370,7 +370,7 @@ body.ver-7 :is(.dropdown-menu, .field-menu, .ma-menu) {
 body.ver-7 .ma-menu:not([hidden]) { display: flex !important; flex-direction: column !important; }
 body.ver-7 :is(.dropdown-menu .menu-item:not(.scope-item), .field-option, .ma-menu button) {
   display: flex !important; align-items: center !important; gap: var(--space-8) !important; box-sizing: border-box !important;
-  width: 100%; height: auto !important; min-height: var(--ds-menu-item-h) !important; padding: 0 var(--ds-menu-item-pad-x) !important;
+  width: 100%; height: auto !important; min-height: var(--ds-menu-item-h) !important; padding: var(--space-0) var(--ds-menu-item-pad-x) !important;
   border-radius: var(--ds-menu-item-radius) !important; font-size: var(--font-size-14) !important; line-height: var(--font-line-height-22) !important;
 }
 
@@ -397,9 +397,9 @@ body.ver-7 .toast:not(:has(.toast-undo:not([hidden]))) { padding-right: var(--ds
 /* ---------- 칩: 누름. 기존 거르기 칩 모양 (꺼짐 흰 면 + 회색 테, 켜짐 진한 면 + 흰 글자)
  * 화면: 관제와 전체 미션 거르기, 전체 미션 로봇 상태 거르기, 미션설정 거르기, Delta 질문, 알림센터 체크형 거르기
  * 모양 값은 !important (예전 클래스 규칙을 이기게), 배치는 :where 로 세기를 낮춰 기존 배치 규칙이 이기게 ---------- */
-:where(body.ver-7) .ds-chip { display: inline-flex; align-items: center; flex: none; box-sizing: border-box; margin: 0; font-family: inherit; white-space: nowrap; cursor: pointer; }
+:where(body.ver-7) .ds-chip { display: inline-flex; align-items: center; flex: none; box-sizing: border-box; margin: var(--space-0); font-family: inherit; white-space: nowrap; cursor: pointer; }
 body.ver-7 .ds-chip {
-  gap: var(--ds-chip-gap) !important; height: var(--ds-chip-h) !important; min-height: var(--ds-chip-h) !important; padding: 0 var(--ds-chip-pad-x) !important;
+  gap: var(--ds-chip-gap) !important; height: var(--ds-chip-h) !important; min-height: var(--ds-chip-h) !important; padding: var(--space-0) var(--ds-chip-pad-x) !important;
   border: var(--ds-chip-border-width) solid var(--ds-chip-border, var(--comp-button-secondary-border-default)) !important; border-radius: var(--ds-chip-radius) !important; box-shadow: var(--ds-chip-shadow) !important;
   background-color: var(--ds-chip-bg, var(--comp-button-secondary-bg-default)) !important; color: var(--ds-chip-fg, var(--comp-button-secondary-text-default)) !important;
   font-size: var(--ds-chip-font-size) !important; line-height: var(--ds-chip-line-height) !important; font-weight: var(--ds-chip-font-weight) !important;
@@ -411,7 +411,7 @@ body.ver-7 .ds-chip:is([aria-pressed="true"], .is-on):hover { background-color: 
 body.ver-7 .ds-chip:is([aria-pressed="true"], .is-on) .num { color: inherit !important; }
 body.ver-7 .ds-chip:is(:disabled, .is-disabled) { border-color: var(--comp-button-secondary-border-disabled) !important; background-color: var(--comp-button-secondary-bg-disabled) !important; color: var(--comp-button-secondary-text-disabled) !important; cursor: default; }
 /* 체크형 거르기 (알림센터): 면과 테 없음, 체크 상자와 글자 사이 */
-body.ver-7 .ds-chip.is-check { border-color: transparent !important; background-color: transparent !important; padding: 0 var(--ds-chip-check-pad-x) !important; gap: var(--ds-chip-check-gap) !important; }
+body.ver-7 .ds-chip.is-check { border-color: transparent !important; background-color: transparent !important; padding: var(--space-0) var(--ds-chip-check-pad-x) !important; gap: var(--ds-chip-check-gap) !important; }
 body.ver-7 .ds-chip.is-check:is([aria-pressed="true"], [aria-checked="true"], .is-on) { border-color: transparent !important; background-color: transparent !important; color: var(--text-primary) !important; }
 /* 그림자: 꺼진 칩만. 켜짐, 누름, 못 누름, 체크형은 평평 */
 :root[data-theme="dark"] body.ver-7 .ds-chip { box-shadow: var(--ds-chip-shadow-dark) !important; }
@@ -422,9 +422,9 @@ body.ver-7 .ds-chips { gap: var(--ds-chip-between) !important; column-gap: var(-
 
 /* ---------- 탭 1단: 줄 탭, 고른 탭 밑줄. 화면: 알림센터 ---------- */
 :where(body.ver-7) .ds-tab-line { display: flex; align-items: stretch; }
-:where(body.ver-7) .ds-tab-line > .ds-tab { display: inline-flex; align-items: center; box-sizing: border-box; margin: 0; background: none; font-family: inherit; white-space: nowrap; cursor: pointer; }
+:where(body.ver-7) .ds-tab-line > .ds-tab { display: inline-flex; align-items: center; box-sizing: border-box; margin: var(--space-0); background: none; font-family: inherit; white-space: nowrap; cursor: pointer; }
 body.ver-7 .ds-tab-line > .ds-tab {
-  gap: var(--ds-tabline-gap) !important; column-gap: var(--ds-tabline-gap) !important; height: var(--ds-tabline-h) !important; min-height: var(--ds-tabline-h) !important; padding: 0 var(--ds-tabline-pad-x) !important;
+  gap: var(--ds-tabline-gap) !important; column-gap: var(--ds-tabline-gap) !important; height: var(--ds-tabline-h) !important; min-height: var(--ds-tabline-h) !important; padding: var(--space-0) var(--ds-tabline-pad-x) !important;
   border: 0 !important; border-bottom: var(--ds-tabline-bar) solid transparent !important; color: var(--text-secondary) !important;
 }
 body.ver-7 .ds-tab-line > .ds-tab:hover { color: var(--text-primary) !important; }
@@ -433,9 +433,9 @@ body.ver-7 .ds-tab-line > .ds-tab:focus-visible { outline: var(--border-width-st
 
 /* ---------- 탭 2단: 칩 탭, 칩과 같은 색. 화면: 안전진단 상세 감지 고르기 ---------- */
 body.ver-7 .ds-tab-chip { display: flex !important; flex-wrap: wrap !important; align-items: center !important; gap: var(--ds-chiptab-between) !important; }
-:where(body.ver-7) .ds-tab-chip > .ds-tab { display: inline-flex; align-items: center; justify-content: center; flex: none; box-sizing: border-box; margin: 0; font-family: inherit; white-space: nowrap; cursor: pointer; }
+:where(body.ver-7) .ds-tab-chip > .ds-tab { display: inline-flex; align-items: center; justify-content: center; flex: none; box-sizing: border-box; margin: var(--space-0); font-family: inherit; white-space: nowrap; cursor: pointer; }
 body.ver-7 .ds-tab-chip > .ds-tab {
-  flex: none !important; gap: var(--ds-chip-gap) !important; height: var(--ds-chiptab-h) !important; min-height: var(--ds-chiptab-h) !important; padding: 0 var(--ds-chiptab-pad-x) !important;
+  flex: none !important; gap: var(--ds-chip-gap) !important; height: var(--ds-chiptab-h) !important; min-height: var(--ds-chiptab-h) !important; padding: var(--space-0) var(--ds-chiptab-pad-x) !important;
   border: var(--ds-chip-border-width) solid var(--ds-chip-border, var(--comp-button-secondary-border-default)) !important; border-radius: var(--ds-chiptab-radius) !important; box-shadow: none !important;
   background-color: var(--ds-chip-bg, var(--comp-button-secondary-bg-default)) !important; color: var(--ds-chip-fg, var(--comp-button-secondary-text-default)) !important;
   font-size: var(--ds-chiptab-font-size) !important; line-height: var(--ds-chiptab-line-height) !important; font-weight: var(--ds-chip-font-weight) !important;
@@ -452,13 +452,13 @@ body.ver-7 .ds-tab-chip > .ds-tab:focus-visible { outline: var(--border-width-st
 :where(body.ver-7) .ds-seg { display: inline-flex; }
 :where(body.ver-7) .ds-seg.is-vertical { flex-direction: column; }
 body.ver-7 .ds-seg { gap: var(--ds-seg-gap) !important; padding: var(--ds-seg-pad) !important; border: 0 !important; border-radius: var(--ds-seg-radius) !important; box-shadow: none !important; background-color: var(--ds-seg-bg, var(--bg-map-chip)) !important; }
-:where(body.ver-7) .ds-seg > .ds-tab { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; margin: 0; font-family: inherit; white-space: nowrap; cursor: pointer; }
+:where(body.ver-7) .ds-seg > .ds-tab { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; margin: var(--space-0); font-family: inherit; white-space: nowrap; cursor: pointer; }
 body.ver-7 .ds-seg > .ds-tab {
-  height: var(--ds-seg-item-h) !important; min-height: var(--ds-seg-item-h) !important; padding: 0 var(--ds-seg-item-pad-x) !important; border: 0 !important; border-radius: var(--ds-seg-item-radius) !important; box-shadow: none !important;
+  height: var(--ds-seg-item-h) !important; min-height: var(--ds-seg-item-h) !important; padding: var(--space-0) var(--ds-seg-item-pad-x) !important; border: 0 !important; border-radius: var(--ds-seg-item-radius) !important; box-shadow: none !important;
   background-color: transparent !important; color: var(--text-secondary) !important;
   font-size: var(--ds-seg-font-size) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-medium) !important;
 }
-body.ver-7 .ds-seg.is-vertical > .ds-tab { width: 100% !important; padding: 0 !important; }
+body.ver-7 .ds-seg.is-vertical > .ds-tab { width: 100% !important; padding: var(--space-0) !important; }
 body.ver-7 .ds-seg > .ds-tab:is([aria-selected="true"], [aria-pressed="true"], .on, .is-on) { background-color: var(--ds-seg-on-bg, var(--comp-button-secondary-bg-default)) !important; color: var(--text-primary) !important; }
 body.ver-7 .ds-seg > .ds-tab:focus-visible { outline: var(--border-width-strong) solid var(--border-focus); outline-offset: calc(var(--space-2) * -1); }
 /* 구간 전환 항목의 점 배지 자리 (11/20): 항목 안 오른쪽 위(위 4, 오른쪽 4). 항목 하나에 점 하나, 알림 점(위험, 주의)이 로봇 점보다 우선
@@ -467,7 +467,7 @@ body.ver-7 .ds-seg > .ds-tab { position: relative; }
 body.ver-7 .ds-seg > .ds-tab > .ds-dot,
 body.ver-7 .ds-seg > .ds-tab.has-robot::after {
   content: ""; position: absolute !important; top: var(--space-4) !important; right: var(--space-4) !important; left: auto !important; bottom: auto !important;
-  width: 6px !important; height: 6px !important; margin: 0 !important; border-radius: var(--radius-pill) !important; transform: none !important;
+  width: 6px !important; height: 6px !important; margin: var(--space-0) !important; border-radius: var(--radius-pill) !important; transform: none !important;
 }
 body.ver-7 .ds-seg > .ds-tab.has-robot::after { background-color: var(--status-info-icon) !important; }
 body.ver-7 .ds-seg > .ds-tab:has(> .ds-dot:is(.is-crit, .is-warn))::after,
@@ -505,7 +505,7 @@ body.ver-7 .ah-sort-btn,
 body.ver-7 .rp-link,
 body.ver-7 .lk {
   box-sizing: border-box !important; height: var(--ds-btn-xs-h) !important; min-height: var(--ds-btn-xs-h) !important; display: inline-flex !important; align-items: center !important;
-  padding: 0 var(--ds-btn-xs-pad-x) !important; font-size: var(--ds-btn-sm-font-size) !important; line-height: var(--ds-btn-sm-line-height) !important; font-weight: var(--ds-btn-font-weight) !important; gap: var(--ds-btn-gap) !important;
+  padding: var(--space-0) var(--ds-btn-xs-pad-x) !important; font-size: var(--ds-btn-sm-font-size) !important; line-height: var(--ds-btn-sm-line-height) !important; font-weight: var(--ds-btn-font-weight) !important; gap: var(--ds-btn-gap) !important;
 }
 
 /* ---------- Small 26 ---------- */
@@ -513,7 +513,7 @@ body.ver-7 .btn.is-xs:not(.ah-report):not(.ah-filter .btn),
 body.ver-7 .rr-wp-toggle,
 body.ver-7 .bigb {
   box-sizing: border-box !important; height: var(--ds-btn-s-h) !important; min-height: var(--ds-btn-s-h) !important; align-items: center !important;
-  padding: 0 var(--ds-btn-s-pad-x) !important; font-size: var(--ds-btn-sm-font-size) !important; line-height: var(--ds-btn-sm-line-height) !important; font-weight: var(--ds-btn-font-weight) !important; gap: var(--ds-btn-gap) !important;
+  padding: var(--space-0) var(--ds-btn-s-pad-x) !important; font-size: var(--ds-btn-sm-font-size) !important; line-height: var(--ds-btn-sm-line-height) !important; font-weight: var(--ds-btn-font-weight) !important; gap: var(--ds-btn-gap) !important;
 }
 
 /* ---------- Medium 32 (기본) ---------- */
@@ -556,16 +556,16 @@ body.ver-7 .signal-chip {
   background-color: var(--bg-cell) !important; border: var(--border-width-thin) solid var(--border-divider) !important; box-shadow: none !important;
   border-radius: var(--ds-btn-radius) !important; height: var(--ds-btn-s-h) !important; min-height: var(--ds-btn-s-h) !important; box-sizing: border-box !important;
 }
-body.ver-7 .account-chip { padding: 0 var(--ds-btn-s-pad-x) !important; font-size: var(--ds-btn-sm-font-size) !important; line-height: var(--ds-btn-sm-line-height) !important; font-weight: var(--ds-btn-font-weight) !important; }
+body.ver-7 .account-chip { padding: var(--space-0) var(--ds-btn-s-pad-x) !important; font-size: var(--ds-btn-sm-font-size) !important; line-height: var(--ds-btn-sm-line-height) !important; font-weight: var(--ds-btn-font-weight) !important; }
 body.ver-7 .account-chip:not(.z1) { gap: var(--ds-btn-gap) !important; }
 /* 테마, 신호(아이콘만)는 26 정사각 (상단 막대 한 줄 높이 26에 맞춘 예외) */
-body.ver-7 .theme-chip, body.ver-7 .signal-chip { width: auto !important; min-width: var(--ds-btn-s-h) !important; padding: 0 !important; justify-content: center !important; }
+body.ver-7 .theme-chip, body.ver-7 .signal-chip { width: auto !important; min-width: var(--ds-btn-s-h) !important; padding: var(--space-0) !important; justify-content: center !important; }
 
 /* ---------- 글자 버튼(Ghost, 면 없음) ---------- */
 /* 안전진단 머리 "관제에서 보기" */
 body.ver-7 .sfx-go {
   background: transparent !important; border: 0 !important; border-radius: var(--ds-btn-radius) !important; box-sizing: border-box !important;
-  height: var(--ds-btn-s-h) !important; padding: 0 var(--ds-btn-s-pad-x) !important; font-size: var(--ds-btn-sm-font-size) !important; line-height: var(--ds-btn-sm-line-height) !important; font-weight: var(--ds-btn-font-weight) !important;
+  height: var(--ds-btn-s-h) !important; padding: var(--space-0) var(--ds-btn-s-pad-x) !important; font-size: var(--ds-btn-sm-font-size) !important; line-height: var(--ds-btn-sm-line-height) !important; font-weight: var(--ds-btn-font-weight) !important;
 }
 body.ver-7 .sfx-go:not(.z1):not(.z2) { gap: var(--ds-btn-gap) !important; }
 /* 끝선이나 정보 줄 안: 패딩은 그대로 두고 패딩만큼 바깥으로 뺌(bleed). 글자와 아이콘은 끝선에 맞고, 누르는 영역과 호버 면은 패딩까지 */
@@ -578,12 +578,12 @@ body.ver-7 .btn.btn-ghost[data-robot-more]:hover, body.ver-7 .btn.btn-ghost.ah-a
 body.ver-7 .btn.btn-ghost.ah-all:not(.z1):not(.z2):not(.z3):not(.z4):not(.z5):not(.z6) { gap: var(--space-2) !important; }
 /* 정보 줄 안: 알림센터 위치 줄의 지도에서 보기, 보고서의 미션 바로가기. 위아래도 2씩 빼서 줄 높이를 키우지 않음 */
 body.ver-7 dd > a.t-caption[href*="main-v"]:not(.z1):not(.z2),
-body.ver-7 .lk:not(.z1):not(.z2) { display: inline-flex !important; align-items: center !important; box-sizing: border-box !important; height: var(--ds-btn-xs-h) !important; padding: 0 var(--ds-btn-ghost-pad-x) !important; margin: calc(var(--space-2) * -1) calc(var(--ds-btn-ghost-pad-x) * -1) !important; vertical-align: top !important; align-self: center !important; border-radius: var(--ds-btn-radius) !important; }
+body.ver-7 .lk:not(.z1):not(.z2) { display: inline-flex !important; align-items: center !important; box-sizing: border-box !important; height: var(--ds-btn-xs-h) !important; padding: var(--space-0) var(--ds-btn-ghost-pad-x) !important; margin: calc(var(--space-2) * -1) calc(var(--ds-btn-ghost-pad-x) * -1) !important; vertical-align: top !important; align-self: center !important; border-radius: var(--ds-btn-radius) !important; }
 body.ver-7 dd > a.t-caption[href*="main-v"]:hover, body.ver-7 .lk:hover { background-color: var(--comp-button-ghost-bg-hover) !important; }
 
 /* ---------- 처리 완료 펼치기: 아코디언 트리거 [[✓ 오늘 5건] ⌄] (머리 줄 어디를 눌러도 접고 펼침, v3-panel.js). 건수는 면 없는 태그, 꺾쇠는 그 옆 (11/20) ---------- */
 body.ver-7 .done-head { gap: var(--space-4) !important; }
-body.ver-7 .done-head .done-fold:not(.z1):not(.z2):not(.z3):not(.z4) { padding-left: 0 !important; width: auto !important; min-width: 0 !important; margin-left: 0 !important; }
+body.ver-7 .done-head .done-fold:not(.z1):not(.z2):not(.z3):not(.z4) { padding-left: var(--space-0) !important; width: auto !important; min-width: 0 !important; margin-left: var(--space-0) !important; }
 /* 오래된 순 아이콘 오른쪽 끝을 알림 센터 아이콘 끝에 맞춤 (두 줄의 감싸는 칸 오른쪽 여백이 2 달라서 생긴 차이) */
 body.ver-7 .context-panel .ah-sort-btn { margin-right: calc(var(--space-2) * -1) !important; }
 
@@ -605,14 +605,14 @@ body.ver-7 .delta3-name { gap: var(--space-8) !important; }
 body.ver-7 .delta3-clue { gap: var(--space-8) !important; padding: var(--space-8) !important; }
 /* 유리 버튼: 처리 순서 보기(글자), 대화(아이콘만). 버튼 규칙의 예외(높이 24, 완전 둥글게, 반투명 유리 면) */
 body.ver-7 :is(.delta3-plus, .delta3-talk) { box-sizing: border-box !important; height: var(--ds-delta-glass-h) !important; min-height: var(--ds-delta-glass-h) !important; border-radius: var(--radius-pill) !important; border-width: var(--border-width-thin) !important; }
-body.ver-7 .delta3-talk { width: var(--ds-delta-glass-h) !important; min-width: var(--ds-delta-glass-h) !important; padding: 0 !important; }
+body.ver-7 .delta3-talk { width: var(--ds-delta-glass-h) !important; min-width: var(--ds-delta-glass-h) !important; padding: var(--space-0) !important; }
 /* 펼친 답변: 알림 줄, 접기 토글 */
 body.ver-7 .delta3.is-open { border-radius: var(--ds-delta-panel-radius) !important; }
-body.ver-7 .dc6-row { gap: var(--space-8) !important; padding: var(--ds-delta-row-pad-y) 0 !important; }
+body.ver-7 .dc6-row { gap: var(--space-8) !important; padding: var(--ds-delta-row-pad-y) var(--space-0) !important; }
 body.ver-7 .dc6-toggle { height: var(--ds-btn-m-h) !important; min-height: var(--ds-btn-m-h) !important; }
 /* 묻기 칸과 보내기 */
 body.ver-7 .ai-input { box-sizing: border-box !important; min-height: var(--ds-delta-input-h) !important; gap: var(--space-8) !important; padding: var(--space-8) var(--space-12) !important; }
-body.ver-7 .ai-send { flex: none !important; box-sizing: border-box !important; width: var(--ds-delta-send) !important; height: var(--ds-delta-send) !important; min-width: var(--ds-delta-send) !important; padding: 0 !important; border-radius: var(--radius-4) !important; display: inline-grid !important; place-items: center !important; }
+body.ver-7 .ai-send { flex: none !important; box-sizing: border-box !important; width: var(--ds-delta-send) !important; height: var(--ds-delta-send) !important; min-width: var(--ds-delta-send) !important; padding: var(--space-0) !important; border-radius: var(--radius-4) !important; display: inline-grid !important; place-items: center !important; }
 /* 대화 (관제 대화형): 말풍선, 구슬 */
 body.ver-7 .dchat-bubble { box-sizing: border-box !important; gap: var(--space-4) !important; padding: var(--ds-delta-bubble-pad-y) var(--ds-delta-bubble-pad-x) !important; border-radius: var(--ds-delta-panel-radius) !important; }
 body.ver-7 .dchat-orb { width: var(--ds-delta-orb) !important; height: var(--ds-delta-orb) !important; border-radius: var(--radius-pill) !important; }
@@ -633,6 +633,6 @@ body.ver-7 .ds-delta-card {
   padding: var(--ds-delta-pad) !important; border: 0 !important; border-radius: var(--ds-delta-radius) !important; box-shadow: none !important;
   background-color: var(--bg-raised) !important; color: var(--text-primary);
 }
-body.ver-7 .ds-delta-head { display: flex !important; align-items: center !important; justify-content: space-between !important; gap: var(--space-8) !important; margin: 0 !important; }
+body.ver-7 .ds-delta-head { display: flex !important; align-items: center !important; justify-content: space-between !important; gap: var(--space-8) !important; margin: var(--space-0) !important; }
 body.ver-7 .ds-delta-mark { display: inline-flex !important; align-items: center !important; gap: var(--space-4) !important; color: var(--text-secondary) !important; font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-regular) !important; }
-body.ver-7 .ds-delta-mark > :is(.i, .dlogo) { flex: none !important; width: 16px !important; height: 16px !important; margin: 0 !important; vertical-align: middle !important; background-color: var(--comp-gnb-text-brand) !important; }
+body.ver-7 .ds-delta-mark > :is(.i, .dlogo) { flex: none !important; width: 16px !important; height: 16px !important; margin: var(--space-0) !important; vertical-align: middle !important; background-color: var(--comp-gnb-text-brand) !important; }
