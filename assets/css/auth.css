@@ -496,3 +496,14 @@
   .login-card { padding-top: var(--space-20); }
   .auth-panel { padding-top: var(--space-16); padding-bottom: var(--space-16); }
 }
+
+/* [11/20 v2] 최신 로고 — CI 워드마크(assets/img/logo/aprism-blue*.svg). 어두운 테마는 -dark(밝은 파랑 · 회색), 밝은 테마는 기본(진한 파랑 · 회색).
+   v1 의 .brand-lockup(기호 + 글자 락업)과 같은 자리 · 같은 등장 효과. 폭은 스플래시 320, 로그인 280. */
+.brand-logo { display: block; width: 320px; line-height: 0; }
+.auth-brand .brand-logo { width: 280px; }
+.brand-logo img { display: block; width: 100%; height: auto; }
+.brand-logo .brand-logo-light { display: none; }
+:root[data-theme="light"] .brand-logo .brand-logo-dark { display: none; }
+:root[data-theme="light"] .brand-logo .brand-logo-light { display: block; }
+.auth-splash .brand-logo { animation: splash-in 560ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+@media (prefers-reduced-motion: reduce) { .auth-splash .brand-logo { animation: none; } }

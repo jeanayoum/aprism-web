@@ -19,7 +19,7 @@
       gone = true;
       splash.classList.add("is-leaving");
       // 빠지는 동안만 기다렸다 넘어간다. 애니메이션이 꺼진 환경이면 곧바로 끝난다.
-      window.setTimeout(function () { location.href = (window.aprismHref || String)("./login.html"); }, 240);
+      window.setTimeout(function () { location.href = (window.aprismHref || String)(/-v2\.html$/.test(location.pathname) ? "./login-v2.html" : "./login.html");   // [11/20] v2 스플래시는 v2 로그인으로 }, 240);
     };
 
     if (hold > 0) {
