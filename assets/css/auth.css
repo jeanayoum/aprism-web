@@ -541,3 +541,10 @@
 .login-alert-text { margin: 0; color: var(--text-secondary); font-size: 13px; line-height: 20px; word-break: keep-all; }
 .login-submit:disabled { cursor: not-allowed; opacity: 0.5; }
 .login-submit.is-loading:disabled { opacity: 1; cursor: progress; }
+/* [11/20 정의서 CM-04 Q2 · Q3] 변경 버튼 = Accent(이 화면의 주요 행동), 다른 계정 링크 = 무채색(이동) */
+.login-submit.is-accent { border-color: transparent; background-color: var(--comp-button-accent-bg-default); color: var(--comp-button-accent-text-default); }
+.login-submit.is-accent:hover { background-color: var(--comp-button-accent-bg-hover); }
+.login-submit.is-accent:active { background-color: var(--comp-button-accent-bg-pressed); }
+.login-submit.is-accent:disabled { background-color: var(--comp-button-secondary-bg-default); color: var(--comp-button-accent-text-disabled); opacity: 1; }
+.auth-switch.is-quiet { color: var(--text-secondary); }
+.auth-switch.is-quiet:hover { color: var(--text-primary); }
