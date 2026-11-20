@@ -121,7 +121,7 @@
   const RQ_WORD = {wait:'응답 대기', work:'현장 조치 중', done:'조치 완료'};
   const RQ_BADGE = {wait:'', work:'badge-info', done:'badge-normal'};   // Figma Badge-미션 566:19149 — 대기 · 진행 · 완료
   // [11/10 v7] 요청한 감지는 판정 칩 대신 진행 배지(판정 카드 · 목록 카드 · 측정 이력 오늘 줄 같은 꼴), 처리 줄은 그 단계의 시각 + 이름
-  const rqBadge = R => `<span class="badge badge-mode ${RQ_BADGE[R.st]} jrq${V7 && window.ds ? ' ' + window.ds.statusCls(R.st) : ''}"><span class="badge-dot"></span>${RQ_WORD[R.st]}</span>`;
+  const rqBadge = R => `<span class="badge badge-mode ${RQ_BADGE[R.st]} jrq${V7 && window.ds ? ' ' + window.ds.statusCls(R.st, { face: true }) : ''}"><span class="badge-dot"></span>${RQ_WORD[R.st]}</span>`;
   const rqLine = R => `${R.st==='done' ? R.t3 : R.st==='work' ? R.t2 : R.t} ${RQ_WORD[R.st]}`;
   // 요청 뒤 오른쪽 칸 — 보낸 내용은 잠그고(체크 · 메모 바꿀 수 없음), 버튼은 꺼진 '요청 전송됨', 아래에 조치 진행 세 단계
   function reqSide(sug, R, nextM){
@@ -136,7 +136,7 @@
         <div class="cks">${sug[1].map(([l, a2, to]) => `<label class="c1x"><input type="checkbox" disabled ${R.acts.includes(l) ? 'checked' : ''}><span><b>${l}</b><small>${to}</small></span>${a2 ? (V7 ? '<em class="ma-check-tag ds-badge is-neutral ds-i-delta">AI 추천</em>' : '<em class="ma-check-tag">AI 추천</em>') : ''}</label>`).join('')}</div>
         ${R.memo ? `<span class="mm">메모</span><p class="fd rq-memo">${R.memo.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'})[c])}</p>` : ''}</div>
       <button type="button" class="btn btn-accent rqx" disabled><span class="i i-16" style="--i:var(--ic-check)" aria-hidden="true"></span>${R.t} ${S7 ? '요청됨' : '요청 전송됨'}</button>
-      <section class="rqp" aria-label="조치 진행"><div class="rqp-h"><b>조치 진행</b><span class="badge badge-mode ${RQ_BADGE[R.st]} rqp-b${V7 && window.ds ? ' ' + window.ds.statusCls(R.st) : ''}"><span class="badge-dot"></span>${RQ_WORD[R.st]}</span></div>
+      <section class="rqp" aria-label="조치 진행"><div class="rqp-h"><b>조치 진행</b><span class="badge badge-mode ${RQ_BADGE[R.st]} rqp-b${V7 && window.ds ? ' ' + window.ds.statusCls(R.st, { face: true }) : ''}"><span class="badge-dot"></span>${RQ_WORD[R.st]}</span></div>
         <ol class="rqp-st is-${R.st}">${steps}</ol>
         ${R.st === 'work' ? '<button type="button" class="btn btn-secondary rqd" data-reqdone="1">조치 완료 확인</button>' : ''}</section>`;
   }

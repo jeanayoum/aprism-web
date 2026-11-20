@@ -37,7 +37,7 @@
   }
   /*
    * 운영 상태 태그 (11/19 B안: 점 → 상태 모양 아이콘). 예전 클래스(.badge-info 등) 옆에 붙일 클래스를 한 곳에서 정함
-   *   ds.statusCls('run') → 'ds-badge is-plain is-info ds-i-play'
+   *   ds.statusCls('run') → 'ds-badge is-plain is-info ds-i-play'   면 있는 배지는 ds.statusCls('wait', { face: true })
    *   정하지 않은 아이콘(일시정지, 통신 Online)은 작은 점 그대로. 긴급정지는 위험 삼각형
    */
   var STATUS = {
@@ -46,9 +46,10 @@
     work: 'info play', lost: 'crit power', off: 'crit power', estop: 'crit', low: 'warn', no: 'crit',
     pause: 'neutral dot', online: 'safe dot'
   };
-  function statusCls(key) {
+  // o.face: 면 있는 배지로 (처리 상태처럼 사진, 표 위에서 묻히는 자리, 11/20)
+  function statusCls(key, o) {
     var v = (STATUS[key] || 'neutral dot').split(' ');
-    return cls('ds-badge', 'is-plain', 'is-' + v[0], v[1] && 'ds-i-' + v[1]);
+    return cls('ds-badge', !(o && o.face) && 'is-plain', 'is-' + v[0], v[1] && 'ds-i-' + v[1]);
   }
   function badgeRow(badgeHtml, text, o) {
     o = o || {};
