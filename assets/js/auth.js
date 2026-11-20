@@ -62,8 +62,10 @@
     }
   }
   // [11/20 정의서 CM-06 Q4] 자동 로그아웃으로 왔으면 3초 토스트(UI_01 흐름의 로그아웃 완료 토스트와 같은 자리)
-  if (V2 && document.querySelector("[data-login-form]") && /[?&]reason=idle/.test(location.search)) {
+  // [11/20 정의서 CM-13] 직접 로그아웃(reason=logout)도 같은 토스트 자리 — "로그아웃됐어요"
+  if (V2 && document.querySelector("[data-login-form]") && /[?&]reason=(idle|logout)/.test(location.search)) {
     var by = ""; try { by = sessionStorage.getItem("aprism.logoutBy") || ""; sessionStorage.removeItem("aprism.logoutBy"); } catch (e) { by = ""; }
+    if (/reason=logout/.test(location.search)) { by = "user"; }
     var toast = document.createElement("div");
     toast.className = "auth-toast"; toast.setAttribute("role", "status");
     toast.textContent = by === "user" ? "로그아웃됐어요" : "사용 기록이 없어 로그아웃됐어요";
@@ -73,7 +75,7 @@
   }
   // 로그인 화면에 오면 로그인 유지가 풀린다(로그아웃 · 자동 로그아웃 뒤에 오는 곳)
   if (V2 && document.querySelector("[data-login-form]")) {
-    try { sessionStorage.removeItem(SIGNED); localStorage.removeItem(SIGNED); } catch (e) { /* 막힘 */ }
+    try { sessionStorage.removeItem(SIGNED); localStorage.removeItem(SIGNED); sessionStorage.removeItem("aprism.who"); } catch (e) { /* 막힘 */ }
   }
 
   // ---------- 비밀번호 보기 ----------
@@ -218,7 +220,7 @@
             var o2 = fails(); delete o2[uid]; saveFails(o2);
             location.href = (window.aprismHref || String)(landing()); return;
           }
-          try { sessionStorage.removeItem(SIGNED); localStorage.removeItem(SIGNED); } catch (e) { /* 막힘 */ }
+          try { sessionStorage.removeItem(SIGNED); localStorage.removeItem(SIGNED); sessionStorage.removeItem("aprism.who"); } catch (e) { /* 막힘 */ }
           var o3 = fails(); o3[uid] = (o3[uid] || 0) + 1; saveFails(o3);
           if (btn) { btn.classList.remove("is-loading"); btn.removeAttribute("aria-busy"); btn.textContent = "로그인"; btn.disabled = false; }
           if (o3[uid] >= MAX) { setLock(true); return; }

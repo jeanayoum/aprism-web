@@ -1186,6 +1186,8 @@
   function handoverName() {
     var on = false; try { on = sessionStorage.getItem("aprism.handover") === "1"; } catch (e) { on = false; }
     if (!on || !V6) { return ""; }
+    var who = ""; try { who = sessionStorage.getItem("aprism.who") || ""; } catch (e) { who = ""; }
+    if (who) { return who; }   // [11/20 CM-13] 관제사 교대로 들어온 이름
     var chip = document.querySelector(".account-chip .t-label-2");
     return chip ? chip.textContent.trim() : "관제사";
   }
