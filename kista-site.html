@@ -2101,6 +2101,23 @@
     if (box.style.getPropertyValue("--y") !== y) box.style.setProperty("--y", y);
   }
   // v7 에 없는 상태 · 알림을 이 영상에서만 덧입힌다 — 글은 속성(data-k)으로 얹어 관제 화면이 글을 다시 써도 유지된다
+  function kWpRed(d) {
+    const name = d.__kWpRed;
+    d.querySelectorAll("[data-timeline] [data-waypoint]").forEach(n => {
+      const want = name && n.textContent.includes(name);
+      for (const at of ["data-wp-alert", "data-wp-result", "data-rr-hold"]) {
+        const keep = "data-kista-" + at.slice(5);
+        if (want) {
+          if (!n.hasAttribute(at) && at !== "data-wp-alert") continue;   // 결과 · 보류는 있는 것만
+          if (!n.hasAttribute(keep)) n.setAttribute(keep, n.getAttribute(at) ?? "");
+          if (n.getAttribute(at) !== "danger") n.setAttribute(at, "danger");
+        } else if (n.hasAttribute(keep)) {
+          const v = n.getAttribute(keep); n.removeAttribute(keep);
+          if (v) n.setAttribute(at, v); else n.removeAttribute(at);
+        }
+      }
+    });
+  }
   function ctlOverlay(d, o) {
     if (!d.getElementById("kista-ov-css")) {
       const st = d.createElement("style"); st.id = "kista-ov-css";
@@ -2130,18 +2147,15 @@
       el.setAttribute("data-k", txt); };
     // quiet — 띠는 지도가 계속 다시 만들어 뺄 수 없다. 띠 글을 진행 제목으로 바꾸고(ban) 기호 점만 숨겨 평소(run) 제목처럼 보인다
     d.body.classList.toggle("kista-quiet", !!o.quiet);
-    // (11/20) wpRed — 그 이름의 웨이포인트를 위험(빨강)으로. 관제 화면이 알림 단계로 다시 칠해도 0.3초마다 덮고, 없으면 원래 값으로 되돌린다
-    d.querySelectorAll("[data-timeline] [data-waypoint]").forEach(n => {
-      const want = o.wpRed && n.textContent.includes(o.wpRed);
-      if (want) {
-        if (!n.hasAttribute("data-kista-wp")) n.setAttribute("data-kista-wp", n.getAttribute("data-wp-alert") || "");
-        if (n.hasAttribute("data-rr-hold")) { if (n.getAttribute("data-rr-hold") !== "danger") n.setAttribute("data-rr-hold", "danger"); }
-        else if (n.getAttribute("data-wp-alert") !== "danger") n.setAttribute("data-wp-alert", "danger");
-      } else if (n.hasAttribute("data-kista-wp")) {
-        const orig = n.getAttribute("data-kista-wp"); n.removeAttribute("data-kista-wp");
-        if (orig) n.setAttribute(n.hasAttribute("data-rr-hold") ? "data-rr-hold" : "data-wp-alert", orig); else n.removeAttribute("data-wp-alert");
-      }
-    });   // 지금 지점 카드의 상태 줄(긴급정지 · 일시정지 [재개])도 숨긴다
+    // (11/20) wpRed — 그 이름의 웨이포인트를 위험(빨강)으로. 관제 화면(monitor.js · route-sim)이 알림 단계로 계속 다시 칠하므로
+    //   목록에 감시(MutationObserver)를 걸어 칠할 때마다 바로 덮는다(그림 전에 돈다). 없으면 원래 값으로 되돌린다
+    d.__kWpRed = o.wpRed || null;
+    const rail = d.querySelector("[data-timeline]");
+    if (rail && !d.__kWpObs) {
+      d.__kWpObs = new d.defaultView.MutationObserver(() => kWpRed(d));
+      d.__kWpObs.observe(rail, { subtree: true, attributes: true, attributeFilter: ["data-wp-alert", "data-wp-result", "data-rr-hold"] });
+    }
+    kWpRed(d);   // 지금 지점 카드의 상태 줄(긴급정지 · 일시정지 [재개])도 숨긴다
     if (o.quiet) { const rail = d.querySelector("[data-timeline]"); if (rail) rail.classList.remove("rr-estop", "rr-frozen"); }
     const card0 = d.querySelector('.robot-strip .robot-card[aria-pressed="true"]') || d.querySelector(".robot-strip .robot-card");
     // 배지
