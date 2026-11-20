@@ -269,6 +269,120 @@ body.ver-7 .ds-ic.is-tri.is-warn-ic::before { -webkit-mask-image: var(--ic-warni
 body.ver-7 :is(.mp-form .field-label, .check-group-head .label, .sum-row .label, .precheck-row .label) { font-size: var(--ds-type-label-size) !important; line-height: var(--ds-type-label-line) !important; font-weight: var(--ds-type-label-weight) !important; }
 body.ver-7 :is(.sb-tab-name, .sb-tab-no):not(.sb-more-menu *) { font-size: var(--ds-type-tab-size) !important; line-height: var(--ds-type-tab-line) !important; font-weight: var(--ds-type-tab-weight) !important; }   /* 위쪽 미션 탭 이름: 예전 .t-label-1 의 숫자 800 → 토큰 */
 body.ver-7 .sum-row .value { font-size: var(--ds-type-label-size) !important; line-height: var(--ds-type-label-line) !important; font-weight: var(--ds-type-label-weight) !important; color: var(--text-primary) !important; }
+/* 생성 시작: 600→700, 13 줄 높이 20 (11/20, gen600.cjs). v7 화면이 불러오는 CSS 중 굵기 600 규칙과 13/18 규칙을 모아 덮음. 3D 지도 위 글자(route-rules.css, map-overlays.css, 캔버스 이름표)는 그대로 */
+body.ver-7 { --font-weight-semibold: var(--font-weight-bold); }   /* 1층 토큰 600 을 쓰는 곳은 700 으로 */
+body.ver-7 :is(
+  .ad-h1,
+  .ai-headline,
+  .bld-ftag-name b,
+  .bld-tip-head b,
+  .map-card-name,
+  .rd-events-head,
+  .rd-live,
+  .rp-cd.has,
+  .rp-page .ch .ax.on,
+  .rp-page .ch .vl,
+  .rp-page .cht b,
+  .rp-page .evf .ev-h b,
+  .rp-page .f-h,
+  .rp-page .f-title,
+  .sf .dl .hh b,
+  .sf .hia.on,
+  .sf .kd .more,
+  .sf .lvA .tt h5,
+  .sf .mchip b,
+  .sf .md.naempty b,
+  .sf .rlx em.rr,
+  .sf .rtb,
+  .sf .trb,
+  .t-body-1,
+  .t-heading-2,
+  .v2-2 .map-card-rows dd,
+  .v2-2 .map-card-tag,
+  .v2-2 .map-wp-more,
+  body.ver-6 .ac-d6-vd,
+  body.ver-6 .ma-title .ma-vd,
+  body.ver-6 .map-card-rows .mbt-warn,
+  body.ver-6 .map-wp .mbt-wp-rows dd,
+  body.ver-6 .sf .hia.on,
+  body.ver-6 .sf .jx .jn,
+  body.ver-6 .sf .jx .jvd,
+  body.ver-6 .sf .rlx .rlw b,
+  body.ver-6 .sf .rlx em.rr,
+  body.ver-6 .sfx-fl,
+  body.ver-6 .sfx-t,
+  body.ver-7 .ma-cause > li.is-top .ma-cause-p,
+  body.ver-7 .ma-grp-h,
+  body.ver-7 .ma-ins-stdt,
+  body.ver-7 .ma-ins-t.is-last,
+  body.ver-7 .ma-res-chip,
+  body.ver-7 .ma-res-v small,
+  body.ver-7 .ma-v3 .ma-delta-lead,
+  body.ver-7 .ma-v3 .ma-reason,
+  body.ver-7 .ma-v3 .ma-title,
+  body.ver-7 .ma-wp-label .mwl-place,
+  body.ver-7 .progress-percent,
+  body.ver-7 .rr-st .rr-resume
+) { font-weight: var(--font-weight-bold) !important; }
+body.ver-7 :is(
+  .ac-mono,
+  .ad-no,
+  .ai-ack,
+  .ai-chip,
+  .ai-tag,
+  .bld-robot-count,
+  .dl-chip,
+  .ma-menu button,
+  .ma-v3 .ma-robot,
+  .map-floor,
+  .precheck-head .label,
+  .preset-chip,
+  .rr-st .rr-st-l,
+  .sev-badge,
+  .sev-chip,
+  .sf .cv,
+  .sf .lyseg button,
+  .sf .m2f button,
+  .sf .m2f span,
+  .sf .m2go,
+  .sf .mch b,
+  .sf .mhead b,
+  .sf .mtb th,
+  .sf .mx th,
+  .sf .mx th.c-wp b,
+  .sf .rtb,
+  .sf .rtx,
+  .sf .sth b,
+  .sf .tb,
+  .sf-kv .v,
+  .t-label-2,
+  .t-overline,
+  .ua-done-label,
+  .v2 .ai-panel:not(.is-open) .ai-delta-label,
+  .v3 .delta3.is-open .delta3-name b,
+  .ver-3 .bld-rc-label,
+  .ver-3 .bld-rc-pct,
+  .ver-3 .bld-rc-step-wp.is-no,
+  .ver-3 .bld-rc-step:not(.is-now) .bld-rc-step-name,
+  :root[data-theme] body.ver-7 .map-tools-box.is-floors .map-floor,
+  body.ver-3.v2-2.v3 .delta3-clue-txt,
+  body.ver-6 .dc-msg.dc6 .dc6-done,
+  body.ver-6 .dc-msg.dc6 .dc6-need,
+  body.ver-6 .dc6-confirm,
+  body.ver-6 .dc6-dl,
+  body.ver-6 .dc6-gap,
+  body.ver-6 .dc6-sub > span:first-child,
+  body.ver-6 .rf-name,
+  body.ver-6 .sfx-fl,
+  body.ver-7 .ma-cause-t,
+  body.ver-7 .ma-res-v small,
+  body.ver-7 .ma-v3 .ma-reason,
+  body.ver-7 .map-dim .map-dim-txt,
+  body.ver-7 .rc-box .progress-percent .pp-unit,
+  body.ver-7 .rr-wp-seg > button
+) { line-height: var(--font-line-height-20) !important; }
+body.ver-7 #ma-memo-label { line-height: var(--font-line-height-18) !important; }   /* .t-label-2 지만 v7 에서 12 로 그려짐 */
+/* 생성 끝 */
 
 /* ---------- 아이콘 (11/20): 크기 클래스 네 단계 .i-12, .i-16, .i-20, .i-24 ----------
  * 아이콘 바탕(.i: 마스크로 모양, 색은 currentColor)과 모양 57개(--ic-*)는 app-shell.css 에 둠(v6 이하도 같이 쓰는 자원)
@@ -673,7 +787,7 @@ body.ver-7 .ds-seg { gap: var(--ds-seg-gap) !important; padding: var(--ds-seg-pa
 body.ver-7 .ds-seg > .ds-tab {
   height: var(--ds-seg-item-h) !important; min-height: var(--ds-seg-item-h) !important; padding: var(--space-0) var(--ds-seg-item-pad-x) !important; border: 0 !important; border-radius: var(--ds-seg-item-radius) !important; box-shadow: none !important;
   background-color: transparent !important; color: var(--text-secondary) !important;
-  font-size: var(--ds-seg-font-size) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-medium) !important;
+  font-size: var(--ds-seg-font-size) !important; line-height: var(--font-line-height-20) !important; font-weight: var(--font-weight-medium) !important;
 }
 body.ver-7 .ds-seg.is-vertical > .ds-tab { width: 100% !important; padding: var(--space-0) !important; }
 body.ver-7 .ds-seg > .ds-tab:is([aria-selected="true"], [aria-pressed="true"], .on, .is-on) { background-color: var(--ds-seg-on-bg, var(--comp-button-secondary-bg-default)) !important; color: var(--text-primary) !important; }
@@ -1058,9 +1172,9 @@ body.ver-7 .ds-alertpop .ma-snap { border-radius: var(--ds-pop-radius) !importan
 body.ver-7 .ds-alertpop .ma-shot { transition-duration: var(--ds-motion-fast) !important; }
 body.ver-7 .ds-alertpop .ma-stamp { left: var(--space-8) !important; right: var(--space-8) !important; bottom: var(--space-8) !important; padding: var(--space-4) var(--space-8) var(--space-4) var(--space-4) !important; gap: var(--space-8) !important; border-radius: var(--radius-pill) !important; font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; }
 body.ver-7 .ds-alertpop .ma-lower { padding-top: var(--space-8); padding-right: var(--space-8) !important; padding-bottom: var(--space-4) !important; padding-left: var(--space-8) !important; gap: var(--space-8) !important; }
-body.ver-7 .ds-alertpop .ma-reason { margin: var(--space-0) var(--space-0) var(--space-4) !important; font-size: var(--font-size-13) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-semibold, 600) !important; }
+body.ver-7 .ds-alertpop .ma-reason { margin: var(--space-0) var(--space-0) var(--space-4) !important; font-size: var(--font-size-13) !important; line-height: var(--font-line-height-20) !important; font-weight: var(--font-weight-bold) !important; }
 body.ver-7 .ds-alertpop :is(.ma-delta, .ma-act, .ma-memo) { gap: var(--space-8) !important; }
-body.ver-7 .ds-alertpop .ma-delta-lead { font-size: var(--font-size-14) !important; line-height: var(--font-line-height-20) !important; font-weight: var(--font-weight-semibold, 600) !important; }
+body.ver-7 .ds-alertpop .ma-delta-lead { font-size: var(--font-size-14) !important; line-height: var(--font-line-height-20) !important; font-weight: var(--font-weight-bold) !important; }
 body.ver-7 .ds-alertpop .ma-memo-row { gap: var(--space-4) !important; }
 body.ver-7 .ds-alertpop .ma-actions { grid-template-columns: 1fr 1fr !important; gap: var(--space-8) !important; }
 body.ver-7 .ds-alertpop .ma-req { animation: ds-appear var(--ds-motion-base) var(--ds-ease-base) both; }
