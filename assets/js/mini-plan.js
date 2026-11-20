@@ -160,7 +160,7 @@
     P.wall.forEach(function (r) { g += wallRect(r); });
     // [11/20] 경로 = 2D 지도 공통 네 구간(route). 예전 한 줄 파랑 + 빛(지나온 길만 진하게)은 안전진단 지도와 같은 규칙으로 바꿈
     var sNext = sR !== null && done < n ? Math.max(sCut, L.sAt[done]) : sCut;
-    var labels = "", placed = [], dots = [], tags = [], boxes = [];
+    var labels = "", placed = [], dots = [], tags = [], boxes = [], wps = [];
     for (var k0 = 0; k0 < n; k0 += 1) { var q0 = pos2(L, L.sAt[k0]); dots.push({ x: q0.x, y: q0.y }); }
     g += route(L, sCut, sNext, u, dots);
     var WV = wpVals();
@@ -198,10 +198,10 @@
       if (pick) { lx = pick.x; ly = pick.y; if (pick.sd < 0) { nx = -nx; ny = -ny; } }
       placed.push({ x: lx, y: ly, r: R });
       var tone = mk === "crit" ? "c" : mk === "warn" ? "w" : cur ? "now" : j < done ? "past" : "plan";
-      // 테: 위험, 주의, 지금 지점은 .ds-wp 테 굵기(2), 나머지 1. 원 반지름에서 테 반을 빼 바깥 지름이 16, 20 이 되게
-      var ring = u(tone === "c" || tone === "w" || tone === "now" ? WV.ring : 1);
-      labels += '<g class="mp-no is-' + tone + '" transform="translate(' + lx.toFixed(1) + ',' + ly.toFixed(1) + ')"><circle r="' + (R - ring / 2).toFixed(2) + '" stroke-width="' + ring + '"/>' +
-        '<text y="' + u(0.5) + '" font-size="' + u(WV.font) + '" text-anchor="middle" dominant-baseline="middle">' + ((o.nos && o.nos[j]) || j + 1) + '</text></g>';
+      // [11/20] 번호 원 = 공통 WP 번호 원 .ds-wp 그대로(SVG 로 따로 그리지 않음). 지도 위 .is-map, 기본 .is-s(16), 지금 지점 20
+      //   상태: 위험 .is-crit, 주의 .is-warn, 지금 .is-current, 지나온 곳 .is-done. 이름표 배지와 같은 HTML 층, 지점 자리를 % 로
+      var wcls = "ds-wp is-map" + (cur ? "" : " is-s") + (tone === "c" ? " is-crit" : tone === "w" ? " is-warn" : tone === "now" ? " is-current" : tone === "past" ? " is-done" : "");
+      wps.push('<span class="' + wcls + '" style="left:' + ((lx - vx) / vw * 100).toFixed(2) + '%;top:' + ((ly - vy) / vh * 100).toFixed(2) + '%">' + ((o.nos && o.nos[j]) || j + 1) + '</span>');
       var name = j === 0 && !cur ? "출발" : (cur && o.names ? o.names[j] : "");
       if (name) {
         // [11/20] 이름표(출발, 지금 지점 이름) = 공통 배지 "지도 위 배지"(.ds-badge.is-onmap, 지금 지점은 .is-strong). SVG 위 HTML 층에 놓음(tags)
@@ -226,7 +226,7 @@
         '<image href="../assets/img/safety/robot-top-' + (o.kind || "spot") + '.png" x="-' + h + '" y="-' + h + '" width="' + S + '" height="' + S + '" transform="rotate(90)"/></g>';
     }
     // [11/20] SVG + 이름표 배지 층(HTML). 층은 SVG 와 같은 상자라 % 자리가 지도 좌표와 맞음
-    return '<div class="mp-hq-box">' + g + labels + '</svg><div class="mp-hq-tags">' + tags.join("") + "</div></div>";
+    return '<div class="mp-hq-box">' + g + labels + '</svg><div class="mp-hq-tags">' + wps.join("") + tags.join("") + "</div></div>";
   }
 
 
