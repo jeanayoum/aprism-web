@@ -36,6 +36,15 @@
   var EN = window.APRISM_EN || {};
   var MNO_EN = MNO.map(function (k) { return EN[k]; });
   var IDLE = ["소방 설비 점검", "주간 설비 점검"];   // 데모 대기 미션(screen.js ver-6 블록과 같다)
+  // [11/20 정의서 공통-01 Q1] v7 한글 — 미션 탭은 8개까지, 넘치면 줄 끝 [+N] 더보기 메뉴. 시연: 주소 ?missions=12 (관제 탭을 옮겨도 유지)
+  var V7KO = document.body.classList.contains("ver-7") && document.documentElement.lang !== "en";
+  var MAXTAB = 8;
+  if (V7KO) {
+    var demoN = 0, qs = location.search; try { qs += (window.top || window).location.search; } catch (e) { /* 다른 출처 */ }
+    var mq = /[?&]missions=(\d+)/.exec(qs);
+    try { if (mq) { sessionStorage.setItem("aprism.missions", mq[1]); } demoN = Number(sessionStorage.getItem("aprism.missions") || 0); } catch (e) { demoN = mq ? Number(mq[1]) : 0; }
+    for (var di = MNO.length + 1; di <= Math.min(demoN, 20); di++) { var dn = "추가 순회 점검 " + di; MNO.push(dn); IDLE.push(dn); }
+  }
   function mno(name) { var i = MNO.indexOf(name); return i >= 0 ? i : MNO_EN.indexOf(name); }
   // 탭 밖에서 같은 번호를 쓰는 곳(전체 미션 층 카드 · building.js)이 읽는다
   window.APRISM_MISSION_NO = function (name) { var i = mno(name); return i >= 0 ? "M" + (i + 1) : ""; };
@@ -138,7 +147,74 @@
       var pos = function (t) { var i = saved.indexOf(t.getAttribute("data-mission")); return i >= 0 ? i : 1e3; };
       missionTabs().map(function (t, i) { return [pos(t), i, t]; }).sort(function (a, b) { return a[0] - b[0] || a[1] - b[1]; }).forEach(function (e) { bar.appendChild(e[2]); });
     }
+    fit();
+  }
 
+  /*
+   * [11/20 정의서 공통-01 Q1] 넘침 — 미션 탭 차례대로 8개까지 보이고 나머지는 [+N] 메뉴로. 지금 보는 미션이 숨을 자리면 8번째 탭과 자리를 바꾼다.
+   *   [+N] 에는 숨은 미션 중 가장 높은 알림 단계 아이콘(숨어 있어도 위험을 놓치지 않게), 새 위험이 있으면 점.
+   */
+  var more = null, moreMenu = null;
+  function closeMore() {
+    if (moreMenu) { moreMenu.remove(); moreMenu = null; }
+    if (more) { more.setAttribute("aria-expanded", "false"); }
+  }
+  function fit() {
+    if (!V7KO) { return; }
+    closeMore();
+    if (more) { more.remove(); more = null; }
+    var all = Array.prototype.slice.call(bar.querySelectorAll(".sb-tab[data-mission]"));
+    all.forEach(function (t) { t.hidden = false; });
+    if (all.length <= MAXTAB) { return; }
+    var vis = all.slice(0, MAXTAB), hid = all.slice(MAXTAB);
+    var cur = hid.filter(function (t) { return t.classList.contains("is-on"); })[0];
+    if (cur) { hid.splice(hid.indexOf(cur), 1); hid.unshift(vis.pop()); }
+    hid.forEach(function (t) { t.hidden = true; });
+    more = document.createElement("button");
+    more.type = "button";
+    more.className = "sb-tab sb-tab-more";
+    more.setAttribute("aria-haspopup", "menu");
+    more.setAttribute("aria-expanded", "false");
+    var lab = document.createElement("span"); lab.className = "sb-tab-no t-label-1"; lab.textContent = "+" + hid.length;
+    more.appendChild(lab);
+    var top = null;
+    hid.forEach(function (t) { var ic = t.querySelector(".sb-tab-sev"); if (ic && (!top || ic.getAttribute("data-sev") === "critical")) { top = ic; } });
+    if (top) { more.appendChild(top.cloneNode(true)); }
+    var fresh = hid.some(function (t) { return t.classList.contains("is-new"); });
+    if (fresh) { more.classList.add("is-new"); var nd = document.createElement("i"); nd.className = "sb-tab-new"; nd.setAttribute("aria-hidden", "true"); more.insertBefore(nd, more.firstChild); }
+    var say = "숨은 미션 " + hid.length + "개" + (top ? " · " + (top.getAttribute("data-sev") === "critical" ? "위험" : "주의") + " 알림 있음" : "") + (fresh ? " · 새 위험" : "");
+    more.title = say; more.setAttribute("aria-label", say);
+    more.addEventListener("click", function (event) {
+      event.stopPropagation();
+      if (moreMenu) { closeMore(); return; }
+      moreMenu = document.createElement("div");
+      moreMenu.className = "dropdown-menu sb-more-menu";
+      moreMenu.setAttribute("role", "menu");
+      moreMenu.setAttribute("aria-label", "숨은 미션");
+      hid.forEach(function (t) {
+        var b = document.createElement("button");
+        b.type = "button"; b.className = "menu-item"; b.setAttribute("role", "menuitem");
+        var no = t.querySelector(".sb-tab-no"), nm = t.querySelector(".sb-tab-name"), ic = t.querySelector(".sb-tab-sev");
+        if (no) { b.appendChild(no.cloneNode(true)); }
+        var n2 = document.createElement("span"); n2.className = "t-label-2 sb-more-name"; n2.textContent = nm ? nm.textContent : ""; b.appendChild(n2);
+        if (ic) { b.appendChild(ic.cloneNode(true)); }
+        b.setAttribute("aria-label", t.getAttribute("aria-label") || t.getAttribute("data-mission"));
+        b.addEventListener("click", function () { closeMore(); t.click(); });
+        moreMenu.appendChild(b);
+      });
+      var r = more.getBoundingClientRect();
+      moreMenu.style.position = "fixed";
+      moreMenu.style.top = Math.round(r.bottom + 4) + "px";
+      moreMenu.style.left = Math.round(r.left) + "px";
+      document.body.appendChild(moreMenu);
+      more.setAttribute("aria-expanded", "true");
+      var f = moreMenu.querySelector(".menu-item"); if (f) { f.focus(); }
+    });
+    bar.appendChild(more);
+  }
+  if (V7KO) {
+    document.addEventListener("click", function (event) { if (moreMenu && !moreMenu.contains(event.target)) { closeMore(); } });
+    document.addEventListener("keydown", function (event) { if (event.key === "Escape" && moreMenu) { closeMore(); if (more) { more.focus(); } } });
   }
 
   /*
@@ -158,7 +234,7 @@
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var drag = null, justDragged = false, pending = false;
 
-  function missionTabs() { return Array.prototype.slice.call(bar.querySelectorAll(".sb-tab[data-mission]")); }
+  function missionTabs() { return Array.prototype.slice.call(bar.querySelectorAll(".sb-tab[data-mission]:not([hidden])")); }
   // 옮기기 전후 자리를 재서 비켜 서는 탭을 미끄러뜨린다(FLIP)
   function slide(moveFn, except) {
     var tabs = missionTabs().filter(function (t) { return t !== except; });
@@ -226,7 +302,7 @@
     justDragged = true;
     setTimeout(function () { justDragged = false; }, 0);
     saveOrder();
-    if (pending) { pending = false; build(); }
+    if (pending) { pending = false; build(); } else { fit(); }
   }
   function keyMove(event) {
     if (!event.altKey || (event.key !== "ArrowLeft" && event.key !== "ArrowRight")) { return; }
@@ -236,6 +312,8 @@
     slide(function () { if (event.key === "ArrowLeft") { bar.insertBefore(t, sib); } else { bar.insertBefore(sib, t); } });
     t.focus();
     saveOrder();
+    fit();
+    t.focus();
   }
 
   build();
