@@ -36,7 +36,7 @@
   <!-- v6 전용 규칙 — v5 는 10/30 부로 멈췄다. v6 에서 바꾸는 것은 여기(body.ver-6)에. -->
   <link rel="stylesheet" href="../assets/css/v6.css?v=c384b14c" />
   <link rel="stylesheet" href="../assets/css/v7.css?v=ae96270e" />
-  <link rel="stylesheet" href="../assets/css/components-v7.css?v=e9c49b1f" />
+  <link rel="stylesheet" href="../assets/css/components-v7.css?v=f5df0499" />
   <script src="../assets/js/ds-v7.js?v=c4cba4fd"></script>
   <!-- [10/29] v5 지도(map-v6.js)가 그리는 설비 이름표 · 충전 스테이션 · 번호 핀 꼴 — 메인과 같다 -->
   <link rel="stylesheet" href="../assets/css/route-rules.css?v=06eba321" />
@@ -308,7 +308,7 @@
 
                                 <div class="switch-row">
                                   <span class="label">스케줄러에 등록</span>
-                                  <button type="button" class="switch" role="switch" aria-checked="false" aria-label="스케줄러에 등록">
+                                  <button type="button" class="switch ds-switch" role="switch" aria-checked="false" aria-label="스케줄러에 등록">
                                     <span class="knob"></span>
                                   </button>
                                 </div>
@@ -470,7 +470,7 @@
             <div class="map-canvas">
                           <div class="map-tools">
                 <!-- [11/18 v7] 관제와 같게 — 조작 판과 층 판을 둘로 나눴다. 층 판은 조작 판 아래에 따로 선다. -->
-                <div class="map-tools-box">
+                <div class="map-tools-box ds-maptools">
                             <button type="button" class="icon-button" data-map-zoom-in aria-label="확대">
                               <span class="i i-20" style="--i:var(--ic-zoom-in)"></span>
                             </button>

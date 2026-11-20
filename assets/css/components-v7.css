@@ -5,7 +5,7 @@
  * - 값은 토큰만 쓴다(tokens.css). 높이처럼 토큰이 없는 것만 숫자
  * - 배지, 칩, 탭: .ds-badge, .ds-wp, .ds-floor, .ds-chip, .ds-tab-line, .ds-tab-chip, .ds-seg (화면 코드를 이 클래스로 바꾸는 중, assets/js/ds-v7.js 가 같은 마크업을 만들어 줌)
  * - 상단 미션 탭: .sb-tab, .sb-tab-more, .sb-more-menu (11/20 정의서 공통-01 Q6 으로 등록, 그리는 곳은 assets/js/mission-tabs-v6.js, 값은 파일 끝 "상단 미션 탭" 블록)
- * - 파일 차례: 디자인 값 → 컴포넌트(아이콘, 패널 머리, 안내 상자, 배지, 태그, 점 배지, WP 번호 원, 층, 조치 목록과 체크 상자, 칩, 탭, 구간 전환, 버튼) → Delta 부품 → 지도 부품(2D 지도 경로, 번호 원) → 맨 끝 사례(Case Studies: 컴포넌트를 엮은 화면 한 덩이, 예: DELTA 조치 제안 카드)
+ * - 파일 차례: 디자인 값 → 컴포넌트(아이콘, 패널 머리, 안내 상자, 토글, 지도 도구 상자, 배지, 태그, 점 배지, WP 번호 원, 층, 조치 목록과 체크 상자, 칩, 탭, 구간 전환, 버튼) → Delta 부품 → 지도 부품(2D 지도 경로, 번호 원) → 맨 끝 사례(Case Studies: 컴포넌트를 엮은 화면 한 덩이, 예: DELTA 조치 제안 카드)
  * - 버튼: 지금 화면이 쓰는 .btn, .icon-button 등에 바로 걸림 (파일 아래쪽 "버튼")
  * - 나누는 기준: 누르지 않는 표시는 배지, 조건을 켜거나 값을 고르면 칩, 보이는 내용이 통째로 바뀌면 탭, 행동과 이동은 버튼
  * - 인계 문서: https://claude.ai/artifact/P6i1TzG3SDpNn9gPTiF1mg
@@ -190,6 +190,17 @@ body.ver-7, body.ds-auth {   /* body.ds-auth: 로그인 쪽 화면(안내 상자
   --ds-notice-radius: var(--radius-4);
   --ds-notice-text-gap: var(--space-4);          /* 제목과 본문 사이 */
 
+  /* 토글 스위치 (11/20, 지금 값 그대로) */
+  --ds-switch-w: 36px;
+  --ds-switch-h: 20px;
+  --ds-switch-knob: 16px;
+  --ds-switch-pad: var(--space-2);
+
+  /* 지도 도구 상자 (11/20, 관제 기준: 반투명 유리 면) */
+  --ds-maptools-pad: var(--space-4);
+  --ds-maptools-gap: var(--space-8);
+  --ds-maptools-radius: var(--radius-8);
+
   /* 패널 머리 (11/20, 관제 기준) */
   --ds-phead-h: 45px;                             /* 안쪽 12 + 이름 줄 20 + 12 + 구분선 1 */
   --ds-phead-pad: var(--space-12);
@@ -335,6 +346,25 @@ body.ver-7 :is(.context-panel.is-collapsed, .sf.is-fold, .rp-body.is-fold) .ds-p
 :is(body.ver-7, body.ds-auth) .ds-notice.is-warning > .i { color: var(--status-warning-icon) !important; }
 :is(body.ver-7, body.ds-auth) .ds-notice.is-critical { background-color: var(--status-critical-bg) !important; color: var(--status-critical-text) !important; }
 :is(body.ver-7, body.ds-auth) .ds-notice.is-critical > .i { color: var(--status-critical-icon) !important; }
+
+/* ---------- 토글 스위치 (11/20, .ds-switch): 켜고 끄는 단추 하나. 트랙 36x20 + 손잡이 16, 안쪽 2 ----------
+ * 화면: 미션설정, 사전 점검 "스케줄러에 등록"(줄 .switch-row 는 쓰는 자리, 컴포넌트 아님). 예전 .switch 옆에 .ds-switch, 켜짐은 aria-checked="true"
+ * 색: 꺼짐 트랙 다크 회색 650, 라이트 회색 400 / 손잡이 다크 회색 800, 라이트 흰색 + 옅은 그림자. 켜짐 트랙 파랑 700, 손잡이 흰색 */
+body.ver-7 { --ds-switch-off: var(--color-gray-650); --ds-switch-on: var(--color-blue-700); --ds-switch-knob-off: var(--color-gray-800); --ds-switch-knob-on: var(--color-gray-0); --ds-switch-knob-shadow: none; }
+:root[data-theme="light"] body.ver-7 { --ds-switch-off: var(--color-gray-400); --ds-switch-knob-off: var(--color-gray-0); --ds-switch-knob-shadow: 0 1px 2px rgb(16 24 40 / 20%); }
+body.ver-7 .ds-switch { flex: none; display: inline-flex !important; align-items: center !important; box-sizing: border-box !important; width: var(--ds-switch-w) !important; height: var(--ds-switch-h) !important; padding: var(--space-0) var(--ds-switch-pad) !important; border: 0 !important; border-radius: var(--radius-pill) !important; background-color: var(--ds-switch-off) !important; cursor: pointer; }
+body.ver-7 .ds-switch > .knob { width: var(--ds-switch-knob) !important; height: var(--ds-switch-knob) !important; border-radius: var(--radius-pill) !important; background-color: var(--ds-switch-knob-off) !important; box-shadow: var(--ds-switch-knob-shadow) !important; transition: transform 140ms ease; }
+body.ver-7 .ds-switch[aria-checked="true"] { background-color: var(--ds-switch-on) !important; }
+body.ver-7 .ds-switch[aria-checked="true"] > .knob { transform: translateX(calc(var(--ds-switch-w) - var(--ds-switch-knob) - var(--ds-switch-pad) * 2)); background-color: var(--ds-switch-knob-on) !important; }
+body.ver-7 .ds-switch:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
+
+/* ---------- 지도 도구 상자 (11/20, .ds-maptools): 지도 오른쪽 위 아이콘 버튼(36) 묶음. 세로, 안쪽 4, 사이 8, 모서리 8 ----------
+ * 화면: 관제, 전체 미션, 미션설정, 사전 점검. 예전 .map-tools-box(층 판 .is-floors 는 빼고) 옆에 .ds-maptools. 안의 버튼은 공통 아이콘 버튼
+ * 면은 관제 기준 반투명 유리(흐림 10 + 위 밝은 선 + 아래 옅은 그림자)로 통일(11/20: 예전 미션설정, 사전 점검은 불투명 회색 800 면이었음)
+ * 미션설정, 사전 점검은 monitor.css 를 안 불러 유리 값(--map-glass-*)이 없어 여기서 값을 따로 둠 */
+body.ver-7 { --ds-maptools-bg: var(--color-alpha-gray-750-55); --ds-maptools-blur: blur(10px); --ds-maptools-shadow: inset 0 1px 0 var(--effect-glass-edge), 0 14px 30px -18px var(--effect-glass-shadow); }
+:root[data-theme="light"] body.ver-7 { --ds-maptools-bg: color-mix(in srgb, var(--color-gray-100) 80%, transparent); }
+body.ver-7 .ds-maptools { display: flex !important; flex-direction: column !important; gap: var(--ds-maptools-gap) !important; box-sizing: border-box !important; padding: var(--ds-maptools-pad) !important; border: 0 !important; border-radius: var(--ds-maptools-radius) !important; background-color: var(--ds-maptools-bg) !important; -webkit-backdrop-filter: var(--ds-maptools-blur) !important; backdrop-filter: var(--ds-maptools-blur) !important; box-shadow: var(--ds-maptools-shadow) !important; }
 
 /* ---------- WP 번호 원: 왼쪽 알림 목록, 지도 팝오버, 점검 줄, 오른쪽 경로 목록, Delta 어디서 쓰든 하나 ----------
  * 크기는 아이콘과 같은 4의 배수 두 단계(11/19): 번호 칸, 지도, 팝오버 머리 20(.ds-wp), 글자 줄 안 16(.ds-wp.is-s)
