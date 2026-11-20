@@ -8,7 +8,7 @@
 <head>
   <meta charset="UTF-8" />
   <!-- v7(11/06~) — v6 화면 복제. 화면 사이 *-v6.html 주소를 v7 로 잇는다(v7.js). 영문판은 이 줄을 빼고 만든다 -->
-  <script src="../assets/js/v7.js?v=3879dd06"></script>
+  <script src="../assets/js/v7.js?v=426c0a8e"></script>
   <!-- [11/10] 알림 데이터 한 곳 — 관제 · 안전진단 · 알림 센터 · 전체 미션이 같은 알림 12건을 읽는다(alert-data-v7.js) -->
   <script src="../assets/js/alert-data-v7.js?v=6bc11121"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -40,10 +40,10 @@
   <!-- v5 전용 규칙 — v4 는 10/29 부로 멈췄다. v5 에서 바꾸는 것은 여기(body.ver-5)에. -->
   <link rel="stylesheet" href="../assets/css/v5.css?v=9f626280" />
   <!-- v6 전용 규칙 — v5 는 10/30 부로 멈췄다. v6 에서 바꾸는 것은 여기(body.ver-6)에. -->
-  <link rel="stylesheet" href="../assets/css/v6.css?v=fbf27a9f" />
-  <link rel="stylesheet" href="../assets/css/v7.css?v=22a2eccf" />
+  <link rel="stylesheet" href="../assets/css/v6.css?v=c384b14c" />
+  <link rel="stylesheet" href="../assets/css/v7.css?v=d5a19191" />
   <link rel="stylesheet" href="../assets/css/components-v7.css?v=8c6b94dc" />
-  <script src="../assets/js/ds-v7.js?v=1d0ee10f"></script>
+  <script src="../assets/js/ds-v7.js?v=c4cba4fd"></script>
   <!-- 지도 경로 표현 규칙(10/28 반영, 지도 경로 표현 전달서 1022) — 경로 네 구간 · 흐름 빛 · 번호 핀 · 시야 빔 로봇 · 충전 스테이션 · 아래 상태 시뮬레이션 막대 -->
   <link rel="stylesheet" href="../assets/css/route-rules.css?v=06eba321" />
   <style>
@@ -1195,116 +1195,8 @@
 </div>
 
 
-<!-- ============================================================
-     Modal · 관제사 교대 — UI_99 작업화면 1319:88826 (Panel 1319:88848)
-     수행 중인 로봇이 있어 로그아웃을 못 할 때, 교대자가 여기서 바로 로그인한다.
-     로봇 임무는 끊기지 않는다 — 화면은 그대로 두고 관제사 이름만 바뀐다.
-     ============================================================ -->
-<div class="modal-scrim" data-modal="shift" hidden>
-  <div class="modal is-shift" role="dialog" aria-modal="true"
-       aria-labelledby="m-shift-title" aria-describedby="m-shift-desc">
 
-    <div class="shift-head">
-      <h2 class="t-heading-3" id="m-shift-title">관제사 교대</h2>
-      <p class="t-body-2" id="m-shift-desc">
-        현재 수행 중인 로봇 <span data-shift-count>3</span>대가 있어 로그아웃할 수 없습니다.<br />
-        교대 중에 로봇 임무는 중단되지 않습니다.
-      </p>
-      <button type="button" class="icon-button modal-close" data-modal-dismiss aria-label="닫기">
-        <span class="i i-16" style="--i:var(--ic-close)" aria-hidden="true"></span>
-      </button>
-    </div>
 
-    <div class="shift-fields">
-      <label class="field">
-        <span class="field-label">아이디</span>
-        <span class="field-box">
-          <span class="i i-20" style="--i:var(--ic-user)" aria-hidden="true"></span>
-          <input type="text" class="field-input" placeholder="사번 또는 아이디를 입력하세요"
-                 aria-label="아이디" autocomplete="off" data-shift-id />
-        </span>
-      </label>
-
-      <label class="field">
-        <span class="field-label">비밀번호</span>
-        <span class="field-box">
-          <span class="i i-20" style="--i:var(--ic-lock)" aria-hidden="true"></span>
-          <input type="password" class="field-input" placeholder="비밀번호를 입력하세요"
-                 aria-label="비밀번호" autocomplete="off" data-shift-pw />
-          <button type="button" class="field-eye" data-shift-eye aria-label="비밀번호 보기">
-            <span class="i i-20" style="--i:var(--ic-eye-off)" aria-hidden="true"></span>
-          </button>
-        </span>
-      </label>
-    </div>
-
-    <button type="button" class="btn is-lg btn-secondary shift-go"
-            data-modal-confirm="" data-modal-then="shift">로그인</button>
-
-    <div class="shift-help">
-      <span class="shift-divider" aria-hidden="true"></span>
-      <p class="t-caption">계정 발급 · 잠금 해제 문의 : 설비운영팀 내선 2400</p>
-      <p class="t-caption">ⓒ 2026 APRISM · 모든 접속 기록은 감사 로그에 저장됩니다.</p>
-    </div>
-  </div>
-</div>
-
-<!-- ============================================================
-     Modal · Figma UI_00 Design System 71:492
-     로그아웃 확인. Show Timer=true — 남은 시간이 0 이 되면 그대로 나간다.
-     ============================================================ -->
-<!-- [11/20 정의서 CM-06] 자동 로그아웃 안내 — Figma UI_01 345:3895. 일정 시간 입력이 없으면 뜨고 35초 뒤 로그인 화면으로.
-     [연장하기] · 닫기 · Esc · 바탕 클릭 = 연장(입력이 있었다는 뜻). 시연: 주소 ?idle=초 (v7.js). Figma 의 "권장 조치를 입력하세요." 줄은 다른 모달에서 남은 글이라 뺐다 -->
-<div class="modal-scrim" data-modal="autologout" hidden>
-  <div class="modal" role="alertdialog" aria-modal="true"
-       aria-labelledby="m-auto-title" aria-describedby="m-auto-desc">
-    <div class="modal-head">
-      <div class="modal-titles">
-        <h2 class="t-heading-3" id="m-auto-title">자동 로그아웃 안내</h2>
-        <span class="t-title-1 modal-timer num" data-modal-timer="35" aria-live="off">35s</span>
-      </div>
-      <button type="button" class="icon-button modal-close" data-modal-dismiss aria-label="닫기">
-        <span class="i i-16" style="--i:var(--ic-close)" aria-hidden="true"></span>
-      </button>
-    </div>
-    <div class="modal-body" id="m-auto-desc">
-      <p class="t-body-2 modal-desc-1"><span data-modal-user>홍길동 · 관제운영</span> · <span data-idle-min>30</span>분 동안 사용 기록이 없어 곧 로그아웃돼요.</p>
-      <p class="t-body-2 modal-desc-2">로그인을 연장할까요?</p>
-    </div>
-    <div class="modal-foot">
-      <button type="button" class="btn is-md btn-ghost" data-modal-confirm="login-v2.html?reason=idle" data-autologout-now>로그아웃</button>
-      <button type="button" class="btn is-md btn-accent" data-modal-dismiss>연장하기</button>
-    </div>
-  </div>
-</div>
-<button type="button" data-modal-open="autologout" data-autologout-open hidden></button>
-
-<div class="modal-scrim" data-modal="logout" hidden>
-  <div class="modal" role="alertdialog" aria-modal="true"
-       aria-labelledby="m-logout-title" aria-describedby="m-logout-desc">
-
-    <div class="modal-head">
-      <div class="modal-titles">
-        <h2 class="t-heading-3" id="m-logout-title">로그아웃할까요?</h2>
-        <span class="t-title-1 modal-timer num" data-modal-timer="35" aria-live="off">35s</span>
-      </div>
-      <button type="button" class="icon-button modal-close" data-modal-dismiss aria-label="닫기">
-        <span class="i i-16" style="--i:var(--ic-close)" aria-hidden="true"></span>
-      </button>
-    </div>
-
-    <div class="modal-body" id="m-logout-desc">
-      <p class="t-body-2 modal-desc-1"><span data-modal-user>홍길동 · 관제운영</span> 세션이 종료되고 로그인 화면으로 돌아갑니다.</p>
-      <p class="t-body-2 modal-desc-2">진행 중인 정기 순회 #248은 중단되지 않으며, 다시 로그인하면 이어서 관제할 수 있습니다.</p>
-    </div>
-
-    <div class="modal-foot">
-      <button type="button" class="btn is-md btn-secondary" data-modal-dismiss>취소</button>
-      <button type="button" class="btn is-md btn-danger" data-modal-confirm="login.html">로그아웃</button>
-    </div>
-
-  </div>
-</div>
 
 <!-- ============================================================
      Modal · Figma UI_00 Design System 71:492
@@ -1829,8 +1721,8 @@
 <script src="../assets/js/ah-sort.js?v=8010f248"></script>
 <script src="../assets/js/alert-text-v6.js?v=a6a79f62"></script>
 <script src="../assets/js/verdict-v6.js?v=ee80312a"></script>
-<script src="../assets/js/monitor.js?v=70bc0e36"></script>
-<script src="../assets/js/mission-scope.js?v=7f3a062b"></script>
+<script src="../assets/js/monitor.js?v=0aa51212"></script>
+<script src="../assets/js/mission-scope.js?v=874376d3"></script>
 <!-- [10/30 v6] 상단 미션 탭(윈도우 탐색기 꼴) — 미션 메뉴를 읽어 탭으로 늘어놓는다. 메뉴를 만드는 스크립트 다음에 -->
 <script src="../assets/js/mission-tabs-v6.js?v=18f484a3"></script>
 <script src="../assets/js/mission-done-v6.js?v=2b6e3909"></script>

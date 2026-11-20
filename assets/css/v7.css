@@ -1578,3 +1578,11 @@ body.ver-7 .ac-dc-occ { flex: none; width: 72px; color: var(--text-tertiary); wh
 /* [11/20 정의서 CM-06] 자동 로그아웃의 [로그아웃] = 보조 행동, 무채색 글자(색상 위계 3) — 주요 행동 [연장하기]만 파랑 */
 body.ver-7 [data-autologout-now] { color: var(--text-secondary); }
 body.ver-7 [data-autologout-now]:hover { color: var(--text-primary); }
+
+/* [11/20 정의서 CM-13] 관제사 교대 모달 — 계정 잠금 안내(로그인 화면 .login-alert 와 같은 꼴: 빨간 테두리만, 면 없음) */
+.v7m-alert { display: flex; gap: var(--space-12); align-items: flex-start; padding: var(--space-12) var(--space-16); border: var(--border-width-thin) solid var(--status-critical-border); border-radius: var(--radius-control); background-color: transparent; }
+.v7m-alert[hidden] { display: none; }
+.v7m-alert > .i { flex: none; --i: var(--ic-error); color: var(--status-critical-icon); }
+.v7m-alert-title { margin: 0 0 var(--space-4); color: var(--status-critical-text); font-size: 14px; font-weight: 700; line-height: 20px; }
+.v7m-alert-text { margin: 0; color: var(--text-secondary); font-size: 13px; line-height: 20px; word-break: keep-all; }
+.modal.is-shift .shift-go[aria-busy="true"] { cursor: progress; }
