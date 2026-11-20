@@ -1837,7 +1837,7 @@
       [2.8, "alert", { wpRed: "냉각 펌프 P-2", badge: ["위험 감지", "danger"], title: "설비 고온 감지 · 92℃", left: "냉각 펌프 P-2 · 위험 기준 80℃ 초과" }],
       [5.6, "alert", { wpRed: "냉각 펌프 P-2", badge: ["위험 감지", "danger"], title: "작업자 대피 안내 중", left: "근로자 1명 · 현장 이탈 안내" }],
       [8.4, "alert", { wpRed: "냉각 펌프 P-2", badge: ["조치 요청", "danger"], title: "현장 조치 요청됨", left: "로봇은 안전거리에서 감시" }],
-      [11.2, "run", { wpRed: "냉각 펌프 P-2", title: "다음 점검 지점으로 이동", left: "근로자 대피 확인 · 설비 담당자 조치 중" }]],   // 설비는 아직 고온 — 로봇이 떠나도 WP-05 는 빨강
+      [11.2, "run", { wpOk: "냉각 펌프 P-2", title: "다음 점검 지점으로 이동", left: "조치 완료 · 정상 운영" }]],   // 처리 끝 — WP-05 는 평소 색(11/20)
     "3-1": [
       [0, "pause", { badge: ["점검 중단", "warning"], bat: 20, title: "배터리 부족 · 점검 중단", left: "안정 자세로 대기" }],
       [3.0, "pause", { badge: ["복귀 대기", "warning"], bat: 20, title: "자율 복귀 가능 · 지시 대기", left: "복귀 예상 2분 · 복귀 후 15%" }],
@@ -2158,16 +2158,19 @@
     if (box.style.getPropertyValue("--y") !== y) box.style.setProperty("--y", y);
   }
   // v7 에 없는 상태 · 알림을 이 영상에서만 덧입힌다 — 글은 속성(data-k)으로 얹어 관제 화면이 글을 다시 써도 유지된다
+  // d.__kWp = [이름, "danger" | "ok"] — danger: 위험(빨강) / ok: 처리 끝난 평소 색(알림 · 보류 표시 지움, 지난 지점이면 결과 safe)
   function kWpRed(d) {
-    const name = d.__kWpRed;
+    const [name, mode] = d.__kWp || [];
+    const WANT = mode === "ok" ? { "data-wp-alert": null, "data-rr-hold": null, "data-wp-result": "safe" } : { "data-wp-alert": "danger", "data-rr-hold": "danger", "data-wp-result": "danger" };
     d.querySelectorAll("[data-timeline] [data-waypoint]").forEach(n => {
       const want = name && n.textContent.includes(name);
       for (const at of ["data-wp-alert", "data-wp-result", "data-rr-hold"]) {
         const keep = "data-kista-" + at.slice(5);
         if (want) {
-          if (!n.hasAttribute(at) && at !== "data-wp-alert") continue;   // 결과 · 보류는 있는 것만
+          if (!n.hasAttribute(at) && !n.hasAttribute(keep) && at !== "data-wp-alert") continue;   // 결과 · 보류는 있는 것만
           if (!n.hasAttribute(keep)) n.setAttribute(keep, n.getAttribute(at) ?? "");
-          if (n.getAttribute(at) !== "danger") n.setAttribute(at, "danger");
+          const v = WANT[at];
+          if (v == null) { if (n.hasAttribute(at)) n.removeAttribute(at); } else if (n.getAttribute(at) !== v) n.setAttribute(at, v);
         } else if (n.hasAttribute(keep)) {
           const v = n.getAttribute(keep); n.removeAttribute(keep);
           if (v) n.setAttribute(at, v); else n.removeAttribute(at);
@@ -2206,7 +2209,7 @@
     d.body.classList.toggle("kista-quiet", !!o.quiet);
     // (11/20) wpRed — 그 이름의 웨이포인트를 위험(빨강)으로. 관제 화면(monitor.js · route-sim)이 알림 단계로 계속 다시 칠하므로
     //   목록에 감시(MutationObserver)를 걸어 칠할 때마다 바로 덮는다(그림 전에 돈다). 없으면 원래 값으로 되돌린다
-    d.__kWpRed = o.wpRed || null;
+    d.__kWp = o.wpRed ? [o.wpRed, "danger"] : o.wpOk ? [o.wpOk, "ok"] : null;
     const rail = d.querySelector("[data-timeline]");
     if (rail && !d.__kWpObs) {
       d.__kWpObs = new d.defaultView.MutationObserver(() => kWpRed(d));
