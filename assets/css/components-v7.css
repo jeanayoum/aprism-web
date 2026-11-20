@@ -5,7 +5,7 @@
  * - 값은 토큰만 쓴다(tokens.css). 높이처럼 토큰이 없는 것만 숫자
  * - 배지, 칩, 탭: .ds-badge, .ds-wp, .ds-floor, .ds-chip, .ds-tab-line, .ds-tab-chip, .ds-seg (화면 코드를 이 클래스로 바꾸는 중, assets/js/ds-v7.js 가 같은 마크업을 만들어 줌)
  * - 상단 미션 탭: .sb-tab, .sb-tab-more, .sb-more-menu (11/20 정의서 공통-01 Q6 으로 등록, 그리는 곳은 assets/js/mission-tabs-v6.js, 값은 파일 끝 "상단 미션 탭" 블록)
- * - 파일 차례: 디자인 값 → 컴포넌트(아이콘, 배터리, 리스트, 패널 머리, 안내 상자, 토글, 지도 도구 상자, 지도 팝오버, 배지, 태그, 점 배지, WP 번호 원, 층, 조치 목록과 체크 상자, 칩, 탭, 구간 전환, 버튼) → Delta 부품 → 지도 부품(2D 지도 경로, 번호 원) → 맨 끝 사례(Case Studies: 컴포넌트를 엮은 화면 한 덩이, 예: DELTA 조치 제안 카드)
+ * - 파일 차례: 디자인 값 → 컴포넌트(글자 단계, 아이콘, 배터리, 리스트, 패널 머리, 안내 상자, 토글, 지도 도구 상자, 지도 팝오버, 배지, 태그, 점 배지, WP 번호 원, 층, 조치 목록과 체크 상자, 칩, 탭, 구간 전환, 버튼) → Delta 부품 → 지도 부품(2D 지도 경로, 번호 원) → 맨 끝 사례(Case Studies: 컴포넌트를 엮은 화면 한 덩이, 예: DELTA 조치 제안 카드)
  * - 버튼: 지금 화면이 쓰는 .btn, .icon-button 등에 바로 걸림 (파일 아래쪽 "버튼")
  * - 나누는 기준: 누르지 않는 표시는 배지, 조건을 켜거나 값을 고르면 칩, 보이는 내용이 통째로 바뀌면 탭, 행동과 이동은 버튼
  * - 인계 문서: https://claude.ai/artifact/P6i1TzG3SDpNn9gPTiF1mg
@@ -90,6 +90,13 @@ body.ver-7, body.ds-auth {   /* body.ds-auth: 로그인 쪽 화면(안내 상자
   --ds-delta-bubble-pad-y: var(--space-12);
   --ds-delta-bubble-pad-x: var(--space-16);
   --ds-delta-orb: 56px;                           /* 대화형 Delta 구슬 */
+
+  /* 글자 단계 (11/20, 관제 왼쪽 패널 기준). 1층 토큰(--font-size-*, --font-line-height-*, --font-weight-* = 400, 500, 600, 700)을 엮은 2층 값. 굵기 800 은 토큰에 없어 쓰지 않음 */
+  --ds-type-title-size: var(--font-size-16);   --ds-type-title-line: var(--font-line-height-24);   --ds-type-title-weight: var(--font-weight-bold);      /* 영역 제목: 조치 필요 알림, 미션 설정 */
+  --ds-type-label-size: var(--font-size-14);   --ds-type-label-line: var(--font-line-height-20);   --ds-type-label-weight: var(--font-weight-medium);    /* 항목 이름: 알림 제목, 입력 칸 이름, 요약 이름과 값 */
+  --ds-type-body-size: var(--font-size-14);    --ds-type-body-line: var(--font-line-height-22);    --ds-type-body-weight: var(--font-weight-regular);    /* 본문: 고른 값, 점검 줄 글 */
+  --ds-type-meta-size: var(--font-size-12);    --ds-type-meta-line: var(--font-line-height-18);    --ds-type-meta-weight: var(--font-weight-medium);     /* 칩, 작은 단추, 건수 */
+  --ds-type-caption-size: var(--font-size-12); --ds-type-caption-line: var(--font-line-height-18); --ds-type-caption-weight: var(--font-weight-regular); /* 보조 글: 시각, 위치, 설명 */
 
   /* 아이콘 크기 (11/20, SEED 아이콘 규칙: 12, 16, 20, 24 네 단계). 16 이상은 토큰, 12는 토큰이 없어 숫자 */
   --ds-icon-12: 12px;
@@ -252,6 +259,12 @@ body.ver-7 .ds-ic.is-big::before { width: 10px; height: 10px; border-radius: var
 body.ver-7 .ds-ic.is-tri::before { width: 12px; height: 12px; -webkit-mask: var(--ic-error) center / contain no-repeat; mask: var(--ic-error) center / contain no-repeat; }
 body.ver-7 .ds-ic.is-check::before { width: 12px; height: 12px; -webkit-mask: var(--ic-check) center / contain no-repeat; mask: var(--ic-check) center / contain no-repeat; }
 body.ver-7 .ds-ic.is-tri.is-warn-ic::before { -webkit-mask-image: var(--ic-warning); mask-image: var(--ic-warning); }
+
+/* ---------- 글자 단계 (11/20): 관제 왼쪽 패널 기준 다섯 단계(제목 16/24/700, 항목 이름 14/20/500, 본문 14/22/400, 칩 12/18/500, 보조 12/18/400) ----------
+ * 값은 맨 위 디자인 값 --ds-type-*(1층 글자 토큰을 엮음). 글자 스타일 클래스(.t-*)는 이름과 실제 크기가 어긋난 곳이 있어(예: .t-label-2 는 13/18 인데 관제 알림 제목은 14/20 으로 덮임) 화면에 보이는 값을 기준으로 맞춤
+ * 미션설정, 사전 점검 왼쪽 패널: 입력 칸 이름, "점검항목", 요약 이름, 사전 점검 줄 이름 14/20/800 → 항목 이름(500). 요약 값 14/22/400 파랑 → 항목 이름(500) 기본 글자색(색은 신호에만) */
+body.ver-7 :is(.mp-form .field-label, .check-group-head .label, .sum-row .label, .precheck-row .label) { font-size: var(--ds-type-label-size) !important; line-height: var(--ds-type-label-line) !important; font-weight: var(--ds-type-label-weight) !important; }
+body.ver-7 .sum-row .value { font-size: var(--ds-type-label-size) !important; line-height: var(--ds-type-label-line) !important; font-weight: var(--ds-type-label-weight) !important; color: var(--text-primary) !important; }
 
 /* ---------- 아이콘 (11/20): 크기 클래스 네 단계 .i-12, .i-16, .i-20, .i-24 ----------
  * 아이콘 바탕(.i: 마스크로 모양, 색은 currentColor)과 모양 57개(--ic-*)는 app-shell.css 에 둠(v6 이하도 같이 쓰는 자원)
