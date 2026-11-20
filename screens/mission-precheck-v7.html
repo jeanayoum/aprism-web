@@ -6,7 +6,7 @@
 <head>
   <meta charset="UTF-8" />
   <!-- v7(11/06~) — v6 화면 복제. 화면 사이 *-v6.html 주소를 v7 로 잇는다(v7.js). 영문판은 이 줄을 빼고 만든다 -->
-  <script src="../assets/js/v7.js?v=5437cf44"></script>
+  <script src="../assets/js/v7.js?v=3879dd06"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>v7 · 사전 점검 — APRISM</title>
   <meta name="description" content="APRISM 통합 관제 메인 · 사전 점검 — v2.2 플로우의 둘째 단계. 끝나면 v2.2 통합 관제 메인으로 넘어간다" />
@@ -35,7 +35,7 @@
   <link rel="stylesheet" href="../assets/css/v5.css?v=9f626280" />
   <!-- v6 전용 규칙 — v5 는 10/30 부로 멈췄다. v6 에서 바꾸는 것은 여기(body.ver-6)에. -->
   <link rel="stylesheet" href="../assets/css/v6.css?v=fbf27a9f" />
-  <link rel="stylesheet" href="../assets/css/v7.css?v=34f54ed5" />
+  <link rel="stylesheet" href="../assets/css/v7.css?v=22a2eccf" />
   <link rel="stylesheet" href="../assets/css/components-v7.css?v=03553c82" />
   <script src="../assets/js/ds-v7.js?v=1d0ee10f"></script>
   <!-- [10/29] v5 지도(map-v6.js)가 그리는 설비 이름표 · 충전 스테이션 · 번호 핀 꼴 — 메인과 같다 -->
@@ -1153,8 +1153,8 @@
       <p class="t-body-2 modal-desc-2">로그인을 연장할까요?</p>
     </div>
     <div class="modal-foot">
-      <button type="button" class="btn is-md btn-ghost" data-modal-confirm="login-v2.html">로그아웃</button>
-      <button type="button" class="btn is-md btn-secondary" data-modal-dismiss>연장하기</button>
+      <button type="button" class="btn is-md btn-ghost" data-modal-confirm="login-v2.html?reason=idle" data-autologout-now>로그아웃</button>
+      <button type="button" class="btn is-md btn-accent" data-modal-dismiss>연장하기</button>
     </div>
   </div>
 </div>

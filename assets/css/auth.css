@@ -548,3 +548,7 @@
 .login-submit.is-accent:disabled { background-color: var(--comp-button-secondary-bg-default); color: var(--comp-button-accent-text-disabled); opacity: 1; }
 .auth-switch.is-quiet { color: var(--text-secondary); }
 .auth-switch.is-quiet:hover { color: var(--text-primary); }
+/* [11/20 정의서 CM-06 Q4] 자동 로그아웃 안내 토스트 — 화면 위 가운데, 3초 뒤 사라짐 */
+.auth-toast { position: fixed; top: var(--space-32); left: 50%; transform: translateX(-50%); z-index: 10; padding: var(--space-12) var(--space-20); border: var(--border-width-thin) solid var(--border-default); border-radius: var(--radius-control); background-color: var(--bg-panel); color: var(--text-primary); font-size: 14px; line-height: 20px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.32); transition: opacity 300ms ease; }
+.auth-toast.is-out { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .auth-toast { transition: none; } }

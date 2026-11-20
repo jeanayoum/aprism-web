@@ -132,8 +132,14 @@ document.addEventListener("DOMContentLoaded", function () {
   if (!m || !opener || !scrim) { return; }
   var sec = Math.max(3, parseInt(m[1], 10)), t = null;
   var slot = scrim.querySelector("[data-idle-min]");
-  if (slot) { slot.textContent = String(Math.max(1, Math.round(sec / 60))); }
-  function arm() { clearTimeout(t); t = setTimeout(function () { if (scrim.hidden) { opener.click(); } }, sec * 1000); }
+  // 안내 문구의 N분 = 기준 시간(정의서 30분). 시연 ?idle=초 가 1분보다 짧으면 문구는 30분 그대로 둔다
+  if (slot && sec >= 60) { slot.textContent = String(Math.round(sec / 60)); }
+  // [11/20 정의서 CM-06 Q2] 수행 중인 로봇이 있으면(로그아웃이 잠긴 화면) 자동 로그아웃하지 않는다 — 다시 기다린다
+  function busy() { var lo = document.querySelector("[data-logout-item]"); return !!(lo && lo.disabled); }
+  function arm() { clearTimeout(t); t = setTimeout(function () { if (busy()) { arm(); return; } if (scrim.hidden) { opener.click(); } }, sec * 1000); }
+  // [11/20 Q4] 직접 [로그아웃]을 누른 것과 시간이 다 된 것을 로그인 화면 안내에서 가른다
+  var now = scrim.querySelector("[data-autologout-now]");
+  if (now) { now.addEventListener("click", function () { try { sessionStorage.setItem("aprism.logoutBy", "user"); } catch (e) { /* 막힘 */ } }, true); }
   ["pointerdown", "pointermove", "keydown", "wheel", "touchstart"].forEach(function (ev) {
     document.addEventListener(ev, function () { if (scrim.hidden) { arm(); } }, { passive: true, capture: true });
   });

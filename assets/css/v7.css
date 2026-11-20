@@ -1574,3 +1574,7 @@ body.ver-7 .ac-cells { display: inline-flex; align-items: center; gap: var(--spa
 body.ver-7 .ac-dc-act .ac-cells { display: inline; } body.ver-7 .ac-dc-act .ac-cells > span + span { margin-left: var(--space-12); }
 body.ver-7 .ac-dc-sev { width: 56px !important; gap: 0 !important; }
 body.ver-7 .ac-dc-occ { flex: none; width: 72px; color: var(--text-tertiary); white-space: nowrap; }
+
+/* [11/20 정의서 CM-06] 자동 로그아웃의 [로그아웃] = 보조 행동, 무채색 글자(색상 위계 3) — 주요 행동 [연장하기]만 파랑 */
+body.ver-7 [data-autologout-now] { color: var(--text-secondary); }
+body.ver-7 [data-autologout-now]:hover { color: var(--text-primary); }
