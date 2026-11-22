@@ -227,7 +227,12 @@
         row.classList.remove("is-pending");
         row.classList.add("is-running", "is-active");
         var meta = row.querySelector(".meta");
-        if (meta) { meta.textContent = row.getAttribute("data-running-meta") || "확인중.."; }
+        var say = row.getAttribute("data-running-meta") || "확인중..";
+        // [11/23 정의서 관제화면-02] 배터리 줄 로봇 이름은 미션 설정에서 고른 실행 로봇을 따른다(예전엔 ROBOT 02 로 박혀 있었다)
+        var pick = document.querySelector("[data-mp-robot] [data-select-value]");
+        var who = pick && /ROBOT\s*\d+/i.exec(pick.textContent);
+        if (who) { say = say.replace(/ROBOT\s*\d+/i, who[0].toUpperCase()); }
+        if (meta) { meta.textContent = say; }
       }
 
       function complete(row) {
