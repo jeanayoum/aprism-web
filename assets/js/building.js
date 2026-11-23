@@ -1310,7 +1310,7 @@
     var ov = $(".sb-overview");
     if (ov) { ov.classList.remove("is-on"); ov.removeAttribute("aria-current"); }
     var order = $(".ah-order");
-    if (order) { order.textContent = "오래된 순 · 위험 우선"; }
+    if (order) { order.textContent = document.body.classList.contains("ver-7") ? "오래된 순, 위험 우선" : "오래된 순 · 위험 우선"; }   // [11/23 v7] 가운데점 대신 쉼표
     var hintTxt = $("[data-bld-hint]");
     if (hintTxt) { hintTxt.textContent = "이 미션이 지나는 층이에요. 층을 누르면 그 층의 미션 관제로 돌아가요"; }
   }
