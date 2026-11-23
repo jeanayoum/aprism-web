@@ -388,6 +388,26 @@
   var MAXM = 10, TODAY = 22;
   if (V6) { vm = 11; MAXM = 11; TODAY = 2; }   // [11/02 v6] 오늘 11/02 — 목록은 이번 달(11월)부터
   var list = body.querySelector("[data-rp-list]"), side = body.querySelector("[data-rp-side]"), detail = body.querySelector("[data-rp-detail]");
+  /* [11/23] v7: 목록 위 "최신순 정렬" 글자를 관제 알림 목록과 같은 정렬 단추(.ah-sort-btn, 글자 + 위아래 화살표)로. 누르면 최신순 ↔ 오래된 순 */
+  var rpSort = "new";
+  try { if (localStorage.getItem("aprism.rp-sort") === "old") { rpSort = "old"; } } catch (e) { /* 그대로 */ }
+  (function () {
+    if (!document.body.classList.contains("ver-7")) { rpSort = "new"; return; }
+    var cnt = body.querySelector(".rp-cnt"), lab = cnt && cnt.querySelector("span:not(.rp-cn)");
+    if (!lab) { return; }
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "ah-sort-btn rp-sort t-caption"; b.setAttribute("aria-label", "정렬 바꾸기");
+    var ic = document.createElement("span"); ic.className = "i i-16"; ic.setAttribute("aria-hidden", "true"); ic.style.setProperty("--i", "var(--ic-sort)");
+    var tx = document.createElement("span");
+    b.appendChild(ic); b.appendChild(tx);
+    function sync() { tx.textContent = rpSort === "old" ? "오래된 순" : "최신순"; b.setAttribute("data-mode", rpSort); }
+    b.addEventListener("click", function () {
+      rpSort = rpSort === "old" ? "new" : "old";
+      try { localStorage.setItem("aprism.rp-sort", rpSort); } catch (e) { /* 그대로 */ }
+      sync(); renderList();
+    });
+    sync(); cnt.replaceChild(b, lab);
+  })();
   var dh = body.querySelector("[data-rp-dh]");
   // 머리 메타 — 라벨(text/tertiary) · 값 짝. 마지막은 늘 문서 번호
   function metaHtml(d) {
@@ -464,12 +484,13 @@
     if (vm === 10 && moState === "made") { n++; }
     // 보고서가 하나도 없는 달은 묶을 것이 없어 자리를 두지 않는다(시안에서는 10월만 있다)
     var mdays = DAYS.filter(function (d) { return monthOf(d) === vm; });
+    if (rpSort === "old") { mdays = mdays.slice().reverse(); }   // [11/23] 정렬 단추: 오래된 순이면 날과 미션을 거꾸로(데이터는 최신순)
     if (vm === 10 || mdays.length) { html += '<div class="rp-grp is-month">' + moSlot() + "</div>"; }
     if (mdays.length) {
       mdays.forEach(function (d) {
         if (!d.live) { n++; }
         html += '<div class="rp-grp" role="listitem" data-day="' + d.day + '">' + dayRow(d.dayRpt.id, d.d, d.live ? "작성 중" : "미션 " + d.dayRpt.n, d.dayRpt.id && d.dayRpt.id === cur, d.live);
-        d.missions.forEach(function (m) { n++; html += missionRow(m.id, m.t, m.id && m.id === cur); });
+        (rpSort === "old" ? d.missions.slice().reverse() : d.missions).forEach(function (m) { n++; html += missionRow(m.id, m.t, m.id && m.id === cur); });
         html += "</div>";
       });
     } else {
