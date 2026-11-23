@@ -64,7 +64,10 @@ body.ver-7, body.ds-auth {   /* body.ds-auth: 로그인 쪽 화면(안내 상자
   --ds-menu-item-h: 36px;
   --ds-menu-item-pad-x: var(--space-12);
   --ds-menu-item-radius: var(--radius-2);
-  --ds-menu-shadow: 0 4px 16px var(--color-alpha-gray-950-55);
+  --ds-menu-shadow: 0 4px 16px var(--color-alpha-gray-950-55);   /* 떠 있는 메뉴와 떠 있는 판 같은 그림자 하나 */
+  --ds-pop-pad: var(--space-12);                 /* 떠 있는 판(달력, 문서 구성): 안쪽 12(카드, 지도 팝오버와 같음). 메뉴는 목록이라 4 */
+  --ds-pop-gap: var(--space-12);                 /* 판 안 덩이 사이(제목 / 설명 / 목록 / 합계) */
+  --ds-pop-offset: var(--space-4);               /* 누른 단추와 사이: 메뉴, 판 모두 4 */
 
   /* 떠 있는 것: 대화상자, 지도 위 카드, 토스트 (11/20) */
   --ds-modal-w: 480px;
@@ -868,6 +871,15 @@ body.ver-7 :is(.dropdown-menu, .field-menu, .ma-menu) {
   background-color: var(--bg-raised) !important; box-shadow: var(--ds-menu-shadow) !important;
 }
 body.ver-7 .ma-menu:not([hidden]) { display: flex !important; flex-direction: column !important; }
+/* 떠 있는 판 .ds-pop (11/23): 누르면 뜨는 내용 판(보고서 날짜 달력 .rp-cal, 문서 구성 .rp-pop). 면, 테, 모서리, 그림자는 메뉴와 같고 안쪽 12, 덩이 사이 12, 단추와 4
+ *   예전: 테 --border-strong, 그림자 검정 35%, 안쪽 16, 단추와 8 → 메뉴와 하나로 */
+body.ver-7 .ds-pop {
+  box-sizing: border-box !important; gap: var(--ds-pop-gap) !important; padding: var(--ds-pop-pad) !important;
+  border: var(--border-width-thin) solid var(--border-default) !important; border-radius: var(--ds-menu-radius) !important;
+  background-color: var(--bg-raised) !important; box-shadow: var(--ds-menu-shadow) !important;
+}
+body.ver-7 .rp-pop.ds-pop { top: calc(100% + var(--ds-pop-offset)) !important; }
+body.ver-7 .rp-pop.ds-pop.is-up { top: auto !important; bottom: calc(100% + var(--ds-pop-offset)) !important; }
 body.ver-7 :is(.dropdown-menu .menu-item:not(.scope-item), .field-option, .ma-menu button) {
   display: flex !important; align-items: center !important; gap: var(--space-8) !important; box-sizing: border-box !important;
   width: 100%; height: auto !important; min-height: var(--ds-menu-item-h) !important; padding: var(--space-0) var(--ds-menu-item-pad-x) !important;

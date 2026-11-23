@@ -325,7 +325,7 @@
       closePops();
       if (ex) { return; }
       var box = document.createElement("div");
-      box.className = "rp-pop" + (popUp ? " is-up" : "");
+      box.className = "rp-pop" + (popUp ? " is-up" : "") + (document.body.classList.contains("ver-7") ? " ds-pop" : "");
       box.setAttribute("data-pop", "note");
       box.setAttribute("role", "dialog");
       box.setAttribute("aria-label", "특이 사항 입력");
@@ -352,7 +352,7 @@
       closePops();
       if (ex) { return; }
       var box = document.createElement("div");
-      box.className = "rp-pop" + (popUp ? " is-up" : "");
+      box.className = "rp-pop" + (popUp ? " is-up" : "") + (document.body.classList.contains("ver-7") ? " ds-pop" : "");
       box.setAttribute("data-pop", "cfg");
       box.setAttribute("role", "dialog");
       box.setAttribute("aria-label", "문서 구성");
@@ -525,11 +525,11 @@
   function toggleCal() {
     if (side.querySelector(".rp-cal")) { closeCal(); return; }
     var p = document.createElement("div");
-    p.className = "rp-cal";
+    p.className = "rp-cal" + (document.body.classList.contains("ver-7") ? " ds-pop" : "");
     p.setAttribute("role", "dialog");
     p.setAttribute("aria-label", "날짜로 찾기");
     var row = side.querySelector(".rp-mrow");
-    p.style.top = (row.getBoundingClientRect().bottom - side.getBoundingClientRect().top + 8) + "px";
+    p.style.top = (row.getBoundingClientRect().bottom - side.getBoundingClientRect().top + (document.body.classList.contains("ver-7") ? 4 : 8)) + "px";   // v7 단추와 4(메뉴와 같게)
     side.appendChild(p);
     mtBtn.setAttribute("aria-expanded", "true");
     drawCal(p, vm);
