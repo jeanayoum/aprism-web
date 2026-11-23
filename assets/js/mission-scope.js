@@ -73,7 +73,15 @@
 
   // 미션 상태 — 로봇 카드 배지에서 읽는다. 하나라도 수행중이면 수행중, 다 완료면 완료, 나머지는 대기.
   var GROUPS = [["run", "수행중"], ["idle", "대기"], ["done", "완료"]];
+  // [11/23 디자이너] v7 — 관제에서 미션이 끝나면(시연 막대 [미션 완료]) 지금 미션을 완료로. 처리 안 된 알림이 남으면 단계 아이콘은 그대로(정의서 공통-01)
+  var doneNow = {};
+  document.addEventListener("aprism:mission-state", function (event) {
+    if (!document.body.classList.contains("ver-7") || !current) { return; }
+    if (event.detail && event.detail.done) { doneNow[current] = true; } else { delete doneNow[current]; }
+    buildMenu();
+  });
   function stateOf(m) {
+    if (doneNow[m]) { return "done"; }
     var mine = cards.filter(function (c) { return missionOf(c) === m; });
     // [11/06] 시뮬레이션이 바꾼 배지가 아니라 원래 배지(data-rr-orig)로 본다 — 일시정지를 눌렀다고 미션이 대기가 되면 탭이 미션 설정으로 간다
     function is(c, k) { var b = c.querySelector(".robot-lists .badge"); return !!b && (b.getAttribute("data-rr-orig") || b.className).indexOf(k) >= 0; }
