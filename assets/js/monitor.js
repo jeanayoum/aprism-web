@@ -744,6 +744,9 @@
       var res = st === "done" ? ((rq && rq.res) || d.res || "") : "";
       var stw = el("span", "done-st"); stw.appendChild(el("span", "done-st-t", DONE_ST[st] + (res ? ", " + res : ""))); line.appendChild(stw);
       line.appendChild(el("span", null, (rq && rq.to) || d.to || "현장 작업자"));
+      // [11/23 디자이너] 요청한 조치 — 마우스를 올리거나 고를 때만 셋째 줄(v6 처럼 평소엔 짧게). 여러 개면 첫 조치 외 n건
+      var acts = rq && rq.how && rq.how.length ? rq.how : String(d.how || "").split(/\s*·\s*/).filter(Boolean);
+      if (acts.length) { node.appendChild(head); node.appendChild(line); node.appendChild(el("span", "done-req t-caption", "요청: " + acts[0] + (acts.length > 1 ? " 외 " + (acts.length - 1) + "건" : ""))); return node; }
       node.appendChild(head);
       node.appendChild(line);
       return node;
