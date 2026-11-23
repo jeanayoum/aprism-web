@@ -724,6 +724,10 @@ body.ver-7 .context-panel .ah-sec:not(.done-sec) .ds-list-item { background-colo
 body.ver-7 :is(.ds-list-item.is-s, .ds-act) { min-height: var(--ds-list-s-h) !important; padding: var(--space-4) var(--space-8) !important; align-items: center; }
 body.ver-7 .ds-list-item.is-m { min-height: var(--ds-list-m-h) !important; padding: var(--space-8) var(--ds-list-pad-x) !important; align-items: center; }
 body.ver-7 .ds-list-item.is-l { padding: var(--space-12) var(--ds-list-pad-x) !important; }
+/* 크게(.is-l) 알림 줄의 단계 띠(11/23, 예전 monitor.css .ah-item): 왼쪽 띠 4 --ds-list-edge, 위험 .is-critical status/critical/icon, 주의 .is-warning status/warning/icon(예전 v3.css 값). 관제와 전체 미션 왼쪽 조치 필요 알림 목록 */
+body.ver-7 { --ds-list-edge: 4px; }
+body.ver-7 .ds-list-item.is-l:is(.is-critical, .is-warning) { border-left: var(--ds-list-edge) solid var(--status-warning-icon) !important; }
+body.ver-7 .ds-list-item.is-l.is-critical { border-left-color: var(--status-critical-icon) !important; }
 body.ver-7 .ds-list-item.is-wide { padding-left: var(--ds-list-pad-x-wide) !important; padding-right: var(--ds-list-pad-x-wide) !important; }
 body.ver-7 :is(.ds-list-item, .ds-act):is(button, a, label, [role]):not(:disabled):not([aria-disabled="true"]):hover { background-color: var(--state-hover) !important; }
 body.ver-7 .ds-list-item:is([aria-pressed="true"], [aria-current="true"], [aria-selected="true"], .is-selected), body.ver-7 .ds-list-item:is([aria-pressed="true"], [aria-current="true"], [aria-selected="true"], .is-selected):hover { background-color: var(--bg-selected) !important; }
