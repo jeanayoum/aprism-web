@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="../assets/css/v5.css?v=9f626280" />
   <!-- v6 전용 규칙 — v5 는 10/30 부로 멈췄다. v6 에서 바꾸는 것은 여기(body.ver-6)에. -->
   <link rel="stylesheet" href="../assets/css/v6.css?v=c384b14c" />
-  <link rel="stylesheet" href="../assets/css/v7.css?v=796158d7" />
+  <link rel="stylesheet" href="../assets/css/v7.css?v=821ae303" />
   <link rel="stylesheet" href="../assets/css/components-v7.css?v=1a692c22" />
   <script src="../assets/js/ds-v7.js?v=7050c08c"></script>
   <style>
@@ -200,26 +200,12 @@
         <span class="ac-filter-divider" aria-hidden="true"></span>
 
         <span class="ac-filter-label t-caption">등급</span>
-        <!-- Figma 는 전체 · 위험 · 주의 세 개가 모두 체크돼 있었다.
-             전체는 나머지의 부모라 함께 켜질 수 없다 — 전체만 켠 상태로 시작한다. -->
-        <button type="button" class="ac-check ds-chip is-check" role="checkbox" aria-checked="true" data-ac-sev="all">
-          <span class="check-box" aria-hidden="true">
-            <span class="i" style="--i:var(--ic-check)"></span>
-          </span>
-          <span data-ac-f-all>전체 22</span>
-        </button>
-        <button type="button" class="ac-check ds-chip is-check" role="checkbox" aria-checked="false" data-ac-sev="critical">
-          <span class="check-box" aria-hidden="true">
-            <span class="i" style="--i:var(--ic-check)"></span>
-          </span>
-          <span data-ac-f-crit>위험 8</span>
-        </button>
-        <button type="button" class="ac-check ds-chip is-check" role="checkbox" aria-checked="false" data-ac-sev="warning">
-          <span class="check-box" aria-hidden="true">
-            <span class="i" style="--i:var(--ic-check)"></span>
-          </span>
-          <span data-ac-f-warn>주의 14</span>
-        </button>
+        <!-- [11/23 디자이너] 등급 = 관제 조치 필요 알림과 같은 붙은 칩(ds-chips, 하나만 고름). 예전 체크 칩(전체가 부모)은 결과가 같아 바꿨다 -->
+        <div class="ac-sev-chips ds-chips" role="group" aria-label="등급으로 거르기">
+          <button type="button" class="ds-chip" aria-pressed="true" data-ac-sev="all"><span data-ac-f-all>전체 22</span></button>
+          <button type="button" class="ds-chip" aria-pressed="false" data-ac-sev="critical"><span data-ac-f-crit>위험 8</span></button>
+          <button type="button" class="ds-chip" aria-pressed="false" data-ac-sev="warning"><span data-ac-f-warn>주의 14</span></button>
+        </div>
 
         <span class="ac-filter-divider" aria-hidden="true"></span>
 
@@ -334,6 +320,6 @@
 <script src="../assets/js/alert-text-v6.js?v=a6a79f62"></script>
 <script src="../assets/js/verdict-v6.js?v=ee80312a"></script>
 <script src="../assets/js/alert-center-data-v6.js?v=0f403e33"></script>
-<script src="../assets/js/alert-center.js?v=4fa42d37"></script>
+<script src="../assets/js/alert-center.js?v=869fa41f"></script>
 </body>
 </html>

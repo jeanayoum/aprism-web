@@ -1122,6 +1122,14 @@
     $$("[data-ac-sev]").forEach(function (box) {
       box.addEventListener("click", function () {
         var key = box.getAttribute("data-ac-sev");
+        // [11/23 v7] 붙은 칩(aria-pressed) — 하나만 고른다(관제 조치 필요 알림과 같다)
+        if (box.hasAttribute("aria-pressed")) {
+          state.sev = { all: key === "all", critical: key === "critical", warning: key === "warning" };
+          $$("[data-ac-sev]").forEach(function (b) { b.setAttribute("aria-pressed", b === box ? "true" : "false"); });
+          setPicked(null);
+          refresh();
+          return;
+        }
         if (key === "all") {
           state.sev = { all: true, critical: false, warning: false };
         } else {
