@@ -423,7 +423,7 @@ body.ver-7 > .toast.sf-toast .toast-undo[hidden] { display: none; }
 body.ver-7 > .toast.sf-toast:has(.toast-undo[hidden]) { padding-right: var(--space-16); min-height: 34px; }
 
 /* [11/10 v7] 연관 감지 줄 — 지점 · 값 대신 출처 미션(같은 미션). 연관 감지는 같은 미션 안에서만 고른다(safety.js LINKS[미션]) */
-/* 출처 꼬리표는 공통 CSS .ds-source 로 옮김(11/23) */
+body.ver-7 .sf .rlx .rmi { flex: none; padding: 0 var(--space-8); border-radius: var(--radius-4); background-color: var(--bg-cell); font-size: var(--font-size-14); line-height: var(--font-line-height-22); color: var(--text-secondary); }
 /* 목록 카드 — 진행 배지도 판정 칩 자리(사진 아래 걸침)에. safety.css 는 .pl 없는 줄을 숨긴다 */
 body.ver-7 .sf .cx .kd > .rw:has(.jrq) { display: flex; }
 body.ver-7 .sf .cx .kd > .rw:has(.jrq) + * { margin-top: 0; }

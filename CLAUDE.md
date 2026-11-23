@@ -30,7 +30,6 @@
 - 떠 있는 스크롤 막대(11/23, `.ds-scroll`, ds-v7.js scrollThumb): 브라우저 막대를 숨겨 카드, 줄 너비가 막대 유무로 바뀌지 않게, 상자 안 오른쪽 4 안쪽에 4 막대(올렸을 때만, 끌어서 넘김). 전체 미션 로봇 현황, 미션설정과 사전 점검 폼. 관제 알림 목록(ah-sort.js)과 같은 꼴
 - 경로 표시(11/23, `.ds-crumb`): 13/20, 지난 단계 링크 text/secondary, 지금 쪽 aria-current 중간 굵기 text/primary, 꺾쇠 12, 사이 8. 쪽 넘김(`.ds-pager`): 이전, 다음 아이콘 버튼 24 + 고정폭 숫자 13/20 text/tertiary, 사이 4. 화면 알림센터
 - 떠 있는 메뉴와 판(11/23): 메뉴(.dropdown-menu, .field-menu, .ma-menu)와 판(`.ds-pop`: 보고서 달력, 문서 구성, 내려받기)은 면 bg/raised, 테 1 --border-default, 모서리 4, 그림자 `--ds-menu-shadow` 하나, 누른 단추와 4 `--ds-pop-offset`. 안쪽은 메뉴 4(목록), 판 12 `--ds-pop-pad`, 판 안 덩이 사이 12
-- 출처 꼬리표(11/23, `.ds-source`): [같은 미션] 연관 감지가 어느 미션에서 왔는지. 좌우 8, 모서리 4, 면 --bg-cell, 글자 14/22/500 text/secondary, 누르지 않음. 예전 안전진단 화면 CSS(.sf .rlx .rmi)에서 공통으로 올림
 - 보고서 목록 정렬(11/23): "최신순 정렬" 글자 대신 관제와 같은 정렬 단추(.ah-sort-btn, 글자 + 위아래 화살표), 최신순 ↔ 오래된 순
 - 토스트 문구(11/20): 명사형 끝맺음(~됨, ~함, 명사), ~요체 쓰지 않음
 - Delta 면, 빛, 흐림(11/20, 공통 CSS "Delta 면, 빛, 흐림" 절): 관제 v7 M1 값 그대로. 단계 3(보통, 주의 .is-warning, 위험 .is-critical) x 접힘/펼침 x 테마. 층은 바깥 판, 위 테 빛(펼침), 카드 면, 이름 띠, 유리 버튼 둘, 본문 바탕. Delta 전용 변수(--tone-*, --d3-ramp)도 이 절에서 정의. 크기: 접힘 --ds-delta-widget 260 정사각, 펼침 폭 --ds-delta-open-w 295(대화형은 --d3-w), 높이 = 판 높이 - --ds-delta-open-inset(20) x 2. v7 에만 걸림

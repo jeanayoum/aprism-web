@@ -803,11 +803,6 @@ body.ver-7 .check-row .check-ord.ds-wp { border: var(--border-width-thin) solid 
    고정폭 숫자는 위로 떠 1px 내림(v6.css Delta 번호 원과 같은 보정) */
 body.ver-7 .check-row .check-ord.ds-wp { width: var(--ds-wp-size) !important; height: var(--ds-wp-size) !important; min-width: var(--ds-wp-size) !important; padding-top: 1px !important; font-family: var(--font-family-mono) !important; font-size: 10px !important; font-weight: var(--font-weight-bold) !important; letter-spacing: -0.4px !important; }
 
-/* ---------- 출처 꼬리표 (11/23, .ds-source): [같은 미션] 연관 감지가 어느 미션에서 왔는지. 누르지 않음, 아이콘 없음 ----------
- * 좌우 8, 모서리 4, 면 --bg-cell, 글자 14/22/500 text/secondary. 높이는 글자 줄(22). 예전 안전진단 화면 CSS(.sf .rlx .rmi) 값 그대로 옮김
- * 화면: 안전진단 연관 감지 줄 */
-body.ver-7 .ds-source { flex: none; display: inline-flex; align-items: center; box-sizing: border-box; padding: var(--space-0) var(--space-8) !important; border-radius: var(--radius-4) !important; background-color: var(--bg-cell) !important; font-size: var(--font-size-14) !important; line-height: var(--font-line-height-22) !important; font-weight: var(--font-weight-medium) !important; color: var(--text-secondary) !important; white-space: nowrap; }
-
 /* ---------- 층: 지금 층 꼬리표(.floor-tag) 값 그대로 (색, 굵기, 크기 바꾸지 않음)
  * 라이트 gray-100 면 + text-tertiary, 다크 bg-raised 면 + text-secondary, 고정폭 12/18, 굵기 400 ---------- */
 body.ver-7 .ds-floor {
