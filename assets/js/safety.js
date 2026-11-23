@@ -118,7 +118,7 @@
    */
   const V7 = document.body.classList.contains('ver-7');
   let REQ = {}, reqT = {};
-  const RQ_WORD = {wait:'응답 대기', work:'현장 조치 중', done:'조치 완료'};
+  const RQ_WORD = {wait:'현장 응답 대기', work:'현장 조치 중', done:'조치 완료'};
   const RQ_BADGE = {wait:'', work:'badge-info', done:'badge-normal'};   // Figma Badge-미션 566:19149 — 대기 · 진행 · 완료
   // [11/10 v7] 요청한 감지는 판정 칩 대신 진행 배지(판정 카드 · 목록 카드 · 측정 이력 오늘 줄 같은 꼴), 처리 줄은 그 단계의 시각 + 이름
   const rqBadge = R => `<span class="badge badge-mode ${RQ_BADGE[R.st]} jrq${V7 && window.ds ? ' ' + window.ds.statusCls(R.st, { face: true }) : ''}"><span class="badge-dot"></span>${RQ_WORD[R.st]}</span>`;
@@ -157,7 +157,7 @@
   const reqName = key => { const [, k, w] = key.split('|'); return `${w} ${k}`; };
   /*
    * [11/10 v7] 처리 기록을 관제와 나눈다(sessionStorage 'aprism-handled', monitor.js 와 같은 열쇠 · 꼴).
-   *   관제에서 확인 처리한 알림은 여기서 '응답 대기'로 시작하고, 여기서 보낸 요청은 관제 알림 목록에서 빠진다.
+   *   관제에서 확인 처리한 알림은 여기서 '현장 응답 대기'로 시작하고, 여기서 보낸 요청은 관제 알림 목록에서 빠진다.
    *   미션 이름은 관제가 '지하 4층 정기 순회 점검', 여기가 '정기 순회 점검' — 한쪽이 다른 쪽을 품으면 같은 미션.
    */
   const HKEY = 'aprism-handled';
