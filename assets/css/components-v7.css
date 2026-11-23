@@ -1007,6 +1007,8 @@ body.ver-7 .modal:not(.is-shift) { gap: var(--ds-modal-gap) !important; padding:
 body.ver-7 .modal:not(.is-wide):not(.is-shift) { width: var(--ds-modal-w) !important; }
 body.ver-7 .modal.is-wide { width: var(--ds-modal-w-wide) !important; }
 body.ver-7 .modal-foot { gap: var(--space-8) !important; }
+/* 모달 아래 버튼은 Medium 32 (11/23): 모든 버튼 높이는 크기 단계 고정값, 모달은 32. 화면 코드의 .is-md(Large 40) 클래스와 상관없이 */
+body.ver-7 .modal .modal-foot .btn:not(.z1):not(.z2):not(.z3):not(.z4) { box-sizing: border-box !important; height: var(--ds-btn-m-h) !important; min-height: var(--ds-btn-m-h) !important; padding: var(--ds-btn-m-pad-y) var(--ds-btn-m-pad-x) !important; font-size: var(--ds-btn-m-font-size) !important; line-height: var(--ds-btn-m-line-height) !important; }
 body.ver-7 :is(.map-bot-tip, .bld-tip) { border-radius: var(--ds-pop-radius) !important; box-shadow: var(--ds-pop-shadow) !important; }
 body.ver-7 .map-bot-tip .map-card-head { border-radius: var(--ds-pop-radius) var(--ds-pop-radius) 0 0 !important; }
 body.ver-7 .toast {
