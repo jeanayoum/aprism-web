@@ -36,8 +36,14 @@
     return node;
   }
 
+  // [11/23] v7 — 시안의 상단 시계는 멈춘 글(2026-11-02 10:20:00)이라 새 알림 · 요청 시각도 그 시계에서 흐르게(실제 시각이면 11:30 처럼 어긋났다)
+  var T0 = Date.now(), BASE = (function () {
+    if (!document.body.classList.contains("ver-7") || document.documentElement.lang === "en") { return null; }
+    var m = /(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/.exec((document.querySelector(".status-bar") || document.body).textContent || "");
+    return m ? new Date(+m[1], m[2] - 1, +m[3], +m[4], +m[5], +m[6]).getTime() : null;
+  })();
   function clock(date) {
-    var d = date || new Date();
+    var d = date || (BASE ? new Date(BASE + Date.now() - T0) : new Date());
     return [d.getHours(), d.getMinutes(), d.getSeconds()]
       .map(function (n) { return (n < 10 ? "0" : "") + n; }).join(":");
   }
