@@ -575,6 +575,8 @@
   if (V3) { STEPS[11] = [["케미컬 공급 캐비닛 CDS-02", "WP-08"], ["FFU-02 토출구", "WP-09"]]; }
   // v5(10/30) — Robot 01 은 WP-07 까지 마치고 WP-08 로 가는 중(screen.js v5 · 관제 지도와 같다)
   if (body.classList.contains("ver-5")) { STEPS[1] = [["냉각수 열교환기 HX-1", "WP-08"], ["waypoint name", "WP-09"]]; }
+  // [11/23 정의서 관제화면-03] v7 — 다음 지점 이름은 미션 관제 지도가 붙이는 이름(map-v6.js nameWps: WP-09 = 설비 18)과 같게. "waypoint name" 이 그대로 보이던 것
+  if (body.classList.contains("ver-7")) { STEPS[1][1][0] = "설비 18"; }
   var ST_TONE = { run: "info", done: "normal", idle: "idle", off: "critical" };
 
   function rcStep(name, sub, now, ic, subCls) {
@@ -873,7 +875,9 @@
   function renderRight() {
     var running = ROBOTS.filter(function (r) { return r.st === "run"; }).length;
     var cnt = $("[data-bld-count]");
-    if (cnt) { cnt.textContent = ROBOTS.length + "대 연결"; }
+    // [11/23 정의서 관제화면-03] v7 — "연결" 은 통신 끊김 로봇을 뺀 수(12대 중 1대 끊김 → 11대 연결)
+    var linked = body.classList.contains("ver-7") ? ROBOTS.filter(function (r) { return r.st !== "off"; }).length : ROBOTS.length;
+    if (cnt) { cnt.textContent = linked + "대 연결"; }
     var run = $("[data-bld-running]");
     if (run) { run.textContent = running + "대 수행중"; }
 
