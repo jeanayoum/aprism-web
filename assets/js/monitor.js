@@ -1303,7 +1303,8 @@
       if (V3) {
         // 체크리스트 — 조치를 모두 세우고, DELTA 가 미는 것은 [AI 추천] 을 달고 미리 체크해 둔다(Figma Default).
         // [11/10 v7] AI 추천은 1순위 하나만 — 추천이 둘이면 무엇이 먼저인지 흐려진다. 나머지는 대안(체크 안 함)
-        var aiLeft = V7 ? 1 : Infinity;
+        // [11/23 디자이너] v7 은 공용 제안 표(alert-data-v7.js)의 AI 추천을 그대로 — 알림 센터 · 안전진단과 같은 조치가 미리 체크된다(11/10 "하나만" 규칙을 바꿈)
+        var aiLeft = Infinity;
         a.acts.slice().sort(function (x, y) { return (y.ai ? 1 : 0) - (x.ai ? 1 : 0); }).forEach(function (src) {
           var act = src;
           if (src.ai) { if (aiLeft > 0) { aiLeft--; } else { act = { t: src.t }; } }
@@ -1319,7 +1320,9 @@
           mark.setAttribute("aria-hidden", "true");
           boxEl.appendChild(mark);
           row.appendChild(boxEl);
-          row.appendChild(el("span", "ma-check-label" + (DS7 ? " ds-act-text" : ""), act.t));
+          var lab = el("span", "ma-check-label" + (DS7 ? " ds-act-text" : ""), act.t);
+          if (DS7 && src.to) { lab.appendChild(el("small", null, src.to)); }   // [11/23] 받는 곳 줄(알림 센터 · 안전진단과 같은 꼴)
+          row.appendChild(lab);
           if (act.ai) { row.appendChild(el("span", "ma-check-tag" + (document.body.classList.contains("ver-7") ? " ds-badge is-neutral ds-i-delta" : ""), "AI 추천")); }   // [11/19 v7] 출처 배지 A안
           options.appendChild(row);
         });
