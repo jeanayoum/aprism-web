@@ -156,6 +156,14 @@
       .forEach(function (x, i) { DONE[i].title = x[0]; DONE[i].wp = x[1]; });
     DONE[0].time = "10:19:10";
   }
+  // [11/23 디자이너] v7 — 조치 요청된 알림을 미션 관제(monitor.js V7Q)와 같은 꼴로: 기본 기록도 같은 두 건, 줄 아래 진행 단계 + 받는 사람
+  var DONE_ST = { wait: "현장 응답 대기", work: "현장 조치 중", done: "조치 완료" };
+  if (V7B) {
+    DONE = [
+      { time: "10:08:30", title: "이상음향 점수 19.6", wp: "WP-02", st: "work", to: "설비팀 박지훈", mission: "정기 순회 점검" },
+      { time: "10:05:12", title: "최고 온도 44.2 ℃", wp: "WP-01", st: "done", to: "설비팀 박지훈", mission: "정기 순회 점검" }
+    ];
+  }
   /*
    * [11/10 v7] 조치 요청 기록 한 곳(alert-data-v7.js req) — 관제 · 안전진단 · 알림 센터에서 요청한 알림은 관제처럼 목록 · 지도에서 빼고
    *   조치 요청된 알림으로 옮긴다. 이 화면은 요청 단추가 없어 기록은 열 때 한 번 맞춘다 — 다른 탭에서 기록이 바뀌면 다시 연다.
@@ -166,7 +174,7 @@
       var r = a.id && R7[a.id];
       if (!r) { return true; }
       DONE.push({ time: r.t, title: window.APRISM_ALERT6 ? window.APRISM_ALERT6.title(a.title) : a.title, how: (r.how || []).join(" · "),
-                  who: r.who || "홍길동", wp: (/WP-\d+/.exec(a.where) || [""])[0] });
+                  who: r.who || "홍길동", wp: (/WP-\d+/.exec(a.where) || [""])[0], reqId: a.id, mission: a.mission });
       return false;
     });
     DONE.sort(function (x, y) { return x.time < y.time ? 1 : x.time > y.time ? -1 : 0; });
@@ -470,6 +478,16 @@
     // [11/06 v6] 관제 오늘 확인된 알림(monitor.js doneItem)과 같은 줄 — 시각은 호버 때만(v6.css .done-time),
     //   처리 줄은 결과 하나, 조치는 호버 때 앞에(.done-act), 지점 번호(WP-nn)는 뺐다
     head.appendChild(el("span", "t-caption num" + (V6 ? " done-time" : ""), d.time));
+    if (V7B) {   // [11/23] 미션 관제와 같은 줄 — 진행 단계(요청 기록 S7.req 를 따른다) + 받는 사람
+      var rq = d.reqId && window.APRISM_ALERTS7 ? window.APRISM_ALERTS7.req.all()[d.reqId] : null;
+      var st = (rq && DONE_ST[rq.st] && rq.st) || d.st || "wait";
+      var line = el("span", "done-how done-stage t-caption is-" + st);
+      line.appendChild(el("span", "done-st", DONE_ST[st]));
+      line.appendChild(el("span", null, (rq && rq.to) || d.to || "현장 작업자"));
+      node.appendChild(head);
+      node.appendChild(line);
+      return node;
+    }
     var how = el("span", "done-how t-caption");
     how.appendChild(icon("check"));
     if (V6) {
