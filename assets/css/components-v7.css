@@ -28,7 +28,6 @@ body.ver-7, body.ds-auth {   /* body.ds-auth: 로그인 쪽 화면(안내 상자
   --ds-badge-line-height: var(--font-line-height-18);
   --ds-badge-font-weight: var(--font-weight-medium);
   --ds-badge-row-gap: var(--space-8);             /* 표 칸 배지와 글자 사이 */
-  --ds-progress-badge-h: 26px;                   /* 조치 진행 배지(응답 대기, 현장 조치 중, 조치 완료): 높이 26, 아이콘 16 (11/23) */
   /* 회색 배지 면 --ds-badge-neutral-bg: 테마와 판 범위마다 달라 아래 블록 (11/20) */
   /* --ds-badge-ai-bg: var(--bg-map-chip); */   /* AI 추천 면 (예전 회색 배지 면) */
   --ds-ai-ramp: #1B77EE 0%, #0A49D7 12.5%, #1E2FB0 25%, #493891 37.5%, #74608B 50%, #858DA3 62.5%, #71A7C9 75%, #459EE9 87.5%, #1B77EE 100%;   /* AI 추천 Delta 아이콘 (Delta 스펙트럼) */
@@ -534,15 +533,19 @@ body.ver-7 .ds-badge:is(.ds-i-big, .is-ok:not([class*="ds-i-"])):not(.ds-i-none)
 body.ver-7 .ds-badge.ds-i-delta { --ds-i: var(--ic-delta); background-color: var(--ds-badge-ai-bg, var(--bg-map-chip)) !important; }
 body.ver-7 .ds-badge.ds-i-delta::before { background: linear-gradient(135deg, var(--ds-ai-ramp)) !important; }
 
-/* 조치 진행 배지 (11/23, .ds-badge.is-progress, Figma 1882:9168 을 규칙 단계로 맞춤): 응답 대기 .is-wait, 현장 조치 중 .is-work, 조치 완료 .is-done
- *   판정 배지와 다른 꼴: 면 없음 + 테 1 --border-strong, 색은 아이콘에만(글자 --text-primary). 높이 26, 좌우 8, 아이콘 16 + 사이 4 + 글자 13/20/500, 모서리 4
- *   아이콘: 시계 --text-tertiary, 진행 원(--ic-spinner) --status-info-icon, 체크 --status-safe-icon
- *   화면: 안전진단 감지 카드 진행 배지(.jrq), 조치 진행 칸(.rqp-b). ds.statusCls(wait|work|done, { face: true }) 가 만듦 */
-body.ver-7 .ds-badge.is-progress { height: var(--ds-progress-badge-h) !important; min-height: var(--ds-progress-badge-h) !important; padding: var(--space-0) var(--space-8) !important; gap: var(--space-4) !important; border: var(--border-width-thin) solid var(--border-strong) !important; border-radius: var(--radius-4) !important; background-color: transparent !important; color: var(--text-primary) !important; font-size: var(--font-size-13) !important; line-height: var(--font-line-height-20) !important; font-weight: var(--font-weight-medium) !important; }
-body.ver-7 .ds-badge.is-progress:not(.ds-i-none)::before { width: var(--ds-icon-16) !important; height: var(--ds-icon-16) !important; }
-body.ver-7 .ds-badge.is-progress.is-wait { --ds-i: var(--ic-clock); --ds-i-color: var(--text-tertiary); }
-body.ver-7 .ds-badge.is-progress.is-work { --ds-i: var(--ic-spinner); --ds-i-color: var(--status-info-icon); }
-body.ver-7 .ds-badge.is-progress.is-done { --ds-i: var(--ic-check); --ds-i-color: var(--status-safe-icon); }
+/* 조치 진행 배지 (11/23, .ds-badge.is-progress): 응답 대기 .is-wait, 현장 조치 중 .is-work, 조치 완료 .is-done
+ *   틀은 판정 배지와 같음(높이 22, 좌우 8, 아이콘 12 + 사이 4, 12/18/500, 모서리 2). 판정 배지 옆, 사진 위에 놓여도 크기가 같게
+ *   면은 불투명 회색 --ds-progress-badge-bg(다크 회색 600 40% 를 판 색에 미리 섞음, 라이트 회색 300). 사진에 걸쳐도 읽히게 반투명, 테만 있는 꼴은 쓰지 않음(11/23)
+ *   색은 아이콘에만(글자 --text-primary): 시계 --text-tertiary, 진행 원(--ic-spinner) --status-info-icon, 체크 --status-safe-icon
+ *   화면: 안전진단 감지 카드 진행 배지(.jrq), 조치 진행 칸(.rqp-b). ds.statusCls(wait|work|done, { face: true }) 가 만듦
+ *   목록 꼴(면 없는 태그): 관제와 전체 미션 "조치 요청된 알림" 줄의 단계(.done-stage .done-st). 같은 아이콘 12 + 같은 색, 글자는 줄 글자(12/18) 그대로 */
+body.ver-7 { --ds-progress-badge-bg: color-mix(in srgb, var(--color-gray-600) 40%, var(--bg-panel)); }
+:root[data-theme="light"] body.ver-7 { --ds-progress-badge-bg: var(--color-gray-300); }
+body.ver-7 .ds-badge.is-progress { background-color: var(--ds-progress-badge-bg) !important; color: var(--text-primary) !important; }
+body.ver-7 :is(.ds-badge.is-progress, .done-stage).is-wait { --ds-i: var(--ic-clock); --ds-i-color: var(--text-tertiary); }
+body.ver-7 :is(.ds-badge.is-progress, .done-stage).is-work { --ds-i: var(--ic-spinner); --ds-i-color: var(--status-info-icon); }
+body.ver-7 :is(.ds-badge.is-progress, .done-stage).is-done { --ds-i: var(--ic-check); --ds-i-color: var(--status-safe-icon); }
+body.ver-7 .done-stage .done-st::before { content: ""; flex: none; width: 12px; height: 12px; background: var(--ds-i-color); -webkit-mask: var(--ds-i) center / contain no-repeat; mask: var(--ds-i) center / contain no-repeat; }
 
 /* 표 칸 안 배지 + 글자 */
 body.ver-7 .ds-badge-row { display: inline-flex; align-items: center; gap: var(--ds-badge-row-gap); white-space: nowrap; font-size: var(--ds-badge-font-size); line-height: var(--ds-badge-line-height); }

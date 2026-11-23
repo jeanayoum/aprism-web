@@ -46,18 +46,14 @@ body.ver-7 .ah-head .ah-all { display: inline-flex; align-items: center; gap: va
 
 /* [11/06 디자이너] "조치 요청된 알림" 목록은 오늘 것만 — 범위는 제목 대신 건수 앞에 "오늘"(• 오늘 5건). 제목이 알림 센터 탭 이름과 똑같아진다 */
 /* [11/23 디자이너 · 정의서 관제화면-04 Q3] 범위가 "이 미션"으로 바뀌어 "오늘"을 뺐다 */
-/* 진행 단계 줄 — 단계 이름(점) · 받는 사람 */
+/* 진행 단계 줄 — 단계 이름(아이콘은 공통 CSS 조치 진행 배지 절의 목록 꼴) · 받는 사람 */
 body.ver-7 .done-stage { display: flex; align-items: center; gap: var(--space-8); }
 body.ver-7 .done-stage .done-st { display: inline-flex; align-items: center; gap: var(--space-4); flex: 1 1 auto; min-width: 0; color: var(--text-secondary); }
 body.ver-7 .done-stage .done-st-t { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-body.ver-7 .done-stage .done-st::before { flex: none; }
 body.ver-7 .done-stage > span:last-child { flex: none; }
 /* [11/23 디자이너] 요청한 조치 — 마우스 · 초점 · 고른 줄에서만 셋째 줄 */
 body.ver-7 .done-item .done-req { display: none; color: var(--text-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 body.ver-7 .done-item:is(:hover, :focus-visible, [aria-pressed="true"]) .done-req { display: block; }
-body.ver-7 .done-stage .done-st::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--text-tertiary); }
-body.ver-7 .done-stage.is-work .done-st::before { background: var(--status-info-icon); }
-body.ver-7 .done-stage.is-done .done-st::before { background: var(--status-safe-icon); }
 /* [11/23 지도-01 Q1] 설비 카드 점검 결과 — 알림이면 단계 색 */
 body.ver-7 [data-map-card-state][data-sev="caution"] { color: var(--status-warning-text); }
 body.ver-7 [data-map-card-state][data-sev="danger"] { color: var(--status-critical-text); }
@@ -419,7 +415,6 @@ body.ver-7 .sf .rqx:disabled { display: inline-flex; align-items: center; justif
 body.ver-7 .sf .rqp { display: flex; flex-direction: column; gap: var(--space-12); margin-top: var(--space-12); padding: var(--space-16); border-radius: var(--radius-card); background-color: var(--bg-raised); }
 body.ver-7 .sf .rqp-h { display: flex; align-items: center; justify-content: space-between; }
 body.ver-7 .sf .rqp-h b { font-size: var(--font-size-16); line-height: var(--font-line-height-24); font-weight: 700; color: var(--text-primary); }
-body.ver-7 .sf .rqp-b, body.ver-7 .sf .jrq { align-self: center; font-size: var(--font-size-14); line-height: var(--font-line-height-20); font-weight: 700; }
 body.ver-7 .sf .badge-mode.badge-normal { background-color: var(--status-safe-bg); border-color: var(--status-safe-border); }   /* Badge-미션 완료 — app-shell 주석대로 두 줄 더함 */
 body.ver-7 .sf .rqp-st { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
 body.ver-7 .sf .rqp-st li { position: relative; display: grid; grid-template-columns: 20px 1fr auto; column-gap: var(--space-8); padding-bottom: var(--space-16); }
@@ -450,6 +445,7 @@ body.ver-7 > .toast.sf-toast:has(.toast-undo[hidden]) { padding-right: var(--spa
 /* [11/10 v7] 연관 감지 줄 — 지점 · 값 대신 출처 미션(같은 미션). 연관 감지는 같은 미션 안에서만 고른다(safety.js LINKS[미션]) */
 body.ver-7 .sf .rlx .rmi { flex: none; padding: 0 var(--space-8); border-radius: var(--radius-4); background-color: var(--bg-cell); font-size: var(--font-size-14); line-height: var(--font-line-height-22); color: var(--text-secondary); }
 /* 목록 카드 — 진행 배지도 판정 칩 자리(사진 아래 걸침)에. safety.css 는 .pl 없는 줄을 숨긴다 */
+body.ver-7 .sf .rqp-b, body.ver-7 .sf .jrq { align-self: center; }
 body.ver-7 .sf .cx .kd > .rw:has(.jrq) { display: flex; }
 body.ver-7 .sf .cx .kd > .rw:has(.jrq) + * { margin-top: 0; }
 /* 판정 카드 머리 오른쪽 — 넘은 지점 고르기(둘 이상일 때). 테 없이 면 색으로만 고른 것을 구분 */
@@ -459,7 +455,6 @@ body.ver-7 .sf .jsp-b { display: inline-flex; align-items: center; gap: var(--sp
 body.ver-7 .sf .jsp-b:hover { background-color: var(--bg-cell); }
 body.ver-7 .sf .jsp-b.on { background-color: var(--bg-cell); color: var(--text-primary); }
 body.ver-7 .sf .jsp-b b { font-weight: 700; }
-body.ver-7 .sf .jsp-b .jrq { height: 24px; }
 
 /* [11/10 v7 디자이너] 지점 팝오버 — 조치 처리 과정(map-v6.js wpProgress, Figma UI_00 1680:11326)
  *   세로 단계 둘: 지난 점(8, 테 border/strong 2) — 이유 12/18 secondary + 요청한 조치(• 목록, 12/18 secondary)
