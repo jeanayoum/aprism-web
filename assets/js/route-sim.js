@@ -405,14 +405,16 @@
     var dm = doneMode(mode);
     var home = (mode === "run" || mode === "alert") && dm !== "done" && api.get() > last + api.total() * 0.003;
     var off = home || dm === "done" || mode === "return";
-    var key = off + "|" + home + "|" + dm;
+    var key = off + "|" + home + "|" + dm + "|" + mode;
     if (key === endKey) { return; }
     endKey = key;
     var rec = document.querySelector("[data-recall-button]"), chip = box.querySelector('[data-m="return"]');
     if (rec) {
       var v7r = document.body.classList.contains("ver-7") && document.documentElement.lang !== "en";   // [11/23] v7 — 복귀 중에도 끈다(모달 안내 "복귀 중에는 자동복귀 버튼이 비활성화"와 같게)
-      rec.disabled = v7r ? off : off && mode !== "return";
-      rec.title = home ? "마지막 지점을 지나 충전 스테이션으로 가는 중이에요" : dm === "done" ? "미션이 끝났어요" : v7r && mode === "return" ? "자동복귀 중이에요" : "";
+      // [11/23 디자이너 · 정의서 로봇현황-01 Q4] v7 — 통신 끊김(명령이 닿지 않음) · 긴급정지(해제가 먼저) 중에도 끈다
+      var stop7 = v7r && (mode === "lost" || mode === "estop");
+      rec.disabled = v7r ? off || stop7 : off && mode !== "return";
+      rec.title = home ? "마지막 지점을 지나 충전 스테이션으로 가는 중이에요" : dm === "done" ? "미션이 끝났어요" : v7r && mode === "return" ? "자동복귀 중이에요" : v7r && mode === "lost" ? "통신이 끊겨 명령을 보낼 수 없어요" : v7r && mode === "estop" ? "긴급정지를 먼저 해제해야 해요" : "";
     }
     if (chip) { chip.disabled = home || dm === "done"; chip.title = chip.disabled ? "마지막 지점 뒤에서는 자동복귀가 의미 없어요" : ""; }
     var left = document.querySelector("[data-progress-left]");

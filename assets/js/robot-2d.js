@@ -18,8 +18,16 @@
 (function () {
   "use strict";
 
-  var thumbs = document.querySelectorAll(".robot-strip.is-carousel .robot-card .robot-thumb");
+  var thumbs = Array.prototype.slice.call(document.querySelectorAll(".robot-strip.is-carousel .robot-card .robot-thumb"));
   if (!thumbs.length) { return; }
+  // [11/23 디자이너] v7 — [전체 로봇 보기] 로봇 선택 모달 카드도 같은 2D 그림(예전 그림이 남아 있었다). 종류는 같은 번호의 패널 카드를 따른다
+  if (document.body.classList.contains("ver-7") && document.documentElement.lang !== "en") {
+    Array.prototype.forEach.call(document.querySelectorAll('[data-modal="robots"] .robot-card[data-robot-pick] .robot-thumb'), function (t) {
+      var pick = t.closest(".robot-card"), twin = document.querySelector('.robot-strip .robot-card[data-robot="' + pick.getAttribute("data-robot-pick") + '"]');
+      if (twin && twin.getAttribute("data-type")) { pick.setAttribute("data-type", twin.getAttribute("data-type")); }
+      thumbs.push(t);
+    });
+  }
 
   var NS = "http://www.w3.org/2000/svg";
 
