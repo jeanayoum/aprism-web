@@ -519,7 +519,7 @@
     slot.hidden = !(state.tab === "done" && state.handover);
 
     if (!rows.length) {
-      list.innerHTML = '<p class="ac-empty t-body-3">조건에 맞는 알림이 없습니다.</p>';
+      list.innerHTML = '<p class="ac-empty t-body-3">' + (V7 ? "조건에 맞는 알림이 없어요" : "조건에 맞는 알림이 없습니다.") + '</p>'   // [11/23 v7] 해요체(관제 빈 목록과 같은 말투);
       renderNth(rows);
       return;
     }
@@ -671,7 +671,7 @@
     var a = alertOf(shown());
     if (!a) {
       detail.innerHTML = '<p class="ac-empty t-body-3">' +
-        (visible().length ? "왼쪽 목록에서 알림을 고르세요." : "표시할 알림이 없습니다.") + '</p>';
+        (V7 ? (visible().length ? "왼쪽 목록에서 알림을 골라요" : "표시할 알림이 없어요") : (visible().length ? "왼쪽 목록에서 알림을 고르세요." : "표시할 알림이 없습니다.")) + '</p>';
       return;
     }
     detail.innerHTML = a.done ? (V6 ? recordHtml6(a) : recordHtml(a)) : (V6 ? openHtml6(a) : openHtml(a));
@@ -841,7 +841,7 @@
       '<section class="ac-record-section">' +
         '<h3 class="t-caption">메모</h3>' +
         '<p class="ac-memo-box t-body-4' + (d.memo ? "" : " ac-memo-empty") + '">' +
-          (d.memo ? esc(d.memo) : "남긴 메모가 없습니다.") + '</p>' +
+          (d.memo ? esc(d.memo) : (V7 ? "남긴 메모가 없어요" : "남긴 메모가 없습니다.")) + '</p>' +
       '</section>' +
 
       '<section class="ac-record-section">' +
@@ -970,7 +970,7 @@
       '<section class="ac-record-section">' +
         '<h3 class="t-caption">메모</h3>' +
         '<p class="ac-memo-box t-body-4' + (d.memo ? "" : " ac-memo-empty") + '">' +
-          (d.memo ? esc(d.memo) : "남긴 메모가 없습니다.") + '</p>' +
+          (d.memo ? esc(d.memo) : (V7 ? "남긴 메모가 없어요" : "남긴 메모가 없습니다.")) + '</p>' +
       '</section>' +
 
       '<section class="ac-record-section">' +
