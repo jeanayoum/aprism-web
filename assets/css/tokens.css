@@ -591,8 +591,8 @@
   --bg-panel: var(--color-gray-800);
   --comp-button-accent-bg-hover: var(--color-blue-400);
   --comp-button-accent-bg-pressed: var(--color-blue-300);
-  --comp-button-danger-bg-hover: var(--color-red-300);
-  --comp-button-danger-bg-pressed: var(--color-red-100);
+  --comp-button-danger-bg-hover: var(--color-red-800);   /* 11/23: 다크도 라이트, Figma 와 같게(예전 red-300 은 흰 글자가 안 읽힘) */
+  --comp-button-danger-bg-pressed: var(--color-red-900);
   --state-hover: var(--color-gray-700);
   --comp-button-inverse-bg-hover: var(--color-gray-100);
   --comp-button-inverse-bg-pressed: var(--color-gray-200);
@@ -793,8 +793,8 @@
   --bg-panel: var(--color-gray-800);
   --comp-button-accent-bg-hover: var(--color-blue-400);
   --comp-button-accent-bg-pressed: var(--color-blue-300);
-  --comp-button-danger-bg-hover: var(--color-red-300);
-  --comp-button-danger-bg-pressed: var(--color-red-100);
+  --comp-button-danger-bg-hover: var(--color-red-800);   /* 11/23: 다크도 라이트, Figma 와 같게(예전 red-300 은 흰 글자가 안 읽힘) */
+  --comp-button-danger-bg-pressed: var(--color-red-900);
   --state-hover: var(--color-gray-700);
   --comp-button-inverse-bg-hover: var(--color-gray-100);
   --comp-button-inverse-bg-pressed: var(--color-gray-200);
