@@ -297,6 +297,8 @@
       ALERTS = ALERTS.map(function (a) { var b = C7[a.id]; delete C7[a.id]; return b || a; })
         .concat(Object.keys(C7).map(function (id) { return C7[id]; }));   // 여기에만 새로 넣은 알림도 목록에 오게
     }
+    // [11/23] 시연 ?empty=1 — 조치 필요 알림이 하나도 없을 때(빈 상태 화면)
+    if (document.body.classList.contains("ver-7") && /[?&]empty=1/.test(location.search)) { ALERTS = ALERTS.filter(function (a) { return !!a.done; }); }
     // [11/23 디자이너] v7 DELTA 조치 제안 = 안전진단 상세와 같은 내용(제안 문장 · 조치 · 받는 곳). 오탐 가능성 · 근거 줄은 안전진단처럼 뺀다
     if (document.body.classList.contains("ver-7") && document.documentElement.lang !== "en" && window.APRISM_ALERTS7 && window.APRISM_ALERTS7.sug) {
       ALERTS.forEach(function (a) {
@@ -538,7 +540,7 @@
     slot.hidden = !(state.tab === "done" && state.handover);
 
     if (!rows.length) {
-      list.innerHTML = '<p class="ac-empty t-body-3">' + (V7 ? "조건에 맞는 알림이 없어요" : "조건에 맞는 알림이 없습니다.") + '</p>'   // [11/23 v7] 해요체(관제 빈 목록과 같은 말투);
+      list.innerHTML = V7 ? emptyHtml() : '<p class="ac-empty t-body-3">조건에 맞는 알림이 없습니다.</p>';
       renderNth(rows);
       return;
     }
@@ -577,10 +579,33 @@
     renderNth(rows);
   }
 
+  /*
+   * [11/23 디자이너] v7 빈 목록 — 관제 조치 필요 알림 빈 목록과 같은 꼴(흐린 글 한 줄, 아이콘 · 색 없음, 해요체).
+   *   필터 없음: 조치가 필요한 알림이 없어요 / 조치 요청된 알림이 없어요
+   *   등급 필터만: 위험 알림이 없어요 / 주의 알림이 없어요(관제와 같은 말)
+   *   기간 · 미션 필터가 걸림: 조건에 맞는 알림이 없어요
+   *   필터가 하나라도 걸려 있으면 아래에 [필터 해제](전체로)
+   */
+  function filtersOn() { return { sev: !state.sev.all, more: state.mission !== "전체 미션" || state.period !== "전체 기간" }; }
+  function emptyHtml() {
+    var f = filtersOn(), word;
+    if (f.more) { word = "조건에 맞는 알림이 없어요"; }
+    else if (f.sev) { word = state.sev.critical ? "위험 알림이 없어요" : "주의 알림이 없어요"; }
+    else { word = state.tab === "done" ? "조치 요청된 알림이 없어요" : "조치가 필요한 알림이 없어요"; }
+    return '<div class="ac-empty ac-empty7" role="status"><p class="t-body-3">' + word + '</p>' +
+      (f.sev || f.more ? '<button type="button" class="btn btn-secondary is-xs" data-ac-clear>필터 해제</button>' : "") + '</div>';
+  }
+  function clearFilters() {
+    var all = $('[data-ac-sev="all"]'); if (all && all.getAttribute("aria-pressed") !== "true") { all.click(); }
+    $$(".ac-f-mission .field-option, .ac-f-period .field-option").forEach(function (o) { if (o === o.parentNode.firstElementChild && o.getAttribute("aria-selected") !== "true") { o.click(); } });
+  }
+  document.addEventListener("click", function (e) { if (e.target.closest && e.target.closest("[data-ac-clear]")) { clearFilters(); } });
+
   function renderNth(rows) {
     rows = rows || visible();
     var i = rows.findIndex(function (a) { return a.id === shown(); });
     $("[data-ac-nth]").textContent = rows.length ? (i + 1) + " / " + rows.length : "0 / 0";
+    if (V7) { var pg = $("[data-ac-nth]").closest(".ds-pager"); if (pg) { pg.hidden = !rows.length; } }   // [11/23] 빈 목록이면 페이지 넘김 숨김
     $("[data-ac-prev]").disabled = i <= 0;
     $("[data-ac-next]").disabled = i < 0 || i >= rows.length - 1;
   }
@@ -689,6 +714,7 @@
 
   function renderDetail() {
     var a = alertOf(shown());
+    if (!a && V7 && !visible().length) { detail.innerHTML = ""; return; }   // [11/23 v7] 빈 목록이면 상세 칸은 비움(목록 쪽 한 줄이 말한다)
     if (!a) {
       detail.innerHTML = '<p class="ac-empty t-body-3">' +
         (V7 ? (visible().length ? "왼쪽 목록에서 알림을 골라요" : "표시할 알림이 없어요") : (visible().length ? "왼쪽 목록에서 알림을 고르세요." : "표시할 알림이 없습니다.")) + '</p>';
