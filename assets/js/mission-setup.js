@@ -510,7 +510,13 @@
   }
 
   // 실행 로봇이 바뀌었다 — 배터리도 출발 전 구간도 달라진다(screen.js 가 알린다).
-  document.addEventListener("aprism:select", function () {
+  document.addEventListener("aprism:select", function (event) {
+    // [11/23 디자이너] v7 실행 로봇 칸 — screen.js 가 글만 옮겨 태그 · 배터리 모양이 사라진다. 고른 줄을 그대로 옮겨 그린다
+    var box = event.detail && event.detail.select;
+    if (V7KO && box && box.hasAttribute("data-mp-robot")) {
+      var pick = box.querySelector('.field-option[aria-selected="true"]'), val = box.querySelector("[data-select-value]");
+      if (pick && val) { val.innerHTML = pick.innerHTML; }
+    }
     lastMin = null;
     drawSummary();
   });

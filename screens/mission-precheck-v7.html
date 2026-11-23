@@ -35,7 +35,7 @@
   <link rel="stylesheet" href="../assets/css/v5.css?v=9f626280" />
   <!-- v6 전용 규칙 — v5 는 10/30 부로 멈췄다. v6 에서 바꾸는 것은 여기(body.ver-6)에. -->
   <link rel="stylesheet" href="../assets/css/v6.css?v=c384b14c" />
-  <link rel="stylesheet" href="../assets/css/v7.css?v=bde9b9e0" />
+  <link rel="stylesheet" href="../assets/css/v7.css?v=9eb02864" />
   <link rel="stylesheet" href="../assets/css/components-v7.css?v=c45bbd51" />
   <script src="../assets/js/ds-v7.js?v=1b798677"></script>
   <!-- [10/29] v5 지도(map-v6.js)가 그리는 설비 이름표 · 충전 스테이션 · 번호 핀 꼴 — 메인과 같다 -->
@@ -264,13 +264,16 @@
                                   <span class="field-label" id="mp-lbl-robot">실행 로봇</span>
                                   <div class="field-select" data-select data-mp-robot>
                                     <button type="button" class="field-box is-select" data-select-trigger aria-haspopup="listbox" aria-expanded="false" aria-labelledby="mp-lbl-robot">
-                                      <span data-select-value>ROBOT 01 · 배터리 96%</span>
+                                      <span data-select-value><span class="field-option-name">ROBOT 01</span><span class="field-option-meta"><span class="ds-badge is-plain is-neutral ds-i-clock">대기</span><span class="battery ds-battery"><span class="battery-body"><span class="battery-fill" style="width:96%"></span></span><span class="battery-tip"></span><span class="ds-battery-v">96%</span></span></span></span>
                                       <span class="i i-20" style="--i:var(--ic-chevron-down)" aria-hidden="true"></span>
                                     </button>
                                     <ul class="field-menu" role="listbox" aria-label="실행 로봇" hidden>
-                                      <li class="field-option" role="option" aria-selected="true">ROBOT 01 · 배터리 96%</li>
-                                      <li class="field-option" role="option">ROBOT 02 · 배터리 31%</li>
-                                      <li class="field-option" role="option">ROBOT 03 · 배터리 91%</li>
+                                      <!-- [11/23 디자이너] 줄마다 미션 모니터링 로봇 패널과 같은 상태 태그(대기 · 충전 중 · 수행중) + 배터리 표시(ds.battery). 대기 로봇만 고름(정의서 관제화면-01 Q5) -->
+                                      <li class="field-option" role="option" aria-selected="true" aria-label="ROBOT 01 배터리 96% 대기"><span class="field-option-name">ROBOT 01</span><span class="field-option-meta"><span class="ds-badge is-plain is-neutral ds-i-clock">대기</span><span class="battery ds-battery"><span class="battery-body"><span class="battery-fill" style="width:96%"></span></span><span class="battery-tip"></span><span class="ds-battery-v">96%</span></span></span></li>
+                                      <li class="field-option" role="option" aria-label="ROBOT 02 배터리 31% 대기"><span class="field-option-name">ROBOT 02</span><span class="field-option-meta"><span class="ds-badge is-plain is-neutral ds-i-clock">대기</span><span class="battery ds-battery is-warning"><span class="battery-body"><span class="battery-fill" style="width:31%"></span></span><span class="battery-tip"></span><span class="ds-battery-v">31%</span></span></span></li>
+                                      <li class="field-option" role="option" aria-label="ROBOT 03 배터리 91% 대기"><span class="field-option-name">ROBOT 03</span><span class="field-option-meta"><span class="ds-badge is-plain is-neutral ds-i-clock">대기</span><span class="battery ds-battery"><span class="battery-body"><span class="battery-fill" style="width:91%"></span></span><span class="battery-tip"></span><span class="ds-battery-v">91%</span></span></span></li>
+                                      <li class="field-option" role="option" aria-disabled="true" aria-label="ROBOT 04 배터리 18% 충전 중"><span class="field-option-name">ROBOT 04</span><span class="field-option-meta"><span class="ds-badge is-plain is-neutral ds-i-clock">충전 중</span><span class="battery ds-battery is-critical is-charging"><span class="battery-body"><span class="battery-fill" style="width:18%"></span><span class="i battery-bolt" style="--i:var(--ic-bolt)" aria-hidden="true"></span></span><span class="battery-tip"></span><span class="ds-battery-v">18%</span></span></span></li>
+                                      <li class="field-option" role="option" aria-disabled="true" aria-label="ROBOT 05 배터리 64% 수행중"><span class="field-option-name">ROBOT 05</span><span class="field-option-meta"><span class="ds-badge is-plain is-info ds-i-play">수행중</span><span class="battery ds-battery"><span class="battery-body"><span class="battery-fill" style="width:64%"></span></span><span class="battery-tip"></span><span class="ds-battery-v">64%</span></span></span></li>
                                     </ul>
                                   </div>
                                 </div>
@@ -1698,7 +1701,7 @@
 <script src="../assets/js/robot-spot.js?v=2a3061e4"></script>
 <script src="../assets/js/sian.js?v=0820ff6f"></script>
 <!-- 미션 설정 — 점검항목 · 순서 · 로봇이 소요시간과 배터리를 움직인다. screen.js 뒤에 온다. -->
-<script src="../assets/js/mission-setup.js?v=68b031c4"></script>
+<script src="../assets/js/mission-setup.js?v=e4e4bfca"></script>
 <script src="../assets/js/grid-overlay.js?v=39b45309"></script>
 <script src="../assets/js/setup-tabs-v6.js?v=59353b5b"></script>
 </body>
