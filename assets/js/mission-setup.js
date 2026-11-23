@@ -108,6 +108,9 @@
     "ROBOT 02": { bat: 31, at: "n7" },
     "ROBOT 03": { bat: 91, at: "D" }
   };
+  // [11/23 정의서 관제화면-01 · 02 Q5] v7 한글 — 고를 수 있는 로봇은 대기 로봇뿐이고 대기 로봇은 도크에 있다. 출발 전 이동 구간 없음
+  var V7KO = document.body.classList.contains("ver-7") && document.documentElement.lang !== "en";
+  if (V7KO) { ROBOTS["ROBOT 02"].at = "D"; }
 
   function robotNow() {
     var box = document.querySelector("[data-mp-robot]") ||
@@ -121,7 +124,8 @@
         return found;
       })();
     var value = box && box.querySelector("[data-select-value]");
-    var text = value ? value.textContent : "";
+    var nm = value && value.querySelector(".field-option-name");   // [11/23] v7 칸은 이름 | 배터리 — 글을 통째로 읽으면 "ROBOT 0196%" 로 붙는다. 이름 칸만
+    var text = nm ? nm.textContent : value ? value.textContent : "";
     var key = (text.match(/ROBOT\s*\d+/i) || ["ROBOT 01"])[0].toUpperCase();
     return { key: key, spec: ROBOTS[key] || ROBOTS["ROBOT 01"] };
   }
@@ -161,6 +165,11 @@
       for (var i = 0; i < hops.length - 1; i += 1) { units += span(hops[i], hops[i + 1]); }
     }
     var moveSec = (units * METER) / SPEED;
+    // [11/23 Q5] v7 한글 — 이동 거리는 지도가 실제로 까는 길(도크 → 고른 차례 → 도크)의 길이(m). 지도가 아직이면 위 평면 자
+    if (V7KO && ids.length && window.APRISM_ROUTE && window.APRISM_ROUTE.measure) {
+      var m = window.APRISM_ROUTE.measure(ids);
+      if (m != null) { moveSec = m / SPEED; }
+    }
     var inspSec = ids.reduce(function (sum, id) { return sum + BY_ID[id].dwell; }, 0);
     return { moveSec: moveSec, inspSec: inspSec, sec: moveSec + inspSec };
   }
@@ -315,6 +324,7 @@
   // (같은 판을 쓰는 사전 점검 화면은 [취소] 로 설정으로 돌아올 수 있다).
   function inSetup() {
     var now = document.body.getAttribute("data-stage");
+    if (V7KO && now === "precheck") { return true; }   // [11/23 Q5] 사전 점검도 미션 설정에서 정한 이번 실행 경로를 그린다
     return !now || now === "setup";
   }
 
@@ -501,10 +511,18 @@
   }
 
   // 실행 로봇이 바뀌었다 — 배터리도 출발 전 구간도 달라진다(screen.js 가 알린다).
-  document.addEventListener("aprism:select", function () {
+  document.addEventListener("aprism:select", function (event) {
+    // [11/23 디자이너] v7 실행 로봇 칸 — screen.js 가 글만 옮겨 태그 · 배터리 모양이 사라진다. 고른 줄을 그대로 옮겨 그린다
+    var box = event.detail && event.detail.select;
+    if (V7KO && box && box.hasAttribute("data-mp-robot")) {
+      var pick = box.querySelector('.field-option[aria-selected="true"]'), val = box.querySelector("[data-select-value]");
+      if (pick && val) { val.innerHTML = pick.innerHTML; }
+    }
     lastMin = null;
     drawSummary();
   });
+  // [11/23 Q5] 지도가 길을 다 깔았다 — 실제 길이로 다시 센다
+  if (V7KO) { document.addEventListener("aprism:mission-route", function () { lastMin = null; drawSummary(); }); }
 
   // 단계가 설정으로 돌아오면 계획을 다시 알린다.
   if (window.MutationObserver) {

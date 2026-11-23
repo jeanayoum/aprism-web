@@ -58,7 +58,7 @@
   var ARC_HEAD = 0x4990e0;               /* 방향 호 머리 */
   var ARC_PEAK = 0x9fcdff;               /* 가장 밝은 칸 — 여기가 로봇이 보는 쪽이다 */
 
-  var MOTION = { "수행중": "walk", "대기": "idle", "완료": "sit", "끊김": "idle" };
+  var MOTION = { "수행중": "walk", "수행 중": "walk", "대기": "idle", "완료": "sit", "끊김": "idle" };
 
   var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 

@@ -1171,6 +1171,7 @@ window.APRISM_TEXT = (function () {
     var mm = ("0" + (end % 60)).slice(-2);
     // [11/10 v7 디자이너 · Figma 63:219] 남은 시간은 끝날 시각 하나로 줄인다 — "약 12:17 종료 예정"
     if (document.body.classList.contains("ver-7")) {
+      window.APRISM_ETA_MIN = end;   // [11/23 정의서 관제화면-04] 미션 완료 소요 시간(route-sim.js spent)이 이 종료 예정 시각과 맞게
       return document.documentElement.lang === "en" ? "Est. finish ~" + hh + ":" + mm : "약 " + hh + ":" + mm + " 종료 예정";
     }
     return span + " · " + hh + ":" + mm + " 종료 예상";
@@ -1471,7 +1472,7 @@ window.APRISM_TEXT = (function () {
     }
 
     // 카드 배지 · 신호 등급을 Drawer 의 말로 옮긴다.
-    var STATES = { "수행중": "미션 수행 중", "대기": "대기 중", "완료": "순회 완료", "끊김": "연결 끊김" };
+    var STATES = { "수행중": "미션 수행 중", "수행 중": "미션 수행 중", "대기": "대기 중", "완료": "순회 완료", "끊김": "연결 끊김" };
     var SIGNALS = { Strong: "강함", Good: "보통", Weak: "약함", "끊김": "끊김" };
 
     /*

@@ -349,7 +349,8 @@
   // [11/05 v6] 미션 완료 아랫줄 — 첫 지점 시작 시각부터 완료 14:15 까지(시연 값)
   function spent() {
     var first = document.querySelector("[data-timeline] .timeline-item[data-wp-time]"), t = first && /(\d{1,2}):(\d{2})/.exec(first.getAttribute("data-wp-time"));
-    var min = t ? Math.max(1, 14 * 60 + 15 - (Number(t[1]) * 60 + Number(t[2]))) : 0;
+    var endMin = window.APRISM_ETA_MIN != null ? window.APRISM_ETA_MIN : 14 * 60 + 15;   // [11/23 v7] 진행 중 보이던 "약 HH:MM 종료 예정"에서 끝난 것으로 — 예전 더미 14:15 와 어긋났다
+    var min = t ? Math.max(1, endMin - (Number(t[1]) * 60 + Number(t[2]))) : 0;
     if (!min) { return "-"; }
     return min < 60 ? min + "분" : Math.floor(min / 60) + "시간" + (min % 60 ? " " + (min % 60) + "분" : "");
   }
