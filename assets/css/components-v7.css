@@ -789,6 +789,28 @@ body.ver-7.sian [data-stage-show="setup"] .mp-scroll.ds-scroll .mp-form { paddin
 body.ver-7 .is-ds-scroll-on > .ds-scroll-thumb, body.ver-7 .ds-scroll-thumb.is-drag { opacity: 1; }
 body.ver-7 .ds-scroll-thumb:hover, body.ver-7 .ds-scroll-thumb.is-drag { background-color: var(--border-strong); }
 
+/* ---------- GNB (11/23, .ds-gnb > .ds-gnb-item > .ds-gnb-icon): 모든 v7 화면 왼쪽 전역 메뉴. 예전 app-shell.css .gnb-rail, .gnb-item 값 그대로 ----------
+ * 판: 폭 --size-gnb-rail(76), 위 8 아래 20, 항목 묶음 사이 4. 항목: 70 x 64, 아이콘 상자와 이름 사이 4, 이름 12/18, 글자 text/disabled
+ * 아이콘 상자: 36(--size-control-md), 모서리 4(--radius-control). 면은 아이콘 상자에만. 올림: 이름 text/secondary, 상자 bg/panel + 아이콘 text/primary. 지금 쪽(aria-current): 이름 text/primary, 상자 bg/accent
+ * 화면이 없는 메뉴(aria-disabled): 0.38 투명, 누르지 않음 */
+body.ver-7 { --ds-gnb-item-w: 70px; --ds-gnb-item-h: 64px; }
+body.ver-7 .ds-gnb { flex: 0 0 var(--size-gnb-rail) !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: space-between !important; padding: var(--space-8) var(--space-0) var(--space-20) !important; overflow-y: auto; }
+body.ver-7 .ds-gnb .gnb-items { display: flex !important; flex-direction: column !important; align-items: center !important; gap: var(--space-4) !important; }
+body.ver-7 .ds-gnb-item { display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; gap: var(--space-4) !important; box-sizing: border-box; width: var(--ds-gnb-item-w) !important; height: var(--ds-gnb-item-h) !important; padding: var(--space-0) !important; color: var(--text-disabled) !important; text-align: center; text-decoration: none; cursor: pointer; }
+body.ver-7 .ds-gnb-icon { display: flex !important; align-items: center !important; justify-content: center !important; width: var(--size-control-md) !important; height: var(--size-control-md) !important; border-radius: var(--radius-control) !important; }
+body.ver-7 .ds-gnb-item > span:last-child { font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; }
+body.ver-7 .ds-gnb-item:hover:not([aria-current="page"]) { color: var(--text-secondary) !important; }
+body.ver-7 .ds-gnb-item:hover:not([aria-current="page"]) .ds-gnb-icon { background-color: var(--bg-panel) !important; color: var(--text-primary) !important; }
+body.ver-7 .ds-gnb-item[aria-current="page"] { color: var(--text-primary) !important; }
+body.ver-7 .ds-gnb-item[aria-current="page"] .ds-gnb-icon { background-color: var(--bg-accent) !important; }
+body.ver-7 .ds-gnb-item[aria-disabled="true"] { opacity: 0.38; pointer-events: none; }
+/* 라이트: 판 --comp-gnb-bg, 항목 글자 --v5-gnb-text, 지금 쪽 아이콘 상자 --v5-gnb-brand + 흰 아이콘(예전 v5.css 라이트 값 그대로) */
+:root[data-theme="light"] body.ver-7 .ds-gnb { background-color: var(--comp-gnb-bg) !important; }
+:root[data-theme="light"] body.ver-7 .ds-gnb-item:not([aria-current="page"]):not(:hover) { color: var(--v5-gnb-text) !important; }
+:root[data-theme="light"] body.ver-7 .ds-gnb-item[aria-current="page"] .ds-gnb-icon { background-color: var(--v5-gnb-brand) !important; color: var(--v5-n-0) !important; }
+
+/* 보고서 목차 줄(11/23): 리스트 작게(.ds-list-item.is-s, 32). 이름 왼쪽, 쪽 번호 오른쪽(text/tertiary, 고르면 text/secondary). 고름은 .is-selected(예전 .is-on 과 같이 붙음) */
+body.ver-7 .rp-toc .ds-list-item.is-s { justify-content: space-between !important; width: 100%; text-align: left; }
 /* ---------- 표 줄 (11/23, .ds-table-row): 알림센터 알림 목록 줄(.ac-row 옆). 칸 나눔은 화면 CSS, 줄 틀과 색과 상태만 여기 ----------
  * 높이 40, 좌우 20, 아래 구분선 1 border/divider(마지막 줄 없음), 왼쪽 단계 띠 3(.ac-stripe: 위험 status/critical/icon, 주의 status/warning/icon), 단계 아이콘 색도 같음
  * 면: 다크는 위험 줄 status/critical/bg, 라이트는 모두 흰색(gray-0). 올림 state/hover, 고름 다크 bg/raised 라이트 bg/selected. 초점 테 2 border/focus 안쪽 2

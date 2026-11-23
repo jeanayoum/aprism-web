@@ -1417,7 +1417,6 @@ body.ver-7 .sf .cx .kd .more { background-color: transparent !important; color: 
 body.ver-7 .sf .cx .kd:hover .more, body.ver-7 .sf .cx .kd:focus-visible .more { color: var(--text-primary) !important; }
 
 /* [11/20 정의서 공통-00 Q4] 화면이 없는 메뉴 = 비활성(개발 전) — v7.js 가 aria-disabled 를 붙인다 */
-body.ver-7 .gnb-item[aria-disabled="true"],
 body.ver-7 .menu-item[aria-disabled="true"] { opacity: 0.38; pointer-events: none; }
 
 /* [11/20 정의서 공통-00 Q3] 서버 연결 끊김 — 칩 앞에 위험 기호, 막대는 꺼진 칸 색(v7.js APRISM_NET) */

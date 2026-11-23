@@ -290,7 +290,7 @@
       if (pgnoEl) { pgnoEl.textContent = pg + " / " + count + " 쪽"; }
       Array.prototype.forEach.call(pagesEl.querySelectorAll("[data-sec]"), function (el) { if (topOf(el) <= y) { c = el.getAttribute("data-sec"); } });
       if (!c) { var f = pagesEl.querySelector("[data-sec]"); c = f && f.getAttribute("data-sec"); }
-      Array.prototype.forEach.call(tocEl.querySelectorAll("button"), function (b) { b.classList.toggle("is-on", b.getAttribute("data-k") === c); });
+      Array.prototype.forEach.call(tocEl.querySelectorAll("button"), function (b) { b.classList.toggle("is-on", b.getAttribute("data-k") === c); b.classList.toggle("is-selected", b.getAttribute("data-k") === c); });   // [11/23 v7] 공통 리스트 고름(.is-selected)
     }
     function render() {
       var pages = paginate(id);
@@ -301,7 +301,7 @@
       Array.prototype.forEach.call(pagesEl.querySelectorAll(".f-sec > .f-h"), function (h, i) { h.textContent = (i + 1) + ". " + h.textContent; });
       var items = Array.prototype.map.call(pagesEl.querySelectorAll("[data-sec]"), function (el) {
         var pg = Array.prototype.indexOf.call(pagesEl.children, el.closest(".rp-page")) + 1;
-        return '<button type="button" class="t-body-4" data-k="' + el.getAttribute("data-sec") + '">' + el.querySelector(".f-h").textContent + '<span class="t-caption">' + pg + "쪽</span></button>";
+        return '<button type="button" class="t-body-4' + (document.body.classList.contains("ver-7") ? " ds-list-item is-s" : "") + '" data-k="' + el.getAttribute("data-sec") + '">' + el.querySelector(".f-h").textContent + '<span class="t-caption">' + pg + "쪽</span></button>";
       }).join("");
       // 목차 — 머리(목차 · 총 N쪽) · 항목 · 아래 생성 시각(Figma 목차 209)
       tocEl.innerHTML = '<h4 class="rp-th t-caption"><span>목차</span><span>총 ' + count + "쪽</span></h4>" + items + '<div class="rp-pn t-caption">' + (doc.kind === "m" ? "자동 생성 2026.10.13 10:46" : doc.kind === "d" ? "자동 생성 2026.10.13 18:00" : "생성 " + MO.made) + "</div>";
@@ -482,7 +482,8 @@
   function renderList() {
     var html = "", n = 0;
     var mt = body.querySelector("[data-rp-mt]");
-    mt.textContent = "2026년 " + vm + "월";
+    // [11/23 v7] 달 제목은 글자 버튼(Ghost M 32) + 아래 꺾쇠 — 글자만 바꾸고 아이콘은 둠
+    if (document.body.classList.contains("ver-7")) { mt.innerHTML = "<span>2026년 " + vm + "월</span><span class=\"i i-16\" style=\"--i:var(--ic-chevron-down)\" aria-hidden=\"true\"></span>"; } else { mt.textContent = "2026년 " + vm + "월"; }
     mt.setAttribute("aria-label", "2026년 " + vm + "월, 날짜로 찾기");
     body.querySelector("[data-rp-next]").disabled = vm >= MAXM;
     if (vm === 10 && moState === "made") { n++; }

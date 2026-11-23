@@ -42,8 +42,8 @@
   <link rel="stylesheet" href="../assets/css/v5.css?v=9f626280" />
   <!-- v6 전용 규칙 — v5 는 10/30 부로 멈췄다. v6 에서 바꾸는 것은 여기(body.ver-6)에. -->
   <link rel="stylesheet" href="../assets/css/v6.css?v=c384b14c" />
-  <link rel="stylesheet" href="../assets/css/v7.css?v=d6077f4a" />
-  <link rel="stylesheet" href="../assets/css/components-v7.css?v=d947513d" />
+  <link rel="stylesheet" href="../assets/css/v7.css?v=fafb5e9e" />
+  <link rel="stylesheet" href="../assets/css/components-v7.css?v=2651666f" />
   <script src="../assets/js/ds-v7.js?v=04d0b862"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
@@ -158,21 +158,21 @@
   <div class="app-content">
 
     <!-- ---------- GNB Rail ---------- -->
-    <nav class="gnb-rail" aria-label="전역 내비게이션">
+    <nav class="gnb-rail ds-gnb" aria-label="전역 내비게이션">
       <div class="gnb-items">
-        <a class="gnb-item" href="#" aria-current="page">
-          <span class="gnb-icon"><span class="i i-20" style="--i:var(--ic-home)"></span></span><span>관제</span>
+        <a class="gnb-item ds-gnb-item" href="#" aria-current="page">
+          <span class="gnb-icon ds-gnb-icon"><span class="i i-20" style="--i:var(--ic-home)"></span></span><span>관제</span>
         </a>
         <!-- 통합 순회 현황에서 넘어가면 안전진단도 미션 전체(통합 순회 현황)로 연다 — 그냥 열면 첫 미션으로 풀렸다(10/30 디자이너) -->
-        <a class="gnb-item" href="./safety-v6.html#all"><span class="gnb-icon"><span class="i i-20" style="--i:var(--ic-shield)"></span></span><span>안전진단</span></a>
-        <a class="gnb-item" href="#"><span class="gnb-icon"><span class="i i-20" style="--i:var(--ic-bot)"></span></span><span>로봇</span></a>
-        <a class="gnb-item" href="#"><span class="gnb-icon"><span class="i i-20" style="--i:var(--ic-cpu)"></span></span><span>AI</span></a>
-        <a class="gnb-item" href="#"><span class="gnb-icon"><span class="i i-20" style="--i:var(--ic-calendar)"></span></span><span>스케줄러</span></a>
-        <a class="gnb-item" href="#"><span class="gnb-icon"><span class="i i-20" style="--i:var(--ic-delta)"></span></span><span>Delta</span></a>
-        <a class="gnb-item" href="./report-v6.html"><span class="gnb-icon"><span class="i i-20" style="--i:var(--ic-document)"></span></span><span>보고서</span></a>
-        <a class="gnb-item" href="#"><span class="gnb-icon"><span class="i i-20" style="--i:var(--ic-users)"></span></span><span>계정관리</span></a>
+        <a class="gnb-item ds-gnb-item" href="./safety-v6.html#all"><span class="gnb-icon ds-gnb-icon"><span class="i i-20" style="--i:var(--ic-shield)"></span></span><span>안전진단</span></a>
+        <a class="gnb-item ds-gnb-item" href="#"><span class="gnb-icon ds-gnb-icon"><span class="i i-20" style="--i:var(--ic-bot)"></span></span><span>로봇</span></a>
+        <a class="gnb-item ds-gnb-item" href="#"><span class="gnb-icon ds-gnb-icon"><span class="i i-20" style="--i:var(--ic-cpu)"></span></span><span>AI</span></a>
+        <a class="gnb-item ds-gnb-item" href="#"><span class="gnb-icon ds-gnb-icon"><span class="i i-20" style="--i:var(--ic-calendar)"></span></span><span>스케줄러</span></a>
+        <a class="gnb-item ds-gnb-item" href="#"><span class="gnb-icon ds-gnb-icon"><span class="i i-20" style="--i:var(--ic-delta)"></span></span><span>Delta</span></a>
+        <a class="gnb-item ds-gnb-item" href="./report-v6.html"><span class="gnb-icon ds-gnb-icon"><span class="i i-20" style="--i:var(--ic-document)"></span></span><span>보고서</span></a>
+        <a class="gnb-item ds-gnb-item" href="#"><span class="gnb-icon ds-gnb-icon"><span class="i i-20" style="--i:var(--ic-users)"></span></span><span>계정관리</span></a>
       </div>
-      <a class="gnb-item" href="#"><span class="gnb-icon"><span class="i i-20" style="--i:var(--ic-settings)"></span></span><span>환경설정</span></a>
+      <a class="gnb-item ds-gnb-item" href="#"><span class="gnb-icon ds-gnb-icon"><span class="i i-20" style="--i:var(--ic-settings)"></span></span><span>환경설정</span></a>
     </nav>
 
     <!-- ---------- Container · bg/surface/default 면 ---------- -->
