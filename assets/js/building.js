@@ -471,7 +471,7 @@
   }
 
   function doneRow(d) {
-    var node = el("div", "done-item");
+    var node = el("div", "done-item" + (document.body.classList.contains("ver-7") ? " ds-record" : ""));   // [11/23] v7 공통 처리 기록 줄
     node.setAttribute("role", "listitem");
     var head = el("span", "done-title");
     head.appendChild(el("span", "t-label-2", window.APRISM_ALERT6 ? window.APRISM_ALERT6.title(d.title) : d.title));   // [11/10 v7] 이름 규칙(alert-text-v6.js — v7 은 감지 이름 뺌). v6 이하는 그대로

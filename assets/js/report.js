@@ -334,7 +334,7 @@
       box.setAttribute("role", "dialog");
       box.setAttribute("aria-label", "특이 사항 입력");
       box.innerHTML = '<h4 class="t-title-2">특이 사항</h4><p class="rp-fx t-caption">입력한 내용이 문서의 특이 사항 칸에 들어가요. 비워 두면 빈칸으로 나가요.</p>' +
-        '<textarea class="t-body-4" rows="6" maxlength="500" placeholder="예: 10:36 WP-10 고온은 다음 근무자가 현장 확인 예정"></textarea>' +
+        '<textarea class="t-body-4' + (document.body.classList.contains("ver-7") ? " ds-memo" : "") + '" rows="6" maxlength="500" placeholder="예: 10:36 WP-10 고온은 다음 근무자가 현장 확인 예정"></textarea>' +
         '<div class="rp-sum t-caption"><span data-note-cnt></span><span class="rp-nb"><button type="button" class="btn btn-secondary" data-note-cancel>취소</button><button type="button" class="btn btn-accent" data-note-save>저장</button></span></div>';
       actsEl.appendChild(box);
       var tx = box.querySelector("textarea"), cnt = box.querySelector("[data-note-cnt]");

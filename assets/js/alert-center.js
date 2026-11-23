@@ -444,7 +444,7 @@
    * button 안에 button 이 된다 — grid 짜임으로 두고 줄에 tabindex 를 준다.
    */
   function openRow(a, sel) {
-    return '<div class="ac-row" role="row" data-id="' + a.id + '" data-sev="' + a.sev + '"' +
+    return '<div class="ac-row' + (document.body.classList.contains("ver-7") ? " ds-table-row" : "") + '" role="row" data-id="' + a.id + '" data-sev="' + a.sev + '"' +
         ' tabindex="' + (sel ? "0" : "-1") + '" aria-selected="' + (sel ? "true" : "false") + '">' +
         '<span class="ac-stripe" aria-hidden="true"></span>' +
         '<span class="ac-c-sev" role="gridcell">' + icon(SEV_ICON[a.sev], 16) +

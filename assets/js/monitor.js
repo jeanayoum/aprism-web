@@ -715,7 +715,7 @@
   function doneItem(d) {
     var V6 = body.classList.contains("ver-6");
     // [11/06 v6] 확인된 알림도 고를 수 있다 — 누르면 그 줄이 골라지고 지도가 그 지점으로 간다(쪽지는 열지 않는다, 이미 처리된 것).
-    var node = el(V6 ? "button" : "div", "done-item");
+    var node = el(V6 ? "button" : "div", "done-item" + (body.classList.contains("ver-7") ? " ds-record" : ""));   // [11/23] v7 공통 처리 기록 줄
     if (V6) {
       node.type = "button";
       node.setAttribute("aria-pressed", d === pickedDone ? "true" : "false");
