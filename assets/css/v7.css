@@ -1592,3 +1592,12 @@ body.ver-7 .ac-board { margin-top: calc(var(--space-8) * -1); }
 body.ver-7 .ac-dc-check { color: var(--text-tertiary); }
 /* [11/23 디자이너 10차] 조치 요청된 상세 머리의 조치 시각도 초록 대신 기본 글자색 */
 body.ver-7 .ac-record-at { color: var(--text-primary); }
+/* [11/23 디자이너 Q2] 조치 요청된 알림 진행 단계 칸(관제 .done-stage 와 같은 점 · 말) */
+body.ver-7 .ac-dc-stage { flex: none; width: 112px; white-space: nowrap; }
+body.ver-7 .ac-dc-stage .done-stage { display: inline-flex; }
+body.ver-7 .ac-info .done-stage { display: inline-flex; gap: var(--space-8); }
+body.ver-7 .ac-info .done-stage .ac-stage-to { color: var(--text-secondary); }
+/* [11/23 디자이너 Q3] 필터 밖 새 위험 안내 띠 — 필터 줄 위, 위험 색 */
+body.ver-7 .ac-newrisk { display: flex; align-items: center; gap: var(--space-8); padding: var(--space-8) var(--space-20); background-color: var(--status-critical-bg); color: var(--status-critical-text); border-bottom: var(--border-width-thin) solid var(--border-divider); }
+body.ver-7 .ac-newrisk > .i { color: var(--status-critical-icon); flex: none; }
+body.ver-7 .ac-newrisk > span.t-label-2 { flex: 1 1 auto; }

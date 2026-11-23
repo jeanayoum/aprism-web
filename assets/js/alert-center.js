@@ -356,6 +356,24 @@
   function picked() { return state.picked[state.tab]; }
   function setPicked(id) { state.picked[state.tab] = id; }
 
+  /*
+   * [11/23 디자이너 · 정의서 알림센터-01 Q2] v7 조치 요청된 알림의 진행 단계 — 조치 결과는 현장 몫이라 [조치 완료] 버튼 대신
+   *   관제 조치 요청된 알림과 같은 단계(현장 응답 대기 · 현장 조치 중 · 조치 완료)와 받는 사람을 보인다.
+   *   단계는 요청 기록(S7.req)이 먼저, 없으면 시안 값(오늘 5건은 관제 기록과 같게), 지난 날은 조치 완료
+   */
+  var STAGE_W = { wait: "현장 응답 대기", work: "현장 조치 중", done: "조치 완료" };
+  var STAGE7 = { "C-1": "done", "C-2": "wait", "C-3": "work", "C-4": "done", "C-5": "done" };
+  function stageOf(a) {
+    var S = window.APRISM_ALERTS7, d = a.done || {}, rq = S && d.reqId ? S.req.all()[d.reqId] : null;
+    var st = (rq && STAGE_W[rq.st] && rq.st) || (d.reqId ? "wait" : STAGE7[a.id]) || (d.day === "today" ? "wait" : "done");
+    var to = (rq && rq.to) || (S && S.req.to ? S.req.to({ detect: a.detect }).text : "현장 작업자");
+    return { st: st, word: STAGE_W[st], to: to };
+  }
+  function stageHtml(a, withTo) {
+    var g = stageOf(a);
+    return '<span class="done-stage is-' + g.st + '"><span class="done-st">' + g.word + '</span>' + (withTo ? '<span class="ac-stage-to">' + esc(g.to) + '</span>' : "") + '</span>';
+  }
+
   // 정렬 열쇠 — 미확인은 발생 시각, 조치 완료는 조치 시각으로 센다.
   function order(a) {
     var t = a.done ? a.done.at : a.time;
@@ -432,7 +450,7 @@
       ? '<span class="ac-dc-check" role="columnheader"><span class="ac-sr">상태</span></span>' +
         '<span class="ac-dc-time" role="columnheader">조치</span>' +
         '<span class="ac-dc-body" role="columnheader">' + (V7 ? "알림" : "알림 · 조치 내용") + '</span>' +
-        (V7 ? '<span class="ac-dc-sev" role="columnheader">원 등급</span><span class="ac-dc-occ" role="columnheader">발생</span>' : '<span class="ac-dc-sev" role="columnheader">원 등급 · 발생</span>') +
+        (V7 ? '<span class="ac-dc-stage" role="columnheader">진행</span><span class="ac-dc-sev" role="columnheader">원 등급</span><span class="ac-dc-occ" role="columnheader">발생</span>' : '<span class="ac-dc-sev" role="columnheader">원 등급 · 발생</span>') +
         '<span class="ac-dc-who" role="columnheader">담당</span>' +
         (sortBox ? '<span class="ac-dc-sort" role="columnheader"></span>' : "")
       : '<span class="ac-c-sev" role="columnheader"><span class="ac-sr">단계</span></span>' +
@@ -503,6 +521,7 @@
           '<span class="ac-dc-title t-label-2">' + esc(titleOf(a)) + '</span>' +
           (V7 ? '<span class="ac-dc-act t-caption">' + cells(d.picked) + '</span>' : '<span class="ac-dc-act t-caption">' + esc(d.picked.join(", ")) + '</span>') +
         '</span>' +
+        (V7 ? '<span class="ac-dc-stage t-caption" role="gridcell">' + stageHtml(a, false) + '</span>' : "") +   // [11/23 Q2] 진행 단계
         '<span class="ac-dc-sev t-caption" role="gridcell">' +
           (document.body.classList.contains("ver-7") && window.ds   // [11/19 v7] 태그 [▲ 주의] + 시각 (공통 CSS)
             ? window.ds.badge(a.sev === "critical" ? "crit" : "warn", SEV_LABEL[a.sev], { plain: true }) + '</span><span class="ac-dc-occ t-caption" role="gridcell">' + esc(shortTime(a.time))   // [11/20] 원 등급, 발생 두 칸
@@ -665,6 +684,7 @@
     renderCounts();
     renderList();
     renderDetail();
+    if (typeof newRiskBar === "function") { newRiskBar(); }   // [11/23 Q3]
   }
 
   function renderDetail() {
@@ -976,6 +996,7 @@
       '<section class="ac-record-section">' +
         '<h3 class="t-caption">처리 정보</h3>' +
         '<dl class="ac-info">' +
+          (V7 ? infoRow("진행", '<span class="t-body-4">' + stageHtml(a, true) + '</span>') : "") +   // [11/23 Q2] 진행 단계 · 받는 사람
           infoRow("담당", '<span class="t-body-4">' + esc(d.by) + '</span>') +
           infoRow("소요", '<span class="t-body-4">' + esc(d.took) + '</span>') +
           infoRow("DELTA", '<span class="ac-info-delta t-body-4">' + esc(deltaLine(d.delta)) + '</span>') +
@@ -1198,6 +1219,7 @@
     });
 
     statusMenus();
+    newRiskDemo();
   }
 
   /*
@@ -1260,6 +1282,44 @@
     });
 
     document.addEventListener("click", function () { closeAll(); });
+  }
+
+  /*
+   * [11/23 디자이너 · 정의서 알림센터-01 Q3] 필터 밖 새 위험 안내 — 새 위험 알림이 지금 탭 · 필터에 가려지면 필터 줄 위에 안내 띠.
+   *   [보기] → 조치 필요 탭 + 필터 해제(전체) + 그 줄 선택. 필터를 바꿔 보이게 되면 띠는 사라진다.
+   *   시안: ?newrisk=1 이면 3초 뒤 새 위험 1건이 들어온다(실서비스는 서버가 밀어 줌)
+   */
+  var NEWRISK = [];
+  function newRiskBar() {
+    var open = $(".ac-open"); if (!open) { return; }
+    // 한 번 목록에 보인(본) 알림은 안내에서 뺀다 — 조치 요청된 탭으로 옮겨 가도 다시 띄우지 않게
+    NEWRISK = NEWRISK.filter(function (id) { return !visible().some(function (a) { return a.id === id; }); });
+    var hidden = NEWRISK.filter(function (id) { return !visible().some(function (a) { return a.id === id; }) && ALERTS.some(function (a) { return a.id === id && !isDone(a); }); });
+    var bar = $(".ac-newrisk");
+    if (!hidden.length) { if (bar) { bar.remove(); } return; }
+    if (!bar) {
+      bar = document.createElement("div"); bar.className = "ac-newrisk"; bar.setAttribute("role", "status");
+      var f = $(".ac-filter", open); open.insertBefore(bar, f || open.firstChild);
+    }
+    bar.innerHTML = icon("--ic-error", 16) + '<span class="t-label-2">새 위험 알림 ' + hidden.length + '건이 필터에 가려져 있어요</span>' +
+      '<button type="button" class="btn btn-secondary is-xs" data-ac-newrisk>보기</button>';
+    $("[data-ac-newrisk]", bar).onclick = function () {
+      var id = hidden[0];
+      var tab = $('[data-ac-tab="open"]'); if (state.tab !== "open" && tab) { tab.click(); }
+      var all = $('[data-ac-sev="all"]'); if (all) { all.click(); }
+      $$(".ac-f-mission .field-option, .ac-f-period .field-option").forEach(function (o, i, arr) { if (o === o.parentNode.firstElementChild && o.getAttribute("aria-selected") !== "true") { o.click(); } });
+      setPicked(id); refresh();
+    };
+  }
+  function newRiskDemo() {
+    if (!V7 || !/[?&]newrisk=1/.test(location.search)) { return; }
+    setTimeout(function () {
+      var src = ALERTS.filter(function (a) { return a.sev === "critical" && !isDone(a); })[0]; if (!src) { return; }
+      var t = nowDate(), hms = [t.getHours(), t.getMinutes(), t.getSeconds()].map(function (n) { return (n < 10 ? "0" : "") + n; }).join(":");
+      var a = JSON.parse(JSON.stringify(src));
+      a.id = "A-NEW"; a.time = hms; a.stamp = a.stamp.slice(0, 11) + hms; a.mission = "발전기실 설비 점검"; a.floor = "B3"; a.wp = "WP-11"; a.place = "배관 랙 통로"; a.robot = "Robot 05";
+      ALERTS.push(a); NEWRISK.push(a.id); refresh();
+    }, 3000);
   }
 
   /* Status Bar 의 Account · Signal 드롭다운 — app-shell.css 의 .status-menu 짜임이다. */
