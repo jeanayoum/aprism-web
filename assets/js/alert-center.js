@@ -420,6 +420,15 @@
   function countBy(sev, done) {
     return ALERTS.filter(function (a) { return a.sev === sev && isDone(a) === done; }).length;
   }
+  // [11/23 디자이너 · 정의서 알림센터-01 Q6] v7 등급 칩 수 = 지금 탭 + 기간 · 미션 필터를 적용한 수(목록 건수와 늘 맞게). 등급 필터는 빼고 셈 — 다른 등급 칩의 수가 남아야 눌렀을 때 몇 건인지 안다. 탭 건수는 필터 없이 전체
+  function countChip(sev) {
+    return ALERTS.filter(function (a) {
+      if (a.sev !== sev || !inTab(a)) { return false; }
+      if (state.mission !== "전체 미션" && a.mission !== state.mission) { return false; }
+      if (state.period === "오늘" && dayOf(a) !== "today") { return false; }
+      return true;
+    }).length;
+  }
 
   // [11/20 v7] 문구에 가운데점(·) 구분자를 쓰지 않음 — 데이터 글의 " · " 를 쉼표로
   var V7 = document.body.classList.contains("ver-7");
@@ -1136,8 +1145,8 @@
 
     // 등급 필터는 두 탭을 합친 전체 건수다.
     // [11/23 v7 디자이너] v7 은 지금 탭의 건수 — 관제 등급 칩처럼 "지금 보는 목록"의 수(탭 줄 배지를 대신한다)
-    var tc = V7 ? (state.tab === "done" ? doneCrit : openCrit) : openCrit + doneCrit;
-    var tw = V7 ? (state.tab === "done" ? doneWarn : openWarn) : openWarn + doneWarn;
+    var tc = V7 ? countChip("critical") : openCrit + doneCrit;
+    var tw = V7 ? countChip("warning") : openWarn + doneWarn;
     // [11/23 v7 8차] 숫자는 고정폭 두 자리 칸(.num) — 탭을 바꿔 자릿수가 달라져도(9 → 11) 칩 폭이 그대로라 옆 기간 · 미션 · 정렬이 흔들리지 않는다
     var fnum = function (sel, word, n) { var e = $(sel); if (V7) { e.innerHTML = word + ' <span class="num ac-f-num">' + n + "</span>"; } else { e.textContent = word + " " + n; } };
     fnum("[data-ac-f-all]", "전체", V7 ? tc + tw : ALERTS.length);
