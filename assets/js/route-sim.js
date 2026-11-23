@@ -357,6 +357,8 @@
   var LEFTTXT = { pause: "일시정지 중, 남은 시간 멈춤", estop: "긴급정지로 멈춤", "return": "미션 중단, 충전 스테이션으로 복귀 중", lost: "통신이 돌아오면 다시 계산", done: "미션 완료" };
   var badgeMode = null;
   // [11/06 v6] 완료 미션 탭(M6 ~ M8)은 시뮬레이션과 상관없이 미션 완료로 보인다 — 시뮬레이션의 미션 완료와 같은 표시
+  var doneSent = false;   // [11/23 v7] 완료가 되고 풀릴 때 한 번씩 알린다(mission-scope.js 가 탭 · 메뉴를 완료로)
+  function tellDone(on) { if (on !== doneSent) { doneSent = on; document.dispatchEvent(new CustomEvent("aprism:mission-state", { detail: { done: on } })); } }
   function doneMode(m) { return api && api.ended && api.ended() ? "done" : m; }
   function robotCard(m) {
     m = doneMode(m);
@@ -439,6 +441,7 @@
     rail.classList.toggle("rr-frozen", m === "lost");
     // 목록 위 띠
     m = doneMode(m);
+    tellDone(m === "done");
     var host = rail.parentNode, ban = host && (host.querySelector(".rr-banner") || document.querySelector(".right-panel .mission-header .rr-banner"));   // [11/11 v7] 진행 막대가 로봇 카드로 올라가 띠도 목록 상자 밖에 있다
     var v6 = document.body.classList.contains("ver-6");
     var want = v6 ? !!STATE6[m] : m === "lost" || m === "done";

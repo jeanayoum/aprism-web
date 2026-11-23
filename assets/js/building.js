@@ -496,6 +496,14 @@
     var shown = all.filter(function (a) { return filter === "all" || a.sev === filter; });
     list.textContent = "";
     shown.forEach(function (a) { list.appendChild(alertRow(a)); });
+    // [11/23 디자이너] 빈 목록 한 줄 — 미션 관제(관제화면-04 Q5)와 같은 문구. 필터로 빈 것은 그 단계 이름으로
+    if (!shown.length && document.body.classList.contains("ver-7") && document.documentElement.lang !== "en") {
+      var em = document.createElement("p");
+      em.className = "ah-empty t-body-3";
+      em.setAttribute("role", "status");
+      em.textContent = filter === "critical" ? "위험 알림이 없어요" : filter === "warning" ? "주의 알림이 없어요" : "조치가 필요한 알림이 없어요";
+      list.appendChild(em);
+    }
 
     var counts = { all: all.length, critical: 0, warning: 0 };
     all.forEach(function (a) { counts[a.sev] += 1; });

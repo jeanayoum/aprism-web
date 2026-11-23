@@ -160,7 +160,7 @@
       t.title = label;
       t.setAttribute("aria-label", label);
       t.setAttribute("data-mission", nm.textContent);
-      t.title = label + " — 끌어서 순서 바꾸기";
+      t.title = V7KO ? label : label + " — 끌어서 순서 바꾸기";
       t.addEventListener("click", function () { if (justDragged) { return; } item.click(); });
       t.addEventListener("pointerdown", startDrag);
       t.addEventListener("keydown", keyMove);
@@ -173,7 +173,7 @@
       var t = tab("button", name, false);
       t.setAttribute("data-run", "idle");
       t.setAttribute("data-mission", name);
-      t.title = "M" + (mno(name) + 1) + " " + name + " — 끌어서 순서 바꾸기";
+      t.title = "M" + (mno(name) + 1) + " " + name + (V7KO ? "" : " — 끌어서 순서 바꾸기");
       t.addEventListener("click", function () { if (justDragged) { return; } window.location.href = (window.aprismHref || String)("./mission-setup-v6.html?mission=" + encodeURIComponent(name)); });
       t.addEventListener("pointerdown", startDrag);
       t.addEventListener("keydown", keyMove);
@@ -294,7 +294,8 @@
    * 키보드: 탭에 초점을 두고 Alt + ← / → 로 한 칸씩 옮긴다.
    */
   var KEY = "aprism-v6-tab-order";
-  function loadOrder() { try { return JSON.parse(localStorage.getItem(KEY) || "[]") || []; } catch (e) { return []; } }
+  // [11/23 정책] v7 은 탭 순서 바꾸기 없음 — 전체 미션 · 미션 탭 모두 끌기 불가, 순서는 기본 차례(수행 중 → 대기 → 완료). 저장된 순서도 읽지 않는다
+  function loadOrder() { if (V7KO) { return []; } try { return JSON.parse(localStorage.getItem(KEY) || "[]") || []; } catch (e) { return []; } }
   function saveOrder() {
     var names = Array.prototype.map.call(bar.querySelectorAll(".sb-tab[data-mission]"), function (t) { return t.getAttribute("data-mission"); });
     try { localStorage.setItem(KEY, JSON.stringify(names)); } catch (e) { /* 저장 못 하면 이번 화면에서만 */ }
@@ -320,7 +321,7 @@
     });
   }
   function startDrag(event) {
-    if (event.button !== 0) { return; }
+    if (V7KO || event.button !== 0) { return; }
     var t = event.currentTarget;
     drag = { t: t, x0: event.clientX, moved: false, id: event.pointerId };
     t.addEventListener("pointermove", onDrag);
@@ -375,7 +376,7 @@
     if (pending) { pending = false; build(); } else { fit(); }
   }
   function keyMove(event) {
-    if (!event.altKey || (event.key !== "ArrowLeft" && event.key !== "ArrowRight")) { return; }
+    if (V7KO || !event.altKey || (event.key !== "ArrowLeft" && event.key !== "ArrowRight")) { return; }
     event.preventDefault();
     var t = event.currentTarget, sib = event.key === "ArrowLeft" ? t.previousElementSibling : t.nextElementSibling;
     if (!sib || !sib.hasAttribute("data-mission")) { return; }

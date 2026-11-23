@@ -1515,6 +1515,37 @@
     card.style.setProperty("--y", snapPx(y));
   }
 
+  /*
+   * [11/23 디자이너 · 정의서 지도-01 Q1] v7 설비 카드 값 — 그 설비를 맡은 지점(가장 가까운 설비가 이 설비인 지점)의 최근 점검.
+   *   점검 결과 = 정상 / 주의 · 위험 + 측정값 / 측정 중 / 점검 전, 최근 점검 = 그 지점을 마친 시각, 담당 로봇 = 지금 보는 로봇.
+   *   이번 미션이 들르지 않는 설비는 "경로 밖" — 값은 우측 웨이포인트 목록(data-wp-*)에서 읽는다
+   */
+  function cardFacts(item) {
+    if (!document.body.classList.contains("ver-7") || document.documentElement.lang === "en" || !card) { return; }
+    var st = card.querySelector("[data-map-card-state]"), seen = card.querySelector("[data-map-card-seen]"), bot = card.querySelector("[data-map-card-robot]");
+    var eq = meshes.filter(function (m) { return m.key === "equipment" && m.title && (!m.floor || m.floor === floorNow); }).map(function (m) {
+      m.mesh.updateWorldMatrix(true, false); return { m: m, at: m.mesh.localToWorld(m.center.clone()) };
+    });
+    var mine = null, md = Infinity;
+    wpSpots.forEach(function (w) {
+      if (w.floor && w.floor !== floorNow) { return; }
+      var best = null, bd = Infinity;
+      eq.forEach(function (e) { var d = e.at.distanceToSquared(w.spot); if (d < bd) { bd = d; best = e; } });
+      if (best && best.m === item && bd < md) { md = bd; mine = w; }
+    });
+    var row = mine && document.querySelector('[data-timeline] .timeline-item[data-waypoint="' + mine.id + '"]');
+    var s = row ? row.getAttribute("data-wp-state") : "", res = row ? row.getAttribute("data-wp-result") : "", read = row ? (row.getAttribute("data-wp-read") || "").split(" · ")[0] : "";
+    var txt = "경로 밖", sev = "";
+    if (row && s === "completed") { txt = res === "danger" ? "위험 · " + read : res === "caution" ? "주의 · " + read : "정상"; sev = res === "danger" || res === "caution" ? res : ""; }
+    else if (row && s === "current") { txt = "측정 중"; }
+    else if (row) { txt = "점검 전"; }
+    if (st) { st.textContent = txt; if (sev) { st.setAttribute("data-sev", sev); } else { st.removeAttribute("data-sev"); } }
+    var tm = row && s === "completed" ? /–\s*(\d{1,2}:\d{2})/.exec(row.getAttribute("data-wp-time") || "") : null;
+    if (seen) { seen.textContent = tm ? tm[1] : "—"; }
+    var rn = document.querySelector(".right-panel .robot-id");
+    if (bot) { bot.textContent = row ? (rn ? rn.textContent.trim() : "—") : "—"; }
+  }
+
   // 고른 것을 바꾼다. 같은 것을 다시 누르면 놓는다.
   function choose(item) {
     var next = (item && item === picked) ? null : item;
@@ -1525,6 +1556,7 @@
     if (card) {
       card.hidden = !picked;
       if (picked && cardName) { cardName.textContent = picked.title; card.setAttribute("aria-label", "설비 " + picked.title); }
+      if (picked) { cardFacts(picked); }
     }
 
     plan();
@@ -4755,7 +4787,7 @@
     }
     var show = !!(ln && ln.dock) && (ln.floor || ROBOT_ON) === floorNow && !floorBusy;
     rrDockBox.hidden = !show;
-    if (!show) { return; }
+    if (!show) { if (dockPadG) { dockPadG.mesh.visible = false; } return; }   // [11/23] 바닥 도크도 함께 숨긴다 — 다른 층(B3)을 봐도 B4 도크가 떠 있었다
     rrDockBox.setAttribute("data-rr", ln.bot && ln.bot.ended ? "done" : RRS.lane === ln.id ? RRS.mode : "run");
     // 로봇이 충전 스테이션 안에 있으면(출발 전, 미션 완료) 로봇 표식을 따로 두지 않고 칸 안에 넣는다
     var inDock = (ln.bot && ln.bot.ended) || RRS.lane === ln.id && (RRS.mode === "done" || (RRS.s !== null && RRS.s <= ln.total * 0.006 && RRS.mode !== "return"));
