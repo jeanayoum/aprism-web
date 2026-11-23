@@ -265,6 +265,8 @@
   var PRESTART = document.body.classList.contains("ver-7") && document.documentElement.lang !== "en" &&
     /^(setup|precheck)$/.test(document.body.getAttribute("data-stage") || "") && !!document.querySelector("[data-mp-plan]");
   if (PRESTART) { ROBOTS[0].at = 0; }
+  function preName() { var n = document.querySelector("[data-mp-robot] [data-select-value] .field-option-name"); return n ? n.textContent.trim() : ""; }
+  if (PRESTART) { document.addEventListener("aprism:select", function () { setTimeout(function () { var t = preName(); if (!t) { return; } Array.prototype.forEach.call(document.querySelectorAll("[data-map-bot-name], [data-map-bot-title], [data-map-card-robot]"), function (e) { e.textContent = t; }); }, 0); }); }   // 값 칸이 바뀐 뒤(mission-setup.js) 읽는다
   if (PRESTART && window.MutationObserver) {   // 사전 점검 통과(body[data-precheck="done"]) — 일어서는 걸 바로 그린다
     new MutationObserver(function () { if (typeof frame === "function") { frame(); } })
       .observe(document.body, { attributes: true, attributeFilter: ["data-precheck", "data-stage"] });
@@ -2619,8 +2621,9 @@
       if (onLane) {
         botBox.style.setProperty("--bot-tint", "#" + ("00000" + (onLane.bot.mark || onLane.bot.done).toString(16)).slice(-6));
         botBox.style.setProperty("--bot-route", "#" + ("00000" + onLane.bot.left.toString(16)).slice(-6));   // route-rules — 캡슐은 길과 같은 색
-        if (botName) { botName.textContent = onLane.bot.name; }
-        if (botTitle) { botTitle.textContent = onLane.bot.name; }
+        var bnm = (PRESTART && preName()) || onLane.bot.name;   // [11/23] 미션 설정 · 사전 점검은 고른 실행 로봇 이름
+        if (botName) { botName.textContent = bnm; }
+        if (botTitle) { botTitle.textContent = bnm; }
       }
     }
     frame();
@@ -2759,6 +2762,7 @@
     }
     var show = !!(onLane && botBox && !botBox.hidden && botBox.style.visibility !== "hidden" && !botBox.hasAttribute("data-rr-docked"))
       && robotKind(onLane.id) === "spot" && st !== "lost";   // [11/05] 긴급정지는 빨간 두 줄, 일시정지는 노란 끊긴 두 줄
+    if (PRESTART && document.body.getAttribute("data-precheck") !== "done") { show = false; }   // [11/23 디자이너] 미션 설정 · 사전 점검 — 도크에 앉아 대기하는 동안 초록 상태 고리를 숨긴다(일어서면 켜짐)
     halo.g.visible = show;
     if (!show) { return; }
     var wait = st === "done", scan = st === "inspect", hold = st === "pause";

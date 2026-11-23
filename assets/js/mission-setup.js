@@ -110,7 +110,21 @@
   };
   // [11/23 정의서 관제화면-01 · 02 Q5] v7 한글 — 고를 수 있는 로봇은 대기 로봇뿐이고 대기 로봇은 도크에 있다. 출발 전 이동 구간 없음
   var V7KO = document.body.classList.contains("ver-7") && document.documentElement.lang !== "en";
-  if (V7KO) { ROBOTS["ROBOT 02"].at = "D"; }
+  if (V7KO) {   // [11/23 정의서 관제화면-03 Q1] 다른 화면과 같은 12대 · 같은 배터리, 쉬는 로봇은 도크에
+    ROBOTS = {};
+    ROBOTS["ROBOT 01"] = { bat: 78, at: "D" };
+    ROBOTS["ROBOT 02"] = { bat: 18, at: "D" };
+    ROBOTS["ROBOT 03"] = { bat: 35, at: "D" };
+    ROBOTS["ROBOT 04"] = { bat: 92, at: "D" };
+    ROBOTS["ROBOT 05"] = { bat: 64, at: "D" };
+    ROBOTS["ROBOT 06"] = { bat: 8, at: "D" };
+    ROBOTS["ROBOT 07"] = { bat: 96, at: "D" };
+    ROBOTS["ROBOT 08"] = { bat: 47, at: "D" };
+    ROBOTS["ROBOT 09"] = { bat: 88, at: "D" };
+    ROBOTS["ROBOT 10"] = { bat: 29, at: "D" };
+    ROBOTS["ROBOT 11"] = { bat: 71, at: "D" };
+    ROBOTS["ROBOT 12"] = { bat: 55, at: "D" };
+  }
 
   function robotNow() {
     var box = document.querySelector("[data-mp-robot]") ||
@@ -127,7 +141,7 @@
     var nm = value && value.querySelector(".field-option-name");   // [11/23] v7 칸은 이름 | 배터리 — 글을 통째로 읽으면 "ROBOT 0196%" 로 붙는다. 이름 칸만
     var text = nm ? nm.textContent : value ? value.textContent : "";
     var key = (text.match(/ROBOT\s*\d+/i) || ["ROBOT 01"])[0].toUpperCase();
-    return { key: key, spec: ROBOTS[key] || ROBOTS["ROBOT 01"] };
+    return { key: key, spec: ROBOTS[key] || ROBOTS["ROBOT 04"] || ROBOTS["ROBOT 01"] };
   }
 
   /* ================================================================
@@ -271,7 +285,7 @@
   function drawBattery(ids, bot) {
     if (!batBar) { return; }
     var spec = bot.spec;
-    if (batNow) { batNow.textContent = "현재 " + bot.key + " " + spec.bat + "%"; }
+    if (batNow) { batNow.textContent = "현재 " + (V7KO ? bot.key.replace(/^ROBOT/, "Robot") : bot.key) + " " + spec.bat + "%"; }   // [11/23] v7 은 다른 화면처럼 Robot 04
 
     if (!ids.length) {
       if (batState) { batState.innerHTML = "—"; }

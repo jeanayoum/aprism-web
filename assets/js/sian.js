@@ -256,7 +256,7 @@
         // [11/23 정의서 관제화면-02] 배터리 줄 로봇 이름은 미션 설정에서 고른 실행 로봇을 따른다(예전엔 ROBOT 02 로 박혀 있었다)
         var pick = document.querySelector("[data-mp-robot] [data-select-value] .field-option-name") || document.querySelector("[data-mp-robot] [data-select-value]");   // [11/23] v7 은 이름 칸만
         var who = pick && /ROBOT\s*\d+/i.exec(pick.textContent);
-        if (who) { say = say.replace(/ROBOT\s*\d+/i, who[0].toUpperCase()); }
+        if (who) { say = say.replace(/ROBOT\s*\d+/i, (document.body.classList.contains("ver-7") ? who[0] : who[0].toUpperCase())); }
         if (meta) { meta.textContent = say; }
       }
 
@@ -289,7 +289,7 @@
         var pick = document.querySelector("[data-mp-robot] [data-select-value] .field-option-name") || document.querySelector("[data-mp-robot] [data-select-value]");   // [11/23] v7 은 이름 칸만
         var who = pick && /ROBOT\s*\d+/i.exec(pick.textContent);
         var txt = row.getAttribute("data-fail-why") || "";
-        why.textContent = who ? txt.replace(/ROBOT\s*\d+/i, who[0].toUpperCase()) : txt;
+        why.textContent = who ? txt.replace(/ROBOT\s*\d+/i, (document.body.classList.contains("ver-7") ? who[0] : who[0].toUpperCase())) : txt;
         row.parentNode.insertBefore(why, row.nextSibling);
         if (tag) { tag.textContent = "실패"; if (window.ds) { tag.className = "tag-running " + window.ds.statusCls("no"); } }
         v7ui("fail", row);
