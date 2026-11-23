@@ -221,7 +221,7 @@
       body.setAttribute("data-precheck", state);
       var sub = $("[data-precheck-sub]"), note = $("[data-precheck-notice]");
       var cancel = $("[data-precheck-cancel]"), back = $("[data-precheck-back]"), retry = $("[data-precheck-retry]");
-      if (sub) { sub.textContent = state === "fail" ? (row.querySelector(".label").textContent + " 실패 · 미션을 시작하지 않아요") : state === "done" ? "모두 정상 · 미션을 시작해요" : SUB0; }
+      if (sub) { sub.textContent = state === "fail" ? (row.querySelector(".label").textContent + " 확인에 실패해 미션을 시작하지 않아요") : state === "done" ? "모두 정상이라 미션을 시작해요" : SUB0; }   // [11/23 디자이너] 가운데 점 없이 한 문장
       if (note) { note.hidden = state === "fail"; }
       if (cancel) { cancel.hidden = state === "fail"; }
       if (back) { back.hidden = state !== "fail"; }
