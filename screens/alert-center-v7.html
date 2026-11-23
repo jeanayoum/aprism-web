@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="../assets/css/v5.css?v=9f626280" />
   <!-- v6 전용 규칙 — v5 는 10/30 부로 멈췄다. v6 에서 바꾸는 것은 여기(body.ver-6)에. -->
   <link rel="stylesheet" href="../assets/css/v6.css?v=c384b14c" />
-  <link rel="stylesheet" href="../assets/css/v7.css?v=274d29c8" />
+  <link rel="stylesheet" href="../assets/css/v7.css?v=d6077f4a" />
   <link rel="stylesheet" href="../assets/css/components-v7.css?v=d947513d" />
   <script src="../assets/js/ds-v7.js?v=04d0b862"></script>
   <style>
@@ -168,11 +168,7 @@
         <div class="ac-title-controls">
           <!-- Figma 는 Size=Medium(36) 이다. 아래 [조치 완료] 도 36 으로 맞췄다 —
                Figma 에서는 주 동작이 32 로 보조보다 작았다. -->
-          <!-- [11/20 v7] 보고서 내보내기는 Large 40 → Medium 32(기본 .btn), 아이콘 16 -->
-          <button type="button" class="btn btn-secondary">
-            <span class="i i-16" style="--i:var(--ic-download)" aria-hidden="true"></span>
-            보고서 내보내기
-          </button>
+          <!-- [11/23 디자이너] [보고서 내보내기] 뺌(정의서 알림센터-01 Q5) -->
         </div>
       </div>
 
@@ -206,7 +202,7 @@
             <!-- [11/23 디자이너] 순서 = 표 열 순서(등급 → 발생 → … → 미션). 정렬은 거르기가 아니라 맨 끝에 떨어뜨림(관제 조치 필요 알림과 같다) -->
             <!-- [11/23 디자이너] 등급 라벨 뺌 — 관제 조치 필요 알림처럼 칩 이름(위험 · 주의)이 스스로 말한다 -->
             <!-- [11/23 디자이너] 등급 = 관제 조치 필요 알림과 같은 붙은 칩(ds-chips, 하나만 고름). 예전 체크 칩(전체가 부모)은 결과가 같아 바꿨다 -->
-            <div class="ac-sev-chips ds-chips" role="group" aria-label="등급으로 거르기">
+            <div class="ac-sev-chips ds-chips" role="group" aria-label="등급 필터">
               <button type="button" class="ds-chip" aria-pressed="true" data-ac-sev="all"><span data-ac-f-all>전체 22</span></button>
               <button type="button" class="ds-chip" aria-pressed="false" data-ac-sev="critical"><span data-ac-f-crit>위험 8</span></button>
               <button type="button" class="ds-chip" aria-pressed="false" data-ac-sev="warning"><span data-ac-f-warn>주의 14</span></button>
@@ -306,6 +302,6 @@
 <script src="../assets/js/alert-text-v6.js?v=a6a79f62"></script>
 <script src="../assets/js/verdict-v6.js?v=ee80312a"></script>
 <script src="../assets/js/alert-center-data-v6.js?v=0f403e33"></script>
-<script src="../assets/js/alert-center.js?v=7693f641"></script>
+<script src="../assets/js/alert-center.js?v=c06f23d3"></script>
 </body>
 </html>
