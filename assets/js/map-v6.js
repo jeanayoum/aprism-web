@@ -4237,7 +4237,7 @@
     if (!wpTog) {
       wpTog = document.createElement("button");
       wpTog.type = "button";
-      wpTog.className = "rr-wp-toggle";
+      wpTog.className = "rr-wp-toggle ds-bleed";
       wpTog.addEventListener("click", function () {
         wpTog.setAttribute("aria-expanded", String(!document.body.classList.toggle("rr-wp-closed")));
       });

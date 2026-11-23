@@ -26,7 +26,7 @@
     if (!slot || slot.hasAttribute("data-ah-sort")) { return; }
     var b = document.createElement("button");
     b.type = "button";
-    b.className = "ah-order ah-sort-btn t-caption";
+    b.className = "ah-order ah-sort-btn ds-bleed t-caption";   // [11/23] 끝선 bleed 는 공통 .ds-bleed
     b.setAttribute("data-ah-sort", "");
     b.setAttribute("aria-label", "정렬 바꾸기");
     b.title = HINT;

@@ -400,7 +400,7 @@
     var cnt = body.querySelector(".rp-cnt"), lab = cnt && cnt.querySelector("span:not(.rp-cn)");
     if (!lab) { return; }
     var b = document.createElement("button");
-    b.type = "button"; b.className = "ah-sort-btn rp-sort t-caption"; b.setAttribute("aria-label", "정렬 바꾸기");
+    b.type = "button"; b.className = "ah-sort-btn rp-sort ds-bleed t-caption"; b.setAttribute("aria-label", "정렬 바꾸기");
     var ic = document.createElement("span"); ic.className = "i i-16"; ic.setAttribute("aria-hidden", "true"); ic.style.setProperty("--i", "var(--ic-sort)");
     var tx = document.createElement("span");
     b.appendChild(ic); b.appendChild(tx);

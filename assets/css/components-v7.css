@@ -1150,12 +1150,10 @@ body.ver-7 .sfx-go {
   height: var(--ds-btn-s-h) !important; padding: var(--space-0) var(--ds-btn-s-pad-x) !important; font-size: var(--ds-btn-sm-font-size) !important; line-height: var(--ds-btn-sm-line-height) !important; font-weight: var(--ds-btn-font-weight) !important;
 }
 body.ver-7 .sfx-go:not(.z1):not(.z2) { gap: var(--ds-btn-gap) !important; }
-/* 끝선이나 정보 줄 안: 패딩은 그대로 두고 패딩만큼 바깥으로 뺌(bleed). 글자와 아이콘은 끝선에 맞고, 누르는 영역과 호버 면은 패딩까지 */
-body.ver-7 .btn.btn-ghost[data-robot-more]:not(.z1):not(.z2):not(.z3):not(.z4):not(.z5),
-body.ver-7 .btn.btn-ghost.ah-all:not(.z1):not(.z2):not(.z3):not(.z4):not(.z5),
-body.ver-7 .rr-wp-toggle:not(.z1):not(.z2):not(.z3):not(.z4):not(.z5),
-body.ver-7 .ah-sort-btn:not(.z1):not(.z2):not(.z3):not(.z4):not(.z5) { padding-left: var(--ds-btn-ghost-pad-x) !important; padding-right: var(--ds-btn-ghost-pad-x) !important; margin-left: calc(var(--ds-btn-ghost-pad-x) * -1) !important; margin-right: calc(var(--ds-btn-ghost-pad-x) * -1) !important; border-radius: var(--ds-btn-radius) !important; }
-body.ver-7 .btn.btn-ghost[data-robot-more]:hover, body.ver-7 .btn.btn-ghost.ah-all:hover, body.ver-7 .rr-wp-toggle:hover, body.ver-7 .ah-sort-btn:hover { background-color: var(--comp-button-ghost-bg-hover) !important; }
+/* 끝선 맞춤 .ds-bleed (11/23, 켜고 끄는 속성): 면 없는 글자 버튼(Ghost)에 붙이면 패딩은 그대로 두고 패딩만큼 바깥으로 뺌. 글자와 아이콘은 끝선에 맞고, 누르는 영역과 호버 면은 패딩까지
+ * 쓰는 곳: 알림 센터, 전체 로봇 보기, 로봇 더보기, 오래된 순(관제, 전체 미션, 보고서 정렬), 웨이포인트 펼치기. 예전 클래스 목록 대신 .ds-bleed 하나 */
+body.ver-7 .ds-bleed:not(.z1):not(.z2):not(.z3):not(.z4):not(.z5) { padding-left: var(--ds-btn-ghost-pad-x) !important; padding-right: var(--ds-btn-ghost-pad-x) !important; margin-left: calc(var(--ds-btn-ghost-pad-x) * -1) !important; margin-right: calc(var(--ds-btn-ghost-pad-x) * -1) !important; border-radius: var(--ds-btn-radius) !important; }
+body.ver-7 .ds-bleed:hover { background-color: var(--comp-button-ghost-bg-hover) !important; }
 /* 예외: 관제 "알림 센터 >" 글자와 아이콘 사이 2 */
 body.ver-7 .btn.btn-ghost.ah-all:not(.z1):not(.z2):not(.z3):not(.z4):not(.z5):not(.z6) { gap: var(--space-2) !important; }
 /* 정보 줄 안: 알림센터 위치 줄의 지도에서 보기, 보고서의 미션 바로가기. 위아래도 2씩 빼서 줄 높이를 키우지 않음 */
