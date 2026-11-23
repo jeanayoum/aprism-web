@@ -33,7 +33,7 @@
   <!-- v6 전용 규칙 — v5 는 10/30 부로 멈췄다. v6 에서 바꾸는 것은 여기(body.ver-6)에. -->
   <link rel="stylesheet" href="../assets/css/v6.css?v=c384b14c" />
   <link rel="stylesheet" href="../assets/css/v7.css?v=cf4273f9" />
-  <link rel="stylesheet" href="../assets/css/components-v7.css?v=744f2164" />
+  <link rel="stylesheet" href="../assets/css/components-v7.css?v=7f975df1" />
   <script src="../assets/js/ds-v7.js?v=c6c14e65"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
@@ -154,7 +154,7 @@
 
       <!-- Breadcrumb — Figma 는 "알림 이력" 이었다. 제목(h1)이 "알림 센터" 라
            한 화면에 이름이 둘이 된다. 제목 쪽으로 맞췄다. -->
-      <nav class="ac-crumb t-body-4" aria-label="현재 위치">
+      <nav class="ac-crumb ds-crumb t-body-4" aria-label="현재 위치">
         <a href="./main-v6.html">메인</a>
         <span class="i i-14" style="--i:var(--ic-chevron-right)" aria-hidden="true"></span>
         <span class="t-label-2" aria-current="page">알림 센터</span>
@@ -312,13 +312,13 @@
           <!-- Figma 는 "1/4" 숫자만 있었다 — 앞뒤로 갈 길이 없는 숫자다. 이전·다음을 붙였다. -->
           <div class="ac-detail-head">
             <span class="ac-head-spacer"></span>
-            <button type="button" class="ac-nav" data-ac-prev aria-label="이전 알림">
+            <div class="ds-pager"><button type="button" class="ac-nav" data-ac-prev aria-label="이전 알림">
               <span class="i i-16" style="--i:var(--ic-chevron-left)" aria-hidden="true"></span>
             </button>
-            <span class="ac-nth ac-mono" data-ac-nth>1 / 11</span>
+            <span class="ac-nth ac-mono ds-pager-n" data-ac-nth>1 / 11</span>
             <button type="button" class="ac-nav" data-ac-next aria-label="다음 알림">
               <span class="i i-16" style="--i:var(--ic-chevron-right)" aria-hidden="true"></span>
-            </button>
+            </button></div>
           </div>
           <div class="ac-detail-body" data-ac-detail></div>
         </section>

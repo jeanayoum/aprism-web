@@ -692,6 +692,25 @@ body.ver-7 .ds-list.is-boxed { border: var(--border-width-thin) solid var(--bord
 body.ver-7 .ds-list.is-divided > .ds-list-item { border-bottom: var(--border-width-thin) solid var(--border-default) !important; }
 body.ver-7 .ds-list.is-divided > .ds-list-item:last-child { border-bottom: 0 !important; }
 
+/* ---------- 경로 표시 (11/23, .ds-crumb): [메인] > [알림 센터] ----------
+ * 글자 13/20. 지난 단계 링크 보통 굵기 text/secondary(올림 text/primary), 지금 쪽(aria-current="page") 중간 굵기 text/primary. 사이 꺾쇠 아이콘 12, 사이 8
+ * 화면: 알림센터 제목 위 */
+body.ver-7 .ds-crumb { display: flex !important; align-items: center !important; gap: var(--space-8) !important; font-size: var(--font-size-13) !important; line-height: var(--font-line-height-20) !important; font-weight: var(--font-weight-regular) !important; }
+body.ver-7 .ds-crumb a { color: var(--text-secondary) !important; text-decoration: none; transition: color var(--ds-motion-fast) var(--ds-ease-base); }
+body.ver-7 .ds-crumb a:hover { color: var(--text-primary) !important; }
+body.ver-7 .ds-crumb > .i { width: var(--ds-icon-12) !important; height: var(--ds-icon-12) !important; color: var(--text-secondary) !important; }
+body.ver-7 .ds-crumb [aria-current="page"] { font-size: inherit !important; line-height: inherit !important; font-weight: var(--font-weight-medium) !important; color: var(--text-primary) !important; }
+
+/* ---------- 쪽 넘김 (11/23, .ds-pager): [‹] 1 / 12 [›] ----------
+ * 이전, 다음은 아이콘 버튼 24(안쪽 4, 아이콘 16, 모서리 4, 면 없음, 올림 --state-hover, 끝이면 못 누름 text/disabled). 가운데 숫자 고정폭 13/20 text/tertiary. 사이 4
+ * 화면: 알림센터 오른쪽 상세 머리 */
+body.ver-7 .ds-pager { display: inline-flex !important; align-items: center !important; gap: var(--space-4) !important; }
+body.ver-7 .ds-pager > button { display: inline-grid !important; place-items: center !important; box-sizing: border-box !important; width: var(--ds-iconbtn-s) !important; height: var(--ds-iconbtn-s) !important; padding: var(--ds-iconbtn-pad-s) !important; border: 0 !important; border-radius: var(--ds-btn-radius) !important; background: none !important; color: var(--text-secondary) !important; cursor: pointer; transition: background-color var(--ds-motion-fast) var(--ds-ease-base), color var(--ds-motion-fast) var(--ds-ease-base); }
+body.ver-7 .ds-pager > button:not(:disabled):hover { background-color: var(--state-hover) !important; color: var(--text-primary) !important; }
+body.ver-7 .ds-pager > button:disabled { color: var(--text-disabled) !important; cursor: default; }
+body.ver-7 .ds-pager > button > .i { width: var(--ds-icon-16) !important; height: var(--ds-icon-16) !important; }
+body.ver-7 .ds-pager-n { font-family: var(--font-family-mono) !important; font-size: var(--font-size-13) !important; line-height: var(--font-line-height-20) !important; font-weight: var(--font-weight-regular) !important; color: var(--text-tertiary) !important; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
 /* ---------- 떠 있는 스크롤 막대 (11/23, .ds-scroll + ds-v7.js scrollThumb) ----------
  * 브라우저 막대(12)는 넘칠 때만 생겨 카드, 줄 너비가 좁아짐 → 막대를 숨기고 상자 안 오른쪽 4 안쪽에 4 막대를 띄움. 관제 알림 목록과 같은 꼴
  * 막대는 상자에 올렸을 때, 끌 때만 보임. 색 border/default, 올림과 끌기 border/strong, 끌어서 넘김
