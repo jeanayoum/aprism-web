@@ -941,7 +941,8 @@ body.ver-7 :is(.ds-act-box, .ds-chip.is-check .check-box, .check-row .check-box)
 body.ver-7 :is(.ds-act-box, .ds-chip.is-check .check-box, .check-row .check-box) > .i { width: 12px !important; height: 12px !important; opacity: 0; }
 body.ver-7 input.ds-act-box::after { content: ""; width: 12px; height: 12px; background-color: var(--color-gray-0); -webkit-mask: var(--ic-check) center / contain no-repeat; mask: var(--ic-check) center / contain no-repeat; opacity: 0; }
 body.ver-7 :is(.ds-act[aria-checked="true"] .ds-act-box, input.ds-act-box:checked, .ds-chip.is-check:is([aria-pressed="true"], [aria-checked="true"]) .check-box, .check-row[aria-checked="true"] .check-box) { border-color: transparent !important; background-color: var(--ds-check-on, var(--color-blue-700)) !important; }
-body.ver-7 :is(.ds-act[aria-checked="true"] .ds-act-box > .i, input.ds-act-box:checked::after, .ds-chip.is-check:is([aria-pressed="true"], [aria-checked="true"]) .check-box > .i, .check-row[aria-checked="true"] .check-box > .i) { opacity: 1; }
+body.ver-7 :is(.ds-act[aria-checked="true"] .ds-act-box > .i, .ds-chip.is-check:is([aria-pressed="true"], [aria-checked="true"]) .check-box > .i, .check-row[aria-checked="true"] .check-box > .i) { opacity: 1; }
+body.ver-7 input.ds-act-box:checked::after { opacity: 1; }   /* 11/23: 가상 요소는 :is() 안에 못 넣어 따로(전에는 실제 체크박스의 체크 모양이 늘 안 보였음: 보고서 문서 구성, 안전진단 조치 체크) */
 /* 결과: 체크 아이콘 16 (체크 상자 자리 18 가운데) */
 body.ver-7 .ds-act-ic { flex: none !important; display: grid !important; place-items: center !important; width: var(--ds-act-box) !important; height: var(--ds-act-box) !important; color: var(--text-tertiary) !important; }
 body.ver-7 .ds-act-ic > .i { width: 16px !important; height: 16px !important; }
