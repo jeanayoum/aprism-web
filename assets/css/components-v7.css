@@ -710,6 +710,9 @@ body.ver-7 .ds-wp::after { font-variant-numeric: normal !important; font-family:
 /* 지도 위: 바탕이 무엇이든 떠 보이게 테 */
 /* 미션설정 점검 줄: 줄 바탕과 원 면이 같은 색(다크 둘 다 bg-cell)이라 원이 안 보이고 여백만 커 보임 → 지도 팝오버 기본 지점 원처럼 테 1 (11/20) */
 body.ver-7 .check-row .check-ord.ds-wp { border: var(--border-width-thin) solid var(--border-strong) !important; background-color: var(--bg-page) !important; }
+/* [11/23 디자이너] 미션 설정 점검 줄 번호 = 지도 번호 원과 같은 크기 · 글꼴(지도 .rr-pin-head: 20, JetBrains Mono 700 10px, -0.4) — 16 원에 12px 이라 원이 작아 보였음.
+   고정폭 숫자는 위로 떠 1px 내림(v6.css Delta 번호 원과 같은 보정) */
+body.ver-7 .check-row .check-ord.ds-wp { width: var(--ds-wp-size) !important; height: var(--ds-wp-size) !important; min-width: var(--ds-wp-size) !important; padding-top: 1px !important; font-family: var(--font-family-mono) !important; font-size: 10px !important; font-weight: var(--font-weight-bold) !important; letter-spacing: -0.4px !important; }
 
 /* ---------- 층: 지금 층 꼬리표(.floor-tag) 값 그대로 (색, 굵기, 크기 바꾸지 않음)
  * 라이트 gray-100 면 + text-tertiary, 다크 bg-raised 면 + text-secondary, 고정폭 12/18, 굵기 400 ---------- */
