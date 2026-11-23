@@ -443,6 +443,30 @@ body.ver-7 .ds-sr { position: absolute; width: 1px; height: 1px; margin: -1px; p
 :root[data-theme="light"] body.ver-7 .ds-badge, :root[data-theme="dark"] body.ver-7 .is-light-scope .ds-badge { --ds-badge-neutral-bg: var(--color-gray-300); }
 /* AI 추천 면 (11/20 정함): 예전 회색 배지 면 그대로(--bg-map-chip, 투명도 있는 회색). 판정, 처리 상태 회색과 다르게 둠 */
 
+/* ---------- 처리 단계 (11/23, .mwp-steps): 조치 요청 뒤 단계 줄. 지난 단계(알림 이유 + 고른 조치) → 지금 단계(현장 응답 대기, 현장 조치 중, 조치 완료) ----------
+ * 화면: 지도 지점 팝오버(.map-wp, 사례 "지도 지점 팝오버" = .ds-mappop + 처리 단계), 관제 알림 팝업 요청됨 상태(.ma-req, 좌우 4 는 v7.css). 예전 v7.css 두 곳(11/11 Figma 1680:11326 실측)을 합쳐 옮김
+ * 고리 14(테 2): 지난 단계 border/strong 속 비움, 지금 단계 border/brand 도는 고리(오른쪽 비움, 1초), 완료는 status/safe/icon 채움 + 체크. 세로줄 2 border/strong(고리 아래 18 부터)
+ * 글자: 지난 단계 14/22 text/secondary, 고른 조치 13/20 text/secondary 점 목록(왼쪽 28, 위 2), 지금 단계 14/22 text/primary. 단계 사이 4, 묶음 사이 8 + 위 구분선 border/divider */
+body.ver-7 .mwp-steps { position: relative; display: flex; flex-direction: column; margin: var(--space-0); padding: var(--space-0); list-style: none; }
+body.ver-7 .mwp-steps + .mwp-steps { margin-top: var(--space-8); padding-top: var(--space-8); border-top: var(--border-width-thin) solid var(--border-divider); }
+body.ver-7 .mwp-steps > li { position: relative; display: grid; grid-template-columns: 14px 1fr; column-gap: var(--space-4); }
+body.ver-7 .mwp-steps > li.is-past { padding-bottom: var(--space-4); }
+body.ver-7 .mwp-steps > li.is-past::before { content: ""; position: absolute; left: 6px; top: 18px; bottom: -4px; width: var(--border-width-strong); background-color: var(--border-strong); }
+body.ver-7 .mwp-steps > li > i { position: relative; z-index: 1; box-sizing: border-box; border-radius: 50%; }
+body.ver-7 .mwp-steps > li.is-past > i { width: 14px; height: 14px; margin: var(--space-4) var(--space-0) var(--space-0); border: var(--border-width-strong) solid var(--border-strong); background-color: transparent; }
+body.ver-7 .mwp-steps > li.is-now > i { width: 14px; height: 14px; margin-top: var(--space-4); border: var(--border-width-strong) solid var(--border-brand); border-right-color: transparent; animation: mwp-spin 1s linear infinite; }
+body.ver-7 .mwp-steps.is-done > li.is-now > i { border-color: var(--status-safe-icon); background-color: var(--status-safe-icon); animation: none; }
+body.ver-7 .mwp-steps.is-done > li.is-now > i::after { content: ""; position: absolute; left: 3px; top: 1px; width: 3px; height: 6px; border: solid #0A0F18; border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); }
+body.ver-7 .mwp-steps .ms-l { display: block; }
+body.ver-7 .mwp-steps > li.is-past .ms-l { font-size: var(--font-size-14); line-height: var(--font-line-height-22); color: var(--text-secondary); }
+body.ver-7 .mwp-steps .ms-acts { margin: var(--space-2) var(--space-0) var(--space-0); padding: var(--space-0) var(--space-0) var(--space-0) calc(var(--space-24) + var(--space-4)); list-style: disc; font-size: var(--font-size-13); line-height: var(--font-line-height-20); color: var(--text-secondary); }
+body.ver-7 .mwp-steps .ms-acts:empty { display: none; }
+body.ver-7 .mwp-steps > li.is-now > div { display: flex; align-items: baseline; gap: var(--space-8); }
+body.ver-7 .mwp-steps > li.is-now .ms-l { font-size: var(--font-size-14); line-height: var(--font-line-height-22); color: var(--text-primary); }
+body.ver-7 .mwp-steps > li.is-now .ms-t { display: none; }
+@keyframes mwp-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { body.ver-7 .mwp-steps > li.is-now > i { animation: none; border-right-color: var(--border-brand); } }
+
 /* ---------- 배지와 태그: 누르지 않음, 상태 없음 ----------
  * 화면 코드는 예전 클래스 옆에 .ds-badge 를 덧붙인다(v7만, 11/19 4단계). 모양 값은 !important 로 예전 클래스 규칙을 이김
  * 면 있는 배지: .ds-badge.is-{crit|warn|info|safe|neutral|ok}   태그(면 없음): .is-plain 을 더함
