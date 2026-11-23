@@ -41,8 +41,8 @@
   <link rel="stylesheet" href="../assets/css/v5.css?v=9f626280" />
   <!-- v6 전용 규칙 — v5 는 10/30 부로 멈췄다. v6 에서 바꾸는 것은 여기(body.ver-6)에. -->
   <link rel="stylesheet" href="../assets/css/v6.css?v=c384b14c" />
-  <link rel="stylesheet" href="../assets/css/v7.css?v=73a7d8e8" />
-  <link rel="stylesheet" href="../assets/css/components-v7.css?v=3cf716f1" />
+  <link rel="stylesheet" href="../assets/css/v7.css?v=6b669ccd" />
+  <link rel="stylesheet" href="../assets/css/components-v7.css?v=8814b586" />
   <script src="../assets/js/ds-v7.js?v=7050c08c"></script>
   <!-- 지도 경로 표현 규칙(10/28 반영, 지도 경로 표현 전달서 1022) — 경로 네 구간 · 흐름 빛 · 번호 핀 · 시야 빔 로봇 · 충전 스테이션 · 아래 상태 시뮬레이션 막대 -->
   <link rel="stylesheet" href="../assets/css/route-rules.css?v=06eba321" />
@@ -301,7 +301,7 @@
                    이름은 위 "조치 필요 알림"과 같은 위계(t-title-2 · 16) — 알림 센터 탭(조치 필요 알림 / 조치 요청된 알림)과 같은 이름 · 형제. 위 층은 패널 머리줄(관제 …… 알림 센터 ›).
                    [11/06] "조치" 로 통일(버튼 [조치 요청]과 같은 말) — "완료"는 현장 결과가 돌아오는 다음 단계 몫이라 쓰지 않는다. 범위(오늘)는 제목 대신 건수 앞에(v7.css) -->
               <h3 class="t-title-2" id="done-title">조치 요청된 알림</h3>
-              <span class="done-count ds-badge is-plain is-neutral ds-i-check"><span class="num" data-done-count>0건</span></span>
+              <span class="done-count ds-badge is-plain is-neutral ds-i-none"><span class="num" data-done-count>0건</span></span>
               <button type="button" class="done-fold" data-done-fold
                       aria-expanded="true" aria-controls="done-box" aria-label="조치 요청된 알림 접기">
                 <span class="i i-16" aria-hidden="true" style="--i:var(--ic-chevron-down)"></span>

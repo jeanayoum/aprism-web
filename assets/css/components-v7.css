@@ -489,6 +489,18 @@ body.ver-7 .ds-badge.is-safe { background-color: var(--status-safe-bg) !importan
 /* 측정 전, 대상 아님: 판정이 아니라 상태. 지금 모양(점선 테, 면 없음) 그대로 */
 body.ver-7 .ds-badge.is-plan,
 body.ver-7 .ds-badge.is-na { border: var(--border-width-thin) dashed var(--border-strong) !important; background-color: transparent !important; color: var(--text-tertiary) !important; }
+/* 테 있는 태그 (11/23, .ds-badge.is-line): 면 없음 + 테 1 border/default, 글자 text/secondary, 틀은 배지 규칙(22, 좌우 8, 12/18/500, 모서리 2)
+ * 화면: 관제 오른쪽 지점 목록 첫 카드 [출발], 마지막 카드 [도착]. 목록을 screen.js, route-sim.js 가 다시 그려도 따라가게 제목 줄 ::after 로 붙임(예전 v7.css, 높이 20 모서리 4) */
+body.ver-7 .ds-badge.is-line { border: var(--border-width-thin) solid var(--border-default) !important; background-color: transparent !important; color: var(--text-secondary) !important; }
+body.ver-7 .timeline-item:is(:first-of-type, :last-of-type) .step-title-row::after {
+  content: "출발"; display: inline-flex; align-items: center; flex: none; box-sizing: border-box; height: var(--ds-badge-h); margin: calc(var(--border-width-thin) * -1) var(--space-0);   /* 배지 22 가 제목 줄 20 을 키우지 않게 위아래 1 겹침(카드 높이 다른 카드와 같게) */
+  padding: var(--space-0) var(--ds-badge-pad-x);
+  border: var(--border-width-thin) solid var(--border-default); border-radius: var(--ds-badge-radius); background-color: transparent;
+  font-size: var(--ds-badge-font-size); line-height: var(--ds-badge-line-height); font-weight: var(--ds-badge-font-weight); color: var(--text-secondary); white-space: nowrap;
+}
+body.ver-7 .timeline-item:last-of-type .step-title-row::after { content: "도착"; }
+html[lang="en"] body.ver-7 .timeline-item:first-of-type .step-title-row::after { content: "Start"; }
+html[lang="en"] body.ver-7 .timeline-item:last-of-type .step-title-row::after { content: "End"; }
 /* 태그 (건수, 운영 상태, 진행 상태, 통신 상태): 면 없이 아이콘과 글자 색만 */
 body.ver-7 .ds-badge.is-plain { background-color: transparent !important; padding: var(--space-0) var(--ds-badge-plain-pad-x) !important; }
 /* 아이콘만 (글자는 읽어 주기만): 정사각형 */
@@ -536,7 +548,7 @@ body.ver-7 .ds-badge.ds-i-delta::before { background: linear-gradient(135deg, va
 /* 조치 진행 배지 (11/23, .ds-badge.is-progress): 응답 대기 .is-wait, 현장 조치 중 .is-work, 조치 완료 .is-done
  *   틀은 판정 배지와 같음(높이 22, 좌우 8, 아이콘 12 + 사이 4, 12/18/500, 모서리 2). 판정 배지 옆, 사진 위에 놓여도 크기가 같게
  *   면은 불투명 회색 --ds-progress-badge-bg(다크 회색 600 40% 를 판 색에 미리 섞음, 라이트 회색 300). 사진에 걸쳐도 읽히게 반투명, 테만 있는 꼴은 쓰지 않음(11/23)
- *   색은 아이콘에만(글자 --text-primary): 선 시계(--ds-ic-wait) --text-tertiary, 진행 원(--ic-spinner) --status-info-icon, 체크 --text-primary(11/23 초록 → 흰색, 색은 진행 중 파랑 하나)
+ *   색은 아이콘에만(글자 --text-primary): 선 시계(--ds-ic-wait) --text-tertiary, 진행 원(--ic-spinner) --status-info-icon, 체크 --text-tertiary(11/23 초록 → 회색, 끝난 일이 먼저 눈에 띄지 않게, 색은 진행 중 파랑 하나)
  *   화면: 안전진단 감지 카드 진행 배지(.jrq), 조치 진행 칸(.rqp-b). ds.statusCls(wait|work|done, { face: true }) 가 만듦
  *   목록 꼴(면 없는 태그): 관제와 전체 미션 "조치 요청된 알림" 줄의 단계(.done-stage .done-st). 같은 아이콘 12 + 같은 색, 글자는 줄 글자(12/18) 그대로 */
 body.ver-7 { --ds-progress-badge-bg: color-mix(in srgb, var(--color-gray-600) 40%, var(--bg-panel)); }
@@ -545,7 +557,7 @@ body.ver-7 .ds-badge.is-progress { background-color: var(--ds-progress-badge-bg)
 body.ver-7 { --ds-ic-wait: url("data:image/svg+xml,%3Csvg width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22none%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%229%22 stroke=%22%23000%22 stroke-width=%222%22/%3E%3Cpath d=%22M12 7.5V12L15 14%22 stroke=%22%23000%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E"); }   /* 응답 대기 시계는 선 모양(11/23): 진행 원, 체크와 같은 선 굵기 결로. 채운 시계 --ic-clock 은 그대로 */
 body.ver-7 :is(.ds-badge.is-progress, .done-stage).is-wait { --ds-i: var(--ds-ic-wait); --ds-i-color: var(--text-tertiary); }
 body.ver-7 :is(.ds-badge.is-progress, .done-stage).is-work { --ds-i: var(--ic-spinner); --ds-i-color: var(--status-info-icon); }
-body.ver-7 :is(.ds-badge.is-progress, .done-stage).is-done { --ds-i: var(--ic-check); --ds-i-color: var(--text-primary); }
+body.ver-7 :is(.ds-badge.is-progress, .done-stage).is-done { --ds-i: var(--ic-check); --ds-i-color: var(--text-tertiary); }
 body.ver-7 .done-stage .done-st::before { content: ""; flex: none; width: 12px; height: 12px; background: var(--ds-i-color); -webkit-mask: var(--ds-i) center / contain no-repeat; mask: var(--ds-i) center / contain no-repeat; }
 
 /* 표 칸 안 배지 + 글자 */
@@ -1070,10 +1082,10 @@ body.ver-7 .ds-seg > .ds-tab:has(> .ds-dot:is(.is-crit, .is-warn)) > .ds-dot.is-
 :where(body.ver-7) .icon-button.is-secondary { border: var(--border-width-thin) solid var(--comp-button-secondary-border-default); background-color: var(--comp-button-secondary-bg-default); color: var(--comp-button-secondary-text-default); }
 :where(body.ver-7) .icon-button.is-secondary:hover { background-color: var(--comp-button-secondary-bg-hover); }
 
-/* ---------- XSmall 22: 높이 고정, 위아래 패딩 0, 세로 가운데 ---------- */
+/* ---------- XSmall 22: 높이 고정, 위아래 패딩 0, 세로 가운데 (.lk 는 보고서 글자 버튼. 안전진단 연관 감지 줄 .rlx.lk 는 이름만 같아 뺌, 11/23) ---------- */
 body.ver-7 .ah-sort-btn,
 body.ver-7 .rp-link,
-body.ver-7 .lk {
+body.ver-7 .lk:not(.rlx) {
   box-sizing: border-box !important; height: var(--ds-btn-xs-h) !important; min-height: var(--ds-btn-xs-h) !important; display: inline-flex !important; align-items: center !important;
   padding: var(--space-0) var(--ds-btn-xs-pad-x) !important; font-size: var(--ds-btn-sm-font-size) !important; line-height: var(--ds-btn-sm-line-height) !important; font-weight: var(--ds-btn-font-weight) !important; gap: var(--ds-btn-gap) !important;
 }
@@ -1148,8 +1160,8 @@ body.ver-7 .btn.btn-ghost[data-robot-more]:hover, body.ver-7 .btn.btn-ghost.ah-a
 body.ver-7 .btn.btn-ghost.ah-all:not(.z1):not(.z2):not(.z3):not(.z4):not(.z5):not(.z6) { gap: var(--space-2) !important; }
 /* 정보 줄 안: 알림센터 위치 줄의 지도에서 보기, 보고서의 미션 바로가기. 위아래도 2씩 빼서 줄 높이를 키우지 않음 */
 body.ver-7 dd > a.t-caption[href*="main-v"]:not(.z1):not(.z2),
-body.ver-7 .lk:not(.z1):not(.z2) { display: inline-flex !important; align-items: center !important; box-sizing: border-box !important; height: var(--ds-btn-xs-h) !important; padding: var(--space-0) var(--ds-btn-ghost-pad-x) !important; margin: calc(var(--space-2) * -1) calc(var(--ds-btn-ghost-pad-x) * -1) !important; vertical-align: top !important; align-self: center !important; border-radius: var(--ds-btn-radius) !important; }
-body.ver-7 dd > a.t-caption[href*="main-v"]:hover, body.ver-7 .lk:hover { background-color: var(--comp-button-ghost-bg-hover) !important; }
+body.ver-7 .lk:not(.z1):not(.z2):not(.rlx) { display: inline-flex !important; align-items: center !important; box-sizing: border-box !important; height: var(--ds-btn-xs-h) !important; padding: var(--space-0) var(--ds-btn-ghost-pad-x) !important; margin: calc(var(--space-2) * -1) calc(var(--ds-btn-ghost-pad-x) * -1) !important; vertical-align: top !important; align-self: center !important; border-radius: var(--ds-btn-radius) !important; }
+body.ver-7 dd > a.t-caption[href*="main-v"]:hover, body.ver-7 .lk:not(.rlx):hover { background-color: var(--comp-button-ghost-bg-hover) !important; }
 
 /* ---------- 처리 완료 펼치기: 아코디언 트리거 [[✓ 오늘 5건] ⌄] (머리 줄 어디를 눌러도 접고 펼침, v3-panel.js). 건수는 면 없는 태그, 꺾쇠는 그 옆 (11/20) ---------- */
 body.ver-7 .done-head { gap: var(--space-4) !important; }
