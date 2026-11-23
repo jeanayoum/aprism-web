@@ -161,7 +161,7 @@
   if (V7B) {
     DONE = [
       { time: "10:08:30", title: "이상음향 점수 19.6", wp: "WP-02", st: "work", to: "설비팀 박지훈", mission: "정기 순회 점검" },
-      { time: "10:05:12", title: "최고 온도 44.2 ℃", wp: "WP-01", st: "done", to: "설비팀 박지훈", mission: "정기 순회 점검" }
+      { time: "10:05:12", title: "최고 온도 44.2 ℃", wp: "WP-01", st: "done", to: "설비팀 박지훈", mission: "정기 순회 점검", res: "정상" }
     ];
   }
   /*
@@ -482,7 +482,8 @@
       var rq = d.reqId && window.APRISM_ALERTS7 ? window.APRISM_ALERTS7.req.all()[d.reqId] : null;
       var st = (rq && DONE_ST[rq.st] && rq.st) || d.st || "wait";
       var line = el("span", "done-how done-stage t-caption is-" + st);
-      line.appendChild(el("span", "done-st", DONE_ST[st]));
+      var res = st === "done" ? ((rq && rq.res) || d.res || "") : "";   // [11/23] 조치 완료, 결과 — 미션 관제와 같다
+      var stw = el("span", "done-st"); stw.appendChild(el("span", "done-st-t", DONE_ST[st] + (res ? ", " + res : ""))); line.appendChild(stw);
       line.appendChild(el("span", null, (rq && rq.to) || d.to || "현장 작업자"));
       node.appendChild(head);
       node.appendChild(line);
