@@ -240,6 +240,7 @@ body.ver-7, body.ds-auth {   /* body.ds-auth: 로그인 쪽 화면(안내 상자
   --ds-list-gap: var(--space-8);                 /* 앞(아이콘, 체크) - 글 - 뒤 사이 */
   --ds-list-s-h: 32px;                           /* 작게: 고르기 목록(체크, 라디오, 스위치) */
   --ds-list-m-h: 40px;                           /* 보통: 한 줄 목록 */
+  --ds-list-bg: transparent;                     /* 기본 면: 없음(놓인 판 색). 라이트 관제, 전체 미션 알림 목록의 흰 면도 이 값으로 통일(11/23) */
 
   /* 모션 (11/20) 1층: 값. 쓰는 법(2층)은 아래 "모션" 절과 CLAUDE.md. JS 움직임도 이 값을 읽음(monitor.js) */
   --ds-motion-fast: 160ms;                        /* 상태 바뀜: 올림, 화살표 돌기, 사진 올림 */
@@ -658,13 +659,14 @@ body.ver-7 .ds-progress.cu-run > .ds-progress-cursor { transition: left var(--ds
  * 크기: .is-s 작게 32(안쪽 4 / 8, 고르기 목록), .is-m 보통 40(안쪽 8 / 12, 한 줄), .is-l 크게(높이 자동, 안쪽 12 / 12, 여러 줄). 보고서는 .is-wide(좌우 16)
  * 화면: 관제 개별, 전체 미션 알림 목록(.ah-item .is-l), 보고서 왼쪽 목록(.rp-item .is-m .is-wide), 조치 선택지(.ds-act = 작게 + 체크 항목)
  *   알림센터 목록은 칸이 나뉜 표라 여기 넣지 않음(표로 따로, 11/20 정함)
- * 상태: 올림 --state-hover, 고름(aria-pressed, aria-current, aria-selected) --bg-selected, 포커스 테 2 안쪽, 못 누름은 커서만
+ * 상태: 기본 --ds-list-bg(면 없음), 올림 --state-hover, 고름(aria-pressed, aria-current, aria-selected) --bg-selected, 포커스 테 2 안쪽, 못 누름은 커서만
+ *   바뀜: 면 색이 --ds-motion-fast(160) --ds-ease-base 로 바뀜(움직임 줄이기면 0)
  *   (보고서 목록 올림은 예전 반투명 유리 면이었는데 다른 목록과 같은 --state-hover 로)
  * 줄 안 칸(새로 만들 때): .ds-list-prefix(앞), .ds-list-content(.ds-list-title 14/20 중간, .ds-list-detail 12/18 흐린 글, 사이 2), .ds-list-suffix(뒤, 오른쪽 끝)
  * 고르기 줄(SEED: 줄 전체가 누르는 곳, 줄 안에 따로 누르는 단추를 같이 두지 않음):
  *   체크 .is-check = 체크 상자(.ds-act-box, 체크 모양은 아이콘 --ic-check), 여러 개 고를 때
  *   스위치 .is-switch = 뒤에 토글(.ds-switch), 누르는 즉시 적용되는 설정만. 저장을 눌러야 반영되면 체크를 씀 */
-body.ver-7 :is(.ds-list-item, .ds-act) { box-sizing: border-box !important; gap: var(--ds-list-gap) !important; border-radius: var(--space-0) !important; }
+body.ver-7 :is(.ds-list-item, .ds-act) { box-sizing: border-box !important; gap: var(--ds-list-gap) !important; border-radius: var(--space-0) !important; background-color: var(--ds-list-bg) !important; transition: background-color var(--ds-motion-fast) var(--ds-ease-base); }
 body.ver-7 :is(.ds-list-item.is-s, .ds-act) { min-height: var(--ds-list-s-h) !important; padding: var(--space-4) var(--space-8) !important; align-items: center; }
 body.ver-7 .ds-list-item.is-m { min-height: var(--ds-list-m-h) !important; padding: var(--space-8) var(--ds-list-pad-x) !important; align-items: center; }
 body.ver-7 .ds-list-item.is-l { padding: var(--space-12) var(--ds-list-pad-x) !important; }
