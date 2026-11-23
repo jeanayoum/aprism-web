@@ -254,7 +254,7 @@
         var meta = row.querySelector(".meta");
         var say = row.getAttribute("data-running-meta") || "확인중..";
         // [11/23 정의서 관제화면-02] 배터리 줄 로봇 이름은 미션 설정에서 고른 실행 로봇을 따른다(예전엔 ROBOT 02 로 박혀 있었다)
-        var pick = document.querySelector("[data-mp-robot] [data-select-value]");
+        var pick = document.querySelector("[data-mp-robot] [data-select-value] .field-option-name") || document.querySelector("[data-mp-robot] [data-select-value]");   // [11/23] v7 은 이름 칸만
         var who = pick && /ROBOT\s*\d+/i.exec(pick.textContent);
         if (who) { say = say.replace(/ROBOT\s*\d+/i, who[0].toUpperCase()); }
         if (meta) { meta.textContent = say; }
@@ -286,7 +286,7 @@
         if (meta) { meta.textContent = "실패"; meta.classList.remove("is-plain"); }
         var why = document.createElement("div");
         why.className = "precheck-why t-caption";
-        var pick = document.querySelector("[data-mp-robot] [data-select-value]");
+        var pick = document.querySelector("[data-mp-robot] [data-select-value] .field-option-name") || document.querySelector("[data-mp-robot] [data-select-value]");   // [11/23] v7 은 이름 칸만
         var who = pick && /ROBOT\s*\d+/i.exec(pick.textContent);
         var txt = row.getAttribute("data-fail-why") || "";
         why.textContent = who ? txt.replace(/ROBOT\s*\d+/i, who[0].toUpperCase()) : txt;

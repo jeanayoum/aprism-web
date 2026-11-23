@@ -124,7 +124,8 @@
         return found;
       })();
     var value = box && box.querySelector("[data-select-value]");
-    var text = value ? value.textContent : "";
+    var nm = value && value.querySelector(".field-option-name");   // [11/23] v7 칸은 이름 | 배터리 — 글을 통째로 읽으면 "ROBOT 0196%" 로 붙는다. 이름 칸만
+    var text = nm ? nm.textContent : value ? value.textContent : "";
     var key = (text.match(/ROBOT\s*\d+/i) || ["ROBOT 01"])[0].toUpperCase();
     return { key: key, spec: ROBOTS[key] || ROBOTS["ROBOT 01"] };
   }
