@@ -762,10 +762,14 @@ body.ver-7 .ds-card.is-press[role="button"]:active { border-color: var(--border-
 
 /* 경로 단계 카드(관제 오른쪽 [목록]): 좌우 안쪽 12. 꼴 셋 + 고름. 테는 안쪽 그림자로 그려 높이가 바뀌지 않음 */
 body.ver-7 .ds-card.is-step { padding-left: var(--ds-card-pad) !important; padding-right: var(--ds-card-pad) !important; }
-body.ver-7 .timeline-item.is-pending .ds-card.is-step { background-color: var(--bg-raised) !important; }   /* 진행 전 */
-body.ver-7 .timeline-item.is-done .ds-card.is-step { background-color: transparent !important; box-shadow: inset 0 0 0 var(--border-width-thin) var(--border-default) !important; }   /* 진행 완료 */
-body.ver-7 .timeline-item.is-done .ds-card.is-step .step-title { color: var(--text-tertiary) !important; }
-body.ver-7 .timeline-item.is-selected .ds-card.is-step { outline: var(--border-width-strong) solid var(--border-focus) !important; outline-offset: calc(var(--border-width-strong) * -1) !important; }   /* 고름 */
+/* 꼴과 고름은 예전 v7 모양 그대로 옮김(11/23 정함): 진행 전 면 bg/cell(라이트 흰색), 진행 완료 다크는 같은 면 + 이름 text/secondary, 라이트는 회색 100 면,
+ *   진행 중 반전 면(monitor.css 그대로), 고름 바깥 테 1 --step-now-bg(지금 지점 면 색), 1 띄움 */
+body.ver-7 { --ds-step-bg: var(--bg-cell); --ds-step-done-bg: var(--bg-cell); }
+:root[data-theme="light"] body.ver-7 { --ds-step-bg: var(--color-gray-0); --ds-step-done-bg: var(--color-gray-100); }
+body.ver-7 .timeline-item.is-pending .ds-card.is-step { background-color: var(--ds-step-bg) !important; }   /* 진행 전 */
+body.ver-7 .timeline-item.is-done .ds-card.is-step { background-color: var(--ds-step-done-bg) !important; }   /* 진행 완료 */
+body.ver-7 .timeline-item.is-done .ds-card.is-step .step-title { color: var(--text-secondary) !important; }
+body.ver-7 .timeline-item.is-selected .ds-card.is-step { outline: var(--border-width-thin) solid var(--step-now-bg) !important; outline-offset: var(--border-width-thin) !important; }   /* 고름 */
 
 /* ---------- WP 번호 원: 왼쪽 알림 목록, 지도 팝오버, 점검 줄, 오른쪽 경로 목록, Delta 어디서 쓰든 하나 ----------
  * 크기는 아이콘과 같은 4의 배수 두 단계(11/19): 번호 칸, 지도, 팝오버 머리 20(.ds-wp), 글자 줄 안 16(.ds-wp.is-s)

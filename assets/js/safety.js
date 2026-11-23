@@ -891,10 +891,10 @@
     if(sec){ if(RM2) return apply(); const prev = cardRects(sec); apply(); return flipCards(prev, v); }
     // 미션 → 전체: 반대로 2행 3열에서 그 미션 묶음의 1행 6열로 돌아가고, 묶음 테가 잠깐 빛난다
     if(to==='all' && from !== 'all' && !wasDt && !RM2){ const prev = cardRects(v); apply(); const back = v.querySelector(`.msec[data-mi="${from}"]`);
-      if(back){ back.scrollIntoView({block:'nearest'}); flipCards(prev, back); back.classList.add('ring'); setTimeout(() => back.classList.remove('ring'), 1500); } return; }
+      if(back){ back.scrollIntoView({block:'nearest'}); flipCards(prev, back); if(!V7){ back.classList.add('ring'); setTimeout(() => back.classList.remove('ring'), 1500); } } return; }
     apply();
     if(to==='all' && from !== 'all'){ const back = v.querySelector(`.msec[data-mi="${from}"]`);
-      if(back){ back.scrollIntoView({block:'nearest'}); zoomOut(back, () => { back.classList.add('ring'); setTimeout(() => back.classList.remove('ring'), 1500); }); } }
+      if(back){ back.scrollIntoView({block:'nearest'}); zoomOut(back, () => { if(!V7){ back.classList.add('ring'); setTimeout(() => back.classList.remove('ring'), 1500); } }); } }
   }
   // 카드 자리 재기 — 감지 이름(data-n)으로 짝을 짓는다
   function cardRects(root){ const o = {}; root.querySelectorAll('.kd[data-n]').forEach(k => { o[k.dataset.n] = k.getBoundingClientRect(); }); return o; }
@@ -923,7 +923,7 @@
     if(e.target.closest('[data-thumb]')){ const c = v.querySelector('.lvA.s2'); if(c){ c.scrollIntoView({block:'nearest', behavior:'smooth'}); c.classList.add('ring'); setTimeout(() => c.classList.remove('ring'), 1200); } return; }
     if(e.target.closest('[data-menu]')){ menu = !menu; bc.innerHTML = crumb(); return; }
     if(dt){
-      if(e.target.closest('[data-dback]')){ const k = dt.k, w = dt.w, mi = dt.mi; dt = null; render(); const c = v.querySelector(`.kd[data-n="${k}"]`) || v.querySelector(`[data-dk="${k}"][data-dm="${mi}"]${w ? `[data-dw="${w}"]` : ''}`) || v.querySelector(`[data-dk="${k}"][data-dm="${mi}"]`); if(c){ const t = c.closest('td') || c; zoomOut(t, () => { t.classList.add('ring'); setTimeout(() => t.classList.remove('ring'), 1500); }); } return; }
+      if(e.target.closest('[data-dback]')){ const k = dt.k, w = dt.w, mi = dt.mi; dt = null; render(); const c = v.querySelector(`.kd[data-n="${k}"]`) || v.querySelector(`[data-dk="${k}"][data-dm="${mi}"]${w ? `[data-dw="${w}"]` : ''}`) || v.querySelector(`[data-dk="${k}"][data-dm="${mi}"]`); if(c){ const t = c.closest('td') || c; zoomOut(t, () => { if(!V7){ t.classList.add('ring'); setTimeout(() => t.classList.remove('ring'), 1500); } });   /* [11/23] v7: 돌아온 감지 카드 파란 테(.ring) 안 보임 */ } return; }
       if(e.target.closest('[data-bigd]')){ bigD = !bigD; return render(); }
       if(e.target.closest('[data-req]')){ const m = M[dt.mi];
         // [11/10 v7] 보낸 조치 · 메모를 요청에 남긴다(그리기 전에 읽어야 한다)
