@@ -146,6 +146,23 @@
   if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", scrollAll); } else { scrollAll(); }
   var scrollQueued = false;
   if (window.MutationObserver) { new MutationObserver(function () { if (scrollQueued) { return; } scrollQueued = true; requestAnimationFrame(function () { scrollQueued = false; scrollAll(); }); }).observe(document.documentElement, { childList: true, subtree: true }); }
+  // [11/23 디자이너] 드롭다운 칩(.field-select.is-chip) — 고른 항목의 짧은 값(data-chip)을 칩에 보이고, 첫 항목이 아니면 켜짐(.is-on). [data-chip-plain] 은 켜지지 않음
+  function chipMenus() {
+    Array.prototype.forEach.call(document.querySelectorAll(".field-select.is-chip:not([data-chip-on])"), function (sel) {
+      sel.setAttribute("data-chip-on", "");
+      var val = sel.querySelector("[data-select-value]"), btn = sel.querySelector(".ds-chip.is-menu"), first = sel.querySelector(".field-option");
+      if (!val || !btn) { return; }
+      var fix = function () {
+        var opt = sel.querySelector('.field-option[aria-selected="true"]') || first;
+        var label = opt ? (opt.getAttribute("data-chip") || opt.textContent.trim()) : val.textContent.trim();
+        if (val.textContent.trim() !== label) { val.textContent = label; }
+        if (!sel.hasAttribute("data-chip-plain")) { btn.classList.toggle("is-on", !!opt && opt !== first); }
+      };
+      fix();
+      new MutationObserver(fix).observe(sel, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ["aria-selected"] });
+    });
+  }
+  if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", chipMenus); } else { chipMenus(); }
   window.ds = {
     scrollThumb: scrollThumb,
     battery: battery, batteryCls: batteryCls, BAT_CRIT: BAT_CRIT, BAT_WARN: BAT_WARN,

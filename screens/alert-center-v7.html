@@ -32,9 +32,9 @@
   <link rel="stylesheet" href="../assets/css/v5.css?v=9f626280" />
   <!-- v6 전용 규칙 — v5 는 10/30 부로 멈췄다. v6 에서 바꾸는 것은 여기(body.ver-6)에. -->
   <link rel="stylesheet" href="../assets/css/v6.css?v=c384b14c" />
-  <link rel="stylesheet" href="../assets/css/v7.css?v=821ae303" />
-  <link rel="stylesheet" href="../assets/css/components-v7.css?v=1a692c22" />
-  <script src="../assets/js/ds-v7.js?v=7050c08c"></script>
+  <link rel="stylesheet" href="../assets/css/v7.css?v=c1325e4a" />
+  <link rel="stylesheet" href="../assets/css/components-v7.css?v=660cb6de" />
+  <script src="../assets/js/ds-v7.js?v=04d0b862"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
@@ -176,68 +176,6 @@
         </div>
       </div>
 
-      <!-- Filter Bar -->
-      <div class="ac-filter">
-        <span class="ac-filter-label t-caption">미션</span>
-        <div class="field-select ac-f-mission" data-select>
-          <button type="button" class="field-box is-select" data-select-trigger
-                  aria-haspopup="listbox" aria-expanded="false" aria-label="미션">
-            <span data-select-value>전체 미션</span>
-            <span class="i i-20" style="--i:var(--ic-chevron-down)" aria-hidden="true"></span>
-          </button>
-          <ul class="field-menu" role="listbox" aria-label="미션" hidden>
-            <li class="field-option" role="option" aria-selected="true">전체 미션</li>
-            <!-- [11/02 v6] 관제 상단 탭과 같은 여섯 미션 · 같은 차례 -->
-            <li class="field-option" role="option">정기 순회 점검</li>
-            <li class="field-option" role="option">발전기실 설비 점검</li>
-            <li class="field-option" role="option">전기실 열화상 점검</li>
-            <li class="field-option" role="option">야간 순회 점검</li>
-            <li class="field-option" role="option">공조 설비 순회</li>
-            <li class="field-option" role="option">유틸리티 순회</li>
-          </ul>
-        </div>
-
-        <span class="ac-filter-divider" aria-hidden="true"></span>
-
-        <span class="ac-filter-label t-caption">등급</span>
-        <!-- [11/23 디자이너] 등급 = 관제 조치 필요 알림과 같은 붙은 칩(ds-chips, 하나만 고름). 예전 체크 칩(전체가 부모)은 결과가 같아 바꿨다 -->
-        <div class="ac-sev-chips ds-chips" role="group" aria-label="등급으로 거르기">
-          <button type="button" class="ds-chip" aria-pressed="true" data-ac-sev="all"><span data-ac-f-all>전체 22</span></button>
-          <button type="button" class="ds-chip" aria-pressed="false" data-ac-sev="critical"><span data-ac-f-crit>위험 8</span></button>
-          <button type="button" class="ds-chip" aria-pressed="false" data-ac-sev="warning"><span data-ac-f-warn>주의 14</span></button>
-        </div>
-
-        <span class="ac-filter-divider" aria-hidden="true"></span>
-
-        <span class="ac-filter-label t-caption">기간</span>
-        <div class="field-select ac-f-period" data-select>
-          <button type="button" class="field-box is-select" data-select-trigger
-                  aria-haspopup="listbox" aria-expanded="false" aria-label="기간">
-            <span data-select-value>전체 기간</span>
-            <span class="i i-20" style="--i:var(--ic-chevron-down)" aria-hidden="true"></span>
-          </button>
-          <ul class="field-menu" role="listbox" aria-label="기간" hidden>
-            <li class="field-option" role="option" aria-selected="true">전체 기간</li>
-            <li class="field-option" role="option">오늘</li>
-          </ul>
-        </div>
-
-        <span class="ac-filter-label t-caption">정렬</span>
-        <div class="field-select ac-f-sort" data-select>
-          <button type="button" class="field-box is-select" data-select-trigger
-                  aria-haspopup="listbox" aria-expanded="false" aria-label="정렬">
-            <span data-select-value>위험 우선</span>
-            <span class="i i-20" style="--i:var(--ic-chevron-down)" aria-hidden="true"></span>
-          </button>
-          <ul class="field-menu" role="listbox" aria-label="정렬" hidden>
-            <li class="field-option" role="option" aria-selected="true">위험 우선</li>
-            <li class="field-option" role="option">최신순</li>
-            <li class="field-option" role="option">오래된순</li>
-          </ul>
-        </div>
-
-        <span class="ac-filter-spacer"></span>
-      </div>
 
       <!-- Board — 왼쪽 목록 / 오른쪽 선택 상세 -->
       <div class="ac-board">
@@ -258,22 +196,70 @@
               </button>
             </div>
             <span class="ac-head-spacer"></span>
-            <!-- 탭 옆 배지는 그 탭의 단계별 건수다 — 탭을 바꾸면 같이 바뀐다.
-                 표식은 점이 아니라 단계 기호(위험 ⓧ · 주의 △, 10/20 디자이너) — 점은 상태에만 쓴다. -->
-            <div class="ac-head-badges">
-              <span class="badge badge-danger t-caption ds-badge is-plain is-crit">
-                <span class="i ac-count-ic" style="--i:var(--ic-error)" aria-hidden="true"></span><span data-ac-badge-crit>위험 3</span>
-              </span>
-              <span class="badge badge-warning t-caption ds-badge is-plain is-warn">
-                <span class="i ac-count-ic" style="--i:var(--ic-warning)" aria-hidden="true"></span><span data-ac-badge-warn>주의 8</span>
-              </span>
-            </div>
+            <!-- [11/23 디자이너] 탭 줄엔 탭만 — 단계 건수는 위 등급 칩(지금 탭 기준)이, 정렬은 열 머리 오른쪽 끝이 맡는다 -->
             <!-- Figma 1202:16190 — 끝난 조치를 묶어 인수인계 초안을 만든다. 조치 완료 탭에만 선다.
                  [11/02 v6] 오늘 조치 5건(관제 "오늘 확인 완료"와 같다)이 들어와 "오늘" 을 다시 붙였다. -->
-            <button type="button" class="btn btn-secondary is-xs ac-summary-btn" data-ac-summary hidden>
-              <span class="i i-16" style="--i:var(--ic-delta)" aria-hidden="true"></span>
-              오늘 조치 요약 만들기
-            </button>
+          </div>
+
+          <!-- Filter Bar — [11/23 디자이너] 탭 아래 · 목록 위(탭 → 거르기 → 목록 위계, 관제와 같다). 거르기는 목록에만 걸린다 -->
+          <div class="ac-filter">
+            <!-- [11/23 디자이너] 순서 = 표 열 순서(등급 → 발생 → … → 미션). 정렬은 거르기가 아니라 맨 끝에 떨어뜨림(관제 조치 필요 알림과 같다) -->
+            <!-- [11/23 디자이너] 등급 라벨 뺌 — 관제 조치 필요 알림처럼 칩 이름(위험 · 주의)이 스스로 말한다 -->
+            <!-- [11/23 디자이너] 등급 = 관제 조치 필요 알림과 같은 붙은 칩(ds-chips, 하나만 고름). 예전 체크 칩(전체가 부모)은 결과가 같아 바꿨다 -->
+            <div class="ac-sev-chips ds-chips" role="group" aria-label="등급으로 거르기">
+              <button type="button" class="ds-chip" aria-pressed="true" data-ac-sev="all"><span data-ac-f-all>전체 22</span></button>
+              <button type="button" class="ds-chip" aria-pressed="false" data-ac-sev="critical"><span data-ac-f-crit>위험 8</span></button>
+              <button type="button" class="ds-chip" aria-pressed="false" data-ac-sev="warning"><span data-ac-f-warn>주의 14</span></button>
+            </div>
+
+            <span class="ac-filter-divider" aria-hidden="true"></span>
+
+            <div class="field-select is-chip ac-f-period" data-select>
+              <button type="button" class="ds-chip is-menu" data-select-trigger aria-haspopup="listbox" aria-expanded="false" aria-label="기간">
+                <span class="ds-chip-k">기간</span><span data-select-value>전체</span>
+                <span class="i i-16" style="--i:var(--ic-chevron-down)" aria-hidden="true"></span>
+              </button>
+              <ul class="field-menu" role="listbox" aria-label="기간" hidden>
+                <li class="field-option" role="option" aria-selected="true" data-chip="전체">전체 기간</li>
+                <li class="field-option" role="option">오늘</li>
+              </ul>
+            </div>
+            <div class="field-select is-chip ac-f-mission" data-select>
+              <button type="button" class="ds-chip is-menu" data-select-trigger aria-haspopup="listbox" aria-expanded="false" aria-label="미션">
+                <span class="ds-chip-k">미션</span><span data-select-value>전체</span>
+                <span class="i i-16" style="--i:var(--ic-chevron-down)" aria-hidden="true"></span>
+              </button>
+              <ul class="field-menu" role="listbox" aria-label="미션" hidden>
+                <li class="field-option" role="option" aria-selected="true" data-chip="전체">전체 미션</li>
+                <!-- [11/02 v6] 관제 상단 탭과 같은 여섯 미션 · 같은 차례 -->
+                <li class="field-option" role="option">정기 순회 점검</li>
+                <li class="field-option" role="option">발전기실 설비 점검</li>
+                <li class="field-option" role="option">전기실 열화상 점검</li>
+                <li class="field-option" role="option">야간 순회 점검</li>
+                <li class="field-option" role="option">공조 설비 순회</li>
+                <li class="field-option" role="option">유틸리티 순회</li>
+              </ul>
+            </div>
+
+
+            <span class="ac-filter-divider" aria-hidden="true"></span>
+            <!-- [11/23 디자이너] 정렬 = 관제 조치 필요 알림의 [⇅ 오래된 순] 과 같은 글 단추. 거르기 줄 미션 칩 다음, 나눔선 뒤(7차 — 거르기 줄이 목록 상자 안이라 목록에만 걸린다는 게 보인다) -->
+            <div class="field-select ac-f-sort ac-sort" data-select>
+              <button type="button" class="ah-sort-btn t-caption" data-select-trigger aria-haspopup="listbox" aria-expanded="false" aria-label="정렬">
+                <span class="i i-16" style="--i:var(--ic-sort)" aria-hidden="true"></span><span data-select-value>위험 우선</span>
+              </button>
+              <ul class="field-menu" role="listbox" aria-label="정렬" hidden>
+                <li class="field-option" role="option" aria-selected="true">위험 우선</li>
+                <li class="field-option" role="option">최신순</li>
+                <li class="field-option" role="option">오래된순</li>
+              </ul>
+            </div>
+            <span class="ac-filter-spacer"></span>
+            <!-- [11/23 디자이너] [오늘 조치 요약 만들기] = 거르기 줄 오른쪽 끝(조치 요청된 탭만). 만든 요약이 바로 아래에 선다 -->
+                <button type="button" class="btn btn-secondary is-xs ac-summary-btn" data-ac-summary hidden>
+                  <span class="i i-16" style="--i:var(--ic-delta)" aria-hidden="true"></span>
+                  오늘 조치 요약 만들기
+                </button>
           </div>
 
           <!--
@@ -320,6 +306,6 @@
 <script src="../assets/js/alert-text-v6.js?v=a6a79f62"></script>
 <script src="../assets/js/verdict-v6.js?v=ee80312a"></script>
 <script src="../assets/js/alert-center-data-v6.js?v=0f403e33"></script>
-<script src="../assets/js/alert-center.js?v=869fa41f"></script>
+<script src="../assets/js/alert-center.js?v=287d9cfa"></script>
 </body>
 </html>

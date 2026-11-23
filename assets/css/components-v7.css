@@ -995,6 +995,19 @@ body.ver-7 .ds-chip:is(:disabled, .is-disabled) { border-color: var(--comp-butto
 /* 체크형 거르기 (알림센터): 면과 테 없음, 체크 상자와 글자 사이 */
 body.ver-7 .ds-chip.is-check { border-color: transparent !important; background-color: transparent !important; padding: var(--space-0) var(--ds-chip-check-pad-x) !important; gap: var(--ds-chip-check-gap) !important; }
 body.ver-7 .ds-chip.is-check:is([aria-pressed="true"], [aria-checked="true"], .is-on) { border-color: transparent !important; background-color: transparent !important; color: var(--text-primary) !important; }
+/* [11/23 디자이너] 드롭다운 칩 .ds-chip.is-menu — 거르기 줄에서 값을 고르는 칩(알림센터 미션 · 기간 · 정렬). 높이 · 글자 · 테 · 그림자는 칩 그대로
+ *   짜임: .field-select.is-chip[data-select] > button.ds-chip.is-menu[data-select-trigger] > .ds-chip-k(라벨) + [data-select-value](값) + .i 16(아래 화살표), 메뉴는 .field-menu
+ *   켜짐(.is-on) = 첫 항목(기본값)이 아닌 값을 골라 거르는 중. 정렬처럼 거르기가 아닌 것은 [data-chip-plain] 로 켜지지 않음(ds-v7.js 가 붙임)
+ *   칩에 보일 값이 메뉴 글과 다르면 항목에 data-chip="짧은 값"(예: 전체 미션 → 전체) */
+body.ver-7 .ds-chip.is-menu { gap: var(--space-4) !important; padding-right: var(--space-4) !important; }
+body.ver-7 .ds-chip.is-menu .ds-chip-k { color: var(--text-tertiary); font-weight: var(--font-weight-regular); }
+body.ver-7 .ds-chip.is-menu [data-select-value] { color: var(--text-primary); }
+body.ver-7 .ds-chip.is-menu > .i { width: var(--size-icon-16, 16px); height: var(--size-icon-16, 16px); color: var(--text-secondary); transition: transform .15s; }
+body.ver-7 .field-select[data-open] > .ds-chip.is-menu { border-color: var(--border-focus) !important; }
+body.ver-7 .field-select[data-open] > .ds-chip.is-menu > .i { transform: rotate(180deg); }
+body.ver-7 .ds-chip.is-menu.is-on :is(.ds-chip-k, [data-select-value]), body.ver-7 .ds-chip.is-menu.is-on > .i { color: inherit; }
+body.ver-7 .field-select.is-chip { width: auto !important; }
+body.ver-7 .field-select.is-chip > .field-menu { right: auto; min-width: 100%; width: max-content; max-width: 280px; }
 /* 그림자: 꺼진 칩만. 켜짐, 누름, 못 누름, 체크형은 평평 */
 :root[data-theme="dark"] body.ver-7 .ds-chip { box-shadow: var(--ds-chip-shadow-dark) !important; }
 :root body.ver-7 .ds-chip:is([aria-pressed="true"], .is-on, :active, :disabled, .is-disabled, .is-check) { box-shadow: none !important; }
