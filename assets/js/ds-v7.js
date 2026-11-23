@@ -107,7 +107,45 @@
     o = o || {}; var v = Math.max(0, Math.min(100, Math.round(level)));
     return '<span class="' + batteryCls(v, o.charging) + '"' + (o.text === false ? ' role="img" aria-label="배터리 ' + v + '%"' : "") + '><span class="battery-body"><span class="battery-fill" style="width:' + v + '%"></span>' + (o.charging ? '<span class="i battery-bolt" style="--i:var(--ic-bolt)" aria-hidden="true"></span>' : "") + '</span><span class="battery-tip"></span>' + (o.text === false ? "" : '<span class="ds-battery-v">' + v + "%</span>") + "</span>";
   }
+  /*
+   * [11/23] 떠 있는 스크롤 막대(.ds-scroll): 브라우저 막대는 공통 CSS 가 숨기고(줄 너비가 막대 유무로 바뀌지 않게),
+   *   상자 안 오른쪽에 4 막대(.ds-scroll-thumb)를 띄움. 끌어서 넘김. 관제 알림 목록(.ah-list, ah-sort.js)과 같은 꼴
+   *   .ds-scroll 이 붙은 상자는 열릴 때와 나중에 생길 때 저절로 붙음
+   */
+  function scrollThumb(list) {
+    if (!list || list.hasAttribute("data-ds-thumb") || !document.body.classList.contains("ver-7")) { return; }
+    var host = list.parentElement; if (!host) { return; }
+    list.setAttribute("data-ds-thumb", "");
+    if (getComputedStyle(host).position === "static") { host.style.position = "relative"; }
+    var t = document.createElement("span"); t.className = "ds-scroll-thumb"; t.setAttribute("aria-hidden", "true"); t.hidden = true; host.appendChild(t);
+    var th = 0;
+    function update() {
+      var h = list.clientHeight, sh = list.scrollHeight;
+      if (sh <= h + 1 || !h) { t.hidden = true; return; }
+      t.hidden = false; th = Math.max(24, Math.round(h * h / sh));
+      t.style.height = th + "px";
+      t.style.top = Math.round(list.offsetTop + (h - th) * list.scrollTop / (sh - h)) + "px";
+      t.style.left = Math.round(list.offsetLeft + list.offsetWidth - 8) + "px";   /* 상자 오른쪽 끝에서 4 안쪽, 막대 4 */
+    }
+    list.addEventListener("scroll", update, { passive: true });
+    if (window.ResizeObserver) { new ResizeObserver(update).observe(list); }
+    new MutationObserver(update).observe(list, { childList: true, subtree: true });
+    host.addEventListener("mouseenter", function () { host.classList.add("is-ds-scroll-on"); });
+    host.addEventListener("mouseleave", function () { host.classList.remove("is-ds-scroll-on"); });
+    t.addEventListener("pointerdown", function (e) {
+      e.preventDefault(); var y0 = e.clientY, s0 = list.scrollTop; t.classList.add("is-drag"); t.setPointerCapture(e.pointerId);
+      function move(ev) { var h = list.clientHeight, sh = list.scrollHeight; list.scrollTop = s0 + (ev.clientY - y0) * (sh - h) / Math.max(1, h - th); }
+      function up() { t.classList.remove("is-drag"); t.removeEventListener("pointermove", move); t.removeEventListener("pointerup", up); t.removeEventListener("pointercancel", up); }
+      t.addEventListener("pointermove", move); t.addEventListener("pointerup", up); t.addEventListener("pointercancel", up);
+    });
+    update();
+  }
+  function scrollAll() { Array.prototype.forEach.call(document.querySelectorAll(".ds-scroll"), scrollThumb); }
+  if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", scrollAll); } else { scrollAll(); }
+  var scrollQueued = false;
+  if (window.MutationObserver) { new MutationObserver(function () { if (scrollQueued) { return; } scrollQueued = true; requestAnimationFrame(function () { scrollQueued = false; scrollAll(); }); }).observe(document.documentElement, { childList: true, subtree: true }); }
   window.ds = {
+    scrollThumb: scrollThumb,
     battery: battery, batteryCls: batteryCls, BAT_CRIT: BAT_CRIT, BAT_WARN: BAT_WARN,
     badge: badge, badgeRow: badgeRow, statusCls: statusCls, act: act, deltaHead: deltaHead, wp: wp, floor: floor, chip: chip,
     tabsLine: function (items, o) { return tabs('ds-tab-line', items, o); },

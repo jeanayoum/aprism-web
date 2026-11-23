@@ -692,6 +692,18 @@ body.ver-7 .ds-list.is-boxed { border: var(--border-width-thin) solid var(--bord
 body.ver-7 .ds-list.is-divided > .ds-list-item { border-bottom: var(--border-width-thin) solid var(--border-default) !important; }
 body.ver-7 .ds-list.is-divided > .ds-list-item:last-child { border-bottom: 0 !important; }
 
+/* ---------- 떠 있는 스크롤 막대 (11/23, .ds-scroll + ds-v7.js scrollThumb) ----------
+ * 브라우저 막대(12)는 넘칠 때만 생겨 카드, 줄 너비가 좁아짐 → 막대를 숨기고 상자 안 오른쪽 4 안쪽에 4 막대를 띄움. 관제 알림 목록과 같은 꼴
+ * 막대는 상자에 올렸을 때, 끌 때만 보임. 색 border/default, 올림과 끌기 border/strong, 끌어서 넘김
+ * 화면: 전체 미션 로봇 현황(.bld-fleet), 미션설정과 사전 점검 왼쪽 폼(.mp-scroll). 관제 알림 목록(.ah-list)은 예전부터 같은 꼴(ah-sort.js) */
+body.ver-7 .ds-scroll { scrollbar-width: none !important; }
+body.ver-7 .ds-scroll::-webkit-scrollbar { display: none !important; }
+body.ver-7 .ds-scroll-thumb { position: absolute; z-index: 3; width: var(--space-4); border-radius: var(--radius-pill); background-color: var(--border-default); opacity: 0; transition: opacity var(--ds-motion-fast) var(--ds-ease-base); cursor: grab; }
+body.ver-7 .ds-scroll-thumb[hidden] { display: none; }
+body.ver-7 .bld-fleet.ds-scroll { margin-right: var(--space-0) !important; }   /* 예전 -8 은 브라우저 막대(12)를 카드 끝에 붙이려던 것. 막대가 없으니 거르기 줄과 같은 끝으로 */
+body.ver-7 .is-ds-scroll-on > .ds-scroll-thumb, body.ver-7 .ds-scroll-thumb.is-drag { opacity: 1; }
+body.ver-7 .ds-scroll-thumb:hover, body.ver-7 .ds-scroll-thumb.is-drag { background-color: var(--border-strong); }
+
 /* ---------- 카드 (11/23, .ds-card): 안쪽 12, 모서리 4, 사이는 위계 세 단계(블록 12, 묶음 8, 줄 4) ----------
  * 글자 단계: 제목 16/24/700, 항목 이름 14/20/500, 큰 값 24/32/700, 보조 12/18/400 (카드 안 800 은 쓰지 않음)
  * 면 색은 카드마다 그대로(관제 로봇 카드 반투명, 감지 카드 유리, 경로 단계 bg/raised). 상태는 카드마다 아래
