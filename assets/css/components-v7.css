@@ -251,6 +251,7 @@ body.ver-7, body.ds-auth {   /* body.ds-auth: 로그인 쪽 화면(안내 상자
   --ds-card-gap-group: var(--space-8);           /* 한 블록 안 항목 사이: 지금 지점 - 다음 지점, 배지 - 값 */
   --ds-card-gap-line: var(--space-4);            /* 한 항목 안 제목과 보조 줄 사이 */
   --ds-list-bg: transparent;                    /* 기본 면: 없음(놓인 판 색). 라이트 관제, 전체 미션 알림 목록의 흰 면도 이 값으로 통일(11/23) */
+  --ds-list-raised-bg: transparent;              /* 떠 있는 줄 면: 다크 없음, 라이트 --bg-raised(흰색). 관제, 전체 미션 조치 필요 알림 목록 (11/23 되돌림, 토큰으로) */
 
   /* 모션 (11/20) 1층: 값. 쓰는 법(2층)은 아래 "모션" 절과 CLAUDE.md. JS 움직임도 이 값을 읽음(monitor.js) */
   --ds-motion-fast: 160ms;                        /* 상태 바뀜: 올림, 화살표 돌기, 사진 올림 */
@@ -687,6 +688,9 @@ body.ver-7 .ds-progress.cu-run > .ds-progress-cursor { transition: left var(--ds
  *   체크 .is-check = 체크 상자(.ds-act-box, 체크 모양은 아이콘 --ic-check), 여러 개 고를 때
  *   스위치 .is-switch = 뒤에 토글(.ds-switch), 누르는 즉시 적용되는 설정만. 저장을 눌러야 반영되면 체크를 씀 */
 body.ver-7 :is(.ds-list-item, .ds-act) { box-sizing: border-box !important; gap: var(--ds-list-gap) !important; border-radius: var(--space-0) !important; background-color: var(--ds-list-bg) !important; transition: background-color var(--ds-motion-fast) var(--ds-ease-base); }
+:root[data-theme="light"] body.ver-7 { --ds-list-raised-bg: var(--bg-raised); }
+/* 떠 있는 줄: 관제, 전체 미션 왼쪽 조치 필요 알림 목록(처리 완료 칸 제외). 라이트에서 회색 판 위 흰 줄로 떠 보이게(예전 v6 흰 면을 토큰으로). 올림, 고름 면은 위에 덮음 */
+body.ver-7 .context-panel .ah-sec:not(.done-sec) .ds-list-item { background-color: var(--ds-list-raised-bg) !important; }
 body.ver-7 :is(.ds-list-item.is-s, .ds-act) { min-height: var(--ds-list-s-h) !important; padding: var(--space-4) var(--space-8) !important; align-items: center; }
 body.ver-7 .ds-list-item.is-m { min-height: var(--ds-list-m-h) !important; padding: var(--space-8) var(--ds-list-pad-x) !important; align-items: center; }
 body.ver-7 .ds-list-item.is-l { padding: var(--space-12) var(--ds-list-pad-x) !important; }
