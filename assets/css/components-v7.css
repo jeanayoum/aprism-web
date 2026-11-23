@@ -1396,8 +1396,10 @@ body.ver-7 .sb-more-menu .sb-tab-sev { flex: none; }
  * 안무: 들어오기(왼쪽 밖에서 밀려옴, --ds-motion-enter), 나가기([확인함] 뒤 왼쪽으로, --ds-motion-exit), 요청 뒤 완료 물결(--ds-motion-slow, 완료 색 세 단 --ds-motion-done), 조치 요청됨 상자 나타남(ds-appear) */
 body.ver-7 { --ds-alertpop-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-gray-0) 8%, transparent), 0 6px 16px color-mix(in srgb, var(--color-gray-950) 35%, transparent); }
 :root[data-theme="light"] body.ver-7 { --ds-alertpop-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-gray-950) 6%, transparent), 0 6px 16px color-mix(in srgb, var(--color-gray-950) 14%, transparent); }
-body.ver-7 .ds-alertpop { padding: var(--space-4) !important; border-radius: var(--ds-pop-radius) !important; background-color: var(--ds-mappop-bg) !important; -webkit-backdrop-filter: blur(12px) !important; backdrop-filter: blur(12px) !important; box-shadow: var(--ds-alertpop-shadow) !important; }
-body.ver-7 .ds-alertpop > .ma-head { margin: calc(var(--space-4) * -1) calc(var(--space-4) * -1) 0 !important; padding: var(--space-8) var(--space-8) var(--space-8) var(--space-12) !important; gap: var(--space-12) !important; background-color: var(--bg-raised) !important; border-radius: var(--ds-pop-radius) var(--ds-pop-radius) 0 0; }
+/* 면은 한 겹(11/23): 판 전체가 머리 띠 색(bg/raised)을 92% 로 씀, 머리는 면 없음. 예전 판 회색 750 92% + 머리 bg/raised 두 겹 */
+body.ver-7 { --ds-alertpop-bg: color-mix(in srgb, var(--bg-raised) 92%, transparent); }
+body.ver-7 .ds-alertpop { padding: var(--space-4) !important; border-radius: var(--ds-pop-radius) !important; background-color: var(--ds-alertpop-bg) !important; -webkit-backdrop-filter: blur(12px) !important; backdrop-filter: blur(12px) !important; box-shadow: var(--ds-alertpop-shadow) !important; }
+body.ver-7 .ds-alertpop > .ma-head { margin: calc(var(--space-4) * -1) calc(var(--space-4) * -1) 0 !important; padding: var(--space-8) var(--space-8) var(--space-8) var(--space-12) !important; gap: var(--space-12) !important; background-color: transparent !important; border-radius: var(--ds-pop-radius) var(--ds-pop-radius) 0 0; }
 body.ver-7 .ds-alertpop .ma-title-block, body.ver-7 .ds-alertpop .ma-top { gap: var(--space-8) !important; }
 body.ver-7 .ds-alertpop .ma-title { font-size: var(--font-size-16) !important; line-height: var(--font-line-height-24) !important; font-weight: var(--font-weight-bold) !important; }
 body.ver-7 .ds-alertpop .ma-snap { border-radius: var(--ds-pop-radius) !important; }
