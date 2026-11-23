@@ -106,7 +106,8 @@
   const RQ_BTN = S7 ? '조치 요청' : '현장 조치 요청', RQ_DONE = S7 ? '요청됨' : '현장 조치 요청됨';
   const NEWR = [1, '온도감지', ['crit','최고 71.2 ℃','WP-104 변압기 TR-1','10:15']];
   const RANK = {crit:3, warn:2, done:1, ok:0};
-  const WORD = {crit:'위험', warn:'주의', done:'요청됨', ok:'정상 범위', plan:'예정'};
+  const V7 = document.body.classList.contains('ver-7');
+  const WORD = {crit:'위험', warn:'주의', done:'요청됨', ok:V7 ? '정상' : '정상 범위', plan:'예정'};   // [11/23 v7] 판정 칩은 정상, 주의, 위험 셋(정상 범위 → 정상)
   const COLR = {crit:'var(--status-critical-icon)', warn:'var(--status-warning-icon)', done:'var(--text-tertiary)', ok:'var(--text-disabled)'};
   let M, scope, menu, fired, toasts, drawer, newSeen, lay = 'card', dt = null, bigD = false;
   /*
@@ -116,8 +117,7 @@
    *   현장 조치 중 → 조치 완료: 현장에서 완료를 보내는 길이 없어 관제사가 통화로 듣고 [조치 완료 확인]으로 기록한다.
    *   요청 · 단계가 바뀔 때마다 DS 토스트(app-shell .toast, 관제 조치 요청과 같은 부품) — 요청 직후에만 [되돌리기].
    */
-  const V7 = document.body.classList.contains('ver-7');
-  let REQ = {}, reqT = {};
+    let REQ = {}, reqT = {};
   const RQ_WORD = {wait:'현장 응답 대기', work:'현장 조치 중', done:'조치 완료'};
   const RQ_BADGE = {wait:'', work:'badge-info', done:'badge-normal'};   // Figma Badge-미션 566:19149 — 대기 · 진행 · 완료
   // [11/10 v7] 요청한 감지는 판정 칩 대신 진행 배지(판정 카드 · 목록 카드 · 측정 이력 오늘 줄 같은 꼴), 처리 줄은 그 단계의 시각 + 이름
