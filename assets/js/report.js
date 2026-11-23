@@ -390,7 +390,13 @@
   /* ---------- 보고서 메뉴 ---------- */
   var vm = 10;   // 보고 있는 달(2026년)
   var MAXM = 10, TODAY = 22;
-  if (V6) { vm = 11; MAXM = 11; TODAY = 2; }   // [11/02 v6] 오늘 11/02 — 목록은 이번 달(11월)부터
+  if (V6) { vm = 11; MAXM = 11; TODAY = 2; }
+  // [11/23 v7 · 정의서 보고서-01] 미션 줄 이름 = 관제 미션 탭과 같은 이름(위 11/02 주석의 차례). 처음 여는 달 = 처음 연 문서(10월 13일 미션 보고서)의 달 — 목록에서 그 줄이 골라진 채 보이게
+  if (V7R) {
+    var NAMES7 = { "11-2": ["유틸리티 순회", "공조 설비 순회", "야간 순회 점검"], "11-1": ["야간 순회 점검", "공조 설비 순회", "유틸리티 순회", "정기 순회 점검", "발전기실 설비 점검"], "10-31": ["전기실 열화상 점검", "유틸리티 순회"] };
+    DAYS.forEach(function (d) { var k = (d.m || 10) + "-" + d.day; (NAMES7[k] || []).forEach(function (nm, i) { if (d.missions[i]) { d.missions[i].n = nm; } }); });
+    vm = monthOf(DAYS.filter(function (d) { return d.missions.some(function (m) { return m.id === cur; }); })[0] || { m: vm });
+  }   // [11/02 v6] 오늘 11/02 — 목록은 이번 달(11월)부터
   var list = body.querySelector("[data-rp-list]"), side = body.querySelector("[data-rp-side]"), detail = body.querySelector("[data-rp-detail]");
   /* [11/23] v7: 목록 위 "최신순 정렬" 글자를 관제 알림 목록과 같은 정렬 단추(.ah-sort-btn, 글자 + 위아래 화살표)로. 누르면 최신순 ↔ 오래된 순 */
   var rpSort = "new";
@@ -448,9 +454,9 @@
     return '<button type="button" class="rp-item is-day' + (document.body.classList.contains("ver-7") ? " ds-list-item is-m is-wide" : "") + (live ? " is-live" : "") + '" data-id="' + (id || "") + '"' + (isOn ? ' aria-current="true"' : "") + (live ? " disabled" : "") + ">" +
       '<span class="rp-a t-label-1">' + ic("document") + "<b>" + name + '</b></span><span class="rp-tm t-caption num">' + meta + "</span></button>";
   }
-  function missionRow(id, time, isOn) {
+  function missionRow(id, time, isOn, name) {
     return '<button type="button" class="rp-item is-mission' + (document.body.classList.contains("ver-7") ? " ds-list-item is-m is-wide" : "") + '" data-id="' + (id || "") + '"' + (isOn ? ' aria-current="true"' : "") + ">" +
-      '<span class="rp-a t-body-4"><span class="rp-br" aria-hidden="true"></span><b>' + NAME + '</b></span><span class="rp-tm t-caption num">' + time + "</span></button>";
+      '<span class="rp-a t-body-4"><span class="rp-br" aria-hidden="true"></span><b>' + (name || NAME) + '</b></span><span class="rp-tm t-caption num">' + time + "</span></button>";
   }
 
   /*
@@ -494,7 +500,7 @@
       mdays.forEach(function (d) {
         if (!d.live) { n++; }
         html += '<div class="rp-grp" role="listitem" data-day="' + d.day + '">' + dayRow(d.dayRpt.id, d.d, d.live ? "작성 중" : "미션 " + d.dayRpt.n, d.dayRpt.id && d.dayRpt.id === cur, d.live);
-        (rpSort === "old" ? d.missions.slice().reverse() : d.missions).forEach(function (m) { n++; html += missionRow(m.id, m.t, m.id && m.id === cur); });
+        (rpSort === "old" ? d.missions.slice().reverse() : d.missions).forEach(function (m) { n++; html += missionRow(m.id, m.t, m.id && m.id === cur, m.n); });
         html += "</div>";
       });
     } else {
