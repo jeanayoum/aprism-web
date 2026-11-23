@@ -207,6 +207,31 @@
     var lists = $$("[data-sian-precheck]");
     var initial = lists.map(function (list) { return list.innerHTML; });
     var timers = [];
+    /*
+     * [11/23 정의서 관제화면-02] v7 한글 — Q1 실패 · Q2 자동 시작
+     *   body[data-precheck] = run · fail · done (setup-tabs-v6.js 가 읽는다: run · done 동안 탭 · GNB 이동을 막는다)
+     *   실패 시연: 주소 ?precheck=fail — 첫 점검에서 data-fail-why 가 있는 항목(로봇 연결)이 실패, [재점검] 하면 통과
+     */
+    var V7KO = body.classList.contains("ver-7") && document.documentElement.lang !== "en";
+    var FAIL = V7KO && /[?&]precheck=fail\b/.test(window.location.search);
+    var tries = 0;
+    var SUB0 = (function () { var s = $("[data-precheck-sub]"); return s ? s.textContent : ""; })();
+    function v7ui(state, row) {
+      if (!V7KO) { return; }
+      body.setAttribute("data-precheck", state);
+      var sub = $("[data-precheck-sub]"), note = $("[data-precheck-notice]");
+      var cancel = $("[data-precheck-cancel]"), back = $("[data-precheck-back]"), retry = $("[data-precheck-retry]");
+      if (sub) { sub.textContent = state === "fail" ? (row.querySelector(".label").textContent + " 실패 · 미션을 시작하지 않아요") : state === "done" ? "모두 정상 · 미션을 시작해요" : SUB0; }
+      if (note) { note.hidden = state === "fail"; }
+      if (cancel) { cancel.hidden = state === "fail"; }
+      if (back) { back.hidden = state !== "fail"; }
+      if (retry) { retry.hidden = state !== "fail"; }
+    }
+    if (V7KO) {
+      document.addEventListener("click", function (event) {
+        if (event.target.closest && event.target.closest("[data-precheck-retry]")) { start(); }
+      });
+    }
 
     function clear() {
       timers.forEach(function (t) { window.clearTimeout(t); });
@@ -252,9 +277,29 @@
         }
       }
 
+      function fail(row) {
+        row.classList.remove("is-running", "is-active", "is-pending");
+        row.classList.add("is-failed");
+        var i = row.querySelector(".i");
+        if (i) { i.style.setProperty("--i", "var(--ic-error)"); }
+        var meta = row.querySelector(".meta");
+        if (meta) { meta.textContent = "실패"; meta.classList.remove("is-plain"); }
+        var why = document.createElement("div");
+        why.className = "precheck-why t-caption";
+        var pick = document.querySelector("[data-mp-robot] [data-select-value]");
+        var who = pick && /ROBOT\s*\d+/i.exec(pick.textContent);
+        var txt = row.getAttribute("data-fail-why") || "";
+        why.textContent = who ? txt.replace(/ROBOT\s*\d+/i, who[0].toUpperCase()) : txt;
+        row.parentNode.insertBefore(why, row.nextSibling);
+        if (tag) { tag.textContent = "실패"; if (window.ds) { tag.className = "tag-running " + window.ds.statusCls("no"); } }
+        v7ui("fail", row);
+      }
+
       function tick() {
         var next = rows.shift();
+        if (next && FAIL && tries === 1 && next.hasAttribute("data-fail-why")) { fail(next); return; }
         if (!next) {
+          v7ui("done");
           if (tag) { tag.textContent = "완료"; if (document.body.classList.contains("ver-7") && window.ds) { tag.className = "tag-running " + window.ds.statusCls("done"); } }   // [11/19 v7] 진행 상태 태그: 수행중 → 완료
           if (startBtn) { startBtn.disabled = false; }
           /*
@@ -279,15 +324,18 @@
       timers.push(window.setTimeout(tick, STEP));
     }
 
+    function start() {
+      clear();
+      tries += 1;
+      v7ui("run");
+      lists.forEach(function (list, i) {
+        // 보이는 쪽만 돌린다(시안 1 은 패널, 시안 2 는 모달 한 벌뿐이다).
+        run(list, i);
+      });
+    }
     return {
-      start: function () {
-        clear();
-        lists.forEach(function (list, i) {
-          // 보이는 쪽만 돌린다(시안 1 은 패널, 시안 2 는 모달 한 벌뿐이다).
-          run(list, i);
-        });
-      },
-      stop: clear
+      start: start,
+      stop: function () { clear(); tries = 0; if (V7KO) { body.removeAttribute("data-precheck"); } }
     };
   })();
 

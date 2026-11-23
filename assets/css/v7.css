@@ -1486,3 +1486,9 @@ body.ver-7 .sf .cx .kd .tm-k { color: var(--text-tertiary); }
 /* [11/20 정의서 관제화면-01 Q5] 실행 로봇 — 대기 로봇만 고를 수 있다. 못 고르는 로봇은 흐리게, 이유는 오른쪽 */
 body.ver-7 .field-option[aria-disabled="true"] { display: flex; align-items: center; justify-content: space-between; gap: var(--space-8); color: var(--text-tertiary); cursor: not-allowed; pointer-events: none; }
 body.ver-7 .field-option[aria-disabled="true"] .field-option-why { color: var(--text-tertiary); font-size: 12px; }
+
+/* [11/23 정의서 관제화면-02 Q1] 사전 점검 실패 줄 — 빨간 아이콘 · 실패 글, 아래 사유 한 줄 */
+body.ver-7 .precheck-row.is-failed .i { color: var(--status-critical-icon); }
+body.ver-7 .precheck-row.is-failed .meta { color: var(--status-critical-text); }
+body.ver-7 .precheck-why { padding: 0 var(--space-16) var(--space-12) 44px; color: var(--status-critical-text); word-break: keep-all; border-bottom: var(--border-width-thin) solid var(--border-default); }
+body.ver-7 .inline-notice[hidden], body.ver-7 .mp-actions .btn[hidden] { display: none; }

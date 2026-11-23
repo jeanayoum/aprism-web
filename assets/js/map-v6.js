@@ -261,6 +261,10 @@
       done: 0xffcc00, left: 0xeeda6b, dot: 0xf8ebae      // warning
     }
   ];
+  // [11/23 정의서 관제화면-01 · 02 Q5] v7 한글 미션 설정 · 사전 점검 = 아직 떠나기 전 — 실행 로봇(ROBOT 01)은 도크에(at 0), 길은 도크에서 나가 도크로
+  var PRESTART = document.body.classList.contains("ver-7") && document.documentElement.lang !== "en" &&
+    /^(setup|precheck)$/.test(document.body.getAttribute("data-stage") || "") && !!document.querySelector("[data-mp-plan]");
+  if (PRESTART) { ROBOTS[0].at = 0; }
   /*
    * 임시 경로(10/19 디자이너 "정상 작동하는 것처럼") — 수행 중인 다른 미션도 지도에 길이 보이게.
    * 순번 = data-robot 이라 빈 자리를 건너뛰고 넣는다(forEach 는 빈 칸을 건너뛴다).
@@ -6769,6 +6773,7 @@
     showLane(id, true);
     layPlan();
     frame();
+    document.dispatchEvent(new CustomEvent("aprism:mission-route"));   // [11/23 Q5] 미션 설정 요약이 실제 길이로 다시 센다(mission-setup.js)
   }
 
   /*
@@ -6778,7 +6783,8 @@
    */
   if (window.MutationObserver) {
     new MutationObserver(function () {
-      if (!missionPlan || document.body.getAttribute("data-stage") === "setup") { return; }
+      var stNow = document.body.getAttribute("data-stage");
+      if (!missionPlan || stNow === "setup" || (PRESTART && stNow === "precheck")) { return; }   // [11/23 Q5] v7 사전 점검도 계획 그대로
       missionPlan = null;
       replanMission();
       layWaypoints();
@@ -6830,8 +6836,26 @@
     put(dockBox, ln.dock);
   }
 
+  var measureMemo = {};
   window.APRISM_ROUTE = {
     config: NAV,
+    // [11/23 정의서 관제화면-01 Q5] 도크 → ids 차례 → 도크 길이(m). 그리지 않고 재기만 — 미션 설정의 소요시간 · 배터리 셈(mission-setup.js)
+    measure: function (ids) {
+      var id = activeRobot();
+      laneFor(String(id));
+      var ln = lanes[String(id)], book = ln && ln.book;
+      if (!scene || !book || !book.wpPlan) { return null; }
+      var key = ids.join(",");
+      if (measureMemo[key] != null) { return measureMemo[key]; }
+      var names = ["DOCK"], pts = [book.dockPlan];
+      ids.forEach(function (wp) { var k = book.names.indexOf(wp); if (k > 0 && book.wpPlan[k - 1]) { names.push(wp); pts.push(book.wpPlan[k - 1]); } });
+      if (pts.length < 2) { return 0; }
+      var n0 = routeLog.length, res = planChain0(book.fid, pts, true, names);
+      routeLog.length = n0;
+      var m = 0;
+      for (var i = 1; i < res.path.length; i += 1) { m += Math.hypot(res.path[i].X - res.path[i - 1].X, res.path[i].Y - res.path[i - 1].Y); }
+      return (measureMemo[key] = m);
+    },
     // [11/02] 미니맵 경로 뽑기(tools) — 모든 로봇 길을 깔고, 도면 좌표(m)로 꺾인 점 · 웨이포인트 · 층 바닥 높이를 돌려준다
     lanesAll: function () {
       var out_eq = null;

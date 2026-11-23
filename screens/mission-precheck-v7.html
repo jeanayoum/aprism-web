@@ -35,7 +35,7 @@
   <link rel="stylesheet" href="../assets/css/v5.css?v=9f626280" />
   <!-- v6 전용 규칙 — v5 는 10/30 부로 멈췄다. v6 에서 바꾸는 것은 여기(body.ver-6)에. -->
   <link rel="stylesheet" href="../assets/css/v6.css?v=c384b14c" />
-  <link rel="stylesheet" href="../assets/css/v7.css?v=cf4273f9" />
+  <link rel="stylesheet" href="../assets/css/v7.css?v=94e3ec3a" />
   <link rel="stylesheet" href="../assets/css/components-v7.css?v=ca67e45c" />
   <script src="../assets/js/ds-v7.js?v=1b798677"></script>
   <!-- [10/29] v5 지도(map-v6.js)가 그리는 설비 이름표 · 충전 스테이션 · 번호 핀 꼴 — 메인과 같다 -->
@@ -276,6 +276,8 @@
                                 </div>
 
                                 <!--
+                                  [11/23 정의서 관제화면-01 Q5] 미션 = 순서 있는 Way-point 목록 + 출발 · 복귀 도크(가정) — 미션 모니터링과 같은 20개.
+                                  WP-09 ~ 20 이름은 관제 지도가 붙이는 가까운 설비 이름과 같다. 머무는 시간(data-dwell)은 시안 값
                                   점검항목 — 고르는 것뿐 아니라 방문 순서까지 여기서 정한다.
                                   줄은 mission-setup.js 가 다시 그린다. 아래 네 줄이 원본 자료다
                                   (data-wp 는 지도의 웨이포인트 번호, data-dwell 은 그 자리에서 머무는 초).
@@ -301,6 +303,70 @@
                                     </div>
                                     <div class="check-row ds-list-item is-s is-check" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-04" data-dwell="900">
                                       <span>WP-04 N₂ 배관 압력계</span>
+                                      <span class="check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>
+                                    </div>
+                                    <div class="check-row ds-list-item is-s is-check" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-05" data-dwell="120">
+                                      <span>WP-05 냉각 펌프 P-2</span>
+                                      <span class="check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>
+                                    </div>
+                                    <div class="check-row ds-list-item is-s is-check" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-06" data-dwell="120">
+                                      <span>WP-06 수배전반 MCC-1</span>
+                                      <span class="check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>
+                                    </div>
+                                    <div class="check-row ds-list-item is-s is-check" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-07" data-dwell="120">
+                                      <span>WP-07 고소 작업 발판</span>
+                                      <span class="check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>
+                                    </div>
+                                    <div class="check-row ds-list-item is-s is-check" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-08" data-dwell="120">
+                                      <span>WP-08 냉각수 열교환기 HX-1</span>
+                                      <span class="check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>
+                                    </div>
+                                    <div class="check-row ds-list-item is-s is-check" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-09" data-dwell="120">
+                                      <span>WP-09 설비 18</span>
+                                      <span class="check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>
+                                    </div>
+                                    <div class="check-row ds-list-item is-s is-check" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-10" data-dwell="120">
+                                      <span>WP-10 설비 11</span>
+                                      <span class="check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>
+                                    </div>
+                                    <div class="check-row ds-list-item is-s is-check" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-11" data-dwell="120">
+                                      <span>WP-11 설비 12</span>
+                                      <span class="check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>
+                                    </div>
+                                    <div class="check-row ds-list-item is-s is-check" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-12" data-dwell="120">
+                                      <span>WP-12 설비 10</span>
+                                      <span class="check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>
+                                    </div>
+                                    <div class="check-row ds-list-item is-s is-check" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-13" data-dwell="120">
+                                      <span>WP-13 설비 09</span>
+                                      <span class="check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>
+                                    </div>
+                                    <div class="check-row ds-list-item is-s is-check" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-14" data-dwell="120">
+                                      <span>WP-14 설비 14</span>
+                                      <span class="check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>
+                                    </div>
+                                    <div class="check-row ds-list-item is-s is-check" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-15" data-dwell="120">
+                                      <span>WP-15 설비 02</span>
+                                      <span class="check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>
+                                    </div>
+                                    <div class="check-row ds-list-item is-s is-check" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-16" data-dwell="120">
+                                      <span>WP-16 설비 03</span>
+                                      <span class="check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>
+                                    </div>
+                                    <div class="check-row ds-list-item is-s is-check" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-17" data-dwell="120">
+                                      <span>WP-17 설비 04</span>
+                                      <span class="check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>
+                                    </div>
+                                    <div class="check-row ds-list-item is-s is-check" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-18" data-dwell="120">
+                                      <span>WP-18 설비 19</span>
+                                      <span class="check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>
+                                    </div>
+                                    <div class="check-row ds-list-item is-s is-check" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-19" data-dwell="120">
+                                      <span>WP-19 설비 05</span>
+                                      <span class="check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>
+                                    </div>
+                                    <div class="check-row ds-list-item is-s is-check" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-20" data-dwell="120">
+                                      <span>WP-20 설비 01</span>
                                       <span class="check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>
                                     </div>
                                   </div>
@@ -353,51 +419,53 @@
             <!-- 2 · 사전 점검 — Figma Mission-Pre-inspection. 넷이 다 통과하면 모니터링으로 넘어간다. -->
             <div class="mp-header">
               <h2 class="t-title-2">사전 점검</h2>
-              <p class="t-caption">서버에서 자동 확인 중 · 미션 시작 대기</p>
+              <!-- [11/23 정의서 관제화면-02 Q2] 자동 시작 — 끝나면 sian.js 가 "모두 정상 · 미션을 시작해요", 실패면 그 항목 이름 -->
+              <p class="t-caption" data-precheck-sub>서버에서 자동 확인 중 · 끝나면 바로 미션 시작</p>
             </div>
 
             <div class="mp-scroll is-spacer">
+              <!-- [11/23 정의서 관제화면-02 Q3] 항목 이름 · 태그 · 걸린 시간 한글. Q1 실패 시연: 주소 ?precheck=fail → 로봇 연결 실패(data-fail-why), [재점검] 하면 통과 -->
               <div class="precheck-list ds-list is-boxed is-divided" data-sian-precheck>
                 <div class="precheck-head">
                   <span class="label">점검 항목</span>
-                  <span class="tag-running ds-badge is-plain is-info ds-i-play" data-precheck-tag>Running</span>
+                  <span class="tag-running ds-badge is-plain is-info ds-i-play" data-precheck-tag>확인 중</span>
                 </div>
-                <div class="precheck-row ds-list-item is-l is-running is-active" data-precheck-row data-done-meta="4s">
+                <div class="precheck-row ds-list-item is-l is-running is-active" data-precheck-row data-done-meta="4초" data-running-meta="확인 중">
                   <span class="i i-20" aria-hidden="true"></span>
-                  <span class="label">Manager</span>
-                  <span class="meta is-plain">확인중..</span>
+                  <span class="label">관제 서버</span>
+                  <span class="meta is-plain">확인 중</span>
                 </div>
-                <div class="precheck-row ds-list-item is-l is-pending" data-precheck-row data-done-meta="5s">
+                <div class="precheck-row ds-list-item is-l is-pending" data-precheck-row data-done-meta="5초" data-running-meta="ROBOT 01 확인 중" data-fail-why="ROBOT 01 응답 없음, 로봇 전원과 통신 상태 확인 필요">
                   <span class="i i-20" aria-hidden="true"></span>
-                  <span class="label">Spot</span>
+                  <span class="label">로봇 연결</span>
                   <span class="meta is-plain">대기</span>
                 </div>
-                <div class="precheck-row ds-list-item is-l is-pending" data-precheck-row data-done-meta="3s" data-running-meta="ROBOT 01 확인중..">
+                <div class="precheck-row ds-list-item is-l is-pending" data-precheck-row data-done-meta="3초" data-running-meta="ROBOT 01 확인 중">
                   <span class="i i-20" aria-hidden="true"></span>
-                  <span class="label">Battery</span>
+                  <span class="label">배터리</span>
                   <span class="meta is-plain">대기</span>
                 </div>
-                <div class="precheck-row ds-list-item is-l is-pending" data-precheck-row data-done-meta="2s">
+                <div class="precheck-row ds-list-item is-l is-pending" data-precheck-row data-done-meta="2초" data-running-meta="확인 중">
                   <span class="i i-20" aria-hidden="true"></span>
-                  <span class="label">Mission</span>
+                  <span class="label">미션 경로</span>
                   <span class="meta is-plain">대기</span>
                 </div>
               </div>
             </div>
 
-            <div class="inline-notice ds-notice">
+            <div class="inline-notice ds-notice" data-precheck-notice>
               <span class="i i-16" style="--i:var(--ic-info)" aria-hidden="true"></span>
               <span class="body">
-                <span class="title">점검이 끝나면 자동으로 시작합니다</span>
-                <span class="desc">네 항목이 모두 정상일 때만 로봇이 기동합니다.</span>
+                <span class="title">점검이 끝나면 바로 시작해요</span>
+                <span class="desc">네 항목이 모두 정상일 때만 로봇이 도크에서 출발해요.</span>
               </span>
             </div>
 
-            <!-- 주 동작은 [미션 시작] 이다. 예전에는 [취소] 가 흰 면(사다리 꼭대기)이고 미션 시작이
-                 회색이라 위계가 뒤집혀 있었다 — v2.2 사다리(Accent > Secondary)로 바로잡았다. -->
+            <!-- [11/23 정의서 관제화면-02 Q2] [미션 시작] 단추 없음 — 다 통과하면 자동으로 관제로. Q1 실패면 [미션 설정으로] [재점검](주요 행동) -->
             <div class="mp-actions">
-              <button type="button" class="btn btn-secondary is-md" data-sian-go="setup">취소</button>
-              <button type="button" class="btn btn-accent is-md" data-sian-go="monitor" disabled>미션 시작</button>
+              <button type="button" class="btn btn-secondary is-md" data-sian-go="setup" data-precheck-cancel>취소</button>
+              <button type="button" class="btn btn-secondary is-md" data-sian-go="setup" data-precheck-back hidden>미션 설정으로</button>
+              <button type="button" class="btn btn-accent is-md" data-precheck-retry hidden>재점검</button>
             </div>
           </section>
 
@@ -1623,13 +1691,13 @@
 <script src="../assets/js/map-model.js?v=b9ca613f"></script>
 <!-- [10/29] v5 지도(map-v6.js) — 라이트 단계 톤 지도 · 바닥 표식 · 바닥 띠 경로를 메인과 같게. map.js 는 v3 · v4 가 쓴다 -->
 <script src="../assets/js/map-fx-v6.js?v=ce66b735"></script>
-<script src="../assets/js/map-v6.js?v=eace69fe"></script>
+<script src="../assets/js/map-v6.js?v=0f2aec06"></script>
 <script src="../assets/js/count-up-v7.js?v=5c25113e"></script>
 <script src="../assets/js/robot-spot.js?v=2a3061e4"></script>
-<script src="../assets/js/sian.js?v=bd58883e"></script>
+<script src="../assets/js/sian.js?v=0820ff6f"></script>
 <!-- 미션 설정 — 점검항목 · 순서 · 로봇이 소요시간과 배터리를 움직인다. screen.js 뒤에 온다. -->
-<script src="../assets/js/mission-setup.js?v=5bf3b313"></script>
+<script src="../assets/js/mission-setup.js?v=68b031c4"></script>
 <script src="../assets/js/grid-overlay.js?v=39b45309"></script>
-<script src="../assets/js/setup-tabs-v6.js?v=13ff7170"></script>
+<script src="../assets/js/setup-tabs-v6.js?v=59353b5b"></script>
 </body>
 </html>

@@ -82,6 +82,8 @@
     });
   }
 
+  var V7KO = body.classList.contains("ver-7") && document.documentElement.lang !== "en";
+  var BUSY = "사전 점검 중이에요. 끝나면 이동할 수 있어요";
   var toastTimer = 0;
   function toast(msg) {
     Array.prototype.forEach.call(body.querySelectorAll(".toast.sb-toast"), function (t) { t.remove(); });
@@ -116,7 +118,9 @@
     var tab = event.target.closest && event.target.closest(".sb-tab");
     if (!tab || tab.classList.contains("is-on")) { return; }
     var stage = body.getAttribute("data-stage");
-    if (stage === "precheck") { toast("사전점검 진행중입니다."); return; }
+    // [11/23 정의서 관제화면-02 Q4] v7 한글 — 점검 중 · 끝나 넘어가는 중에는 막고, 실패면 미션 설정처럼(바꾼 설정이 있으면 확인)
+    if (V7KO && stage === "precheck" && body.getAttribute("data-precheck") === "fail") { stage = "setup"; }
+    if (stage === "precheck") { toast(V7KO ? BUSY : "사전점검 진행중입니다."); return; }
     if (stage !== "setup") { return; }
     var mission = tab.getAttribute("data-mission");
     if (!mission) { go("통합 순회 현황", "./building-v6.html"); return; }
@@ -126,12 +130,16 @@
   });
 
   // [11/20 정의서 관제화면-01 Q2] v7 한글 — [취소] 단추는 두지 않는다. 바꾼 설정이 있으면 GNB 로 떠날 때도 탭과 같은 확인을 먼저 묻는다
-  if (body.classList.contains("ver-7") && document.documentElement.lang !== "en") {
+  if (V7KO) {
     var rail = document.querySelector(".gnb-rail");
     if (rail) {
       rail.addEventListener("click", function (event) {
         var a = event.target.closest && event.target.closest("a.gnb-item");
-        if (!a || body.getAttribute("data-stage") !== "setup") { return; }
+        if (!a || a.getAttribute("aria-current") === "page") { return; }
+        var st = body.getAttribute("data-stage");
+        // [11/23 정의서 관제화면-02 Q4] 점검 중에는 GNB 도 탭과 같이 막는다(실패면 미션 설정과 같다)
+        if (st === "precheck" && body.getAttribute("data-precheck") !== "fail") { event.preventDefault(); toast(BUSY); return; }
+        if (st !== "setup" && st !== "precheck") { return; }
         var href = a.getAttribute("href");
         if (!href || href === "#" || a.getAttribute("aria-current") === "page" || !dirty) { return; }
         event.preventDefault();
