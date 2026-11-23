@@ -698,7 +698,7 @@
     return !m ? s : m[1] === "이동 중" ? "이동 중" : m[1] + " 중";
   }
   function fleetCardSlim(r) {
-    var node = el("button", "bld-robot bld-rc2 is-" + r.st);
+    var node = el("button", "bld-robot bld-rc2 ds-card is-" + r.st);
     node.type = "button";
     node.setAttribute("role", "listitem");
     node.setAttribute("data-floor", r.floor);

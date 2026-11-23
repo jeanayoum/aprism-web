@@ -325,13 +325,13 @@
     if (pend.length) {
       var skip = el("article", "timeline-item is-pending rr-extra rr-skip",
         '<span class="rail-capsule"><span class="rail-stub"></span><span class="rail-mark"><span class="rail-dot"></span></span><span class="rail-line"></span></span>' +
-        '<div class="step-wrap"><div class="step-card"><div class="step-head"><div class="step-title-row"><span class="t-label-1 step-title">건너뜀 ' + pend.length + '곳</span></div></div>' +
+        '<div class="step-wrap"><div class="step-card ds-card is-step"><div class="step-head"><div class="step-title-row"><span class="t-label-1 step-title">건너뜀 ' + pend.length + '곳</span></div></div>' +
         '<p class="t-caption step-desc num">' + pend[0].getAttribute("data-waypoint") + (pend.length > 1 ? " ~ " + pend[pend.length - 1].getAttribute("data-waypoint") : "") + '</p></div></div>');
       nodes.push(skip);
     }
     var home = el("article", "timeline-item is-running rr-extra rr-home",
       '<span class="rail-capsule"><span class="rail-stub"></span><span class="rail-mark"><span class="rail-dot"></span></span></span>' +
-      '<div class="step-wrap"><div class="step-card"><div class="step-head"><div class="step-title-row"><span class="t-label-1 step-title">충전 스테이션으로 복귀</span></div></div>' +
+      '<div class="step-wrap"><div class="step-card ds-card is-step"><div class="step-head"><div class="step-title-row"><span class="t-label-1 step-title">충전 스테이션으로 복귀</span></div></div>' +
       '' + (document.body.classList.contains("ver-7")
         ? '<div class="rr-home-st">' + st7("gray", "", "자동복귀 중", '<span data-rr="home-eta"></span>') + '</div></div></div>'
         : '<div class="rr-homebar"></div><div class="rr-note"><span>자동복귀 중</span><span class="num" data-rr="home-eta"></span></div></div></div>'));

@@ -240,7 +240,13 @@ body.ver-7, body.ds-auth {   /* body.ds-auth: 로그인 쪽 화면(안내 상자
   --ds-list-gap: var(--space-8);                 /* 앞(아이콘, 체크) - 글 - 뒤 사이 */
   --ds-list-s-h: 32px;                           /* 작게: 고르기 목록(체크, 라디오, 스위치) */
   --ds-list-m-h: 40px;                           /* 보통: 한 줄 목록 */
-  --ds-list-bg: transparent;                     /* 기본 면: 없음(놓인 판 색). 라이트 관제, 전체 미션 알림 목록의 흰 면도 이 값으로 통일(11/23) */
+  /* 카드 (11/23): 안쪽 12, 모서리 4. 사이는 정보 위계로 세 단계 */
+  --ds-card-pad: var(--space-12);
+  --ds-card-radius: var(--radius-4);
+  --ds-card-gap: var(--space-12);                /* 블록 사이: 머리 / 본문 / 진행, 사진 / 글 */
+  --ds-card-gap-group: var(--space-8);           /* 한 블록 안 항목 사이: 지금 지점 - 다음 지점, 배지 - 값 */
+  --ds-card-gap-line: var(--space-4);            /* 한 항목 안 제목과 보조 줄 사이 */
+  --ds-list-bg: transparent;                    /* 기본 면: 없음(놓인 판 색). 라이트 관제, 전체 미션 알림 목록의 흰 면도 이 값으로 통일(11/23) */
 
   /* 모션 (11/20) 1층: 값. 쓰는 법(2층)은 아래 "모션" 절과 CLAUDE.md. JS 움직임도 이 값을 읽음(monitor.js) */
   --ds-motion-fast: 160ms;                        /* 상태 바뀜: 올림, 화살표 돌기, 사진 올림 */
@@ -685,6 +691,47 @@ body.ver-7 .ds-list-detail { font-size: var(--font-size-12); line-height: var(--
 body.ver-7 .ds-list.is-boxed { border: var(--border-width-thin) solid var(--border-default) !important; border-radius: var(--radius-8) !important; overflow: hidden; }
 body.ver-7 .ds-list.is-divided > .ds-list-item { border-bottom: var(--border-width-thin) solid var(--border-default) !important; }
 body.ver-7 .ds-list.is-divided > .ds-list-item:last-child { border-bottom: 0 !important; }
+
+/* ---------- 카드 (11/23, .ds-card): 안쪽 12, 모서리 4, 사이는 위계 세 단계(블록 12, 묶음 8, 줄 4) ----------
+ * 글자 단계: 제목 16/24/700, 항목 이름 14/20/500, 큰 값 24/32/700, 보조 12/18/400 (카드 안 800 은 쓰지 않음)
+ * 면 색은 카드마다 그대로(관제 로봇 카드 반투명, 감지 카드 유리, 경로 단계 bg/raised). 상태는 카드마다 아래
+ *   관제 로봇 카드 .is-robot, 전체 미션 로봇 칸(.bld-rc2): 상태 없음(올림, 고름, 움직임 넣지 않음, 11/23 정함)
+ *   감지 카드 .is-press: 올림 테 --border-strong, 누름 테 --border-focus, 바뀜 --ds-motion-fast
+ *   경로 단계 .is-step: 꼴 셋(진행 전 면 bg/raised, 진행 중 반전 면 그대로, 진행 완료 면 없음 + 안쪽 테 1 + 흐린 글) + 고름 안쪽 테 2 --border-focus */
+body.ver-7 .ds-card { box-sizing: border-box !important; border-radius: var(--ds-card-radius) !important; }
+
+/* 관제 로봇 카드: 그림과 진행 막대가 카드 끝까지 닿아 카드 자신은 안쪽 0, 글 칸(.progress-meta)만 안쪽 12. 글 칸 안 제목 - 종료 예정 4, 글 - 큰 값 12 */
+body.ver-7 .ds-card.is-robot .progress-meta { padding-left: var(--ds-card-pad) !important; padding-right: var(--ds-card-pad) !important; gap: var(--ds-card-gap) !important; }
+body.ver-7 .ds-card.is-robot .progress-titles { gap: var(--ds-card-gap-line) !important; }
+
+/* 전체 미션 로봇 칸: 블록(머리 / 지금, 다음 / 진행) 사이 12. 머리 안 이름 줄 - 운영 상태 줄 8, 지금 - 다음 8, 지점 - 상태 글 4 */
+body.ver-7 .ds-card.bld-rc2 { padding: var(--ds-card-pad) !important; gap: var(--ds-card-gap) !important; }
+body.ver-7 .ds-card.bld-rc2 > .bld-rc2-vitals { margin-top: calc(var(--ds-card-gap-group) - var(--ds-card-gap)) !important; }
+body.ver-7 .ds-card.bld-rc2 > .bld-rc2-body { gap: var(--ds-card-gap-group) !important; padding-top: var(--ds-card-pad) !important; }
+body.ver-7 .ds-card.bld-rc2 .bld-rc2-txt { gap: var(--ds-card-gap-line) !important; }
+body.ver-7 .ds-card.bld-rc2 .bld-rc2-wp { margin-top: var(--space-0) !important; }
+body.ver-7 .ds-card.bld-rc2 .bld-rc2-name { font-size: var(--ds-type-title-size) !important; line-height: var(--ds-type-title-line) !important; font-weight: var(--ds-type-title-weight) !important; }
+body.ver-7 .ds-card.bld-rc2 .bld-rc2-now { font-size: var(--ds-type-label-size) !important; line-height: var(--ds-type-label-line) !important; font-weight: var(--ds-type-label-weight) !important; }
+
+/* 감지 카드(안전진단 아래 칸): 사진 / 글 두 블록. 위험, 주의 배지는 사진 아래 끝에 걸침(예전 그대로), 배지 - 값 8, 값 - 위치 - 시간 4.
+ *   글 칸 좌우는 카드 안쪽 12 하나(예전 카드 8 + 글 8 = 16) */
+body.ver-7 .sf .cx .ds-card.kd { padding: var(--ds-card-pad) !important; gap: var(--ds-card-gap-line) !important; }
+body.ver-7 .sf .cx .ds-card.kd > :not(.md):not(.more) { margin-left: var(--space-0) !important; margin-right: var(--space-0) !important; }
+body.ver-7 .sf .cx .ds-card.kd > .rw + * { margin-top: calc(var(--ds-card-gap-group) - var(--ds-card-gap-line)) !important; }
+body.ver-7 .sf .g6.cx .ds-card.kd .big { font-size: var(--font-size-24) !important; line-height: var(--font-line-height-32) !important; font-weight: var(--font-weight-bold) !important; }   /* 큰 값(미션 하나, 여섯 칸) */
+body.ver-7 .sf .cx .ds-card.kd:not(:is(.g6 *)) .big { font-size: var(--ds-type-title-size) !important; line-height: var(--ds-type-title-line) !important; font-weight: var(--ds-type-title-weight) !important; }   /* 여러 미션 줄은 제목 단계 */
+body.ver-7 .sf .cx .ds-card.kd .nm { font-size: var(--ds-type-label-size) !important; line-height: var(--ds-type-label-line) !important; font-weight: var(--ds-type-label-weight) !important; }
+body.ver-7 .sf .cx .ds-card.kd .lc { font-size: var(--ds-type-label-size) !important; line-height: var(--ds-type-label-line) !important; font-weight: var(--ds-type-label-weight) !important; }
+body.ver-7 .ds-card.is-press { transition: border-color var(--ds-motion-fast) var(--ds-ease-base), background-color var(--ds-motion-fast) var(--ds-ease-base); }
+body.ver-7 .ds-card.is-press[role="button"]:hover { border-color: var(--border-strong) !important; }
+body.ver-7 .ds-card.is-press[role="button"]:active { border-color: var(--border-focus) !important; }
+
+/* 경로 단계 카드(관제 오른쪽 [목록]): 좌우 안쪽 12. 꼴 셋 + 고름. 테는 안쪽 그림자로 그려 높이가 바뀌지 않음 */
+body.ver-7 .ds-card.is-step { padding-left: var(--ds-card-pad) !important; padding-right: var(--ds-card-pad) !important; }
+body.ver-7 .timeline-item.is-pending .ds-card.is-step { background-color: var(--bg-raised) !important; }   /* 진행 전 */
+body.ver-7 .timeline-item.is-done .ds-card.is-step { background-color: transparent !important; box-shadow: inset 0 0 0 var(--border-width-thin) var(--border-default) !important; }   /* 진행 완료 */
+body.ver-7 .timeline-item.is-done .ds-card.is-step .step-title { color: var(--text-tertiary) !important; }
+body.ver-7 .timeline-item.is-selected .ds-card.is-step { outline: var(--border-width-strong) solid var(--border-focus) !important; outline-offset: calc(var(--border-width-strong) * -1) !important; }   /* 고름 */
 
 /* ---------- WP 번호 원: 왼쪽 알림 목록, 지도 팝오버, 점검 줄, 오른쪽 경로 목록, Delta 어디서 쓰든 하나 ----------
  * 크기는 아이콘과 같은 4의 배수 두 단계(11/19): 번호 칸, 지도, 팝오버 머리 20(.ds-wp), 글자 줄 안 16(.ds-wp.is-s)

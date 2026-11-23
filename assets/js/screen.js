@@ -1226,7 +1226,7 @@ window.APRISM_TEXT = (function () {
     titleRow.appendChild(el("span", "t-label-1 step-title", step.title));
 
     var head = el("div", "step-head");
-    var card = el("div", "step-card");
+    var card = el("div", "step-card ds-card is-step");
     var v22 = document.body.classList.contains("v2-2");
     if (v22) {
       /*

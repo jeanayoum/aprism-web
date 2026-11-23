@@ -42,7 +42,7 @@
   <!-- v6 전용 규칙 — v5 는 10/30 부로 멈췄다. v6 에서 바꾸는 것은 여기(body.ver-6)에. -->
   <link rel="stylesheet" href="../assets/css/v6.css?v=c384b14c" />
   <link rel="stylesheet" href="../assets/css/v7.css?v=cf4273f9" />
-  <link rel="stylesheet" href="../assets/css/components-v7.css?v=a4211b80" />
+  <link rel="stylesheet" href="../assets/css/components-v7.css?v=9677a6d7" />
   <script src="../assets/js/ds-v7.js?v=1b798677"></script>
   <!-- 지도 경로 표현 규칙(10/28 반영, 지도 경로 표현 전달서 1022) — 경로 네 구간 · 흐름 빛 · 번호 핀 · 시야 빔 로봇 · 충전 스테이션 · 아래 상태 시뮬레이션 막대 -->
   <link rel="stylesheet" href="../assets/css/route-rules.css?v=06eba321" />
@@ -633,7 +633,7 @@
                   <!-- 한 대씩 넘겨 본다 — 왼쪽 < 그래픽 > , 오른쪽 이름 · 자동복귀 · E-STOP · 상태 세 줄.
                        카드는 메인 화면 것 그대로이고 선택된 한 장만 보인다(is-carousel). -->
                   <!-- [11/11 v7 · Figma UI_00 1068:16438] 로봇 카드 + 진행 막대가 한 상자다 — 위 로봇(그래픽 | 상태 세 줄 · 단추), 끝에서 끝까지 진행 선(8), 아래 지금 하는 일 · 남은 시간 · %. -->
-                  <div class="rc-box">
+                  <div class="rc-box ds-card is-robot">
                   <div class="robot-carousel" data-robot-carousel>
                   <div class="robot-strip is-carousel" role="group" aria-label="로봇 선택">
                     <button type="button" class="robot-card" data-robot="0" aria-pressed="true">
@@ -1708,7 +1708,7 @@
 <script src="../assets/js/delta-form.js?v=1fc8867d"></script>
 <script src="../assets/js/theme.js?v=c86093d9"></script>
 <script src="../assets/js/prism-orb.js?v=f56758de"></script>
-<script src="../assets/js/screen.js?v=313e1771"></script>
+<script src="../assets/js/screen.js?v=78de4d3a"></script>
 <script src="../assets/js/map-model.js?v=b9ca613f"></script>
 <!-- v5 전용 지도(map-v3.js 를 10/29 에 복제) -->
 <script src="../assets/js/map-fx-v6.js?v=ce66b735"></script>
@@ -1735,6 +1735,6 @@
 <script src="../assets/js/grid-overlay.js?v=39b45309"></script>
 <script src="../assets/js/v3-panel.js?v=8b3c1845"></script>
 <!-- 상태 8개(이동 중 · 측정 중 · 위험 감지 · 일시정지 · 긴급정지 · 자동복귀 · 통신 끊김 · 미션 완료) · 재생 · 진행 막대 -->
-<script src="../assets/js/route-sim.js?v=73a9a0be"></script>
+<script src="../assets/js/route-sim.js?v=1ba0a095"></script>
 </body>
 </html>

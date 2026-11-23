@@ -693,8 +693,8 @@
     return hit ? hit[0] + ' ' + OKN[k] + ', ' + hit[1] : ''; }
   function cardNA(i, k){ const m = M[i], why = naOf(i, k), md = MD(k, 'ok', i);
     const judged = K.filter(k2 => m.r[k2]).map(k2 => k2.replace('감지', '').replace('인식', '')).join(', ');
-    if(why==='sensor') return `<div class="kd na" data-n="${k}"><div class="rw"><span class="nm">${k}</span><span class="verdict-chip${V7 ? ' ds-badge' : ''} is-na">센서 없음</span></div><div class="big">센서 없음</div><span class="sm">${m.robot}에 ${k==='부분방전' ? 'PD' : k} 센서가 달려 있지 않음</span><div class="md naempty"><span><b>송출할 센서 없음</b>센서를 단 로봇이 순회하면 표시</span></div></div>`;
-    return `<div class="kd na" data-n="${k}"><div class="rw"><span class="nm">${k}</span><span class="verdict-chip${V7 ? ' ds-badge' : ''} is-na">대상 아님</span></div><div class="big">판정하지 않음</div><span class="sm">${m.mis}는 ${judged}만 판정</span><div class="md nadim ${md[0]}">${md[1].replace(/<span class="bx"[^>]*><\/span>/, '')}</div></div>`;
+    if(why==='sensor') return `<div class="kd${V7 ? ' ds-card is-press' : ''} na" data-n="${k}"><div class="rw"><span class="nm">${k}</span><span class="verdict-chip${V7 ? ' ds-badge' : ''} is-na">센서 없음</span></div><div class="big">센서 없음</div><span class="sm">${m.robot}에 ${k==='부분방전' ? 'PD' : k} 센서가 달려 있지 않음</span><div class="md naempty"><span><b>송출할 센서 없음</b>센서를 단 로봇이 순회하면 표시</span></div></div>`;
+    return `<div class="kd${V7 ? ' ds-card is-press' : ''} na" data-n="${k}"><div class="rw"><span class="nm">${k}</span><span class="verdict-chip${V7 ? ' ds-badge' : ''} is-na">대상 아님</span></div><div class="big">판정하지 않음</div><span class="sm">${m.mis}는 ${judged}만 판정</span><div class="md nadim ${md[0]}">${md[1].replace(/<span class="bx"[^>]*><\/span>/, '')}</div></div>`;
   }
   function cardM(i, k){
     const m = M[i], x = m.r[k];
@@ -733,9 +733,9 @@
   }
   const KD_SEEN = new Set();
   function cardC(k, x, extra, mi){
-    if(!x) return `<div class="kd ok" data-n="${k}"><div class="rw"><span class="nm">${k}</span></div><div class="big">재지 않음</div></div>`;
+    if(!x) return `<div class="kd${V7 ? ' ds-card is-press' : ''} ok" data-n="${k}"><div class="rw"><span class="nm">${k}</span></div><div class="big">재지 않음</div></div>`;
     const [s, sent, loc, t, rq] = x, md = MD(k, s, mi);
-    if(s==='ok') return `<div class="kd ok" data-n="${k}" tabindex="0" role="button"><div class="rw"><span class="nm">${k}</span><span class="verdict-chip${V7 ? ' ds-badge' : ''} is-ok">정상 범위</span></div><div class="big">정상 범위</div><span class="sm">${loc}</span>${extra || ''}<div class="md ${md[0]}">${md[1].replace(/<span class="bx"[^>]*><\/span>/, '')}</div><span class="more">자세히 보기 →</span></div>`;
+    if(s==='ok') return `<div class="kd${V7 ? ' ds-card is-press' : ''} ok" data-n="${k}" tabindex="0" role="button"><div class="rw"><span class="nm">${k}</span><span class="verdict-chip${V7 ? ' ds-badge' : ''} is-ok">정상 범위</span></div><div class="big">정상 범위</div><span class="sm">${loc}</span>${extra || ''}<div class="md ${md[0]}">${md[1].replace(/<span class="bx"[^>]*><\/span>/, '')}</div><span class="more">자세히 보기 →</span></div>`;
     /*
      * [11/02 v6] 조치 전 위험 카드 — 테두리가 숨 쉰다(디자이너 "빨리 눌러 조치하라"). 위험이면서 현장 조치 요청 전(rq 없음)만.
      * 요청하면 멈춘다(rq 가 생긴다). 처음 보이는 카드만 두 번 또렷하게(is-new) — 다시 그릴 때마다 되풀이하지 않게 본 카드를 기억한다(KD_SEEN).
@@ -743,7 +743,7 @@
     const todo = V6 && s==='crit' && !rq, seenK = mi + '|' + k, fresh = todo && !KD_SEEN.has(seenK);
     if(todo) KD_SEEN.add(seenK);
     const R = V7 && s !== 'done' ? REQ[mi + '|' + k + '|' + wpOf(x)] : null;   // [11/10 v7] 요청한 감지 — 칩 · 처리 줄을 진행 단계로
-    return `<div class="kd ${s} ${s==='done' ? 'dim' : ''}${todo ? ' is-todo' : ''}${fresh ? ' is-new' : ''}" data-n="${k}" tabindex="0" role="button"><div class="rw"><span class="nm">${k}</span>${R ? rqBadge(R) : `<span class="verdict-chip${V7 ? ' ds-badge' : ''} is-${s}">${WORD[s]}</span>`}</div>
+    return `<div class="kd${V7 ? ' ds-card is-press' : ''} ${s} ${s==='done' ? 'dim' : ''}${todo ? ' is-todo' : ''}${fresh ? ' is-new' : ''}" data-n="${k}" tabindex="0" role="button"><div class="rw"><span class="nm">${k}</span>${R ? rqBadge(R) : `<span class="verdict-chip${V7 ? ' ds-badge' : ''} is-${s}">${WORD[s]}</span>`}</div>
       <div class="big">${(() => { const r6 = V6 && res6(k, x); return r6 ? `${r6[0]} ${r6[1]}${r6[2] ? `<span class="kdt">${r6[2]}</span>` : ''}` : sent; })()}</div><span class="sm">${loc}, ${t}</span>${R ? `<span class="req">${rqLine(R)}</span>` : rq ? `<span class="req">${rq} ${RQ_DONE}</span>` : ''}${extra || ''}<div class="md ${md[0]}">${md[1]}</div><span class="more">자세히 보기 →</span></div>`;
   }
   function head(title, done, total, n){
