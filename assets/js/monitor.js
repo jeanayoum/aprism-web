@@ -1390,6 +1390,10 @@
     // [11/06 v6] WP-04 N₂ 압력계 위험은 안전진단 상세와 같은 사진(N₂ 배관 · MPa 계기 · "gauge 0.86 MPa") — 예전 그림은 Spiral Casing psi 계기에 "NG 90, 기준 87" 라벨이라 제목(0.86 MPa)과 어긋났다
     if (body.classList.contains("ver-6")) { SHOT["지하발전소 B3 터빈 2 NG 1건 발견"] = SHOT["지하발전소 터빈 2 NG 1건 발견"] = "safety/gauge_crit.jpg"; }
     function liveSrc(a) {
+      // [11/23 v7] 위험 · 주의 사진은 감지별 한 장(alert-data-v7.js img) — 온도감지, 이상음향, 계기인식, 누출감지
+      var S7 = body.classList.contains("ver-7") && window.APRISM_ALERTS7;
+      var i7 = S7 && S7.img(a.detect || (S7.of(a.title) || [])[0]);
+      if (i7) { return "../assets/img/" + i7; }
       if (SHOT[a.title]) { return "../assets/img/" + SHOT[a.title]; }
       if (useDeid && a.live === "ppe") { return "../assets/img/alert-live-deid-grid.webp?v=12"; }   // 그림을 바꾸면 v 를 올린다(캐시)
       return "../assets/img/alert-live-" + a.live + ".webp";

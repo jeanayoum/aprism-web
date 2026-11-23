@@ -929,9 +929,11 @@
   }
 
   function snap6(a, rows) {
+    // [11/23 v7] 위험 · 주의 사진은 감지별 한 장(alert-data-v7.js img) — 관제 팝오버, 안전진단과 같은 사진
+    var S7 = document.body.classList.contains("ver-7") && window.APRISM_ALERTS7, img = (S7 && S7.img(a.detect)) || a.img;
     return '<div class="ac-d-snap-meta">' +
       '<figure class="ac-d-snap">' +
-        '<img src="../assets/img/' + esc(a.img) + '" alt="' + esc(titleOf(a)) + ' 검출 장면" />' +
+        '<img src="../assets/img/' + esc(img) + '" alt="' + esc(titleOf(a)) + ' 검출 장면" />' +
       '</figure>' +
       '<dl class="ac-d-meta">' + rows + '</dl>' +
     '</div>';

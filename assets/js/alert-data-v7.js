@@ -380,8 +380,14 @@
     a.monitor.acts = s[1].map(function (r) { return r[1] ? { t: r[0], ai: true, to: r[2] } : { t: r[0], to: r[2] }; });
   });
 
+  // [11/23] v7 위험 · 주의 사진 — 온도감지, 이상음향, 계기인식, 누출감지는 디자이너가 준 사진 한 장씩(assets/img/detect-v7/).
+  //   관제 팝오버, 알림 센터, 안전진단이 모두 이 표를 본다. 표에 없는 감지(부분방전, 안전감지)는 예전 그림 그대로.
+  var IMG7 = { "온도감지": "detect-v7/temp.webp", "이상음향": "detect-v7/sound.webp", "계기인식": "detect-v7/gauge.webp", "누출감지": "detect-v7/leak.webp" };
+  function img7(detect) { return IMG7[detect] || null; }   // assets/img/ 아래 경로
+
   window.APRISM_ALERTS7 = {
     list: ALERTS,
+    img: img7,
     sug: sugOf,
     req: req,
     text: text,
