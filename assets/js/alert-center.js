@@ -519,7 +519,7 @@
     slot.hidden = !(state.tab === "done" && state.handover);
 
     if (!rows.length) {
-      list.innerHTML = '<p class="ac-empty t-body-3">조건에 맞는 알림이 없습니다.</p>';
+      list.innerHTML = '<p class="ac-empty t-body-3">' + (V7 ? "조건에 맞는 알림이 없어요" : "조건에 맞는 알림이 없습니다.") + '</p>'   // [11/23 v7] 해요체(관제 빈 목록과 같은 말투);
       renderNth(rows);
       return;
     }
@@ -671,7 +671,7 @@
     var a = alertOf(shown());
     if (!a) {
       detail.innerHTML = '<p class="ac-empty t-body-3">' +
-        (visible().length ? "왼쪽 목록에서 알림을 고르세요." : "표시할 알림이 없습니다.") + '</p>';
+        (V7 ? (visible().length ? "왼쪽 목록에서 알림을 골라요" : "표시할 알림이 없어요") : (visible().length ? "왼쪽 목록에서 알림을 고르세요." : "표시할 알림이 없습니다.")) + '</p>';
       return;
     }
     detail.innerHTML = a.done ? (V6 ? recordHtml6(a) : recordHtml(a)) : (V6 ? openHtml6(a) : openHtml(a));
@@ -841,7 +841,7 @@
       '<section class="ac-record-section">' +
         '<h3 class="t-caption">메모</h3>' +
         '<p class="ac-memo-box t-body-4' + (d.memo ? "" : " ac-memo-empty") + '">' +
-          (d.memo ? esc(d.memo) : "남긴 메모가 없습니다.") + '</p>' +
+          (d.memo ? esc(d.memo) : (V7 ? "남긴 메모가 없어요" : "남긴 메모가 없습니다.")) + '</p>' +
       '</section>' +
 
       '<section class="ac-record-section">' +
@@ -970,7 +970,7 @@
       '<section class="ac-record-section">' +
         '<h3 class="t-caption">메모</h3>' +
         '<p class="ac-memo-box t-body-4' + (d.memo ? "" : " ac-memo-empty") + '">' +
-          (d.memo ? esc(d.memo) : "남긴 메모가 없습니다.") + '</p>' +
+          (d.memo ? esc(d.memo) : (V7 ? "남긴 메모가 없어요" : "남긴 메모가 없습니다.")) + '</p>' +
       '</section>' +
 
       '<section class="ac-record-section">' +
@@ -1029,7 +1029,7 @@
         // [11/10 v7] 조치 요청 기록 한 곳에 남긴다 — 관제 · 안전진단도 요청됨으로 본다
         var S7r = window.APRISM_ALERTS7;
         if (S7r && V6 && S7r.req.find(a.mission, a.detect, a.wp) === a.id) {
-          var now = new Date(), hms = [now.getHours(), now.getMinutes(), now.getSeconds()].map(function (n) { return (n < 10 ? "0" : "") + n; }).join(":");
+          var now = nowDate(), hms = [now.getHours(), now.getMinutes(), now.getSeconds()].map(function (n) { return (n < 10 ? "0" : "") + n; }).join(":");
           a.done.reqId = a.id;
           selfReq = true; S7r.req.set(a.id, { t: hms, how: acts, memo: a.done.memo, who: a.done.by }); selfReq = false;
         }
@@ -1051,8 +1051,20 @@
     return "AI 추천 가운데 일부만 사용 (" + used.join(J) + ")";
   }
 
+  // [11/23 v7] 시안 상단 시계(2026-11-02 10:20:00)에서 흐르는 시각 — 관제(monitor.js clock)와 같다. 실제 시각이면 조치 시각이 어긋났다
+  var T0 = Date.now(), CLK = null;
+  function nowDate() {
+    if (CLK === null) {
+      CLK = 0;
+      if (document.body.classList.contains("ver-7") && document.documentElement.lang !== "en") {
+        var m = /(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/.exec((document.querySelector(".status-bar") || document.body).textContent || "");
+        if (m) { CLK = new Date(+m[1], m[2] - 1, +m[3], +m[4], +m[5], +m[6]).getTime() - T0; }
+      }
+    }
+    return new Date(Date.now() + CLK);
+  }
   function nowHM() {
-    var d = new Date();
+    var d = nowDate();
     return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
   }
 
