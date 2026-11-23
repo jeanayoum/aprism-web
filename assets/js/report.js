@@ -482,8 +482,7 @@
   function renderList() {
     var html = "", n = 0;
     var mt = body.querySelector("[data-rp-mt]");
-    // [11/23 v7] 달 제목은 글자 버튼(Ghost M 32) + 아래 꺾쇠 — 글자만 바꾸고 아이콘은 둠
-    if (document.body.classList.contains("ver-7")) { mt.innerHTML = "<span>2026년 " + vm + "월</span><span class=\"i i-16\" style=\"--i:var(--ic-chevron-down)\" aria-hidden=\"true\"></span>"; } else { mt.textContent = "2026년 " + vm + "월"; }
+    mt.textContent = "2026년 " + vm + "월";   // [11/23 v7] 달 제목은 글자 버튼(Ghost M 32), 꺾쇠 없음
     mt.setAttribute("aria-label", "2026년 " + vm + "월, 날짜로 찾기");
     body.querySelector("[data-rp-next]").disabled = vm >= MAXM;
     if (vm === 10 && moState === "made") { n++; }
