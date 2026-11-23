@@ -1029,7 +1029,7 @@
         // [11/10 v7] 조치 요청 기록 한 곳에 남긴다 — 관제 · 안전진단도 요청됨으로 본다
         var S7r = window.APRISM_ALERTS7;
         if (S7r && V6 && S7r.req.find(a.mission, a.detect, a.wp) === a.id) {
-          var now = new Date(), hms = [now.getHours(), now.getMinutes(), now.getSeconds()].map(function (n) { return (n < 10 ? "0" : "") + n; }).join(":");
+          var now = nowDate(), hms = [now.getHours(), now.getMinutes(), now.getSeconds()].map(function (n) { return (n < 10 ? "0" : "") + n; }).join(":");
           a.done.reqId = a.id;
           selfReq = true; S7r.req.set(a.id, { t: hms, how: acts, memo: a.done.memo, who: a.done.by }); selfReq = false;
         }
@@ -1051,8 +1051,20 @@
     return "AI 추천 가운데 일부만 사용 (" + used.join(J) + ")";
   }
 
+  // [11/23 v7] 시안 상단 시계(2026-11-02 10:20:00)에서 흐르는 시각 — 관제(monitor.js clock)와 같다. 실제 시각이면 조치 시각이 어긋났다
+  var T0 = Date.now(), CLK = null;
+  function nowDate() {
+    if (CLK === null) {
+      CLK = 0;
+      if (document.body.classList.contains("ver-7") && document.documentElement.lang !== "en") {
+        var m = /(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/.exec((document.querySelector(".status-bar") || document.body).textContent || "");
+        if (m) { CLK = new Date(+m[1], m[2] - 1, +m[3], +m[4], +m[5], +m[6]).getTime() - T0; }
+      }
+    }
+    return new Date(Date.now() + CLK);
+  }
   function nowHM() {
-    var d = new Date();
+    var d = nowDate();
     return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
   }
 
