@@ -48,6 +48,8 @@
   };
   // o.face: 면 있는 배지로 (처리 상태처럼 사진, 표 위에서 묻히는 자리, 11/20)
   function statusCls(key, o) {
+    // 조치 진행(응답 대기, 현장 조치 중, 조치 완료)의 면 있는 배지는 테 있는 꼴(.is-progress, 11/23 Figma 1882:9168)
+    if (o && o.face && { wait: 1, work: 1, done: 1 }[key]) { return cls('ds-badge', 'is-progress', 'is-' + key, 'ds-i-progress'); }
     var v = (STATUS[key] || 'neutral dot').split(' ');
     return cls('ds-badge', !(o && o.face) && 'is-plain', 'is-' + v[0], v[1] && 'ds-i-' + v[1]);
   }
