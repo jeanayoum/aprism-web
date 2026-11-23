@@ -2682,7 +2682,7 @@
    */
   var HALO_R = 0.77, HALO_G = "#3BE07A", HALO_GX = 0x3BE07A;
   var HALO_TINT = { alert: 0xff383c, estop: 0xff383c, "return": 0x9ea8bb, pause: 0xffb020 };   // [11/05] 긴급정지도 빨강, 일시정지 노랑(주의 세모 #ffcc00 보다 주황 쪽)
-  var HALO_PAUSE = 0xffb020;   // 그 밖은 초록(HALO_GX). 빨강 = danger/500, 회색 = 복귀 회색(RR_GRAY)
+  var HALO_PAUSE = 0xffb020, HALO_TRACK = "#1F3328", MAP3D_HOME = 0x8894aa;   // 그 밖은 초록(HALO_GX). 빨강 = danger/500, 회색 = 복귀 회색(RR_GRAY)
   var HALO_BREATH = 1800;   // 측정 중 앞 호 밝기 숨 한 번(ms)
   var halo = null;
   function haloArt(light) {
@@ -2697,7 +2697,7 @@
     [-90, 90, 180].forEach(function (a) { arcPath(g, a, 32, R - 10); g.stroke(); });
 
     var ring = pad(); g = ring.g;   // 01 대기 — 어두운 트랙 위에 링 12%
-    g.lineWidth = 12; g.strokeStyle = light ? "rgba(23,128,74,.25)" : "#1F3328"; g.beginPath(); g.arc(0, 0, R, 0, Math.PI * 2); g.stroke();
+    g.lineWidth = 12; g.strokeStyle = light ? "rgba(23,128,74,.25)" : HALO_TRACK; g.beginPath(); g.arc(0, 0, R, 0, Math.PI * 2); g.stroke();
     g.globalAlpha = 0.12; g.strokeStyle = HALO_G; g.beginPath(); g.arc(0, 0, R, 0, Math.PI * 2); g.stroke();
 
     var front = pad(); g = front.g;   // 갈 방향(앞 = +x) — 호만([11/05] 부채꼴 빛은 걷었다)
@@ -3673,7 +3673,7 @@
     var left = ln.parts[1];
     if (left && left.geometry) { left.geometry.setPositions(rrFlat(rrBetween(ln, n, last))); left.computeLineDistances(); }
     if (!ln.home) {   // 돌아가는 길 — 회색 점선(route-rules)
-      ln.home = strand(rrBetween(ln, last, ln.total), 0x8894aa, true);
+      ln.home = strand(rrBetween(ln, last, ln.total), MAP3D_HOME, true);
       ln.home.material.opacity = 0.6;
       ln.home.material.linewidth = 2 * RR.k;
       ln.home.children.forEach(function (ch) { if (ch.material) { ch.material.linewidth = 2 * RR.k; } });
@@ -6938,8 +6938,48 @@
       return out;
     }
   };
-
+
+  /*
+   * [11/23 v7] 3D 지도 색은 공통 CSS 지도 부품(--ds-map3d-*, components-v7.css)에서 읽는다 — 처음 그릴 때 한 번.
+   *   값이 없으면(v6 이하 화면) 이 파일 안 예전 값을 그대로 쓴다. 다크와 라이트 값은 이름을 따로 둔다(light-*).
+   */
+  function syncMap3d() {
+    var cs = getComputedStyle(document.body);
+    if (!cs.getPropertyValue("--ds-map3d-floor").trim()) { return; }
+    var probe = document.createElement("i"); probe.style.display = "none"; document.body.appendChild(probe);
+    function hx(n, d) {
+      var v = cs.getPropertyValue("--ds-map3d-" + n).trim(); if (!v) { return d; }
+      probe.style.color = ""; probe.style.color = v; var m = getComputedStyle(probe).color.match(/[\d.]+/g);
+      return m ? ((Math.round(+m[0]) << 16) | (Math.round(+m[1]) << 8) | Math.round(+m[2])) : d;
+    }
+    function css(n) { return "#" + ("00000" + n.toString(16)).slice(-6); }
+    ["floor", "wall", "equipment", "stairs", "other"].forEach(function (k) { PALETTE[k].face = hx(k, PALETTE[k].face); LIGHT.face[k] = hx("light-" + k, LIGHT.face[k]); });
+    EDGE = hx("edge", EDGE); GHOST = hx("ghost", GHOST); GRID = hx("grid", GRID);
+    PICK_FACE = hx("pick-face", PICK_FACE); PICK_LINE = hx("pick-line", PICK_LINE); HOVER_LINE = hx("hover-line", HOVER_LINE);
+    LIGHT.edge = hx("light-edge", LIGHT.edge); LIGHT.ghost = hx("light-ghost", LIGHT.ghost); LIGHT.grid = hx("light-grid", LIGHT.grid);
+    LIGHT.pickFace = hx("light-pick-face", LIGHT.pickFace); LIGHT.pickLine = hx("light-pick-line", LIGHT.pickLine); LIGHT.hoverLine = hx("light-hover-line", LIGHT.hoverLine);
+    var ST = { "수행중": "run", "완료": "done", "대기": "idle", "끊김": "lost" };
+    Object.keys(ST).forEach(function (k) { ["done", "left", "dot", "mark"].forEach(function (p) {
+      if (BOT_TINT[k] && BOT_TINT[k][p] != null) { BOT_TINT[k][p] = hx(ST[k] + "-" + p, BOT_TINT[k][p]); }
+      if (BOT_TINT_LIGHT[k] && BOT_TINT_LIGHT[k][p] != null) { BOT_TINT_LIGHT[k][p] = hx("light-" + ST[k] + "-" + p, BOT_TINT_LIGHT[k][p]); }
+    }); });
+    // 경로 바탕 색(로봇 상태색을 받기 전 바탕): 예전 값으로 A(파랑) B(초록) C(노랑) 끝난 미션을 가름
+    var BASE = { 0x89b9ed: "path-a", 0x34c759: "path-b", 0xffcc00: "path-c" };
+    ROBOTS.forEach(function (r) { if (!r) { return; }
+      if (r.ended) { r.done = r.left = hx("path-ended", r.done); return; }
+      var key = BASE[r.done]; if (!key) { return; }
+      r.done = hx(key + "-done", r.done); r.left = hx(key + "-left", r.left); r.dot = hx(key + "-dot", r.dot); });
+    ["safe", "caution", "danger", "current", "upcoming", "skipped"].forEach(function (k) { WP_TINT[k] = hx("wp-" + k, WP_TINT[k]); });
+    ["safe", "caution", "current"].forEach(function (k) { WP_TINT_LIGHT[k] = hx("light-wp-" + k, WP_TINT_LIGHT[k]); });
+    WP_HALO = hx("wp-ring", WP_HALO);
+    HALO_GX = hx("halo-run", HALO_GX); HALO_G = css(HALO_GX);
+    HALO_TINT.alert = HALO_TINT.estop = hx("halo-alert", HALO_TINT.alert); HALO_TINT["return"] = hx("halo-return", HALO_TINT["return"]);
+    HALO_PAUSE = HALO_TINT.pause = hx("halo-pause", HALO_PAUSE); HALO_TRACK = css(hx("halo-track", 0x1f3328));
+    MAP3D_HOME = hx("home", MAP3D_HOME);
+    probe.remove();
+  }
   function start(three, utils, gltf) {
+    syncMap3d();   // [11/23 v7] 공통 CSS 3D 지도 색
     THREE = three;
     merge = utils.mergeGeometries;
     tone = new THREE.Color();

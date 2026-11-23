@@ -209,6 +209,63 @@
   --font-family-sans: "SUIT Variable", "SUIT", -apple-system, "Segoe UI", system-ui, sans-serif;
   /* 수치·코드·기술 라벨 전용. 한글은 글자가 없어 SUIT 로 자동 대체된다. */
   --font-family-mono: "JetBrains Mono", "SUIT Variable", ui-monospace, monospace;
+  /* 3D 지도 전용 색(11/23): map-v6.js 에 직접 적혀 있던 값 중 토큰에 없던 것을 그대로 토큰으로. 공통 CSS 지도 부품 --ds-map3d-* 가 씀 */
+  --color-map3d-floor: #18202E;
+  --color-map3d-wall: #3A475F;
+  --color-map3d-equipment: #41506A;
+  --color-map3d-stairs: #34405A;
+  --color-map3d-other: #36435A;
+  --color-map3d-edge: #7B8FB4;
+  --color-map3d-ghost: #6A7890;
+  --color-map3d-grid: #1F2A3C;
+  --color-map3d-hover-line: #9AA1AE;
+  --color-map3d-l-floor: #BFC4CC;
+  --color-map3d-l-wall: #DFE2E6;
+  --color-map3d-l-equipment: #E1E4E8;
+  --color-map3d-l-stairs: #D8DBDF;
+  --color-map3d-l-edge: #868C93;
+  --color-map3d-l-ghost: #F2F4F5;
+  --color-map3d-l-grid: #C4C9D1;
+  --color-map3d-l-pick-face: #CFE0FF;
+  --color-map3d-l-pick-line: #1D5FD6;
+  --color-map3d-l-hover-line: #5B6577;
+  --color-map3d-run-left: #4DB2FF;
+  --color-map3d-idle-done: #8894AA;
+  --color-map3d-idle-left: #5D6675;
+  --color-map3d-idle-dot: #AEB8C8;
+  --color-map3d-l-run-done: #4B5563;
+  --color-map3d-l-run-left: #138DEB;
+  --color-map3d-l-run-dot: #2B2F36;
+  --color-map3d-l-wp-caution: #F2A900;
+  --color-map3d-halo-run: #3BE07A;
+  --color-map3d-halo-pause: #FFB020;
+  --color-map3d-halo-track: #1F3328;
+  /* 지도 위 HTML 층 색(11/23): map-overlays.css, route-rules.css 에 직접 적혀 있던 값 중 토큰에 없던 것을 그대로 토큰으로 */
+  --color-map-2: rgba(0, 0, 0, 0.45);
+  --color-map-3: rgba(7, 10, 16, 0.88);
+  --color-map-4: #2a3446;
+  --color-map-5: rgba(7, 10, 16, 0.82);
+  --color-map-6: rgba(7, 10, 16, 0.85);
+  --color-map-10: rgb(0 0 0 / 55%);
+  --color-map-12: rgba(255, 255, 255, 0);
+  --color-map-13: rgba(255, 255, 255, .95);
+  --color-map-15: #e4e8ef;
+  --color-map-16: rgba(127, 127, 127, .3);
+  --color-map-17: #2b3445;
+  --color-map-18: rgba(255, 56, 60, .5);
+  --color-map-19: #ff8a8d;
+  --color-map-20: #1a1300;
+  --color-map-21: #c5ccd8;
+  --color-map-22: #0a0f18;
+  --color-map-23: rgba(52, 199, 89, .14);
+  --color-map-24: #c8f0d4;
+  --color-map-25: #f2f4f7;
+  --color-map-26: #2a2f38;
+  --color-map-27: #e8f8ee;
+  --color-map-28: #155c2c;
+  --color-map-29: rgba(255, 56, 60, .35);
+  --color-map-30: rgba(255, 56, 60, .06);
+  --color-map-31: rgba(137, 185, 237, .35);
 }
 
 /*

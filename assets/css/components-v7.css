@@ -623,6 +623,177 @@ body.ver-7 .ds-mappop > .ds-mappop-head { display: flex !important; align-items:
 body.ver-7 .ds-mappop-head > .map-card-name { flex: 1 1 auto; min-width: 0; font-size: var(--ds-mappop-name-size) !important; line-height: var(--ds-mappop-name-line) !important; font-weight: var(--font-weight-bold) !important; }
 body.ver-7 .ds-mappop > .map-card-photo { margin: calc(var(--ds-mappop-gap) * -1) calc(var(--ds-mappop-pad) * -1) 0 !important; }
 
+/* ---------- 지도 부품: 3D 지도 색 (11/23, 관제 3D 지도 map-v6.js) ----------
+ * 바닥, 벽, 설비 면과 선, 로봇 상태별 경로선(수행중, 완료, 대기, 끊김), 경로 바탕 색, 지점 표식, 로봇 아래 불빛. 다크와 라이트 값을 이름으로 따로 둠(3D 지도가 테마별 표를 따로 씀)
+ * map-v6.js 가 처음 그릴 때 이 값을 읽어 씀(없으면 JS 안 예전 값). 값은 지금 화면과 같은 색, 토큰에 없던 색은 --color-map3d-* 토큰으로 추가 */
+body.ver-7 {
+  --ds-map3d-floor: var(--color-map3d-floor);   /* 바닥 면 */
+  --ds-map3d-wall: var(--color-map3d-wall);   /* 벽 면 */
+  --ds-map3d-equipment: var(--color-map3d-equipment);   /* 설비 면 */
+  --ds-map3d-stairs: var(--color-map3d-stairs);   /* 계단 면 */
+  --ds-map3d-other: var(--color-map3d-other);   /* 그 밖 면 */
+  --ds-map3d-edge: var(--color-map3d-edge);   /* 외곽선 */
+  --ds-map3d-ghost: var(--color-map3d-ghost);   /* 비칠 때 다가가는 색 */
+  --ds-map3d-grid: var(--color-map3d-grid);   /* 바닥 격자 */
+  --ds-map3d-pick-face: var(--color-gray-400);   /* 고른 설비 면 */
+  --ds-map3d-pick-line: var(--color-gray-200);   /* 고른 설비 외곽선 */
+  --ds-map3d-hover-line: var(--color-map3d-hover-line);   /* 올린 설비 외곽선 */
+  --ds-map3d-light-floor: var(--color-map3d-l-floor);   /* 라이트 바닥 면 */
+  --ds-map3d-light-wall: var(--color-map3d-l-wall);   /* 라이트 벽 면 */
+  --ds-map3d-light-equipment: var(--color-map3d-l-equipment);   /* 라이트 설비 면 */
+  --ds-map3d-light-stairs: var(--color-map3d-l-stairs);   /* 라이트 계단 면 */
+  --ds-map3d-light-other: var(--color-map3d-l-wall);   /* 라이트 그 밖 면 */
+  --ds-map3d-light-edge: var(--color-map3d-l-edge);   /* 라이트 외곽선 */
+  --ds-map3d-light-ghost: var(--color-map3d-l-ghost);   /* 라이트 비칠 때 색 */
+  --ds-map3d-light-grid: var(--color-map3d-l-grid);   /* 라이트 격자 */
+  --ds-map3d-light-pick-face: var(--color-map3d-l-pick-face);   /* 라이트 고른 설비 면 */
+  --ds-map3d-light-pick-line: var(--color-map3d-l-pick-line);   /* 라이트 고른 설비 외곽선 */
+  --ds-map3d-light-hover-line: var(--color-map3d-l-hover-line);   /* 라이트 올린 설비 외곽선 */
+  --ds-map3d-run-done: var(--color-gray-450);   /* 수행중 지나온 길 */
+  --ds-map3d-run-left: var(--color-map3d-run-left);   /* 수행중 갈 길 */
+  --ds-map3d-run-dot: var(--color-gray-0);   /* 수행중 점 */
+  --ds-map3d-run-mark: var(--color-gray-50);   /* 수행중 로봇 표식 */
+  --ds-map3d-done-done: var(--color-green-300);   /* 완료 지나온 길 */
+  --ds-map3d-done-left: var(--color-green-500);   /* 완료 갈 길 */
+  --ds-map3d-done-dot: var(--color-green-200);   /* 완료 점 */
+  --ds-map3d-idle-done: var(--color-map3d-idle-done);   /* 대기 지나온 길 */
+  --ds-map3d-idle-left: var(--color-map3d-idle-left);   /* 대기 갈 길 */
+  --ds-map3d-idle-dot: var(--color-map3d-idle-dot);   /* 대기 점 */
+  --ds-map3d-lost-done: var(--color-gray-500);   /* 끊김 지나온 길 */
+  --ds-map3d-lost-left: var(--color-gray-600);   /* 끊김 갈 길 */
+  --ds-map3d-lost-dot: var(--color-map3d-idle-done);   /* 끊김 점 */
+  --ds-map3d-light-run-done: var(--color-map3d-l-run-done);   /* 라이트 수행중 지나온 길 */
+  --ds-map3d-light-run-left: var(--color-map3d-l-run-left);   /* 라이트 수행중 갈 길 */
+  --ds-map3d-light-run-dot: var(--color-map3d-l-run-dot);   /* 라이트 수행중 점 */
+  --ds-map3d-light-run-mark: var(--color-map3d-l-run-dot);   /* 라이트 수행중 로봇 표식 */
+  --ds-map3d-light-done-done: var(--color-green-500);   /* 라이트 완료 지나온 길 */
+  --ds-map3d-light-done-left: var(--color-green-300);   /* 라이트 완료 갈 길 */
+  --ds-map3d-light-done-dot: var(--color-green-500);   /* 라이트 완료 점 */
+  --ds-map3d-light-idle-done: var(--color-map3d-idle-left);   /* 라이트 대기 지나온 길 */
+  --ds-map3d-light-idle-left: var(--color-map3d-idle-done);   /* 라이트 대기 갈 길 */
+  --ds-map3d-light-idle-dot: var(--color-map3d-idle-left);   /* 라이트 대기 점 */
+  --ds-map3d-light-lost-done: var(--color-gray-600);   /* 라이트 끊김 지나온 길 */
+  --ds-map3d-light-lost-left: var(--color-gray-500);   /* 라이트 끊김 갈 길 */
+  --ds-map3d-light-lost-dot: var(--color-gray-600);   /* 라이트 끊김 점 */
+  --ds-map3d-path-a-done: var(--color-blue-400);   /* 경로 바탕 A 지나온 길 */
+  --ds-map3d-path-a-left: var(--color-blue-600);   /* 경로 바탕 A 갈 길 */
+  --ds-map3d-path-a-dot: var(--color-blue-200);   /* 경로 바탕 A 점 */
+  --ds-map3d-path-b-done: var(--color-green-300);   /* 경로 바탕 B 지나온 길 */
+  --ds-map3d-path-b-left: var(--color-green-500);   /* 경로 바탕 B 갈 길 */
+  --ds-map3d-path-b-dot: var(--color-green-200);   /* 경로 바탕 B 점 */
+  --ds-map3d-path-c-done: var(--color-yellow-500);   /* 경로 바탕 C 지나온 길(노랑, 주의색과 같음) */
+  --ds-map3d-path-c-left: var(--color-yellow-300);   /* 경로 바탕 C 갈 길 */
+  --ds-map3d-path-c-dot: var(--color-yellow-200);   /* 경로 바탕 C 점 */
+  --ds-map3d-path-ended: var(--color-gray-450);   /* 끝난 미션 지나온 길 */
+  --ds-map3d-home: var(--color-map3d-idle-done);   /* 복귀 길 */
+  --ds-map3d-wp-safe: var(--color-green-300);   /* 지점 정상 */
+  --ds-map3d-wp-caution: var(--color-yellow-500);   /* 지점 주의 */
+  --ds-map3d-wp-danger: var(--color-red-500);   /* 지점 위험 */
+  --ds-map3d-wp-current: var(--color-map3d-run-left);   /* 지점 지금 */
+  --ds-map3d-wp-upcoming: var(--color-map3d-idle-done);   /* 지점 예정 */
+  --ds-map3d-wp-skipped: var(--color-gray-600);   /* 지점 건너뜀 */
+  --ds-map3d-light-wp-safe: var(--color-green-400);   /* 라이트 지점 정상 */
+  --ds-map3d-light-wp-caution: var(--color-map3d-l-wp-caution);   /* 라이트 지점 주의 */
+  --ds-map3d-light-wp-current: var(--color-map3d-l-run-left);   /* 라이트 지점 지금 */
+  --ds-map3d-wp-ring: var(--color-gray-0);   /* 고른 지점 바깥 고리 */
+  --ds-map3d-halo-run: var(--color-map3d-halo-run);   /* 로봇 아래 불빛 기본(수행) */
+  --ds-map3d-halo-alert: var(--color-red-500);   /* 로봇 불빛 위험 감지, 긴급정지 */
+  --ds-map3d-halo-return: var(--color-gray-450);   /* 로봇 불빛 자동복귀 */
+  --ds-map3d-halo-pause: var(--color-map3d-halo-pause);   /* 로봇 불빛 일시정지 */
+  --ds-map3d-halo-track: var(--color-map3d-halo-track);   /* 로봇 불빛 대기 고리(다크) */
+}
+/* ---------- 지도 부품: 지도 위 HTML 층 색 (11/23, 도크, 층 이동 알약, 계단 꼬리표, 평면 지점, 로봇 표식 점, 도크 상자, 경로 규칙 표시) ----------
+ * 규칙 틀은 map-overlays.css(--ds-map-ov-*), route-rules.css(--ds-map-rr-*) 에 그대로 두고(v6 도 씀), 색만 이 값을 가리킴. v6 은 값이 없어 파일 안 예전 색 그대로
+ * 값은 지금 화면과 같은 색. 토큰에 없던 색은 --color-map-* 토큰으로 추가. 시연용 움직임 시뮬레이션 판(.rsim)은 뺌 */
+body.ver-7 {
+  --ds-map-ov-pill-shadow: var(--color-map-2);   /* map-overlays .tr-pill box-shadow */
+  --ds-map-ov-badge-bg: var(--color-map-3);   /* map-overlays .tr-badge background */
+  --ds-map-ov-chip-before-bg: var(--color-green-300);   /* map-overlays .tr-chip::before background */
+  --ds-map-ov-floor-is-arriving-before-fg: var(--color-green-300);   /* map-overlays .map-floor.is-arriving::before color */
+  --ds-map-ov-floor-is-moving-ring: var(--color-green-300);   /* map-overlays .map-floor.is-moving outline */
+  --ds-map-ov-stair-tag-bg: var(--color-map-5);   /* map-overlays .stair-tag background */
+  --ds-map-ov-stair-tag-fg: var(--color-blue-200);   /* map-overlays .stair-tag color */
+  --ds-map-ov-dock-ic-bg-2: var(--color-map-4);   /* map-overlays .map-dock-ic background */
+  --ds-map-ov-dock-ic-shadow: var(--color-map-2);   /* map-overlays .map-dock-ic box-shadow */
+  --ds-map-ov-dock-ic-after-bg: var(--color-gray-200);   /* map-overlays .map-dock-ic::after background */
+  --ds-map-ov-dock-txt-bg: var(--color-map-6);   /* map-overlays .map-dock-txt background */
+  --ds-map-ov-dock-txt-fg: var(--color-gray-300);   /* map-overlays .map-dock-txt color */
+.map-plan-wp:hover,
+.map-plan-wp:focu background */
+  --ds-map-ov-plan-wp-is-hot-fg: var(--color-gray-0);   /* map-overlays .map-plan-wp.is-hot,
+.map-plan-wp:hover,
+.map-plan-wp:focu color */
+.map-plan-wp.is-skip:hover border-color */
+  --ds-map-ov-plan-arrow-glow: var(--color-map-10);   /* map-overlays .map-plan-arrow filter */
+  --ds-map-rr-timeline-item-is-running-rail-line-bg-1: var(--color-map-12);   /* route-rules .rr-flow .timeline-item.is-done:has(+ .timeline-item.is-runn background-image */
+  --ds-map-rr-timeline-item-is-running-rail-line-bg-2: var(--color-map-13);   /* route-rules .rr-flow .timeline-item.is-done:has(+ .timeline-item.is-runn background-image */
+  --ds-map-rr-timeline-item-is-running-rail-line-bg-3: var(--color-map-12);   /* route-rules .rr-flow .timeline-item.is-done:has(+ .timeline-item.is-runn background-image */
+  --ds-map-rr-bot-estop-bot-dot-bg: var(--color-red-500);   /* route-rules .map-bot[data-rr="estop"] .map-bot-dot background-color */
+  --ds-map-rr-bot-return-bot-dot-bg: var(--color-map-15);   /* route-rules .map-bot[data-rr="return"] .map-bot-dot background-color */
+  --ds-map-rr-dock-dock-box-stroke: var(--color-map3d-idle-done);   /* route-rules .rr-dock .rr-dock-box stroke */
+  --ds-map-rr-dock-dock-bolt-fill: var(--color-map3d-idle-done);   /* route-rules .rr-dock .rr-dock-bolt fill */
+  --ds-map-rr-dock-return-dock-box-stroke: var(--color-map-15);   /* route-rules .rr-dock[data-rr="return"] .rr-dock-box stroke */
+  --ds-map-rr-dock-return-dock-bolt-fill: var(--color-map-15);   /* route-rules .rr-dock[data-rr="return"] .rr-dock-bolt fill */
+  --ds-map-rr-dock-return-dock-pulse-stroke: var(--color-map-15);   /* route-rules .rr-dock[data-rr="return"] .rr-dock-pulse stroke */
+  --ds-map-rr-dock-done-dock-box-fill: var(--color-green-300);   /* route-rules .rr-dock[data-rr="done"] .rr-dock-box fill */
+  --ds-map-rr-dock-done-dock-pulse-stroke: var(--color-green-300);   /* route-rules .rr-dock[data-rr="done"] .rr-dock-pulse stroke */
+  --ds-map-rr-ring-stroke: var(--color-gray-450);   /* route-rules .rr-ring path stroke */
+  --ds-map-rr-note-trk-stroke: var(--color-map-16);   /* route-rules .rr-note .trk stroke */
+  --ds-map-rr-note-val-stroke: var(--color-blue-650);   /* route-rules .rr-note .val stroke */
+  --ds-map-rr-resume-bg: var(--color-blue-650);   /* route-rules .rr-resume background */
+  --ds-map-rr-resume-fg: var(--color-gray-0);   /* route-rules .rr-resume color */
+  --ds-map-rr-band-bg: var(--color-red-500);   /* route-rules .rr-band background */
+  --ds-map-rr-band-fg: var(--color-gray-0);   /* route-rules .rr-band color */
+  --ds-map-rr-bot-return-bot-dot-bg-2: var(--color-map-15);   /* route-rules .map-bot[data-rr="return"] .map-bot-dot background-color */
+  --ds-map-rr-light-bot-return-bot-dot-bg: var(--color-map-17);   /* route-rules :root[data-theme="light"] .map-bot[data-rr="return"] .map-bo background-color */
+  --ds-map-rr-light-dock-return-dock-box-stroke: var(--color-map-17);   /* route-rules :root[data-theme="light"] .rr-dock[data-rr="return"] .rr-doc stroke */
+  --ds-map-rr-light-dock-return-dock-bolt-fill: var(--color-map-17);   /* route-rules :root[data-theme="light"] .rr-dock[data-rr="return"] .rr-doc fill */
+  --ds-map-rr-home-rail-dot-fg: var(--color-map-15);   /* route-rules .rr-home .rail-dot color */
+  --ds-map-rr-alert-pulse-bg: var(--color-map-18);   /* route-rules .rr-alert-pulse background */
+  --ds-map-rr-pause-trk-stroke: var(--color-gray-450);   /* route-rules .rr-pause .trk stroke */
+  --ds-map-rr-pause-go-fill: var(--color-gray-0);   /* route-rules .rr-pause-go path fill */
+  --ds-map-rr-pause-go-focus-visible-ring: var(--color-gray-0);   /* route-rules .rr-pause-go:focus-visible outline */
+  --ds-map-rr-dock-dock-slot-stroke: var(--color-map3d-idle-done);   /* route-rules .rr-dock .rr-dock-slot stroke */
+  --ds-map-rr-dock-dock-badge-fill: var(--color-map3d-idle-done);   /* route-rules .rr-dock .rr-dock-badge fill */
+  --ds-map-rr-dock-is-docked-done-dock-slot-stroke: var(--color-green-300);   /* route-rules .rr-dock.is-docked[data-rr="done"] .rr-dock-slot stroke */
+  --ds-map-rr-dock-is-docked-done-dock-bot-fill: var(--color-gray-450);   /* route-rules .rr-dock.is-docked[data-rr="done"] .rr-dock-bot fill */
+  --ds-map-rr-dock-is-docked-done-dock-badge-fill: var(--color-green-300);   /* route-rules .rr-dock.is-docked[data-rr="done"] .rr-dock-badge fill */
+  --ds-map-rr-wpnum-fg: var(--color-gray-450);   /* route-rules .rr-wpnum color */
+  --ds-map-rr-wpnum-caution-fg: var(--color-map-20);   /* route-rules .rr-wpnum[data-tone="caution"] color */
+  --ds-map-rr-wpnum-danger-fg: var(--color-gray-0);   /* route-rules .rr-wpnum[data-tone="danger"] color */
+  --ds-map-rr-light-root-light-wpnum-fg: var(--color-gray-500);   /* route-rules :root[data-theme="light"] .rr-wpnum color */
+  --ds-map-rr-light-root-light-wpnum-safe-fg: var(--color-gray-0);   /* route-rules :root[data-theme="light"] .rr-wpnum[data-tone="safe"] color */
+  --ds-map-rr-wpnum-fg-2: var(--color-map-21);   /* route-rules .rr-wpnum color */
+  --ds-map-rr-light-root-light-wpnum-fg-2: var(--color-gray-600);   /* route-rules :root[data-theme="light"] .rr-wpnum color */
+  --ds-map-rr-light-root-light-wpnum-tshadow-1: var(--color-gray-0);   /* route-rules :root[data-theme="light"] .rr-wpnum text-shadow */
+  --ds-map-rr-light-root-light-wpnum-tshadow-2: var(--color-gray-0);   /* route-rules :root[data-theme="light"] .rr-wpnum text-shadow */
+  --ds-map-rr-label-fg: var(--color-map-21);   /* route-rules .rr-label color */
+  --ds-map-rr-label-tshadow-1: var(--color-map-22);   /* route-rules .rr-label text-shadow */
+  --ds-map-rr-label-tshadow-2: var(--color-map-22);   /* route-rules .rr-label text-shadow */
+  --ds-map-rr-light-root-light-label-fg: var(--color-gray-600);   /* route-rules :root[data-theme="light"] .rr-label color */
+  --ds-map-rr-light-root-light-label-tshadow-1: var(--color-gray-0);   /* route-rules :root[data-theme="light"] .rr-label text-shadow */
+  --ds-map-rr-light-root-light-label-tshadow-2: var(--color-gray-0);   /* route-rules :root[data-theme="light"] .rr-label text-shadow */
+  --ds-map-rr-banner-is-lost-line: var(--color-gray-450);   /* route-rules .rr-banner.is-lost border-left */
+  --ds-map-rr-banner-is-lost-fg: var(--color-map-21);   /* route-rules .rr-banner.is-lost color */
+  --ds-map-rr-banner-is-done-bg: var(--color-map-23);   /* route-rules .rr-banner.is-done background */
+  --ds-map-rr-banner-is-done-line: var(--color-green-300);   /* route-rules .rr-banner.is-done border-left */
+  --ds-map-rr-banner-is-done-fg: var(--color-map-24);   /* route-rules .rr-banner.is-done color */
+  --ds-map-rr-light-root-light-banner-is-lost-bg: var(--color-map-25);   /* route-rules :root[data-theme="light"] .rr-banner.is-lost background */
+  --ds-map-rr-light-root-light-banner-is-lost-fg: var(--color-map-26);   /* route-rules :root[data-theme="light"] .rr-banner.is-lost color */
+  --ds-map-rr-light-root-light-banner-is-done-bg: var(--color-map-27);   /* route-rules :root[data-theme="light"] .rr-banner.is-done background */
+  --ds-map-rr-light-root-light-banner-is-done-fg: var(--color-map-28);   /* route-rules :root[data-theme="light"] .rr-banner.is-done color */
+  --ds-map-rr-sig-lost-fg: var(--color-map-19);   /* route-rules .rr-sig-lost color */
+  --ds-map-rr-bot-estop-bot-halo-bg-1: var(--color-map-29);   /* route-rules .map-bot[data-rr="estop"] .map-bot-halo background */
+  --ds-map-rr-bot-estop-bot-halo-bg-2: var(--color-map-30);   /* route-rules .map-bot[data-rr="estop"] .map-bot-halo background */
+  --ds-map-rr-bot-estop-bot-halo-line: var(--color-red-500);   /* route-rules .map-bot[data-rr="estop"] .map-bot-halo border */
+  --ds-map-rr-bot-bot-dot-line-2: var(--color-gray-0);   /* route-rules .map-bot .map-bot-dot border-color */
+  --ds-map-rr-bot-pause-bot-dot-line-1: var(--color-gray-450);   /* route-rules .map-bot[data-rr="pause"] .map-bot-dot border-color */
+  --ds-map-rr-bot-pause-bot-dot-line-2: var(--color-gray-0);   /* route-rules .map-bot[data-rr="pause"] .map-bot-dot border-color */
+  --ds-map-rr-bot-estop-bot-dot-line-1: var(--color-red-500);   /* route-rules .map-bot[data-rr="estop"] .map-bot-dot border-color */
+  --ds-map-rr-bot-estop-bot-dot-line-2: var(--color-gray-0);   /* route-rules .map-bot[data-rr="estop"] .map-bot-dot border-color */
+  --ds-map-rr-bot-return-bot-dot-line: var(--color-gray-0);   /* route-rules .map-bot[data-rr="return"] .map-bot-dot border-color */
+  --ds-map-rr-pin-is-next-pin-head-shadow: var(--color-map-31);   /* route-rules .rr-pin.is-next .rr-pin-head box-shadow */
+}
 /* ---------- 지도 부품: 층 꼬리표 .ds-floor-tag, 층 미션 카드 .ds-floor-mission (11/23, 전체 미션 건물 그림). 예전 building.css, v6.css 값 그대로(안쪽 6 → 4 만 토큰으로) ----------
  * 층 꼬리표: 지시선 32(테 1 text/tertiary, 올린 층 text/primary) + 글 묶음(줄 사이 2), 사이 8, 층 번호 20/28 고정폭. 초점 테 2 border/focus 바깥 4
  * 층 미션 카드: 모서리 4, 면 bg/cell 92% + 흐림 6, 테 1 투명(올림 --border-strong), 안쪽 0, 사이 4, 머리 안쪽 4/8 사이 4(예전 6) */
