@@ -427,7 +427,7 @@ body.ver-7 .sf .rqp-st i { position: relative; z-index: 1; width: 12px; height: 
 body.ver-7 .sf .rqp-st li.is-past i { border-color: var(--status-info-icon); background-color: var(--status-info-icon); }
 body.ver-7 .sf .rqp-st li.is-now i { border-color: var(--status-info-icon); background-color: var(--bg-raised); box-shadow: 0 0 0 4px color-mix(in srgb, var(--status-info-icon) 24%, transparent); }
 body.ver-7 .sf .rqp-st.is-wait li.is-now i { animation: rqp-pulse 1.6s ease-in-out infinite; }
-body.ver-7 .sf .rqp-st.is-done li.is-now i { border-color: var(--status-safe-icon); background-color: var(--status-safe-icon); box-shadow: none; }
+body.ver-7 .sf .rqp-st.is-done li.is-now i { border-color: var(--text-tertiary); background-color: var(--text-tertiary); box-shadow: none; }   /* [11/23 디자이너] 조치 완료는 회색 */
 body.ver-7 .sf .rqp-st li div { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
 body.ver-7 .sf .rqp-st b { font-size: var(--font-size-14); line-height: var(--font-line-height-22); font-weight: 700; color: var(--text-tertiary); }
 body.ver-7 .sf .rqp-st li.is-past b { font-weight: 400; color: var(--text-secondary); }
