@@ -261,7 +261,7 @@
     const cond = !isHit ? `<span class="why1">기준: ${STD[k]}</span>` : cd && !isNaN(num) ? (() => { const [lo, hi, w2, c2, u] = cd, p = q => Math.max(0, Math.min(100, (q - lo) / (hi - lo) * 100)).toFixed(1);
         return `<span class="sm2 ${st}">${x[1].includes(String(num)) ? '' : num + u + ', '}${num >= c2 ? '위험 기준 ' + c2 + u + ' 초과' : '주의 기준 ' + w2 + u + ' 초과'}</span><div class="trk"><span class="f ${st}" style="width:${p(num)}%"></span><span class="m w" style="left:${p(w2)}%"><span>주의 ${w2}${u}</span></span><span class="m c" style="left:${p(c2)}%"><span>위험 ${c2}${u}</span></span></div><span class="why1">기준: ${STD[k]}</span>`; })()
       : `<span class="why1">기준: ${STD[k]}</span>`;
-    const SG = (mi===0 && SUG0[k]) || SUG[k];
+    const SG = (V7 && window.APRISM_ALERTS7 && window.APRISM_ALERTS7.sug && window.APRISM_ALERTS7.sug(m.mis, k)) || (mi===0 && SUG0[k]) || SUG[k];   // [11/23] v7 은 공용 표(alert-data-v7.js)
     const prevAct = (SG ? SG[1][0][0] : '현장 조치').replace(/ 요청$/, '') + ' 요청';
     const nowAct = !isHit ? (st==='plan' ? '' : '조치 없음') : st==='done' ? (x[4] || '10:17') + ' ' + RQ_DONE : '';
     // [11/02 v6] 지난 순회 날짜 — 상태바 시계(2026-11-02 = 오늘)보다 앞(예전 10/22 · 10/23 은 오늘보다 뒤였다)
