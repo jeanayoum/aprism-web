@@ -75,7 +75,7 @@
 
     { id: "A-8", sev: "warning", day: "today", time: "09:20:14", stamp: T + "09:20:14",
       title: "온도감지 · 최고 온도 68.4 ℃", res: ["최고 온도", "68.4 ℃"], floor: "B3", wp: "WP-02", place: "발전기 베어링",
-      mission: "발전기실 설비 점검", detect: "온도감지", robot: "Robot 05", img: "alert/wp02-temp-684.webp",
+      mission: "발전기실 설비 점검", detect: "온도감지", robot: "Robot 05", img: "alert/wp02-temp-684-ir.png",
       why: ["표면 온도 68.4 ℃ · 주의 기준 65 ℃ 초과", "주변 온도보다 31 ℃ 높음", "어제 09:00 에도 주의(66.1 ℃) — 부하 감소 뒤에도 다시 오름"],
       lead: "윤활 상태 점검을 요청하세요.", fp: 25, fpLabel: "보통",
       acts: [{ t: "윤활 상태 점검 요청", delta: true }, { t: "열화상 재촬영" }, { t: "추이 관찰" }] },

@@ -1158,6 +1158,7 @@
       "압력 편차 · N₂ 배관 압력계": "alert/wp04-gauge-n2.webp"
     };
     function liveSrc(a) {
+      if (a.title === "과열 · 발전기 베어링 68.4℃" && body.classList.contains("ver-6")) { return "../assets/img/alert/wp02-temp-684-ir.png"; }   // [11/23 v7] 발전기 베어링 68.4 ℃ 는 새 열화상(v5 이하는 예전 그림)
       if (SHOT[a.title]) { return "../assets/img/" + SHOT[a.title]; }
       if (useDeid && a.live === "ppe") { return "../assets/img/alert-live-deid-grid.webp?v=12"; }   // 그림을 바꾸면 v 를 올린다(캐시)
       return "../assets/img/alert-live-" + a.live + ".webp";

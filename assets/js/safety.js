@@ -31,6 +31,7 @@
   //   0 정기 순회 점검은 기본(MDF), 1 전기실 열화상 점검 · 2 발전기실 설비 점검에서 겹치던 칸만 새로 만든 그림을 쓴다.
   const MV = {'1|부분방전|warn':'m1_pd_warn.png', '2|온도감지|warn':'m2_temp_warn.jpg', '2|이상음향|ok':'m2_sound_ok.jpg', '2|안전감지|ok':'m2_safety_na.jpg'};
   const MD = (k, st, mi) => { const s3 = st==='crit' ? 'crit' : st==='warn' || st==='done' ? 'warn' : 'ok';
+    if (String(mi) === '2' && k === '온도감지' && s3 === 'warn' && document.body.classList.contains('ver-6')) { return ['', '<img src="../assets/img/alert/wp02-temp-684-ir.png" alt="">']; }   // [11/23 v7] 발전기 베어링 68.4 ℃ 새 열화상
     return ['', `<img src="../assets/img/safety/${MV[mi + '|' + k + '|' + s3] || MDF[k].replace('%', s3)}" alt="">`]; };
 
   // 연관 감지 근거(시안용 예시): 계통 정보와 함께 움직이는 감지 짝. [원인 쪽 감지, 영향 쪽 감지, 근거, 가능성]
