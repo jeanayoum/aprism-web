@@ -53,6 +53,7 @@
   // 정기 순회 점검은 B4 만 돌고, 층을 건너는 예시는 발전기실 설비 점검(Robot 05, B3 → B4)이다.
   var V3 = body.classList.contains("ver-3");
   var V6 = body.classList.contains("ver-6");
+  var V7B = body.classList.contains("ver-7") && document.documentElement.lang !== "en";   // [11/23 정의서 관제화면-03 Q2 · Q3]
   if (V3) {
     MISSION_FLOORS["정기 순회 점검"] = ["B4"];
     MISSION_FLOORS["발전기실 설비 점검"] = ["B3", "B4"];
@@ -689,7 +690,7 @@
 
     node.addEventListener("mouseenter", function () { setHot(r.floor, null, true); markRobot(r, true); });
     node.addEventListener("mouseleave", function () { setHot(null); markRobot(r, false); });
-    node.addEventListener("click", function () { enter(r.floor, r.mission || missionFor(r.floor)); });
+    node.addEventListener("click", function () { if (V7B && !r.mission) { flashBot(r); return; } enter(r.floor, r.mission || missionFor(r.floor)); });   // [11/23 Q3] 미션 없는 · 끊긴 로봇은 이동하지 않고 지도에서 그 로봇만 짚는다
     return node;
   }
 
@@ -807,7 +808,7 @@
 
     node.addEventListener("mouseenter", function () { setHot(r.floor, null, true); markRobot(r, true); });
     node.addEventListener("mouseleave", function () { setHot(null); markRobot(r, false); });
-    node.addEventListener("click", function () { enter(r.floor, r.mission || missionFor(r.floor)); });
+    node.addEventListener("click", function () { if (V7B && !r.mission) { flashBot(r); return; } enter(r.floor, r.mission || missionFor(r.floor)); });   // [11/23 Q3] 미션 없는 · 끊긴 로봇은 이동하지 않고 지도에서 그 로봇만 짚는다
     return node;
   }
 
@@ -876,7 +877,7 @@
 
     node.addEventListener("mouseenter", function () { setHot(r.floor, null, true); markRobot(r, true); });
     node.addEventListener("mouseleave", function () { setHot(null); markRobot(r, false); });
-    node.addEventListener("click", function () { enter(r.floor, r.mission || missionFor(r.floor)); });
+    node.addEventListener("click", function () { if (V7B && !r.mission) { flashBot(r); return; } enter(r.floor, r.mission || missionFor(r.floor)); });   // [11/23 Q3] 미션 없는 · 끊긴 로봇은 이동하지 않고 지도에서 그 로봇만 짚는다
     return node;
   }
 
@@ -1770,6 +1771,8 @@
       var m = el("span", "bld-alert is-" + a.sev);
       m.setAttribute("aria-hidden", "true");
       m.appendChild(icon(a.sev === "critical" ? "error" : "warning"));
+      // [11/23 정의서 관제화면-03 Q2] 층을 펼친 뒤엔 알림 표식 → 그 알림 팝오버가 열린 미션 관제
+      if (V7B) { m.addEventListener("click", function (event) { if (!floorView) { return; } event.stopPropagation(); enter(a.floor, a.mission, a); }); }
       labels.appendChild(m);
       a.node = m;
     });
@@ -1789,12 +1792,21 @@
         b.removeAttribute("aria-hidden");
         b.appendChild(say);
       }
+      // [11/23 정의서 관제화면-03 Q2] 층을 펼친 뒤엔 로봇 번호 → 그 미션(미션이 없으면 짚기만)
+      if (V7B) { b.addEventListener("click", function (event) { if (!floorView) { return; } event.stopPropagation(); if (r.mission) { enter(r.floor, r.mission); } else { flashBot(r); } }); }
       labels.appendChild(b);
       r.node = b;
     });
   }
 
   function markRobot(r, on) { if (r.node) { r.node.classList.toggle("is-marked", on); } }
+  // [11/23 정의서 관제화면-03 Q3] 미션이 없는 · 끊긴 로봇 — 이동 대신 지도에서 그 로봇(끊겼으면 마지막 자리)을 잠깐 짚는다
+  function flashBot(r) {
+    if (!r.node) { return; }
+    setHot(r.floor, null, true);
+    r.node.classList.remove("is-flash"); void r.node.offsetWidth; r.node.classList.add("is-flash");
+    setTimeout(function () { if (r.node) { r.node.classList.remove("is-flash"); } setHot(null); }, 1600);
+  }
 
   var proj = null;
   function toScreen(p) {

@@ -377,7 +377,8 @@
       if (!left.hasAttribute("data-rr-orig")) { left.setAttribute("data-rr-orig", left.textContent); }
       var v6 = document.body.classList.contains("ver-6");
       var ttl = document.querySelector("[data-progress-title]");
-      var left6 = { alert: ttl && ttl.textContent, estop: "정지 시각 11:16:42", pause: "남은 시간 멈춤", lost: "마지막 통신 11:16:42", done: spent() + " 소요" };   // [11/06] 제목이 상태를 말하니 아랫줄은 그다음 정보
+      var V7T = document.body.classList.contains("ver-7") && document.documentElement.lang !== "en";   // [11/23] v7 은 상단 시계(10:20:00)에 맞춘 시각 — 11:16 은 시계보다 뒤였다
+      var left6 = { alert: ttl && ttl.textContent, estop: "정지 시각 " + (V7T ? "10:19:30" : "11:16:42"), pause: "남은 시간 멈춤", lost: "마지막 통신 " + (V7T ? "10:18:00" : "11:16:42"), done: spent() + " 소요" };   // [11/06] 제목이 상태를 말하니 아랫줄은 그다음 정보
       left.textContent = (v6 && left6[m] || LEFTTXT[m]) || left.getAttribute("data-rr-orig");   // [11/05 v6] 통신 끊김은 남은 시간 자리에 마지막 통신 시각
     }
     var rec = document.querySelector("[data-recall-button]"), es = document.querySelector('.rc-actions [data-modal-open="estop"]');
@@ -404,13 +405,16 @@
     var dm = doneMode(mode);
     var home = (mode === "run" || mode === "alert") && dm !== "done" && api.get() > last + api.total() * 0.003;
     var off = home || dm === "done" || mode === "return";
-    var key = off + "|" + home + "|" + dm;
+    var key = off + "|" + home + "|" + dm + "|" + mode;
     if (key === endKey) { return; }
     endKey = key;
     var rec = document.querySelector("[data-recall-button]"), chip = box.querySelector('[data-m="return"]');
     if (rec) {
-      rec.disabled = off && mode !== "return";
-      rec.title = home ? "마지막 지점을 지나 충전 스테이션으로 가는 중이에요" : dm === "done" ? "미션이 끝났어요" : "";
+      var v7r = document.body.classList.contains("ver-7") && document.documentElement.lang !== "en";   // [11/23] v7 — 복귀 중에도 끈다(모달 안내 "복귀 중에는 자동복귀 버튼이 비활성화"와 같게)
+      // [11/23 디자이너 · 정의서 로봇현황-01 Q4] v7 — 통신 끊김(명령이 닿지 않음) · 긴급정지(해제가 먼저) 중에도 끈다
+      var stop7 = v7r && (mode === "lost" || mode === "estop");
+      rec.disabled = v7r ? off || stop7 : off && mode !== "return";
+      rec.title = home ? "마지막 지점을 지나 충전 스테이션으로 가는 중이에요" : dm === "done" ? "미션이 끝났어요" : v7r && mode === "return" ? "자동복귀 중이에요" : v7r && mode === "lost" ? "통신이 끊겨 명령을 보낼 수 없어요" : v7r && mode === "estop" ? "긴급정지를 먼저 해제해야 해요" : "";
     }
     if (chip) { chip.disabled = home || dm === "done"; chip.title = chip.disabled ? "마지막 지점 뒤에서는 자동복귀가 의미 없어요" : ""; }
     var left = document.querySelector("[data-progress-left]");
