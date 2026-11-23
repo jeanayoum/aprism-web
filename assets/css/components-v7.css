@@ -1350,7 +1350,9 @@ body.ver-7 .toast:not([hidden]) { animation: ds-appear var(--ds-motion-base) var
  * 면과 빛은 단계 색 토큰(--status-*-bg, --comp-alert-*-glow-*, --effect-glass-edge, --bg-glass)과 Delta 전용 변수(--tone-*, --d3-ramp, 아래 정의)로 만듦
  * 크기: 접힘 --ds-delta-widget(260) 정사각, 펼침 폭 --ds-delta-open-w(295), 높이는 판 높이 - 위아래 --ds-delta-open-inset(20) */
 body.ver-7 .delta3:not(.is-open) { width: var(--ds-delta-widget) !important; height: var(--ds-delta-widget) !important; }
-body.ver-7:not(.d3-chat) .delta3.is-open { width: var(--d3-w, var(--ds-delta-open-w)) !important; height: calc(100% - var(--ds-delta-open-inset) * 2) !important; }
+body.ver-7:not(.d3-chat):not(.ma-on) .delta3.is-open { width: var(--d3-w, var(--ds-delta-open-w)) !important; height: calc(100% - var(--ds-delta-open-inset) * 2) !important; }
+/* [11/23] 알림 팝오버가 함께 열리면(.ma-on) 대화 창은 위쪽 반, 팝오버는 아래쪽 반(예전 v7.css 규칙을 위 !important 가 덮고 있었다) */
+body.ver-7.ma-on:not(.d3-chat) .delta3.is-open { width: var(--d3-w, var(--ds-delta-open-w)) !important; height: calc(50% - var(--ds-delta-open-inset) - 4px) !important; }
 /* Delta 전용 변수 (라이트 면, 펼침 위 테 빛에 씀) */
 :root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open):not(.is-warning):not(.is-critical) { --d3-ramp: #1B77EE 0%, #0A49D7 12.5%, #1E2FB0 25%, #493891 37.5%, #74608B 50%, #858DA3 62.5%, #71A7C9 75%, #459EE9 87.5%, #1B77EE 100%; }
 :root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open).is-warning { --d3-ramp: #F2B020 0%, #D38210 12.5%, #A5521A 25%, #813D39 37.5%, #7D4F5A 50%, #9C7D6B 62.5%, #CBAD61 75%, #EEC242 87.5%, #F2B020 100%; }
