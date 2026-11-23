@@ -265,6 +265,10 @@
   var PRESTART = document.body.classList.contains("ver-7") && document.documentElement.lang !== "en" &&
     /^(setup|precheck)$/.test(document.body.getAttribute("data-stage") || "") && !!document.querySelector("[data-mp-plan]");
   if (PRESTART) { ROBOTS[0].at = 0; }
+  if (PRESTART && window.MutationObserver) {   // 사전 점검 통과(body[data-precheck="done"]) — 일어서는 걸 바로 그린다
+    new MutationObserver(function () { if (typeof frame === "function") { frame(); } })
+      .observe(document.body, { attributes: true, attributeFilter: ["data-precheck", "data-stage"] });
+  }
   /*
    * 임시 경로(10/19 디자이너 "정상 작동하는 것처럼") — 수행 중인 다른 미션도 지도에 길이 보이게.
    * 순번 = data-robot 이라 빈 자리를 건너뛰고 넣는다(forEach 는 빈 칸을 건너뛴다).
@@ -2781,6 +2785,12 @@
     // [11/05] 통신 끊김은 자세를 바꾸지 않는다 — 끊기기 직전 자세에서 멈춘 채 옅어지기만 한다(dogGhost)
     dog3.freeze = st === "lost";
     if (!dog3.freeze) { dog3.motion = (window.APRISM_KISTA_OV && window.APRISM_KISTA_OV.motion) || DOG_MOTION[st] || "idle"; }   // [11/19] KISTA 영상은 작업현장 로봇 자세를 따른다
+    // [11/23 디자이너] v7 미션 설정 · 사전 점검 — 출발 전이라 도크에 앉아 대기, 진행 방향(시야 부채꼴) 없음. 사전 점검을 다 통과하면 일어서고 부채꼴이 켜진다
+    if (PRESTART && !dog3.freeze) {
+      var seated = document.body.getAttribute("data-precheck") !== "done";
+      dog3.motion = seated ? "sit" : "idle";
+      if (onLane && onLane.fan) { onLane.fan.visible = !seated; }
+    }
     var ac = renderer.autoClear;
     renderer.autoClear = false;
     renderer.clearDepth();
