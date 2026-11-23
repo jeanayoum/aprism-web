@@ -545,6 +545,27 @@
     drawCal(p, vm);
   }
   function reportDays(m) { return DAYS.filter(function (d) { return monthOf(d) === m; }).map(function (d) { return d.day; }); }
+  /*
+   * [11/23 디자이너] 월 선택 — 날짜 달력 머리(2026년 N월)를 누르면 열두 달 판으로 바뀐다(v7).
+   *   보고서가 있는 달은 진하게 + 점, 없는 달은 흐리게(누를 수 있음, 목록은 빈 상태), 이번 달 다음은 못 누름, 보고 있는 달은 고른 상태.
+   *   달 클릭 → 목록이 그 달로 옮기고 판이 닫힌다. 머리(2026년)를 다시 누르면 그 달의 날짜 달력으로 돌아간다
+   */
+  function drawMonths(p, m) {
+    var cells = "";
+    for (var k = 1; k <= 12; k++) {
+      var has = reportDays(k).length > 0, fut = k > MAXM;
+      cells += '<button type="button" class="rp-cm t-body-4' + (has ? " has" : "") + (k === vm ? " is-on" : "") + (k === MAXM ? " is-today" : "") + '" data-mo="' + k + '"' + (fut ? " disabled" : "") +
+        ' aria-label="2026년 ' + k + "월" + (has ? ", 보고서 있음" : fut ? ", 아직 없음" : ", 보고서 없음") + '"' + (k === vm ? ' aria-current="true"' : "") + ">" + k + "월</button>";
+    }
+    p.setAttribute("aria-label", "월 선택");
+    p.innerHTML = '<div class="rp-cal-h"><span class="rp-ib" aria-hidden="true"></span><button type="button" class="rp-cal-t t-title-2" data-cday aria-label="날짜로 찾기로 돌아가기">2026년</button><span class="rp-ib" aria-hidden="true"></span></div>' +
+      '<div class="rp-mg">' + cells + "</div>" +
+      '<div class="rp-cf t-caption"><span><i></i>보고서 있는 달</span></div>';
+    p.querySelector("[data-cday]").onclick = function () { p.setAttribute("aria-label", "날짜로 찾기"); drawCal(p, m); };
+    Array.prototype.forEach.call(p.querySelectorAll("[data-mo]"), function (b) {
+      b.onclick = function () { vm = +b.getAttribute("data-mo"); closeCal(); renderList(); var l = list; if (l) { l.scrollTop = 0; } };
+    });
+  }
   function drawCal(p, m) {
     var first = new Date(2026, m - 1, 1).getDay(), n = daysIn(m), has = reportDays(m), cells = "";
     for (var i = 0; i < first; i++) { cells += "<span></span>"; }
@@ -553,10 +574,11 @@
       cells += '<button type="button" class="rp-cd t-body-4 num' + (on ? " has" : "") + (m === MAXM && d === TODAY ? " is-today" : "") + '" data-d="' + d + '"' + (on ? "" : " disabled") +
         ' aria-label="' + m + "월 " + d + "일" + (on ? ", 보고서 있음" : fut ? ", 아직 없음" : ", 보고서 없음") + '">' + d + "</button>";
     }
-    p.innerHTML = '<div class="rp-cal-h"><button type="button" class="rp-ib" data-cm="-1" aria-label="이전 달">' + ic("chevron-left") + '</button><b class="t-title-2">2026년 ' + m + '월</b><button type="button" class="rp-ib" data-cm="1" aria-label="다음 달"' + (m >= MAXM ? " disabled" : "") + ">" + ic("chevron-right") + "</button></div>" +
+    p.innerHTML = '<div class="rp-cal-h"><button type="button" class="rp-ib" data-cm="-1" aria-label="이전 달">' + ic("chevron-left") + '</button>' + (V7R ? '<button type="button" class="rp-cal-t t-title-2" data-cmode aria-label="월 선택">2026년 ' + m + '월</button>' : '<b class="t-title-2">2026년 ' + m + '월</b>') + '<button type="button" class="rp-ib" data-cm="1" aria-label="다음 달"' + (m >= MAXM ? " disabled" : "") + ">" + ic("chevron-right") + "</button></div>" +
       '<div class="rp-cg">' + ["일", "월", "화", "수", "목", "금", "토"].map(function (w) { return '<span class="rp-w t-caption">' + w + "</span>"; }).join("") + cells + "</div>" +
       '<div class="rp-cf t-caption"><span><i></i>보고서 있는 날</span>' + (reportDays(m).length ? "" : "<span>시안 예시는 10월만</span>") + "</div>";
     Array.prototype.forEach.call(p.querySelectorAll("[data-cm]"), function (b) { b.onclick = function () { var nm = m + (+b.getAttribute("data-cm")); if (nm <= MAXM) { drawCal(p, nm); } }; });
+    var cmode = p.querySelector("[data-cmode]"); if (cmode) { cmode.onclick = function () { drawMonths(p, m); }; }
     Array.prototype.forEach.call(p.querySelectorAll(".rp-cd.has"), function (b) {
       b.onclick = function () {
         var day = +b.getAttribute("data-d"), dd = DAYS.filter(function (x) { return x.day === day && monthOf(x) === m; })[0];
