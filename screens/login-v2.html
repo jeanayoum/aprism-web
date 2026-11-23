@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="../assets/css/tokens.css?v=26d31ca4" />
   <link rel="stylesheet" href="../assets/css/app-shell.css?v=62513183" />
   <link rel="stylesheet" href="../assets/css/auth.css?v=d5008757" />
-  <link rel="stylesheet" href="../assets/css/components-v7.css?v=fa96e41b" />   <!-- [11/20] 안내 상자(.ds-notice)만 받음: body.ds-auth -->
+  <link rel="stylesheet" href="../assets/css/components-v7.css?v=7a7bb425" />   <!-- [11/20] 안내 상자(.ds-notice)만 받음: body.ds-auth -->
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
@@ -74,7 +74,7 @@
             <span class="i i-20 lead" style="--i:var(--ic-lock)" aria-hidden="true"></span>
             <input type="password" id="login-pw" name="password" autocomplete="current-password"
                    placeholder="비밀번호를 입력하세요" />
-            <button type="button" class="pw-toggle" data-pw-toggle
+            <button type="button" class="pw-toggle ds-auth-iconbtn" data-pw-toggle
                     aria-pressed="false" aria-controls="login-pw" aria-label="비밀번호 보기">
               <span class="i i-20" aria-hidden="true"></span>
             </button>
@@ -93,7 +93,7 @@
       </div>
 
       <!-- Figma "Button" — Secondary / Large -->
-      <button type="submit" class="login-submit t-label-1">로그인</button>
+      <button type="submit" class="login-submit ds-auth-btn">로그인</button>
 
       <!-- Figma "Help" -->
       <div class="login-help">

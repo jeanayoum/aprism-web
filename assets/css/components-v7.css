@@ -624,6 +624,20 @@ body.ver-7 .ds-mappop > .ds-mappop-head { display: flex !important; align-items:
 body.ver-7 .ds-mappop-head > .map-card-name { flex: 1 1 auto; min-width: 0; font-size: var(--ds-mappop-name-size) !important; line-height: var(--ds-mappop-name-line) !important; font-weight: var(--font-weight-bold) !important; }
 body.ver-7 .ds-mappop > .map-card-photo { margin: calc(var(--ds-mappop-gap) * -1) calc(var(--ds-mappop-pad) * -1) 0 !important; }
 
+/* ---------- 지도 부품: 층 꼬리표 .ds-floor-tag, 층 미션 카드 .ds-floor-mission (11/23, 전체 미션 건물 그림). 예전 building.css, v6.css 값 그대로(안쪽 6 → 4 만 토큰으로) ----------
+ * 층 꼬리표: 지시선 32(테 1 text/tertiary, 올린 층 text/primary) + 글 묶음(줄 사이 2), 사이 8, 층 번호 20/28 고정폭. 초점 테 2 border/focus 바깥 4
+ * 층 미션 카드: 모서리 4, 면 bg/cell 92% + 흐림 6, 테 1 투명(올림 --border-strong), 안쪽 0, 사이 4, 머리 안쪽 4/8 사이 4(예전 6) */
+body.ver-7 .ds-floor-tag { gap: var(--space-8) !important; }
+body.ver-7 .ds-floor-tag .bld-ftag-txt { gap: var(--space-2) !important; }
+body.ver-7 .ds-floor-tag .bld-ftag-line { width: 32px !important; border-top: var(--border-width-thin) solid var(--text-tertiary) !important; }
+body.ver-7 .ds-floor-tag.is-hot .bld-ftag-line { border-color: var(--text-primary) !important; }
+body.ver-7 .ds-floor-tag:focus-visible { outline: var(--border-width-strong) solid var(--border-focus) !important; outline-offset: var(--space-4) !important; border-radius: var(--radius-4) !important; }
+body.ver-7 .ds-floor-mission { gap: var(--space-4) !important; padding: var(--space-0) !important; border: var(--border-width-thin) solid transparent !important; border-radius: var(--radius-4) !important; background-color: color-mix(in srgb, var(--bg-cell) 92%, transparent) !important; }
+body.ver-7 .ds-floor-mission:hover { border-color: var(--border-strong) !important; }
+body.ver-7 .ds-floor-mission .bld-mcard-head { gap: var(--space-4) !important; padding: var(--space-4) var(--space-8) !important; }
+
+/* 보고서 사진 칸(11/23): 카드(.ds-card) 모서리 4, 사진이 모서리 밖으로 나가지 않게 */
+body.ver-7 .rp-pages button.ph.ds-card { border-radius: var(--ds-card-radius) !important; overflow: hidden !important; }
 /* ---------- 배터리 (11/20, .ds-battery): 몸통(채움 + 충전 번개) + 꼭지 + 숫자 ----------
  * 화면: 관제 로봇 카드, 전체 미션 로봇 칸, 미션설정 배터리(머리 줄 아이콘 + 예측 막대). 예전 .battery 옆에 .ds-battery
  * 단계는 ds-v7.js ds.batteryCls 한 곳(20 이하 위험, 40 이하 주의). 보통은 회색(정상은 회색 규칙), 주의 노랑, 위험 빨강. 채움은 아이콘 색, 숫자는 글자 색
@@ -789,6 +803,55 @@ body.ver-7.sian [data-stage-show="setup"] .mp-scroll.ds-scroll .mp-form { paddin
 body.ver-7 .is-ds-scroll-on > .ds-scroll-thumb, body.ver-7 .ds-scroll-thumb.is-drag { opacity: 1; }
 body.ver-7 .ds-scroll-thumb:hover, body.ver-7 .ds-scroll-thumb.is-drag { background-color: var(--border-strong); }
 
+/* ---------- 로봇 선택 칸 (11/23, .ds-robot-tile): 로봇 선택 창(관제, 미션설정, 사전 점검) 격자 칸. 예전 app-shell.css, v7.css 값 그대로 ----------
+ * 172 x 198(격자 칸 사이 위아래 16 좌우 4), 모서리 4, 위 이름(안쪽 12/8/8, 14/20/800) → 로봇 그림 72 → 상태 줄 묶음(안쪽 0/4/4, 줄 사이 2)
+ * 상태 줄: 높이 26, 좌우 4, 사이 4, 모서리 4, 면 --bg-glass, 이름 12/18 text/secondary. 올림: 칸 면 state/hover, 줄 면 --bg-map-chip. 고름: 안쪽 테 1 파랑 500 + 빛 4 파랑 400 + 둥근 그라데이션. 끊김(.is-offline) 0.55 */
+body.ver-7 .robot-grid { gap: var(--space-16) var(--space-4) !important; }
+body.ver-7 .ds-robot-tile { display: flex !important; flex-direction: column !important; gap: var(--space-0) !important; border-radius: var(--radius-4) !important; }
+body.ver-7 .ds-robot-tile .label { gap: var(--space-4) !important; padding: var(--space-12) var(--space-8) var(--space-8) !important; }
+body.ver-7 .ds-robot-tile .robot-id { font-size: var(--font-size-14) !important; line-height: var(--font-line-height-20) !important; font-weight: var(--font-weight-extrabold) !important; }
+body.ver-7 .ds-robot-tile .robot-thumb { height: 72px !important; }
+body.ver-7 .ds-robot-tile .robot-lists { gap: var(--space-2) !important; padding: var(--space-0) var(--space-4) var(--space-4) !important; }
+body.ver-7 .ds-robot-tile .robot-row { height: 26px !important; gap: var(--space-4) !important; padding: var(--space-0) var(--space-4) !important; border-radius: var(--radius-4) !important; background-color: var(--bg-glass); }
+body.ver-7 .ds-robot-tile .robot-row .t-caption { font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; color: var(--text-secondary); }
+body.ver-7 .ds-robot-tile:hover:not([aria-pressed="true"]) { background-color: var(--state-hover) !important; }
+body.ver-7 .ds-robot-tile:hover:not([aria-pressed="true"]) .robot-row { background-color: var(--bg-map-chip) !important; }
+body.ver-7 .ds-robot-tile[aria-pressed="true"] { box-shadow: inset 0 0 0 var(--border-width-thin) var(--color-blue-500), inset 0 0 4px 1px var(--color-blue-400) !important; background-image: radial-gradient(ellipse 150% 80% at 50% 38%, var(--bg-map-chip) 5%, var(--bg-map-chip) 45%, var(--color-blue-900) 95%, var(--color-blue-700) 100%) !important; }
+body.ver-7 .ds-robot-tile:focus-visible { outline: var(--border-width-strong) solid var(--border-focus) !important; outline-offset: calc(var(--space-2) * -1) !important; }
+body.ver-7 .ds-robot-tile.is-offline { opacity: 0.55; cursor: not-allowed; }
+
+/* ---------- 로그인 쪽 버튼 (11/23, body.ds-auth): 로그인, 비밀번호 변경 화면은 v7 규칙 전체가 아니라 이 부품만 받음 ----------
+ * 로그인 버튼 .ds-auth-btn = 버튼 Large 40(좌우 16, 글자 16/500, 모서리 4, 폭 꽉 채움). 색은 예전대로(보조, 강조 .is-accent, 위험 .is-danger)
+ * 비밀번호 보기 .ds-auth-iconbtn = 아이콘 버튼 24(안쪽 4, 아이콘 16, 모서리 4). 다른 계정으로 로그인 .ds-auth-ghost = 글자 버튼 Ghost M 32(좌우 12, 14/20/500) */
+body.ds-auth .ds-auth-btn { box-sizing: border-box !important; height: var(--ds-btn-l-h) !important; min-height: var(--ds-btn-l-h) !important; padding: var(--space-0) var(--ds-btn-l-pad-x) !important; border-radius: var(--radius-4) !important; font-size: var(--ds-btn-l-font-size) !important; line-height: var(--ds-btn-l-line-height) !important; font-weight: var(--ds-btn-font-weight) !important; }
+body.ds-auth .ds-auth-iconbtn { box-sizing: border-box !important; width: 24px !important; height: 24px !important; padding: var(--space-4) !important; border-radius: var(--radius-4) !important; }
+body.ds-auth .ds-auth-iconbtn:hover { background-color: var(--comp-button-ghost-bg-hover) !important; }
+body.ds-auth .ds-auth-iconbtn > .i { width: 16px !important; height: 16px !important; }
+body.ds-auth .ds-auth-ghost { display: inline-flex !important; align-items: center !important; box-sizing: border-box !important; height: var(--ds-btn-m-h) !important; padding: var(--space-0) var(--ds-btn-m-pad-x) !important; border-radius: var(--radius-4) !important; font-size: var(--font-size-14) !important; line-height: var(--font-line-height-20) !important; font-weight: var(--ds-btn-font-weight) !important; text-decoration: none !important; }
+body.ds-auth .ds-auth-ghost:hover { background-color: var(--comp-button-ghost-bg-hover) !important; text-decoration: none !important; }
+/* ---------- Delta 대화 부품 (11/23): 펼친 Delta(관제, 대화형)의 답 덩이, 목록 줄, 질문 칸. 예전 v6.css, v7.css 값을 옮기며 글자와 여백을 토큰 단계로 정리 ----------
+ * 대화 줄 .dc-thread: 안쪽 위 12 오른쪽 0 아래 16 왼쪽 8, 답 사이 20. 답 .dc-msg: 덩이 사이 8. 답 머리 .dc6-h: 아이콘과 이름 사이 8
+ * 요약 문단 .dc6-p 14/22(예전 14/21), 단계 건수 .dc6-sev 는 문단 글자 그대로 굵게. 답 카드 .dc6-card 안쪽 12, 모서리 8, 사이 12/8
+ * 답 묶음 .dc6-sec: 사이 4, 묶음 이름 h5 12/18/700 text/secondary(예전 12/16, 사이 6 → 4), 묶음 글 p 13/20(예전 13/19)
+ * 점 목록 .dc6-ul: 13/20, 줄 사이 2, 왼쪽 16(예전 13/19, 사이 1). 사실, 추정 꼬리표 .dc6-fact .dc6-est: 12/18/700, 좌우 4, 모서리 2, 테 1(예전 11/16, 좌우 5, 모서리 4)
+ * 다음 확인 줄 .dc6-row-*: 제목 14/20/700, 보조 12/18 text/tertiary(예전 12/16). 미션 이름 .dl-m .dl-no .dl-br, 규칙 문장 .dc6-rule, 질문 칸 이름 .dc6-sugg-l 도 12/18(예전 12/16) */
+body.ver-7 .dc-thread { gap: var(--space-20) !important; padding: var(--space-12) var(--space-0) var(--space-16) var(--space-8) !important; }
+body.ver-7 .dc-msg { gap: var(--space-8) !important; }
+body.ver-7 .dc6-h { gap: var(--space-8) !important; }
+body.ver-7 .dc6-p { font-size: var(--font-size-14) !important; line-height: var(--font-line-height-22) !important; color: var(--text-primary); }
+body.ver-7 .dc6-sev { font-size: inherit !important; line-height: inherit !important; }
+body.ver-7 .dc6-card { padding: var(--space-12) !important; border-radius: var(--radius-8) !important; }
+body.ver-7 .dc6-sec { gap: var(--space-4) !important; }
+body.ver-7 .dc6-sec > h5 { gap: var(--space-4) !important; margin: var(--space-0) !important; font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-bold) !important; color: var(--text-secondary) !important; }
+body.ver-7 .dc6-sec > p { margin: var(--space-0) !important; font-size: var(--font-size-13) !important; line-height: var(--font-line-height-20) !important; }
+body.ver-7 .dc6-ul { gap: var(--space-2) !important; padding-left: var(--space-16) !important; font-size: var(--font-size-13) !important; line-height: var(--font-line-height-20) !important; }
+body.ver-7 .dc6-ul > li { font-size: inherit !important; line-height: inherit !important; }
+body.ver-7 :is(.dc6-fact, .dc6-est) { padding: var(--space-0) var(--space-4) !important; border-width: var(--border-width-thin) !important; border-radius: var(--radius-2) !important; font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-bold) !important; }
+body.ver-7 .dc6-row-t { gap: var(--space-4) !important; font-size: var(--font-size-14) !important; line-height: var(--font-line-height-20) !important; font-weight: var(--font-weight-bold) !important; }
+body.ver-7 :is(.dc6-row-s, .dl-m, .dl-no, .dl-br, .dc6-rule, .dc6-sugg-l) { font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; }
+body.ver-7 :is(.dc6-row-s, .dl-m, .dl-no, .dc6-rule) { color: var(--text-tertiary); }
+body.ver-7 .dc6-sugg-l { font-weight: var(--font-weight-bold) !important; color: var(--text-secondary); }
+body.ver-7 .dc6-sugg { gap: var(--space-8) !important; padding: var(--space-12) var(--space-8) var(--space-8) !important; }
 /* ---------- GNB (11/23, .ds-gnb > .ds-gnb-item > .ds-gnb-icon): 모든 v7 화면 왼쪽 전역 메뉴. 예전 app-shell.css .gnb-rail, .gnb-item 값 그대로 ----------
  * 판: 폭 --size-gnb-rail(76), 위 8 아래 20, 항목 묶음 사이 4. 항목: 70 x 64, 아이콘 상자와 이름 사이 4, 이름 12/18, 글자 text/disabled
  * 아이콘 상자: 36(--size-control-md), 모서리 4(--radius-control). 면은 아이콘 상자에만. 올림: 이름 text/secondary, 상자 bg/panel + 아이콘 text/primary. 지금 쪽(aria-current): 이름 text/primary, 상자 bg/accent
@@ -977,19 +1040,19 @@ body.ver-7 .ds-act-ic > .i { width: 16px !important; height: 16px !important; }
  *   안쪽 4, 항목 사이 2, 테 1(--border-default), 모서리 4, 면 --bg-raised
  *   항목: 높이 36 이상, 좌우 12, 아이콘과 글자 사이 8, 모서리 2, 글자 14/22. 미션 범위 항목은 칸이 여럿인 줄이라 틀만 따름
  * 색은 지금 토큰 그대로(칸 면 --bg-map-chip, 칸 테 회색 650), 크기와 모양만 여기서 정함 */
-body.ver-7 .field-box:not(.is-readonly) {
+:is(body.ver-7, body.ds-auth) .field-box:not(.is-readonly) {
   box-sizing: border-box !important; height: var(--ds-field-h) !important; min-height: var(--ds-field-h) !important; padding: var(--space-0) var(--ds-field-pad-x) !important;
   border-width: var(--border-width-thin) !important; border-style: solid !important; border-radius: var(--ds-field-radius) !important;
   font-size: var(--font-size-14) !important; line-height: var(--font-line-height-22) !important;
 }
-body.ver-7 .field-box.is-sm:not(.is-readonly) { height: var(--ds-field-h-s) !important; min-height: var(--ds-field-h-s) !important; }
+:is(body.ver-7, body.ds-auth) .field-box.is-sm:not(.is-readonly) { height: var(--ds-field-h-s) !important; min-height: var(--ds-field-h-s) !important; }
 body.ver-7 .field-box.is-readonly { height: var(--ds-field-h) !important; padding: var(--space-0) !important; border-color: transparent !important; background: transparent !important; font-size: var(--font-size-14) !important; line-height: var(--font-line-height-22) !important; }
 /* 입력 칸 색과 상태 (11/23, 예전 app-shell.css, v6.css, monitor.css 에서 옮김)
  *   칸 .field-box: 면 --bg-map-chip, 테 1 회색 650(라이트 회색 400), 글자 text/primary. 초점(키보드)과 열린 선택 칸은 테 border/focus + 바깥 1, 검색 칸(.is-sm)은 안쪽 입력에 초점이 오면 테 border/focus. 검색 안내 글 text/primary
  *   메모 칸 .ds-memo(.ma-memo-field, 안전진단 .fd 포함): 테 없음, 면 --bg-map-chip 50%, 글자 text/primary, 안내 글 text/tertiary, 초점 바깥 1 border/focus, 높이 68 이상, 세로로만 늘림. 놓인 판(반대 판 포함)의 토큰을 따름
  *   보고서 특이 사항 칸도 메모 칸(.ds-memo)으로 */
-body.ver-7 .field-box:not(.is-readonly) { border-color: var(--color-gray-650) !important; background-color: var(--bg-map-chip) !important; color: var(--text-primary) !important; }
-:root[data-theme="light"] body.ver-7 .field-box:not(.is-readonly) { border-color: var(--color-gray-400) !important; }
+:is(body.ver-7, body.ds-auth) .field-box:not(.is-readonly) { border-color: var(--color-gray-650) !important; background-color: var(--bg-map-chip) !important; color: var(--text-primary) !important; }
+:root[data-theme="light"] :is(body.ver-7, body.ds-auth) .field-box:not(.is-readonly) { border-color: var(--color-gray-400) !important; }
 body.ver-7 :is(.field-box:focus-visible, .field-select[data-open] .field-box, .field-box.is-sm:focus-within) { border-color: var(--border-focus) !important; }
 body.ver-7 :is(.field-box:focus-visible, .field-select[data-open] .field-box) { outline: var(--border-width-thin) solid var(--border-focus) !important; }
 body.ver-7 .field-box.is-sm input::placeholder { color: var(--text-primary); opacity: 1; }

@@ -121,7 +121,7 @@
   function evCard(a) {
     var i = photoNo(a[0]), x = i === null ? null : EV[i];
     function r(l, v, c) { return '<div class="fr f1"><span class="l">' + l + "</span><span" + (c ? ' class="' + c + '"' : "") + ">" + v + "</span></div>"; }
-    return '<div class="evc">' + (x ? '<button class="ph" data-ev="' + i + '" aria-label="' + a[0] + ' 사진 크게 보기"><img src="' + x.img + '" alt="' + x.alt + " " + a[0] + '"></button>' : '<div class="ph none"></div>') +
+    return '<div class="evc">' + (x ? '<button class="ph' + (document.body.classList.contains("ver-7") ? ' ds-card' : '') + '" data-ev="' + i + '" aria-label="' + a[0] + ' 사진 크게 보기"><img src="' + x.img + '" alt="' + x.alt + " " + a[0] + '"></button>' : '<div class="ph none"></div>') +
       '<div class="evf">' + r("감지", "<b>" + a[0] + "</b><i>" + a[1] + "</i><i>" + a[2] + "</i>", "ev-h") + r("감지 데이터", a[3]) + r("조치 내용", a[4] || "—", a[4] ? "" : "q") + r("처리", a[5] || "미조치", a[5] ? "" : "red") + "</div></div>";
   }
   function firstPage(doc) {

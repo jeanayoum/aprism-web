@@ -1106,7 +1106,7 @@
       var n = rng[1] - rng[0] + 1, done = r ? Math.max(0, Math.min(n, (r.done || 0) - (rng[0] - 1))) : 0;
       var marks = {};
       here.forEach(function (a) { var mm = /WP-(\d+)/.exec(a.where || ""); if (mm) { var k = +mm[1] - rng[0]; if (k >= 0 && k < n) { marks[k] = a.sev === "critical" ? "crit" : "warn"; } } });
-      var card = el("button", "bld-mcard");
+      var card = el("button", "bld-mcard" + (document.body.classList.contains("ver-7") ? " ds-floor-mission" : ""));   // [11/23 v7] 지도 부품 층 미션 카드
       card.type = "button";
       card.setAttribute("aria-label", m + " 미션으로 들어가기");
       var head = el("span", "bld-mcard-head");
@@ -1761,7 +1761,7 @@
     labels.textContent = "";
     FLOORS.forEach(function (f) {
       var list = alertsOn(f);
-      var tag = el("button", "bld-ftag");
+      var tag = el("button", "bld-ftag" + (document.body.classList.contains("ver-7") ? " ds-floor-tag" : ""));   // [11/23 v7] 지도 부품 층 꼬리표
       tag.type = "button";
       tag.setAttribute("data-floor", f);
       tag.setAttribute("aria-label", FNAME[f] + "으로 들어가기");
