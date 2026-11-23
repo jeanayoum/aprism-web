@@ -12,6 +12,31 @@
   window.APRISM_VER = 7;
   window.aprismHref = to7;
   var ATTRS = ["href", "src", "data-goto", "data-monitor-href", "data-modal-confirm", "action"];
+  /*
+   * [11/23 디자이너] 상태 말 띄어쓰기 — "수행중" → "수행 중"(충전 중 · 측정 중 · 복귀 중과 같게).
+   *   같은 말을 공용 JS 여럿(v6 과 같이 씀)이 그리므로 v7 한글 화면 글자만 여기 한 곳에서 바꾼다. 말을 읽어 상태를 가르는 곳은 두 꼴을 다 받는다
+   *   (map-v6.js botState · screen.js STATES · robot-stage.js MOTION · robot-2d.js 는 띄어쓰기를 지우고 읽음)
+   */
+  var KO = document.documentElement.lang !== "en";
+  var WORD = /수행중/g;
+  function word(node) {
+    if (!KO || !node) { return; }
+    if (node.nodeType === 3) { if (node.data.indexOf("수행중") >= 0) { node.data = node.data.replace(WORD, "수행 중"); } return; }
+    if (node.nodeType !== 1 || node.nodeName === "SCRIPT" || node.nodeName === "STYLE") { return; }
+    ["aria-label", "title"].forEach(function (a) { var v = node.getAttribute(a); if (v && v.indexOf("수행중") >= 0) { node.setAttribute(a, v.replace(WORD, "수행 중")); } });
+    var w = document.createTreeWalker(node, NodeFilter.SHOW_TEXT), t;
+    while ((t = w.nextNode())) { if (t.data.indexOf("수행중") >= 0) { t.data = t.data.replace(WORD, "수행 중"); } }
+  }
+  if (KO) {
+    new MutationObserver(function (ms) {
+      ms.forEach(function (m) {
+        if (m.type === "characterData") { word(m.target); }
+        else if (m.type === "attributes") { var v = m.target.getAttribute(m.attributeName); if (v && v.indexOf("수행중") >= 0) { m.target.setAttribute(m.attributeName, v.replace(WORD, "수행 중")); } }
+        else { m.addedNodes.forEach(word); }
+      });
+    }).observe(document.documentElement, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ["aria-label", "title"] });
+    document.addEventListener("DOMContentLoaded", function () { word(document.body); });
+  }
   function fix(el) {
     if (!el || !el.getAttribute) { return; }
     for (var i = 0; i < ATTRS.length; i++) {

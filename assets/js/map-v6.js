@@ -3407,7 +3407,7 @@
 
   function botState(id) {
     var badge = document.querySelector(".robot-strip .robot-card[data-robot='" + id + "'] .badge");
-    return badge ? badge.textContent.trim() : "";
+    return badge ? badge.textContent.replace(/\s+/g, "") : "";   // [11/23] v7 은 "수행 중"(띄어 씀) — 표의 열쇠는 붙여 쓴 말
   }
 
   // 길을 깔기 전에 그 로봇의 상태색을 입힌다. 상태를 못 읽으면 들고 있던 색 그대로다.
