@@ -52,6 +52,9 @@ body.ver-7 .done-stage .done-st { display: inline-flex; align-items: center; gap
 body.ver-7 .done-stage .done-st::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--text-tertiary); }
 body.ver-7 .done-stage.is-work .done-st::before { background: var(--status-info-icon); }
 body.ver-7 .done-stage.is-done .done-st::before { background: var(--status-safe-icon); }
+/* [11/23 지도-01 Q1] 설비 카드 점검 결과 — 알림이면 단계 색 */
+body.ver-7 [data-map-card-state][data-sev="caution"] { color: var(--status-warning-text); }
+body.ver-7 [data-map-card-state][data-sev="danger"] { color: var(--status-critical-text); }
 /* [11/23 Q5] 알림 목록 빈 상태 — 흐린 글 한 줄, 아이콘 · 색 없음 */
 body.ver-7 .ah-empty { margin: 0; padding: var(--space-40) var(--space-16); text-align: center; color: var(--text-tertiary); }
 /* [11/23 Q1] 관제 위 보고서 모달 — 보고서 화면을 투명 틀로 얹는다(report-modal-v7.js) */

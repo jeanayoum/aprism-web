@@ -874,6 +874,18 @@
 
     list.textContent = "";
     shown.forEach(function (a) { list.appendChild(item(a)); });
+    // [11/23 디자이너 · 정의서 지도-01 Q2] 층 버튼 알림 점 — 이 미션 알림 중 그 층의 가장 높은 단계(위험 빨강 · 주의 노랑). 로봇 파란 점보다 먼저(components-v7.css)
+    if (V7Q) {
+      Array.prototype.forEach.call(document.querySelectorAll("[data-map-floor]"), function (btn) {
+        var f = btn.getAttribute("data-map-floor"), top = null;
+        mine.forEach(function (a) { if (a.floor === f && (top !== "critical")) { top = a.sev === "critical" ? "critical" : top || "warning"; } });
+        var dot = btn.querySelector(":scope > .ds-dot.is-lv");
+        if (!top) { if (dot) { dot.remove(); } return; }
+        if (!dot) { dot = document.createElement("span"); dot.setAttribute("aria-hidden", "true"); btn.appendChild(dot); }
+        dot.className = "ds-dot is-lv " + (top === "critical" ? "is-crit" : "is-warn");
+        btn.setAttribute("aria-label", f + (top === "critical" ? ", 위험 알림 있음" : ", 주의 알림 있음"));
+      });
+    }
     // [11/23 디자이너 · 정의서 관제화면-04 Q5] 빈 목록은 고장 · 불러오는 중과 구분되게 한 줄. 필터로 빈 것은 그 단계 이름으로
     if (V7Q && !shown.length) {
       var em = el("p", "ah-empty t-body-3", filter === "critical" ? "위험 알림이 없어요" : filter === "warning" ? "주의 알림이 없어요" : "조치가 필요한 알림이 없어요");
