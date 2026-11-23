@@ -425,18 +425,27 @@
 
   // 두 탭은 열이 다르다 — 미확인은 "무엇이 났나", 조치 완료는 "무엇을 했나" 쪽이다.
   function renderColHead() {
+    // [11/23 v7] 정렬 단추는 열 머리 오른쪽 끝 칸에 산다 — 머리를 다시 그리기 전에 떼었다가 다시 붙인다(누름 처리는 그대로)
+    var sortBox = null;   // [11/23 7차] v7 정렬은 거르기 줄로 옮겼다 — 열 머리 칸에 넣지 않음(아래 코드는 꺼 둠)
+    if (sortBox && sortBox.parentNode) { sortBox.parentNode.removeChild(sortBox); }
     colHead.innerHTML = state.tab === "done"
       ? '<span class="ac-dc-check" role="columnheader"><span class="ac-sr">상태</span></span>' +
         '<span class="ac-dc-time" role="columnheader">조치</span>' +
         '<span class="ac-dc-body" role="columnheader">' + (V7 ? "알림" : "알림 · 조치 내용") + '</span>' +
         (V7 ? '<span class="ac-dc-sev" role="columnheader">원 등급</span><span class="ac-dc-occ" role="columnheader">발생</span>' : '<span class="ac-dc-sev" role="columnheader">원 등급 · 발생</span>') +
-        '<span class="ac-dc-who" role="columnheader">담당</span>'
+        '<span class="ac-dc-who" role="columnheader">담당</span>' +
+        (sortBox ? '<span class="ac-dc-sort" role="columnheader"></span>' : "")
       : '<span class="ac-c-sev" role="columnheader"><span class="ac-sr">단계</span></span>' +
         '<span class="ac-c-time" role="columnheader">발생</span>' +
         '<span class="ac-c-title" role="columnheader">알림</span>' +
         '<span class="ac-c-place" role="columnheader">웨이포인트 · 위치</span>' +
         '<span class="ac-c-mission" role="columnheader">미션</span>' +
         '<span class="ac-c-act" role="columnheader"><span class="ac-sr">동작</span></span>';
+    if (sortBox) {
+      var cell = $(state.tab === "done" ? ".ac-dc-sort" : ".ac-c-act", colHead);
+      cell.appendChild(sortBox);
+      sortBox.hidden = false;
+    }
   }
 
   /*
@@ -1061,14 +1070,20 @@
     $("[data-ac-count-done]").textContent = closed + "건";
 
     // 탭 옆 배지는 그 탭의 단계별 건수다.
-    $("[data-ac-badge-crit]").textContent = "위험 " + (state.tab === "done" ? doneCrit : openCrit);
+    var bc = $("[data-ac-badge-crit]"), bw = $("[data-ac-badge-warn]");   // [11/23 v7] 탭 줄 배지는 v7에서 뺐다. 없으면 건너뜀
+    if (bc) { bc.textContent = "위험 " + (state.tab === "done" ? doneCrit : openCrit); }
     var hb = document.querySelector(".ac-head-badges"); if (hb) { hb.classList.toggle("is-done-tab", state.tab === "done"); }   // [11/20 v7] 끝난 일 건수는 회색
-    $("[data-ac-badge-warn]").textContent = "주의 " + (state.tab === "done" ? doneWarn : openWarn);
+    if (bw) { bw.textContent = "주의 " + (state.tab === "done" ? doneWarn : openWarn); }
 
     // 등급 필터는 두 탭을 합친 전체 건수다.
-    $("[data-ac-f-all]").textContent = "전체 " + ALERTS.length;
-    $("[data-ac-f-crit]").textContent = "위험 " + (openCrit + doneCrit);
-    $("[data-ac-f-warn]").textContent = "주의 " + (openWarn + doneWarn);
+    // [11/23 v7 디자이너] v7 은 지금 탭의 건수 — 관제 등급 칩처럼 "지금 보는 목록"의 수(탭 줄 배지를 대신한다)
+    var tc = V7 ? (state.tab === "done" ? doneCrit : openCrit) : openCrit + doneCrit;
+    var tw = V7 ? (state.tab === "done" ? doneWarn : openWarn) : openWarn + doneWarn;
+    // [11/23 v7 8차] 숫자는 고정폭 두 자리 칸(.num) — 탭을 바꿔 자릿수가 달라져도(9 → 11) 칩 폭이 그대로라 옆 기간 · 미션 · 정렬이 흔들리지 않는다
+    var fnum = function (sel, word, n) { var e = $(sel); if (V7) { e.innerHTML = word + ' <span class="num ac-f-num">' + n + "</span>"; } else { e.textContent = word + " " + n; } };
+    fnum("[data-ac-f-all]", "전체", V7 ? tc + tw : ALERTS.length);
+    fnum("[data-ac-f-crit]", "위험", tc);
+    fnum("[data-ac-f-warn]", "주의", tw);
 
     // [오늘 조치 요약 만들기] 는 조치 완료 탭에만 선다 — 끝난 조치를 묶는 일이다.
     $("[data-ac-summary]").hidden = state.tab !== "done";
