@@ -140,6 +140,7 @@
     if (card.getAttribute("data-motion") === "walk") { return "walk"; }
     var badge = card.querySelector(".robot-row .badge");
     var text = badge ? badge.textContent.replace(/\s+/g, "") : "";
+    if (V7R && text === "자동복귀") { return "walk"; }   // [11/23] v7 — 복귀 중엔 지도처럼 걷는다
     return text === "수행중" || text === "Running" ? "walk" : "sit";   // 영문판(*-en.html) 배지도
   }
 
@@ -154,6 +155,14 @@
   sync();
   /* 배지가 바뀌는 때(미션 진행 · 카드 넘김)에 다시 본다. 눌린 뒤를 읽어야 하므로 한 틱 뒤다. */
   document.addEventListener("aprism:mission", sync);
+  // [11/23] v7 — 시뮬레이션이 상태 배지를 바꿔도 자세를 따라간다(긴급정지인데 걷고 있었다)
+  var V7R = document.body.classList.contains("ver-7") && document.documentElement.lang !== "en";
+  var strip = document.querySelector(".robot-strip");
+  if (V7R && strip && window.MutationObserver) {
+    var q2 = 0;
+    new MutationObserver(function () { if (!q2) { q2 = requestAnimationFrame(function () { q2 = 0; sync(); }); } })
+      .observe(strip, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ["class"] });
+  }
   document.addEventListener("click", function (event) {
     if (event.target.closest("[data-robot], [data-rc-step]")) { window.setTimeout(sync, 0); }
   }, true);
