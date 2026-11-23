@@ -52,7 +52,8 @@ body.ver-7 .done-stage .done-st { display: inline-flex; align-items: center; gap
 body.ver-7 .done-stage .done-st-t { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 body.ver-7 .done-stage > span:last-child { flex: none; }
 /* [11/23 디자이너] 요청한 조치 — 마우스 · 초점 · 고른 줄에서만 셋째 줄 */
-body.ver-7 .done-item .done-req { display: none; color: var(--text-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body.ver-7 .done-item .done-req { display: none; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body.ver-7 .done-item:is(:hover, :focus-visible, [aria-pressed="true"]) .done-st:has(.done-req) .done-st-t { display: none; }
 body.ver-7 .done-item:is(:hover, :focus-visible, [aria-pressed="true"]) .done-req { display: block; }
 /* [11/23 지도-01 Q1] 설비 카드 점검 결과 — 알림이면 단계 색 */
 body.ver-7 [data-map-card-state][data-sev="caution"] { color: var(--status-warning-text); }

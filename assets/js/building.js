@@ -488,7 +488,7 @@
       node.tabIndex = 0;   // 키보드로도 조치 줄을 본다
       // [11/23 디자이너] 요청한 조치 — 마우스를 올리거나 고를 때만 셋째 줄(v6 처럼 평소엔 짧게). 여러 개면 첫 조치 외 n건
       var acts = rq && rq.how && rq.how.length ? rq.how : String(d.how || "").split(/\s*·\s*/).filter(Boolean);
-      if (acts.length) { node.appendChild(head); node.appendChild(line); node.appendChild(el("span", "done-req t-caption", "요청: " + acts[0] + (acts.length > 1 ? " 외 " + (acts.length - 1) + "건" : ""))); return node; }
+      if (acts.length) { stw.appendChild(el("span", "done-req", "요청: " + acts[0] + (acts.length > 1 ? " 외 " + (acts.length - 1) + "건" : ""))); }   // [11/23 디자이너] 셋째 줄 대신 둘째 줄 단계 글이 바뀐다(v7.css)
       node.appendChild(head);
       node.appendChild(line);
       return node;
