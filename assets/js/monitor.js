@@ -469,6 +469,18 @@
     DONE_BASE.forEach(function (d, i) { if (DONE6[i]) { d.title = DONE6[i]; d.wp = WP6[i]; } });
     DONE_BASE[0].time = "10:19:10";   // [11/02 v6] 10:29 는 상태바 시계(10:20)보다 뒤였다 — 지금 바로 앞으로(알림 센터 조치 요청됨 오늘 첫 줄과 같다)
   }
+  /*
+   * [11/23 디자이너 · 정의서 관제화면-04 Q3] v7 조치 요청된 알림 = 이 미션에서 요청한 것만. 줄 아래는 결과 대신 진행 단계 + 받는 사람
+   *   (요청만 하고 결과는 현장 몫 — 현장 응답 대기 · 현장 조치 중 · 조치 완료, 말은 안전진단 · 지점 팝오버와 같다)
+   */
+  var V7Q = body.classList.contains("ver-7") && document.documentElement.lang !== "en";
+  var DONE_ST = { wait: "현장 응답 대기", work: "현장 조치 중", done: "조치 완료" };
+  if (V7Q) {
+    DONE_BASE = [
+      { time: "10:08:30", title: "이상음향 점수 19.6", wp: "WP-02", how: "현장 점검 요청", who: "홍길동", st: "work", to: "설비팀 박지훈" },
+      { time: "10:05:12", title: "최고 온도 44.2 ℃", wp: "WP-01", how: "다음 순회 재측정", who: "홍길동", st: "done", to: "설비팀 박지훈" }
+    ];
+  }
   var DONE = DONE_BASE.slice();
 
   var RANK = { critical: 0, warning: 1 };
@@ -718,6 +730,16 @@
     // [11/06 v6] 시각은 줄에 올라가거나 고를 때만 보인다(v6.css .done-time) — 확인된 기록은 시각보다 무엇을 어떻게 처리했는지가 먼저다.
     head.appendChild(el("span", "t-caption num done-time", d.time));
 
+    if (V7Q) {   // [11/23 Q3] 진행 단계 · 받는 사람 — 단계는 요청 기록(S7.req)을 따른다
+      var rq = d.reqId && window.APRISM_ALERTS7 ? window.APRISM_ALERTS7.req.all()[d.reqId] : null;
+      var st = (rq && DONE_ST[rq.st] && rq.st) || d.st || "wait";
+      var line = el("span", "done-how done-stage t-caption is-" + st);
+      line.appendChild(el("span", "done-st", DONE_ST[st]));
+      line.appendChild(el("span", null, (rq && rq.to) || d.to || "현장 작업자"));
+      node.appendChild(head);
+      node.appendChild(line);
+      return node;
+    }
     var how = el("span", "done-how t-caption");
     how.appendChild(icon("check"));
     if (V6) {
@@ -846,6 +868,12 @@
 
     list.textContent = "";
     shown.forEach(function (a) { list.appendChild(item(a)); });
+    // [11/23 디자이너 · 정의서 관제화면-04 Q5] 빈 목록은 고장 · 불러오는 중과 구분되게 한 줄. 필터로 빈 것은 그 단계 이름으로
+    if (V7Q && !shown.length) {
+      var em = el("p", "ah-empty t-body-3", filter === "critical" ? "위험 알림이 없어요" : filter === "warning" ? "주의 알림이 없어요" : "조치가 필요한 알림이 없어요");
+      em.setAttribute("role", "status");
+      list.appendChild(em);
+    }
     $("[data-ah-count='all']").textContent = mine.length;
     $("[data-ah-count='critical']").textContent = crit;
     $("[data-ah-count='warning']").textContent = warn;
@@ -1743,6 +1771,12 @@
       confirm.innerHTML = '<span class="i i-16" style="--i:var(--ic-check)" aria-hidden="true"></span>요청됨';
       setTimeout(function () {
         commit(a, rec, true);
+        // [11/23 디자이너 · 정의서 관제화면-04 Q2] 토스트 없이 — 접혀 있으면 건수 배지가 튀고 머리가 잠깐 밝아진다(v3 착지와 같은 것)
+        var ds = doneList.closest("[data-done-sec]");
+        if (ds && ds.classList.contains("is-folded") && !slow.matches) {
+          ds.classList.remove("is-landed"); void ds.offsetWidth; ds.classList.add("is-landed");
+          setTimeout(function () { ds.classList.remove("is-landed"); }, 700);
+        }
         if (box.hidden || box.getAttribute("data-wp") !== (a.wp || "")) { reqReset7(); return; }
         wave7(function () { reqShow7(a, rec, picks); });
         reqA7 = a;

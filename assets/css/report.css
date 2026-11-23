@@ -273,6 +273,10 @@
 .rp-lb .rp-x { top: var(--space-24); right: var(--space-24); width: 40px; height: 40px; }
 
 /* 다른 화면(관제)에서 여는 보고서 — 같은 뷰어를 모달로 */
+/* [11/23 v7] 관제 위에 얹힌 보고서(?embed=modal) — 바탕은 투명, 모달 · 토스트만 보인다 */
+html.rp-embed, html.rp-embed body { background: transparent !important; }
+html.rp-embed body > *:not(.rp-mwrap) { visibility: hidden; }
+html.rp-embed .toast { visibility: visible; }
 .rp-modal-scrim { position: fixed; inset: 0; z-index: 100; background-color: var(--color-alpha-gray-950-60); }
 .rp-modal {
   position: fixed;

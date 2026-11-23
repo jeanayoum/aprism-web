@@ -17,7 +17,11 @@
   var IMG = "../assets/img/report/";
 
   /* ---------- 데이터(시안 그대로) ---------- */
-  var NAME = "{미션이름}";
+  var V7R = document.body.classList.contains("ver-7") && document.documentElement.lang !== "en";
+  var NAME = V7R ? "정기 순회 점검" : "{미션이름}";   // [11/23] v7 은 관제 미션 이름과 맞춘 임시 값
+  // [11/23 디자이너 · 정의서 관제화면-04 Q1] 관제 화면이 이 화면을 투명 틀로 얹어 모달만 보인다(?embed=modal, report-modal-v7.js)
+  var EMBED = V7R && /[?&]embed=modal/.test(location.search);
+  if (EMBED) { document.documentElement.classList.add("rp-embed"); }
   var DAYS = [
     { d: "10월 22일 (목)", day: 22, live: true, dayRpt: { n: 1 }, missions: [{ t: "09:10 ~ 09:32" }] },
     { d: "10월 21일 (수)", day: 21, dayRpt: { n: 2 }, missions: [{ t: "16:20 ~ 16:51" }, { t: "09:40 ~ 09:58" }] },
@@ -583,6 +587,7 @@
     closeModal();
     var d = DOCS[id];
     modal = document.createElement("div");
+    modal.className = "rp-mwrap";
     modal.innerHTML = '<div class="rp-modal-scrim" data-m-close></div><section class="rp-modal" role="dialog" aria-modal="true" aria-labelledby="rp-mt">' +
       '<div class="rp-mhd"><div><h2 class="t-title-2" id="rp-mt">' + d.title + partTag(d) + '</h2><p class="rp-meta t-body-4">' + metaHtml(d) + "</p></div>" +
       '<button type="button" class="icon-button modal-close" data-m-close aria-label="닫기"><span class="i i-20" style="--i:var(--ic-close)"></span></button></div>' +
@@ -590,12 +595,12 @@
       '<div class="rp-mft"><button type="button" class="rp-link t-label-2" data-m-menu>보고서 메뉴에서 보기' + ic("chevron-right") + '</button><div class="rp-acts" data-m-acts>' + DL + "</div></div></section>";
     document.body.appendChild(modal);
     Array.prototype.forEach.call(modal.querySelectorAll("[data-m-close]"), function (b) { b.onclick = closeModal; });
-    modal.querySelector("[data-m-menu]").onclick = function () { selectDoc(id); };
+    modal.querySelector("[data-m-menu]").onclick = function () { if (EMBED) { parent.postMessage({ aprism: "report-menu", id: id }, "*"); return; } selectDoc(id); };
     modal.querySelector(".rp-viewer").style.flex = "1";
     initViewer(modal.querySelector(".rp-modal"), modal.querySelector("[data-m-acts]"), true, id);
     modal.querySelector("[data-m-close].icon-button").focus();
   }
-  function closeModal() { if (modal) { modal.remove(); modal = null; } }
+  function closeModal() { if (modal) { modal.remove(); modal = null; if (EMBED) { parent.postMessage({ aprism: "report-close" }, "*"); } } }
   window.APRISM_REPORT = { open: openModal };
 
   /* ---------- 토스트 · 사진 크게 보기 ---------- */
@@ -657,5 +662,5 @@
   if (hash === "#month") { cur = "mo10"; moState = "made"; }
   renderList();
   openDetail();
-  if (hash === "#modal") { setTimeout(function () { openModal("m1017"); }, 50); }
+  if (hash === "#modal" || EMBED) { setTimeout(function () { openModal("m1017"); }, 50); }
 })();
