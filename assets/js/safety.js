@@ -368,7 +368,11 @@
       return `<button type="button" class="jsp-b${on ? ' on' : ''}" data-dk="${k}" data-dw="${w2}" aria-pressed="${on}">${R2 ? rqBadge(R2) : `<span class="verdict-chip${V7 ? ' ds-badge' : ''} is-${it[0]}">${WORD[it[0]]}</span>`}<b>${w2}</b><span>${it[2].split(' ').slice(1).join(' ')}</span></button>`; }).join('')}</div>` : '';
     const actS = RQ ? RQ_WORD[RQ.st] : !isHit ? (st==='plan' ? '—' : '필요 없음') : st==='done' || x[4] ? `${x[4] || '10:17'} 요청됨` : '요청 전';   // 요청 시각은 x[4](data-req 가 적는다)
     const jinfo = [['발생위치', `${wp}${isHit ? ' ' + x[2].split(' ').slice(1).join(' ') : ''}`, ''], [isHit ? '발생시간' : '측정 시간', x[3] || '—', ''], ['조치 상태', actS, ''], ['다음 측정', nextM, '']]
-      .map(([l, v, c]) => `<div><span>${l}</span><b class="${c}" title="${v}">${v}</b></div>`).join('');
+      .map(([l, v, c], n) => {
+        // [11/23 디자이너] v7 발생위치는 WP-nn 대신 웨이포인트 번호 원(알림 센터 · 관제 알림 목록과 같은 .ds-wp.is-s)
+        const m = n === 0 && V7 && window.ds && /^WP-(\d+)\s*(.*)$/.exec(v);
+        const h = m ? `<span class="sf-wpv">${window.ds.wp(parseInt(m[1], 10), { small: true, cls: 'sf-wp', attrs: `role="img" aria-label="WP-${m[1]}"` })}<span>${m[2]}</span></span>` : v;
+        return `<div><span>${l}</span><b class="${c}" title="${v}">${h}</b></div>`; }).join('');
     const judge = V6 ? `<div class="lvA s1 jx ${st}"><div class="jtop"><div class="jrow">${RQ ? rqBadge(RQ) :`<span class="verdict-chip${V7 ? ' ds-badge' : ''} is-${st}">${WORD[st]}</span>`}${V7 ? '' : `<span class="jk">${k}</span>`}${spots}</div>${jv}</div><div class="jinfo">${jinfo}</div></div>`
       : `<div class="lvA s1 ${st}">${step('이상 판정')}<div class="tt"><span class="verdict-chip${V7 ? ' ds-badge' : ''} is-${st}">${WORD[st]}</span><h5>${k}, ${isHit ? x[1] : st==='plan' ? '측정 전' : '정상 범위 ' + x[1]}</h5></div>${loc}${cond}</div>`;
     // [11/02 v6] 측정 이력(11/02 "재발 여부" 에서 이름 바꿈 — 관제에서 익숙한 말, 반복 판단은 꼬리표가 한다) — Figma 처럼 네 줄을 다 보이고(줄 32 라 접을 만큼 길지 않다), 결론(처음 넘음 · 반복)은 머리 오른쪽 꼬리표로

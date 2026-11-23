@@ -1541,3 +1541,9 @@ body.ver-7 .ds-wp.ac-wp { flex: none; background-color: var(--bg-raised); color:
 /* 고른 줄(바탕 bg/raised)에선 층 꼬리표 · 번호 원이 줄과 같은 색이 돼 안 보였다 — 한 단계 짙게(v6 .floor-tag 규칙과 같은 값) */
 body.ver-7 .ac-row[aria-selected="true"] .ds-floor { background-color: var(--bg-inset) !important; }
 body.ver-7 .ac-row[aria-selected="true"] .ds-wp.ac-wp { background-color: var(--bg-inset); }
+
+/* [11/23 디자이너] 안전진단 상세 발생위치 — 번호 원 + 지점 이름 */
+body.ver-7 .jinfo .sf-wpv { display: inline-flex; align-items: center; gap: var(--space-6); max-width: 100%; }
+body.ver-7 .jinfo .sf-wpv > span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body.ver-7 .jinfo .ds-wp.sf-wp { flex: none; background-color: var(--bg-raised); color: var(--text-secondary); }
+:root[data-theme="light"] body.ver-7 .jinfo .ds-wp.sf-wp { background-color: var(--color-gray-100); color: var(--text-tertiary); }

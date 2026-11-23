@@ -286,6 +286,11 @@
     DAYS = window.APRISM_AC6.DAYS;
     ALERTS = window.APRISM_AC6.ALERTS;
     HANDOVER = window.APRISM_AC6.HANDOVER;
+    // [11/23 디자이너] v7 인수인계 요약은 문장이라 번호 원 대신 "n번 지점"(Delta 답변과 같은 말). 보고서에 글로 옮겨도 뜻이 남는다
+    if (document.body.classList.contains("ver-7") && document.documentElement.lang !== "en") {
+      var wpWord = function (t) { return String(t).replace(/WP-0*(\d+)/g, "$1번 지점"); };
+      HANDOVER = { when: HANDOVER.when, items: HANDOVER.items.map(function (it) { return [it[0], wpWord(it[1])]; }) };
+    }
     // [11/10 v7] 미확인 12건은 알림 데이터 한 곳(alert-data-v7.js)에서 — 관제 · 안전진단 · 전체 미션과 같은 알림. 지난 기록 · 조치 요청됨은 위 파일 그대로
     if (window.APRISM_ALERTS7) {
       var C7 = {}; window.APRISM_ALERTS7.forCenter().forEach(function (a) { C7[a.id] = a; });
