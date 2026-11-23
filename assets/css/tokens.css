@@ -63,6 +63,17 @@
   --color-blue-900: #2E539F;
   --color-blue-950: #1E2D4D;
 
+  /* Brand — 클라이언트가 준 로고(assets/img/logo, 11/11 최신판)의 색 그대로(11/24).
+   * GUI 의 blue/* 와 따로 둔다 — 어디에 쓸지는 2단계 브랜딩에서 정한다. 로고 색을 바꾸지 않는 한 손대지 않는다.
+   *   brand-blue       심볼(삼각형) · 밝은 면용      aprism-blue.svg
+   *   brand-blue-light 심볼 · 어두운 면용            aprism-blue-dark.svg
+   *   brand-gray       글자(PRISM) · 밝은 면용      aprism-blue.svg
+   *   brand-gray-light 글자 · 어두운 면용            aprism-blue-dark.svg */
+  --color-brand-blue: #004893;
+  --color-brand-blue-light: #4DA4FF;
+  --color-brand-gray: #7D848C;
+  --color-brand-gray-light: #A0A5AB;
+
   /* Status */
   --color-red-100: #FBEBE9;
   --color-red-200: #FFA69A;
@@ -304,6 +315,9 @@
   --comp-alert-warning-on-edge: var(--color-gray-950);
   --bg-accent: var(--color-blue-400);
   --comp-gnb-brand: var(--color-blue-600);
+  /* 11/24 로고 두 색 — 밝은 면 판(aprism-blue.svg). 어디에 쓸지는 2단계 브랜딩에서 */
+  --brand-symbol: var(--color-brand-blue);
+  --brand-wordmark: var(--color-brand-gray);
   --bg-page: var(--color-gray-200);
   --bg-panel: var(--color-gray-50);
   --comp-button-accent-bg-hover: var(--color-blue-900);
@@ -443,6 +457,8 @@
   --comp-alert-warning-on-edge: var(--color-gray-950);
   --bg-accent: var(--color-blue-400);
   --comp-gnb-brand: var(--color-blue-600);
+  --brand-symbol: var(--color-brand-blue);
+  --brand-wordmark: var(--color-brand-gray);
   --bg-page: var(--color-gray-200);
   --bg-panel: var(--color-gray-50);
   --comp-button-accent-bg-hover: var(--color-blue-900);
@@ -587,6 +603,9 @@
   --comp-alert-warning-on-edge: var(--color-gray-950);
   --bg-accent: var(--color-blue-600);
   --comp-gnb-brand: var(--color-blue-700);
+  /* 11/24 로고 두 색 — 어두운 면 판(aprism-blue-dark.svg) */
+  --brand-symbol: var(--color-brand-blue-light);
+  --brand-wordmark: var(--color-brand-gray-light);
   --bg-page: var(--color-gray-950);
   --bg-panel: var(--color-gray-800);
   --comp-button-accent-bg-hover: var(--color-blue-400);
@@ -789,6 +808,8 @@
   --comp-alert-warning-on-edge: var(--color-gray-950);
   --bg-accent: var(--color-blue-600);
   --comp-gnb-brand: var(--color-blue-700);
+  --brand-symbol: var(--color-brand-blue-light);
+  --brand-wordmark: var(--color-brand-gray-light);
   --bg-page: var(--color-gray-950);
   --bg-panel: var(--color-gray-800);
   --comp-button-accent-bg-hover: var(--color-blue-400);
