@@ -2761,7 +2761,7 @@
       return;
     }
     var show = !!(onLane && botBox && !botBox.hidden && botBox.style.visibility !== "hidden" && !botBox.hasAttribute("data-rr-docked"))
-      && robotKind(onLane.id) === "spot" && st !== "lost";   // [11/05] 긴급정지는 빨간 두 줄, 일시정지는 노란 끊긴 두 줄
+      && (robotKind(onLane.id) === "spot" || document.body.classList.contains("ver-7")) && st !== "lost";   // [11/05] 긴급정지는 빨간 두 줄, 일시정지는 노란 끊긴 두 줄 · [11/23 디자이너] v7 은 휠 로봇도 같은 바닥 라이트
     if (PRESTART && document.body.getAttribute("data-precheck") !== "done") { show = false; }   // [11/23 디자이너] 미션 설정 · 사전 점검 — 도크에 앉아 대기하는 동안 초록 상태 고리를 숨긴다(일어서면 켜짐)
     halo.g.visible = show;
     if (!show) { return; }
@@ -2785,7 +2785,7 @@
       : (arc4 && walk && !rrReduce) ? 0.35 + 0.65 * (0.5 - 0.5 * Math.cos(now / 2400 * Math.PI * 2)) : 1;   // [11/12 v7] 걷는 동안 갈 방향(앞) 호만 점멸 — 시안 2.4초 · 35↔100%
     var sz = DOG_PX * baseSize / (view.clientHeight || 1);   // rrDog 와 같은 배율
     halo.g.position.set(onLane.here.x, onLane.here.y + span * 0.0006, onLane.here.z);
-    halo.g.scale.setScalar(sz * HALO_R * halo.size * 2);
+    halo.g.scale.setScalar(sz * HALO_R * halo.size * 2 * (robotKind(onLane.id) === "wheel" ? 0.9 : 1));   // [11/23] 휠 로봇은 몸이 조금 작아(0.68 vs 0.85) 원도 0.9배
     var dx = onLane.ahead.x - onLane.here.x, dz = onLane.ahead.z - onLane.here.z;
     if (dx * dx + dz * dz > 1e-10) { halo.g.rotation.y = Math.atan2(-dz, dx); }   // 캔버스 +x(앞 호)를 가는 쪽으로
   }
