@@ -286,11 +286,26 @@
     DAYS = window.APRISM_AC6.DAYS;
     ALERTS = window.APRISM_AC6.ALERTS;
     HANDOVER = window.APRISM_AC6.HANDOVER;
+    // [11/23 디자이너] v7 인수인계 요약은 문장이라 번호 원 대신 "n번 지점"(Delta 답변과 같은 말). 보고서에 글로 옮겨도 뜻이 남는다
+    if (document.body.classList.contains("ver-7") && document.documentElement.lang !== "en") {
+      var wpWord = function (t) { return String(t).replace(/WP-0*(\d+)/g, "$1번 지점"); };
+      HANDOVER = { when: HANDOVER.when, items: HANDOVER.items.map(function (it) { return [it[0], wpWord(it[1])]; }) };
+    }
     // [11/10 v7] 미확인 12건은 알림 데이터 한 곳(alert-data-v7.js)에서 — 관제 · 안전진단 · 전체 미션과 같은 알림. 지난 기록 · 조치 요청됨은 위 파일 그대로
     if (window.APRISM_ALERTS7) {
       var C7 = {}; window.APRISM_ALERTS7.forCenter().forEach(function (a) { C7[a.id] = a; });
       ALERTS = ALERTS.map(function (a) { var b = C7[a.id]; delete C7[a.id]; return b || a; })
         .concat(Object.keys(C7).map(function (id) { return C7[id]; }));   // 여기에만 새로 넣은 알림도 목록에 오게
+    }
+    // [11/23 디자이너] v7 DELTA 조치 제안 = 안전진단 상세와 같은 내용(제안 문장 · 조치 · 받는 곳). 오탐 가능성 · 근거 줄은 안전진단처럼 뺀다
+    if (document.body.classList.contains("ver-7") && document.documentElement.lang !== "en" && window.APRISM_ALERTS7 && window.APRISM_ALERTS7.sug) {
+      ALERTS.forEach(function (a) {
+        var s = window.APRISM_ALERTS7.sug(a.mission, a.detect);
+        if (!s || a.done) { return; }
+        a.lead = s[0];
+        a.acts = s[1].map(function (r) { return { t: r[0], delta: !!r[1], to: r[2] }; });
+        a.sug7 = true;
+      });
     }
   }
 
@@ -452,7 +467,9 @@
   //   [11/05 논의] 측정 채널(CH1)은 목록 줄에서 뺐다(관제 최신 알림과 같게) — 채널은 상세가 말한다. 예전: 끝에 '· ' + chOf(a)
   function placeHtml(a, placeCls) {
     return (V6 && a.floor ? '<span class="floor-tag' + (document.body.classList.contains("ver-7") ? " ds-floor" : "") + '">' + esc(a.floor) + '</span>' : "") +
-      '<span class="ac-wp ac-mono-label">' + esc(a.wp) + '</span>' +
+      // [11/23 디자이너] v7 은 WP-nn 대신 웨이포인트 번호 원(관제 알림 목록과 같은 .ds-wp.is-s)
+      (V7 && window.ds && /\d+/.test(a.wp || "") ? window.ds.wp(parseInt(/\d+/.exec(a.wp)[0], 10), { small: true, cls: "ac-wp", attrs: 'role="img" aria-label="' + esc(a.wp) + '"' })
+        : '<span class="ac-wp ac-mono-label">' + esc(a.wp) + '</span>') +
       '<span class="' + placeCls + ' t-body-4">' + esc(a.place) + '</span>';
   }
 
@@ -888,7 +905,7 @@
     var rows = a.acts.slice().sort(function (x, y) { return (y.delta ? 1 : 0) - (x.delta ? 1 : 0); }).map(function (c) {
       var on = chosen.indexOf(c.t) > -1;
       // [11/20 v7] 조치 목록 한 줄은 ds.act (공통 CSS). 누름 처리는 예전 이름(.ma-check, data-act)을 그대로 봄
-      if (V7 && window.ds) { return window.ds.act(esc(c.t), { on: on, ai: !!c.delta, cls: 'ma-check', boxCls: 'ma-check-box', textCls: 'ma-check-label', attrs: 'data-act="' + esc(c.t) + '"' }); }
+      if (V7 && window.ds) { return window.ds.act(esc(c.t), { on: on, ai: !!c.delta, sub: c.to ? esc(c.to) : '', cls: 'ma-check', boxCls: 'ma-check-box', textCls: 'ma-check-label', attrs: 'data-act="' + esc(c.t) + '"' }); }
       return '<button type="button" class="ma-check" role="checkbox" data-act="' + esc(c.t) + '" aria-checked="' + (on ? "true" : "false") + '">' +
         '<span class="ma-check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>' +
         '<span class="ma-check-label">' + esc(c.t) + '</span>' +
@@ -898,18 +915,18 @@
     return '<section class="ac-dl is-light-scope is-dark-scope' + (V7 ? ' ds-delta-card' : '') + '" aria-labelledby="ac-dl-label">' +
       '<div class="ac-dl-head' + (V7 ? ' ds-delta-head' : '') + '">' +
         '<span class="ac-dl-mark' + (V7 ? ' ds-delta-mark' : '') + '">' + icon("--ic-delta", 16) + '<span class="t-caption" id="ac-dl-label">DELTA 조치 제안</span></span>' +
-        '<span class="ac-dl-fp t-caption">오탐 가능성 <span class="ac-dl-fpv' + (fp >= 40 ? " is-high" : fp >= 20 ? " is-mid" : "") + '">' +
-          esc(a.fpLabel || "") + '(' + fp + '%)</span></span>' +
+        (a.sug7 ? "" : '<span class="ac-dl-fp t-caption">오탐 가능성 <span class="ac-dl-fpv' + (fp >= 40 ? " is-high" : fp >= 20 ? " is-mid" : "") + '">' +
+          esc(a.fpLabel || "") + '(' + fp + '%)</span></span>') +
       '</div>' +
       '<p class="ac-dl-lead">' + esc(a.lead) + '</p>' +
       // 근거 — 팝오버에는 자리가 없어 빠진 줄. 알림 센터는 넉넉해 제안 바로 아래에 둔다(11/02 디자이너)
-      (a.why && a.why.length ? '<ul class="ac-dl-why">' +
+      (!a.sug7 && a.why && a.why.length ? '<ul class="ac-dl-why">' +
         a.why.map(function (w) { return '<li class="t-body-4">' + esc(w) + '</li>'; }).join("") + '</ul>' : "") +
       '<div class="ma-checks' + (V7 ? ' ds-acts' : '') + '" role="group" aria-label="조치 내용">' + rows + '</div>' +
       '<div class="ac-dl-memo">' +
         '<label class="t-label-2" for="ac-memo">메모 (선택)</label>' +
         '<textarea class="ma-memo-field" id="ac-memo" data-ac-memo data-ma-memo-field rows="2" maxlength="500" ' +
-          'placeholder="예) 현장 작업자 대피 확인, 안전 요원 배치 후 재가동 준비">' + esc(state.memo[a.id] || "") + '</textarea>' +
+          'placeholder="' + (a.sug7 ? '현장에 전달할 내용' : '예) 현장 작업자 대피 확인, 안전 요원 배치 후 재가동 준비') + '">' + esc(state.memo[a.id] || "") + '</textarea>' +
       '</div>' +
     '</section>';
   }
