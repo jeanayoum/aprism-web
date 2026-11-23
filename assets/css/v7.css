@@ -77,6 +77,8 @@ html[lang="en"] body.ver-7 .done-head [data-done-count]::before { content: "Toda
  *      "현장 점검이 필요해요" 글 · 설명 · "먼저 보는 이유" 상자는 뺀다(위험 상세 확인에서 본다). 제목은 목록 줄과 같은 14 굵게, 아이콘 16 단계색
  */
 body.ver-7 .dc6-card { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: var(--space-8); row-gap: var(--space-12); }   /* [11/13 여백 정리] 갭 10 → 8 */
+/* [11/23] 2칸(아이콘 | 제목)은 맨 위 카드(.dc6-need 있음)에만. 원인 분석처럼 묶음(.dc6-sec)만 있는 답 카드는 한 칸으로 쌓음(2칸에 걸려 옆으로 나뉘던 것) */
+body.ver-7 .dc6-card:not(:has(> .dc6-need)) { grid-template-columns: minmax(0, 1fr); align-items: stretch; }
 body.ver-7 .dc6-card > .dc6-need { grid-column: 1; grid-row: 1; margin: 0; font-size: 16px; line-height: 1; }
 body.ver-7 .dc6-card > .dc6-need > span:not(.i) { display: none; }
 body.ver-7 .dc6-card > .dc6-need > .dc6-diag { width: 16px; height: 16px; }
@@ -426,8 +428,6 @@ body.ver-7 > .toast.sf-toast { position: fixed; bottom: var(--space-32); z-index
 body.ver-7 > .toast.sf-toast .toast-undo[hidden] { display: none; }
 body.ver-7 > .toast.sf-toast:has(.toast-undo[hidden]) { padding-right: var(--space-16); min-height: 34px; }
 
-/* [11/10 v7] 연관 감지 줄 — 지점 · 값 대신 출처 미션(같은 미션). 연관 감지는 같은 미션 안에서만 고른다(safety.js LINKS[미션]) */
-body.ver-7 .sf .rlx .rmi { flex: none; padding: 0 var(--space-8); border-radius: var(--radius-4); background-color: var(--bg-cell); font-size: var(--font-size-14); line-height: var(--font-line-height-22); color: var(--text-secondary); }
 /* 목록 카드 — 진행 배지도 판정 칩 자리(사진 아래 걸침)에. safety.css 는 .pl 없는 줄을 숨긴다 */
 body.ver-7 .sf .rqp-b, body.ver-7 .sf .jrq { align-self: center; }
 /* 측정 이력 판정, 조치 진행 칸(11/23): 칸 너비 104 를 꽉 채운 같은 너비 배지. 가장 긴 "현장 응답 대기" 101. v6.css 같은 세기 규칙을 이기게 .ver-6 을 붙임 */

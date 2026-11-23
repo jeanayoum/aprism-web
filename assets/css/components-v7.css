@@ -1082,10 +1082,10 @@ body.ver-7 .ds-seg > .ds-tab:has(> .ds-dot:is(.is-crit, .is-warn)) > .ds-dot.is-
 :where(body.ver-7) .icon-button.is-secondary { border: var(--border-width-thin) solid var(--comp-button-secondary-border-default); background-color: var(--comp-button-secondary-bg-default); color: var(--comp-button-secondary-text-default); }
 :where(body.ver-7) .icon-button.is-secondary:hover { background-color: var(--comp-button-secondary-bg-hover); }
 
-/* ---------- XSmall 22: 높이 고정, 위아래 패딩 0, 세로 가운데 (.lk 는 보고서 글자 버튼. 안전진단 연관 감지 줄 .rlx.lk 는 이름만 같아 뺌, 11/23) ---------- */
+/* ---------- XSmall 22: 높이 고정, 위아래 패딩 0, 세로 가운데 ---------- */
 body.ver-7 .ah-sort-btn,
 body.ver-7 .rp-link,
-body.ver-7 .lk:not(.rlx) {
+body.ver-7 .lk {
   box-sizing: border-box !important; height: var(--ds-btn-xs-h) !important; min-height: var(--ds-btn-xs-h) !important; display: inline-flex !important; align-items: center !important;
   padding: var(--space-0) var(--ds-btn-xs-pad-x) !important; font-size: var(--ds-btn-sm-font-size) !important; line-height: var(--ds-btn-sm-line-height) !important; font-weight: var(--ds-btn-font-weight) !important; gap: var(--ds-btn-gap) !important;
 }
@@ -1160,8 +1160,8 @@ body.ver-7 .btn.btn-ghost[data-robot-more]:hover, body.ver-7 .btn.btn-ghost.ah-a
 body.ver-7 .btn.btn-ghost.ah-all:not(.z1):not(.z2):not(.z3):not(.z4):not(.z5):not(.z6) { gap: var(--space-2) !important; }
 /* 정보 줄 안: 알림센터 위치 줄의 지도에서 보기, 보고서의 미션 바로가기. 위아래도 2씩 빼서 줄 높이를 키우지 않음 */
 body.ver-7 dd > a.t-caption[href*="main-v"]:not(.z1):not(.z2),
-body.ver-7 .lk:not(.z1):not(.z2):not(.rlx) { display: inline-flex !important; align-items: center !important; box-sizing: border-box !important; height: var(--ds-btn-xs-h) !important; padding: var(--space-0) var(--ds-btn-ghost-pad-x) !important; margin: calc(var(--space-2) * -1) calc(var(--ds-btn-ghost-pad-x) * -1) !important; vertical-align: top !important; align-self: center !important; border-radius: var(--ds-btn-radius) !important; }
-body.ver-7 dd > a.t-caption[href*="main-v"]:hover, body.ver-7 .lk:not(.rlx):hover { background-color: var(--comp-button-ghost-bg-hover) !important; }
+body.ver-7 .lk:not(.z1):not(.z2) { display: inline-flex !important; align-items: center !important; box-sizing: border-box !important; height: var(--ds-btn-xs-h) !important; padding: var(--space-0) var(--ds-btn-ghost-pad-x) !important; margin: calc(var(--space-2) * -1) calc(var(--ds-btn-ghost-pad-x) * -1) !important; vertical-align: top !important; align-self: center !important; border-radius: var(--ds-btn-radius) !important; }
+body.ver-7 dd > a.t-caption[href*="main-v"]:hover, body.ver-7 .lk:hover { background-color: var(--comp-button-ghost-bg-hover) !important; }
 
 /* ---------- 처리 완료 펼치기: 아코디언 트리거 [[✓ 오늘 5건] ⌄] (머리 줄 어디를 눌러도 접고 펼침, v3-panel.js). 건수는 면 없는 태그, 꺾쇠는 그 옆 (11/20) ---------- */
 body.ver-7 .done-head { gap: var(--space-4) !important; }

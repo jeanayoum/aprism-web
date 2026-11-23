@@ -273,7 +273,7 @@
      * [10/30 v6] 재발 여부 — 지난 3회가 모두 정상이면(처음 넘음 · 정상) 한 줄 요약 + 오늘 줄, 지난 기록은 접는다.
      * [11/02] 요약 줄은 결론(처음 넘음)만 — "최근 3회(날짜 ~ 날짜) 모두 정상 범위" 는 접힌 줄 이름이 대신 말하고 날짜는 펼치면 보인다(디자이너).
      * 지난 회에도 넘었으면(반복) 예전처럼 네 줄을 다 보인다 — 반복일 때 판단이 달라진다(디자이너 10/30).
-     * 연관 감지는 근거가 있을 때만 카드를 둔다(아래 dBc).
+     * 연관 감지는 근거가 있을 때만 카드를 둔다(아래 dBc). [11/23 v7] 연관 감지, 원인 후보 카드는 v7 에서 뺌(디자이너)
      */
     const tSplit = t => { const i = t.lastIndexOf(' '); return i < 0 ? t : `<span class="hdt">${t.slice(0, i)}</span><span class="htm">${t.slice(i + 1)}</span>`; };   // 날짜 | 시각 — 시각이 줄마다 같은 선에
     const hiRow = ([t, val, s2, a], n) => `<div class="hi ${n===3 ? 'now' : ''}"><span class="t">${V6 ? tSplit(t) : t}</span><span>${val}</span><span class="verdict-chip${V7 ? ' ds-badge' : ''} is-${s2}">${WORD[s2]}</span><span class="hia ${a && a !== '조치 없음' ? 'on' : ''}">${a}</span></div>`;
@@ -384,7 +384,7 @@
           <div class="dBr2${V6 && bigD && canBig ? ' is-big' : ''}">
             <div class="lvA s2">${step('영상 확인')}${!isHit ? '<span class="why1">시안용 예시 이미지(같은 감지의 사진)</span>' : ''}${media}</div>
             <div class="dBc"><div class="lvB">${V6 ? histV6 : step('재발 여부') + histHtml}${again}</div>
-              ${V6 && !lks.length ? '' : `<div class="lvB s4 ref">${relHead}${relB}</div>`}</div>
+              ${V7 || (V6 && !lks.length) ? '' : `<div class="lvB s4 ref">${relHead}${relB}</div>`}</div>
           </div>
         </div>
         <div class="lvD">${V6 ? '' : step('조치 결정')}${RQ ? reqSide(sug, RQ, nextM) : side}</div>
