@@ -96,14 +96,14 @@ body.ver-7.is-surge .two-col.is-critical::before { content: ""; position: absolu
   }
 };
 const DESC = {
-  d: { now: '판: 지금 다크(붉은 단색 유리).', tint: '판: 지금 다크 판 그대로, Delta 자리(왼쪽 위)에서 보라를 살짝 얹음(보라 약 30%, 판 가운데쯤에서 사라짐). 단계색이 주인공.', spec: '판(이전 안): 라이트 판처럼 보라 → 단계색 그라데이션. 단계색(빨강 · 노랑 · 파랑)이 끝을 맡아 단계는 그대로 읽힘.' },
-  e: { now: '엣지: 지금(빨강 맥박).', onset: '엣지: 새 위험이 뜨는 3.6초(빠른 3박) 동안만 색이 프리즘처럼 흔들렸다가 빨강으로 모임. "새 위험 다시 울리기"로 다시 볼 수 있음.',
+  d: { now: '판: 지금(11/24 메인에 살짝 보라 30% 반영됨).', tint: '판: 지금 다크 판 그대로, Delta 자리(왼쪽 위)에서 보라를 살짝 얹음(보라 약 30%, 판 가운데쯤에서 사라짐). 단계색이 주인공.', spec: '판(이전 안): 라이트 판처럼 보라 → 단계색 그라데이션. 단계색(빨강 · 노랑 · 파랑)이 끝을 맡아 단계는 그대로 읽힘.' },
+  e: { now: '엣지: 지금(11/24 메인에 파동 반영됨, 그 뒤 빨강 맥박).', onset: '엣지: 새 위험이 뜨는 3.6초(빠른 3박) 동안만 색이 프리즘처럼 흔들렸다가 빨강으로 모임. "새 위험 다시 울리기"로 다시 볼 수 있음.',
     rotate: '엣지: 새 위험 순간 보라 → 주황 빛 띠가 테두리를 두 바퀴 돌고 사라짐(3.6초). 그 뒤 빨강 맥박.',
     beam: '엣지: 새 위험 순간 Delta 자리(왼쪽 위)에서 빛 빔 두 줄이 위 · 왼쪽 테두리로 갈라져 달려 오른쪽 아래에서 만나고 사라짐(2.4초). 머리는 밝은 주황, 꼬리는 크림슨 → 보라. 레퍼런스(Border Beam)를 한 번만, Delta 에서 시작하게.',
     wave: '엣지: 새 위험 순간 Delta 자리(왼쪽 위)에서 분광 파동(주황 → 크림슨 → 보라)이 오른쪽 아래로 퍼져 나감(2.6초). 테두리를 타고 가며 지도 위에도 옅게. 그 뒤 빨강 맥박.', corner: '엣지: Delta 뒤 모서리 빛을 분광(주황 → 크림슨 → 보라)으로 넓혀, 빛이 Delta 에서 갈라져 나오게. 테두리 선은 빨강 그대로.' }
 };
-const st = { d: 'tint', e: 'wave' };   // 11/24 엣지 = 파동 결정, 판 = 살짝 보라 시험 중
-try { Object.assign(st, JSON.parse(localStorage.getItem('lab-dspec2') || '{}')); } catch (e) {}
+const st = { d: 'now', e: 'now' };   // 11/24 파동 · 살짝 보라 메인 반영 — '현재'가 곧 결정안
+try { Object.assign(st, JSON.parse(localStorage.getItem('lab-dspec3') || '{}')); } catch (e) {}
 const h = location.hash.slice(1).split('-'); if (h[0] && CSS.d[h[0]] !== undefined) st.d = h[0]; if (h[1] && CSS.e[h[1]] !== undefined) st.e = h[1];
 let src = null; const f = document.getElementById('f');
 async function load() {
@@ -113,7 +113,7 @@ async function load() {
   f.srcdoc = src.replace(/<head>/i, '<head><base href="' + base + '">').replace(/<\/head>/i, css + '</head>');
   document.getElementById('desc').textContent = DESC.d[st.d] + '  ' + DESC.e[st.e];
   for (const k of ['d', 'e']) document.querySelectorAll('#seg-' + k + ' button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === st[k])));
-  try { localStorage.setItem('lab-dspec2', JSON.stringify(st)); } catch (e) {}
+  try { localStorage.setItem('lab-dspec3', JSON.stringify(st)); } catch (e) {}
 }
 for (const k of ['d', 'e']) document.getElementById('seg-' + k).addEventListener('click', e => { const b = e.target.closest('button'); if (b) { st[k] = b.dataset.v; load(); } });
 document.getElementById('again').addEventListener('click', () => { try { const b = f.contentDocument.body; b.classList.remove('is-surge'); void b.offsetWidth; b.classList.add('is-surge'); } catch (e) {} });   // delta-pulse.js surge() 와 같은 일 — 박자를 처음부터
