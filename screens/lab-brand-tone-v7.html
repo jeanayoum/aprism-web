@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>lab · 브랜드 톤 비교 (v7 관제)</title>
+<style>
+/* [11/24 브랜딩 2단계] 관제 main-v7 을 브랜드 파랑(Deep Tech Blue #004B93, 색상각 209°) 톤으로 세 벌 바꿔 보는 실험판.
+ * 화면 파일은 건드리지 않는다 — main-v7.html 을 읽어 srcdoc 으로 띄우고, 토큰만 덮는 <style> 을 head 끝에 넣는다.
+ *   현재: 그대로
+ *   A  : aqua(화면 파랑)만 209° 로 + GNB · 체크도 aqua 하나로(파랑 네 벌 → 하나)
+ *   B  : A + 회색 램프 · 3D 지도 색을 209° 로(밝기 · 채도 그대로)
+ *   C  : B + 어두운 회색(600~950)의 채도를 올려 남색 면으로
+ *   반투명 회색 토큰(--color-alpha-gray-*)은 B · C 에서 바뀐 회색을 따라가게 relative color 로 다시 정의
+ * 위험 · 주의 · 안전 색과 엣지 글로우는 그대로. JS 에 직접 적힌 일부 지도 색은 안 바뀐다. 다크만. */
+:root{color-scheme:dark}
+body{margin:0;background:#05070B;color:#E8ECF2;font:14px/1.5 "SUIT","Malgun Gothic",system-ui,sans-serif}
+.bar{display:flex;flex-wrap:wrap;gap:16px;align-items:center;padding:12px max(16px,env(safe-area-inset-left,0px));border-bottom:1px solid #263042}
+.bar h1{font-size:15px;margin:0;font-weight:700}
+.seg{display:inline-flex;gap:2px;padding:2px;background:#151B25;border-radius:4px}
+.seg button{font:500 13px inherit;color:#97A1B3;background:none;border:0;border-radius:2px;padding:4px 12px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:#E8ECF2;color:#05070B}
+.desc{color:#97A1B3;font-size:13px;flex:1 1 320px}
+.sw{display:flex;gap:4px;align-items:center;font-size:11px;color:#677285}
+.sw i{width:18px;height:18px;border-radius:2px;display:inline-block;border:1px solid #263042}
+.stage{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden}
+.stage iframe{position:absolute;left:0;top:0;width:1920px;height:1080px;border:0;transform-origin:0 0}
+.note{color:#677285;font-size:12px;padding:8px max(16px,env(safe-area-inset-left,0px))}
+</style>
+</head>
+<body>
+<div class="bar">
+  <h1>브랜드 톤 비교</h1>
+  <div class="seg" id="seg" role="group" aria-label="톤">
+    <button type="button" data-t="now" aria-pressed="true">현재</button>
+    <button type="button" data-t="A">A 파랑만</button>
+    <button type="button" data-t="B">B 파랑 + 회색</button>
+    <button type="button" data-t="C">C 남색 면</button>
+  </div>
+  <div class="desc" id="desc"></div>
+  <div class="sw" id="sw"></div>
+</div>
+<div class="stage" id="stage"><iframe id="f" title="관제 화면 톤 비교"></iframe></div>
+<p class="note">관제 화면(main-v7)을 그대로 불러와 색 토큰만 덮어요. 위험 · 주의 · 안전 색과 엣지 글로우는 바꾸지 않아요. 지도 일부 색은 스크립트에 직접 적혀 있어 안 바뀔 수 있어요. 톤을 바꾸면 화면을 다시 불러와요.</p>
+<script>
+const TONES = {"A": "--color-aqua-50:#EAF5FF;--color-aqua-200:#9ED0FF;--color-aqua-500:#4DA9FF;--color-aqua-700:#176FC2;--color-aqua-800:#0F66B8;--color-aqua-600:#1383EB;--comp-gnb-brand:var(--color-aqua-700);", "B": "--color-gray-50:#F7F9FA;--color-gray-100:#F0F3F5;--color-gray-200:#E0E5E9;--color-gray-300:#D1D8DE;--color-gray-400:#AFBCC8;--color-gray-450:#9EADBB;--color-gray-500:#667685;--color-gray-600:#4E5C6A;--color-gray-650:#3F4E5C;--color-gray-700:#37434E;--color-gray-750:#2C3843;--color-gray-800:#202C38;--color-gray-850:#151E26;--color-gray-900:#0A1015;--color-gray-950:#070C10;--color-map3d-floor:#18232E;--color-map3d-wall:#3A4D5F;--color-map3d-equipment:#41566A;--color-map3d-stairs:#34485A;--color-map3d-other:#36495A;--color-map3d-edge:#7B98B4;--color-map3d-ghost:#6A7E90;--color-map3d-grid:#1F2E3C;--color-map3d-hover-line:#9AA4AE;--color-map3d-l-floor:#BFC6CC;--color-map3d-l-wall:#DFE3E6;--color-map3d-l-equipment:#E1E5E8;--color-map3d-l-stairs:#D8DCDF;--color-map3d-l-edge:#868D93;--color-map3d-l-grid:#C4CBD1;--color-map3d-l-pick-face:#CFE8FF;--color-map3d-l-pick-line:#1D7DD6;--color-map3d-l-hover-line:#5B6977;--color-map3d-run-left:#4DA9FF;--color-map3d-idle-done:#889AAA;--color-map3d-idle-left:#5D6975;--color-map3d-idle-dot:#AEBBC8;--color-map3d-l-run-done:#4B5763;--color-map3d-l-run-left:#1383EB;--color-map3d-l-run-dot:#2B3136;--color-aqua-50:#EAF5FF;--color-aqua-200:#9ED0FF;--color-aqua-500:#4DA9FF;--color-aqua-700:#176FC2;--color-aqua-800:#0F66B8;--color-aqua-600:#1383EB;--comp-gnb-brand:var(--color-aqua-700);--color-alpha-gray-300-40:rgb(from var(--color-gray-300) r g b / 40%);--color-alpha-gray-600-40:rgb(from var(--color-gray-600) r g b / 40%);--color-alpha-gray-900-50:rgb(from var(--color-gray-900) r g b / 50%);--color-alpha-gray-950-60:rgb(from var(--color-gray-950) r g b / 60%);--color-alpha-gray-750-55:rgb(from var(--color-gray-750) r g b / 55%);--color-alpha-gray-950-8:rgb(from var(--color-gray-950) r g b / 8%);--color-alpha-gray-950-18:rgb(from var(--color-gray-950) r g b / 18%);--color-alpha-gray-950-55:rgb(from var(--color-gray-950) r g b / 55%);", "C": "--color-gray-50:#F7F9FA;--color-gray-100:#F0F3F5;--color-gray-200:#E0E5E9;--color-gray-300:#D1D8DE;--color-gray-400:#AFBCC8;--color-gray-450:#9EADBB;--color-gray-500:#667685;--color-gray-600:#3D5D7B;--color-gray-650:#2E4F6D;--color-gray-700:#29435C;--color-gray-750:#1E3851;--color-gray-800:#122D46;--color-gray-850:#0B1E30;--color-gray-900:#04101B;--color-gray-950:#030C14;--color-map3d-floor:#0B243B;--color-map3d-wall:#244E75;--color-map3d-equipment:#285783;--color-map3d-stairs:#1D4871;--color-map3d-other:#204970;--color-map3d-edge:#7B98B4;--color-map3d-ghost:#6A7E90;--color-map3d-grid:#0E2F4D;--color-map3d-hover-line:#9AA4AE;--color-map3d-l-floor:#BFC6CC;--color-map3d-l-wall:#DFE3E6;--color-map3d-l-equipment:#E1E5E8;--color-map3d-l-stairs:#D8DCDF;--color-map3d-l-edge:#868D93;--color-map3d-l-grid:#C4CBD1;--color-map3d-l-pick-face:#CFE8FF;--color-map3d-l-pick-line:#1D7DD6;--color-map3d-l-hover-line:#4A6A88;--color-map3d-run-left:#4DA9FF;--color-map3d-idle-done:#889AAA;--color-map3d-idle-left:#4F6A83;--color-map3d-idle-dot:#AEBBC8;--color-map3d-l-run-done:#3D5871;--color-map3d-l-run-left:#1383EB;--color-map3d-l-run-dot:#24313D;--color-aqua-50:#EAF5FF;--color-aqua-200:#9ED0FF;--color-aqua-500:#4DA9FF;--color-aqua-700:#176FC2;--color-aqua-800:#0F66B8;--color-aqua-600:#1383EB;--comp-gnb-brand:var(--color-aqua-700);--color-alpha-gray-300-40:rgb(from var(--color-gray-300) r g b / 40%);--color-alpha-gray-600-40:rgb(from var(--color-gray-600) r g b / 40%);--color-alpha-gray-900-50:rgb(from var(--color-gray-900) r g b / 50%);--color-alpha-gray-950-60:rgb(from var(--color-gray-950) r g b / 60%);--color-alpha-gray-750-55:rgb(from var(--color-gray-750) r g b / 55%);--color-alpha-gray-950-8:rgb(from var(--color-gray-950) r g b / 8%);--color-alpha-gray-950-18:rgb(from var(--color-gray-950) r g b / 18%);--color-alpha-gray-950-55:rgb(from var(--color-gray-950) r g b / 55%);"};
+const DESC = {
+  now: '지금 화면. 회색 220°, aqua 206°, GNB · 체크는 blue-600.',
+  A: '화면 파랑(aqua)만 브랜드 색상각 209°로. GNB · 체크도 aqua 하나로 묶음.',
+  B: 'A + 회색 램프와 3D 지도 색을 209°로. 밝기 · 채도는 그대로라 층 간격은 같음.',
+  C: 'B + 어두운 회색의 채도를 올려 바탕 · 패널이 남색. 파랑 신호가 묻히는지 볼 것.'
+};
+const SW = {now:['#070A10','#2C3443','#4E576A','#1778C2','#4DB2FF'], A:null, B:null, C:null};
+function val(t, k){ const m = (TONES[t]||'').match(new RegExp('--'+k+':(#[0-9A-F]{6})')); return m ? m[1] : null; }
+['A','B','C'].forEach(t => SW[t] = ['color-gray-950','color-gray-750','color-gray-600','color-aqua-700','color-aqua-500'].map((k,i) => val(t,k) || SW.now[i]));
+let src = null;
+const f = document.getElementById('f');
+async function load(t){
+  if (!src) src = await (await fetch('main-v7.html', {cache:'no-cache'})).text();
+  const base = location.href.replace(/[^/]*$/, '');
+  const css = t === 'now' ? '' : '<style id="lab-tone">html:root,html:root[data-theme]{' + TONES[t] + '}</style>';
+  let h = src.replace(/<head>/i, '<head><base href="' + base + '">');
+  h = h.replace(/<\/head>/i, css + '</head>');
+  f.srcdoc = h;
+  document.getElementById('desc').textContent = DESC[t];
+  document.getElementById('sw').innerHTML = SW[t].map(c => '<i style="background:' + c + '" title="' + c + '"></i>').join('') + '<span>바탕 · 패널 · 테 · 주요 · 상태</span>';
+  document.querySelectorAll('#seg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.t === t)));
+  try { localStorage.setItem('lab-tone', t); } catch (e) {}
+}
+function fit(){ const s = document.getElementById('stage').clientWidth / 1920; f.style.transform = 'scale(' + s + ')'; }
+addEventListener('resize', fit); fit();
+document.getElementById('seg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) load(b.dataset.t); });
+let start = location.hash.slice(1); if (!start) { try { start = localStorage.getItem('lab-tone') || 'now'; } catch (e) { start = 'now'; } }
+if (!(start in DESC)) start = 'now';
+load(start);
+</script>
+</body>
+</html>
