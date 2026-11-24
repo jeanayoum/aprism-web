@@ -1666,13 +1666,13 @@ body.ver-7 .mp-hq-tags > .ds-badge { position: absolute; max-width: 100%; overfl
  *   나가기    떠 있는 판이 나감: --ds-motion-exit + --ds-ease-exit (들어오기보다 짧게)
  *   나타남    판 안에 새 상자, 토스트: --ds-motion-base + --ds-ease-base, 아래에서 --ds-motion-rise 만큼 올라오며 흐림 → 또렷 (.ds-appear, @keyframes ds-appear)
  *   상태 바뀜 올림, 고름, 화살표 돌기: --ds-motion-fast
- *   완료      조치가 끝난 순간(완료 물결, 새 기록 줄 반짝임)은 파랑, 청록, 보라 세 단 --ds-motion-done(-2, -3). 초록(판정 정상 색)을 쓰지 않음(11/20 정함)
+ *   완료      조치가 끝난 순간(완료 물결, 새 기록 줄 반짝임)은 파랑 한 벌의 명도 세 단 --ds-motion-done(-2, -3). 초록(판정 정상 색)을 쓰지 않음(11/20), 여러 색 분광은 DELTA 에만이라 청록 · 보라를 뺌(11/25)
  *   움직임 줄이기(prefers-reduced-motion) 이면 길이 모두 0. JS 는 같은 값을 읽고 따로 끔
  *   팝업마다 무엇이 어떤 순서로 움직이는지(안무)는 그 사례에 적고, 숫자는 이 값만 씀
  * ========================================================================== */
-/* 완료 색 세 단: 파랑, 청록, 보라(완료 물결 원래 값). 청록, 보라는 기본 색 토큰이 없어 숫자 */
-body.ver-7 { --ds-motion-done: var(--color-blue-700); --ds-motion-done-2: rgb(86 200 230); --ds-motion-done-3: rgb(150 110 240); }
-:root[data-theme="light"] body.ver-7 { --ds-motion-done: rgb(40 100 200); --ds-motion-done-2: rgb(20 150 190); --ds-motion-done-3: rgb(120 80 210); }
+/* [11/25 디자이너] 완료 색 세 단 = 파랑 한 벌의 명도 차이(시각 언어 "분광": 여러 색으로 갈라지는 건 DELTA 뿐, 조치 요청은 사람이 한 일). 예전 파랑 · 청록 · 보라 */
+body.ver-7 { --ds-motion-done: var(--color-blue-700); --ds-motion-done-2: var(--color-blue-500); --ds-motion-done-3: var(--color-blue-300); }
+:root[data-theme="light"] body.ver-7 { --ds-motion-done: var(--color-blue-900); --ds-motion-done-2: var(--color-blue-750); --ds-motion-done-3: var(--color-blue-600); }
 @media (prefers-reduced-motion: reduce) { body.ver-7 { --ds-motion-fast: 0ms; --ds-motion-base: 0ms; --ds-motion-exit: 0ms; --ds-motion-enter: 0ms; --ds-motion-slow: 0ms; --ds-motion-flash: 0ms; } }
 @keyframes ds-done-flash { 0%, 25% { opacity: 1; } 100% { opacity: 0; } }
 /* 새 기록 줄 반짝임: 예전 초록 면(monitor.css done-new) → 완료 색 세 단 띠가 옅어짐 */

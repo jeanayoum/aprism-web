@@ -1696,7 +1696,7 @@
     /*
      * [11/11 v7 디자이너] 물결 전환 — 실험 화면(lab-req-wave-v7)에서 고른 값. 참고 Distortion Waves(SwiftUI · Metal, MIT)를 웹으로 다시 짬.
      *   옛 판(복제)을 위에 덮고 SVG 필터로 일그러뜨리며, [조치 요청] 단추 자리부터 넓어지는 원형 가림으로 "조치 요청됨" 판을 드러낸다.
-     *   원 가장자리엔 브랜드 그라데이션 물결(파랑 → 청록 → 보라) · 튀는 점, 끝나면 테 빛이 0.9초 남았다 빠진다. 동작 줄이기면 바로 바뀐다
+     *   원 가장자리엔 완료 물결(파랑 명도 세 단, 11/25) · 튀는 점, 끝나면 테 빛이 0.9초 남았다 빠진다. 동작 줄이기면 바로 바뀐다
      */
     var wvRun = 0;
     // [11/11 디자이너] 일그러짐(SVG 필터)은 뺀다 — disp 0 이면 필터를 걸지 않는다. 원형 걷힘 · 물결 띠 · 점 · 테 빛 · 당김은 그대로
@@ -1713,7 +1713,7 @@
       }).join("");
       document.body.appendChild(svg);
     }
-    // [11/20] 완료 물결 색 = 공통 모션 완료 색 세 단(--ds-motion-done, -2, -3 = 파랑, 청록, 보라). 값은 공통 CSS 에서
+    // [11/20] 완료 물결 색 = 공통 모션 완료 색 세 단(--ds-motion-done, -2, -3 = 파랑 한 벌 명도 세 단, 11/25). 값은 공통 CSS 에서
     function wvPal(a) {
       var p = Math.round(a * 100);
       return ["--ds-motion-done", "--ds-motion-done-2", "--ds-motion-done-3"].map(function (n) { return "color-mix(in srgb, var(" + n + ") " + p + "%, transparent)"; });
