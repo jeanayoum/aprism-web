@@ -1,0 +1,36 @@
+
+:root[data-palette="neutral"] {
+  --color-gray-50: #F6F8FB;
+  --color-gray-100: #F0F1F4;
+  --color-gray-200: #E1E3E6;
+  --color-gray-300: #D3D5D8;
+  --color-gray-400: #B5B7B9;
+  --color-gray-450: #A6A8AA;
+  --color-gray-500: #6E7072;
+  --color-gray-600: #565759;
+  --color-gray-650: #47484A;
+  --color-gray-700: #3E3F41;
+  --color-gray-750: #333436;
+  --color-gray-800: #27282A;
+  --color-gray-850: #1A1C1D;
+  --color-gray-900: #0D0E10;
+  --color-gray-950: #090A0C;
+
+  --color-red-100: #FFE8E6;
+  --color-red-200: #FFB5AE;
+  --color-red-300: #FD736D;
+  --color-red-500: #F52F39;
+  --color-red-700: #B71824;
+  --color-red-800: #861118;
+  --color-red-900: #460A0B;
+}
+
+
+:root[data-palette="neutral"] .v3 .delta3:not(.is-open) {
+  background-image: radial-gradient(
+    circle 226px at 0 0,
+    var(--color-gray-600) 0%,
+    rgb(50 51 53 / 50%) 50%,
+    rgb(13 14 16 / 0%) 100%
+  );
+}

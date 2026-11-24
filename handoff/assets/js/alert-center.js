@@ -1,0 +1,1644 @@
+(function() {
+  "use strict";
+  function $(sel, root) {
+    return (root || document).querySelector(sel);
+  }
+  function $$(sel, root) {
+    return Array.prototype.slice.call((root || document).querySelectorAll(sel));
+  }
+  function esc(t) {
+    return String(t).replace(/[&<>"]/g, function(c) {
+      return {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;"
+      }[c];
+    });
+  }
+  var SEV_LABEL = {
+    critical: "위험",
+    warning: "주의"
+  };
+  var SEV_ICON = {
+    critical: "--ic-error",
+    warning: "--ic-warning"
+  };
+  var DAYS = {
+    today: {
+      label: "오늘",
+      rank: 3
+    },
+    yesterday: {
+      label: "어제",
+      rank: 2
+    },
+    "d-1011": {
+      label: "10월 11일 (일)",
+      rank: 1
+    }
+  };
+  var ALERTS = [ {
+    id: "A-1",
+    sev: "critical",
+    day: "today",
+    time: "10:11:19",
+    stamp: "2026-10-13 10:11:19",
+    title: "안전모 미착용 작업자 감지",
+    wp: "WP-07",
+    place: "지하발전소 B3 터빈 2",
+    mission: "터빈 정기점검",
+    detect: "안전감지",
+    robot: "R-07",
+    live: "ppe",
+    lead: "작업자에게 안전모 착용 안내가 필요합니다.",
+    why: [ "WP-07에서 최근 7일 NG 3회 (10/08 · 10/11 · 오늘)", "지난 2회는 설비 담당 전달로 처리 · 평균 6분", "같은 미션 계기판 지침 이탈(WP-05)이 2분 전 발생" ],
+    fp: 12,
+    fpLabel: "낮음",
+    acts: [ {
+      t: "작업 중지 요청",
+      delta: true
+    }, {
+      t: "전화 안내",
+      delta: true
+    }, {
+      t: "현장 확인"
+    }, {
+      t: "설비 담당 전달"
+    }, {
+      t: "오탐 처리"
+    } ]
+  }, {
+    id: "A-2",
+    sev: "critical",
+    day: "today",
+    time: "10:11:19",
+    stamp: "2026-10-13 10:11:19",
+    title: "터빈 2 NG 1건 발견",
+    wp: "WP-07",
+    place: "지하발전소 B3 터빈 2",
+    mission: "터빈 정기점검",
+    detect: "계기판독",
+    robot: "R-07",
+    live: "discharge",
+    lead: "재측정 뒤 설비 담당에게 전달하는 것이 좋겠습니다.",
+    why: [ "Spiral Casing Pr. 측정값 90 · 기준값 87 초과", "최근 3회 측정이 잇달아 올라 NG 로 판정", "같은 웨이포인트에서 안전모 미착용이 함께 올라옴" ],
+    fp: 18,
+    fpLabel: "낮음",
+    acts: [ {
+      t: "재측정 요청",
+      delta: true
+    }, {
+      t: "설비 담당 전달",
+      delta: true
+    }, {
+      t: "현장 확인"
+    }, {
+      t: "작업 중지 요청"
+    }, {
+      t: "오탐 처리"
+    } ]
+  }, {
+    id: "A-3",
+    sev: "critical",
+    day: "yesterday",
+    time: "어제 21:02",
+    stamp: "2026-10-12 21:02:44",
+    title: "탱크 외벽 균열 의심",
+    wp: "WP-02",
+    place: "옥외 저장탱크 T-3 외벽",
+    mission: "옥외 저장탱크 순찰",
+    detect: "외관검사",
+    robot: "R-03",
+    live: "deid",
+    lead: "날이 밝으면 현장 확인이 필요합니다.",
+    why: [ "균열 패턴 신뢰도 0.91 · 임계 0.70 초과", "지난달 같은 자리에서 0.63 으로 한 번 걸러짐", "야간 순찰이라 조도가 낮아 재촬영 권장" ],
+    fp: 24,
+    fpLabel: "보통",
+    acts: [ {
+      t: "현장 확인",
+      delta: true
+    }, {
+      t: "주간 재촬영",
+      delta: true
+    }, {
+      t: "설비 담당 전달"
+    }, {
+      t: "오탐 처리"
+    } ]
+  }, {
+    id: "A-4",
+    sev: "warning",
+    day: "yesterday",
+    time: "어제 20:47",
+    stamp: "2026-10-12 20:47:03",
+    title: "가스 농도 기준 초과",
+    wp: "WP-09",
+    place: "옥외 저장탱크 T-3 밸브실",
+    mission: "옥외 저장탱크 순찰",
+    detect: "가스감지",
+    robot: "R-03",
+    live: "discharge",
+    lead: "밸브실 출입을 막고 환기부터 해야 합니다.",
+    why: [ "측정 농도 42 ppm · 경보 기준 25 ppm 초과", "4분 동안 계속 올라 자연 환기로는 내려가지 않음", "밸브실은 밀폐 공간 — 출입 통제가 먼저" ],
+    fp: 8,
+    fpLabel: "낮음",
+    acts: [ {
+      t: "출입 통제",
+      delta: true
+    }, {
+      t: "환기 요청",
+      delta: true
+    }, {
+      t: "전화 안내"
+    }, {
+      t: "설비 담당 전달"
+    }, {
+      t: "오탐 처리"
+    } ]
+  }, {
+    id: "A-5",
+    sev: "warning",
+    day: "today",
+    time: "10:09:42",
+    stamp: "2026-10-13 10:09:42",
+    title: "계기판 지침 정상 범위 이탈",
+    wp: "WP-05",
+    place: "지하발전소 B3 터빈 1",
+    mission: "터빈 정기점검",
+    detect: "계기판독",
+    robot: "R-07",
+    live: "discharge",
+    lead: "다음 순회에서 재측정하면 되겠습니다.",
+    why: [ "지침 92 · 정상 범위 84~90 에서 2 벗어남", "앞선 2회는 범위 안이라 추이로는 아직 판단 못 함", "같은 미션 WP-07 NG 와 설비가 다름" ],
+    fp: 31,
+    fpLabel: "보통",
+    acts: [ {
+      t: "다음 순회 재측정",
+      delta: true
+    }, {
+      t: "추이 관찰",
+      delta: true
+    }, {
+      t: "현장 확인"
+    }, {
+      t: "오탐 처리"
+    } ]
+  }, {
+    id: "A-6",
+    sev: "warning",
+    day: "today",
+    time: "10:08:15",
+    stamp: "2026-10-13 10:08:15",
+    title: "누출감지 · 냉각수 배관 밸브",
+    wp: "WP-03",
+    place: "지하발전소 B3 냉각수 배관",
+    mission: "터빈 정기점검",
+    detect: "누출감지",
+    robot: "R-07",
+    live: "discharge",
+    lead: "현장 점검을 요청하는 것이 좋겠습니다.",
+    why: [ "누출 패턴 신뢰도 0.87 · 임계 0.70 초과", "연속 2프레임에서 같은 자리에 나옴", "같은 배관에서 지난주 체결 작업 기록 있음" ],
+    fp: 15,
+    fpLabel: "낮음",
+    acts: [ {
+      t: "현장 점검 요청",
+      delta: true
+    }, {
+      t: "설비 담당 전달",
+      delta: true
+    }, {
+      t: "다음 순회 재측정"
+    }, {
+      t: "오탐 처리"
+    } ]
+  }, {
+    id: "A-7",
+    sev: "warning",
+    day: "today",
+    time: "10:06:41",
+    stamp: "2026-10-13 10:06:41",
+    title: "부분방전 · 이상 점수 9.41",
+    wp: "WP-06",
+    place: "지하발전소 B3 수배전반",
+    mission: "전기실 순회",
+    detect: "부분방전",
+    robot: "R-02",
+    live: "discharge",
+    lead: "재진단을 예약해 두는 편이 좋습니다.",
+    why: [ "이상 점수 9.41 · 임계 9.23 초과", "PRPD 패턴이 코로나 방전 유형과 일치", "같은 수배전반에서 8월에 같은 유형 1회" ],
+    fp: 21,
+    fpLabel: "보통",
+    acts: [ {
+      t: "재진단 예약",
+      delta: true
+    }, {
+      t: "현장 점검 요청",
+      delta: true
+    }, {
+      t: "추이 관찰"
+    }, {
+      t: "오탐 처리"
+    } ]
+  }, {
+    id: "A-8",
+    sev: "warning",
+    day: "today",
+    time: "10:04:02",
+    stamp: "2026-10-13 10:04:02",
+    title: "진동 상승 · 냉각 펌프 P-2",
+    wp: "WP-12",
+    place: "지하발전소 B3 냉각 펌프",
+    mission: "터빈 정기점검",
+    detect: "진동측정",
+    robot: "R-07",
+    live: "discharge",
+    lead: "베어링 점검을 요청하는 것이 좋겠습니다.",
+    why: [ "진동 RMS 4.8 mm/s · 주의 기준 4.5 초과", "최근 3회 측정에서 계속 오름", "같은 펌프 과열 기록은 없음" ],
+    fp: 17,
+    fpLabel: "낮음",
+    acts: [ {
+      t: "베어링 점검 요청",
+      delta: true
+    }, {
+      t: "다음 순회 재측정",
+      delta: true
+    }, {
+      t: "추이 관찰"
+    }, {
+      t: "오탐 처리"
+    } ]
+  }, {
+    id: "A-9",
+    sev: "warning",
+    day: "today",
+    time: "10:01:58",
+    stamp: "2026-10-13 10:01:58",
+    title: "과열 · 발전기 베어링 68.4℃",
+    wp: "WP-02",
+    place: "지하발전소 B3 발전기",
+    mission: "터빈 정기점검",
+    detect: "열화상",
+    robot: "R-07",
+    live: "discharge",
+    lead: "윤활 상태 점검을 요청해 주세요.",
+    why: [ "표면 온도 68.4℃ · 주의 기준 65℃ 초과", "주변 온도보다 31℃ 높음", "지난 윤활 작업이 6주 전" ],
+    fp: 13,
+    fpLabel: "낮음",
+    acts: [ {
+      t: "윤활 상태 점검 요청",
+      delta: true
+    }, {
+      t: "열화상 재촬영",
+      delta: true
+    }, {
+      t: "추이 관찰"
+    }, {
+      t: "오탐 처리"
+    } ]
+  }, {
+    id: "A-10",
+    sev: "warning",
+    day: "today",
+    time: "09:58:30",
+    stamp: "2026-10-13 09:58:30",
+    title: "압력 편차 · 공기 압축기 C-1",
+    wp: "WP-20",
+    place: "지하발전소 B3 압축기실",
+    mission: "설비 순회",
+    detect: "압력측정",
+    robot: "R-05",
+    live: "discharge",
+    lead: "흡입 필터 점검을 요청하는 것이 좋겠습니다.",
+    why: [ "토출 압력 7.9 bar · 정상 범위 8.2~8.8 아래", "필터 교체 주기가 2주 지났음", "같은 압축기에서 지난달 같은 편차 1회" ],
+    fp: 19,
+    fpLabel: "낮음",
+    acts: [ {
+      t: "필터 점검 요청",
+      delta: true
+    }, {
+      t: "재측정 예약",
+      delta: true
+    }, {
+      t: "추이 관찰"
+    }, {
+      t: "오탐 처리"
+    } ]
+  }, {
+    id: "A-11",
+    sev: "warning",
+    day: "yesterday",
+    time: "어제 20:12",
+    stamp: "2026-10-12 20:12:19",
+    title: "안전난간 개방 감지",
+    wp: "WP-04",
+    place: "옥외 저장탱크 T-3 계단",
+    mission: "옥외 저장탱크 순찰",
+    detect: "안전감지",
+    robot: "R-03",
+    live: "deid",
+    lead: "난간을 닫아 달라고 전달해 주세요.",
+    why: [ "난간 개방 상태 신뢰도 0.84 · 임계 0.70 초과", "야간이라 작업자 통행은 확인되지 않음", "같은 계단에서 9월에 2회 같은 알림" ],
+    fp: 26,
+    fpLabel: "보통",
+    acts: [ {
+      t: "설비 담당 전달",
+      delta: true
+    }, {
+      t: "주간 재촬영",
+      delta: true
+    }, {
+      t: "현장 확인"
+    }, {
+      t: "오탐 처리"
+    } ]
+  }, {
+    id: "B-1",
+    sev: "critical",
+    day: "today",
+    time: "09:48:12",
+    stamp: "2026-10-13 09:48:12",
+    title: "안전모 미착용 작업자 감지",
+    wp: "WP-10",
+    place: "지하발전소 B3 작업구역",
+    mission: "터빈 정기점검",
+    detect: "안전감지",
+    robot: "R-07 · CAM-13",
+    live: "ppe",
+    done: {
+      day: "today",
+      at: "09:54",
+      by: "김현대",
+      took: "발생 후 6분",
+      picked: [ "전화 안내", "안전모 착용 확인" ],
+      memo: "작업반장 통화 · 즉시 착용 확인",
+      delta: "AI 추천 그대로 사용 (전화 안내 · 안전모 착용 확인)"
+    }
+  }, {
+    id: "B-2",
+    sev: "critical",
+    day: "today",
+    time: "09:36:40",
+    stamp: "2026-10-13 09:36:40",
+    title: "위험 구역 내 작업자 체류",
+    wp: "WP-11",
+    place: "지하발전소 B3 방호문 안쪽",
+    mission: "설비 순회",
+    detect: "안전감지",
+    robot: "R-05 · CAM-04",
+    live: "ppe",
+    done: {
+      day: "today",
+      at: "09:41",
+      by: "홍길동",
+      took: "발생 후 5분",
+      picked: [ "작업 중지 요청", "현장 확인" ],
+      memo: "설비 2팀 자재 반입 중 · 통제선 재설치",
+      delta: "AI 추천 그대로 사용 (작업 중지 요청 · 현장 확인)"
+    }
+  }, {
+    id: "B-3",
+    sev: "critical",
+    day: "yesterday",
+    time: "어제 23:51",
+    stamp: "2026-10-12 23:51:07",
+    title: "작업자 쓰러짐 의심",
+    wp: "WP-15",
+    place: "지하발전소 B4 펌프실",
+    mission: "설비 순회",
+    detect: "안전감지",
+    robot: "R-05 · CAM-09",
+    live: "deid",
+    done: {
+      day: "today",
+      at: "08:33",
+      by: "김현대",
+      took: "발생 후 8시간 42분",
+      picked: [ "현장 확인", "전화 안내" ],
+      memo: "야간 무인 구간 · 교대 인수 뒤 현장 확인. 쪼그려 작업으로 확인됨",
+      delta: "AI 추천 가운데 일부만 사용 (현장 확인)"
+    }
+  }, {
+    id: "B-4",
+    sev: "warning",
+    day: "today",
+    time: "09:20:11",
+    stamp: "2026-10-13 09:20:11",
+    title: "안전화 미착용 감지",
+    wp: "WP-10",
+    place: "지하발전소 B3 작업구역",
+    mission: "터빈 정기점검",
+    detect: "안전감지",
+    robot: "R-07 · CAM-13",
+    live: "ppe",
+    done: {
+      day: "today",
+      at: "09:26",
+      by: "이수진",
+      took: "발생 후 6분",
+      picked: [ "전화 안내", "보호구 착용 확인" ],
+      memo: "",
+      delta: "AI 추천 그대로 사용 (전화 안내 · 보호구 착용 확인)"
+    }
+  }, {
+    id: "B-5",
+    sev: "warning",
+    day: "today",
+    time: "09:19:35",
+    stamp: "2026-10-13 09:19:35",
+    title: "소화기 지정 위치 이탈",
+    wp: "WP-13",
+    place: "지하발전소 B3 계단참",
+    mission: "설비 순회",
+    detect: "외관검사",
+    robot: "R-05 · CAM-02",
+    live: "discharge",
+    done: {
+      day: "today",
+      at: "09:26",
+      by: "이수진",
+      took: "발생 후 7분",
+      picked: [ "현장 확인", "설비 담당 전달" ],
+      memo: "청소 중 이동 · 원위치 완료",
+      delta: "AI 추천 그대로 사용 (현장 확인 · 설비 담당 전달)"
+    }
+  }, {
+    id: "B-6",
+    sev: "warning",
+    day: "today",
+    time: "08:52:49",
+    stamp: "2026-10-13 08:52:49",
+    title: "배관 결로 과다",
+    wp: "WP-03",
+    place: "지하발전소 B3 냉각수 배관",
+    mission: "터빈 정기점검",
+    detect: "누출감지",
+    robot: "R-07 · CAM-06",
+    live: "discharge",
+    done: {
+      day: "today",
+      at: "09:02",
+      by: "홍길동",
+      took: "발생 후 10분",
+      picked: [ "오탐 처리" ],
+      memo: "누출 아님 · 결로로 확인",
+      delta: "AI 추천을 쓰지 않음 (추천: 현장 점검 요청)"
+    }
+  }, {
+    id: "B-7",
+    sev: "critical",
+    day: "yesterday",
+    time: "어제 16:05",
+    stamp: "2026-10-12 16:05:22",
+    title: "출입 제한구역 무단 진입 감지",
+    wp: "WP-17",
+    place: "지하발전소 B4 고압반실",
+    mission: "전기실 순회",
+    detect: "안전감지",
+    robot: "R-02 · CAM-11",
+    live: "ppe",
+    done: {
+      day: "yesterday",
+      at: "16:07",
+      by: "홍길동",
+      took: "발생 후 2분",
+      picked: [ "작업 중지 요청" ],
+      memo: "협력사 인원 · 출입 교육 재안내",
+      delta: "AI 추천 그대로 사용 (작업 중지 요청)"
+    }
+  }, {
+    id: "B-8",
+    sev: "warning",
+    day: "yesterday",
+    time: "어제 18:40",
+    stamp: "2026-10-12 18:40:16",
+    title: "진동 센서 값 상승",
+    wp: "WP-12",
+    place: "지하발전소 B3 냉각 펌프",
+    mission: "터빈 정기점검",
+    detect: "진동측정",
+    robot: "R-07 · CAM-08",
+    live: "discharge",
+    done: {
+      day: "yesterday",
+      at: "18:52",
+      by: "이수진",
+      took: "발생 후 12분",
+      picked: [ "설비 담당 전달" ],
+      memo: "",
+      delta: "AI 추천 그대로 사용 (설비 담당 전달)"
+    }
+  }, {
+    id: "B-9",
+    sev: "warning",
+    day: "yesterday",
+    time: "어제 14:27",
+    stamp: "2026-10-12 14:27:58",
+    title: "바닥 물고임 감지",
+    wp: "WP-15",
+    place: "지하발전소 B4 펌프실",
+    mission: "설비 순회",
+    detect: "외관검사",
+    robot: "R-05 · CAM-09",
+    live: "discharge",
+    done: {
+      day: "yesterday",
+      at: "14:40",
+      by: "김현대",
+      took: "발생 후 13분",
+      picked: [ "현장 확인" ],
+      memo: "배수구 막힘 · 청소 요청",
+      delta: "AI 추천 가운데 일부만 사용 (현장 확인)"
+    }
+  }, {
+    id: "B-10",
+    sev: "critical",
+    day: "d-1011",
+    time: "09:02:31",
+    stamp: "2026-10-11 09:02:31",
+    title: "가스 농도 경보 연동",
+    wp: "WP-09",
+    place: "옥외 저장탱크 T-3 밸브실",
+    mission: "옥외 저장탱크 순찰",
+    detect: "가스감지",
+    robot: "R-03 · CAM-01",
+    live: "discharge",
+    done: {
+      day: "d-1011",
+      at: "09:05",
+      by: "홍길동",
+      took: "발생 후 3분",
+      picked: [ "현장 확인", "작업 중지 요청" ],
+      memo: "고정식 감지기 경보와 동시 · 환기 뒤 정상",
+      delta: "AI 추천 그대로 사용 (현장 확인 · 작업 중지 요청)"
+    }
+  }, {
+    id: "B-11",
+    sev: "warning",
+    day: "d-1011",
+    time: "11:13:04",
+    stamp: "2026-10-11 11:13:04",
+    title: "안전모 미착용 작업자 감지",
+    wp: "WP-04",
+    place: "옥외 저장탱크 T-3 계단",
+    mission: "옥외 저장탱크 순찰",
+    detect: "안전감지",
+    robot: "R-03 · CAM-05",
+    live: "ppe",
+    done: {
+      day: "d-1011",
+      at: "11:15",
+      by: "이수진",
+      took: "발생 후 2분",
+      picked: [ "전화 안내", "보호구 착용 확인" ],
+      memo: "",
+      delta: "AI 추천 그대로 사용 (전화 안내 · 보호구 착용 확인)"
+    }
+  } ];
+  var HANDOVER = {
+    when: "오늘 08:00–10:15 · 조치 6건 기준",
+    items: [ [ "조치", "오늘 6건 조치 · 위험 3건 · 평균 6분" ], [ "반복", "보호구 미착용 3회 (B3 작업구역 · T-3 계단). 작업 전 안내가 필요해 보여요" ], [ "남은 위험", (document.body.classList.contains("ver-7") ? "조치 필요한 위험 3건" : "미확인 위험 3건") + ": WP-07 2건 · WP-02. 탱크 T-3 외벽 균열은 어제부터 남아 있어요" ], [ "다음 근무", "옥외 저장탱크 순찰(가스 농도 · 난간 개방) 묶음을 먼저 확인해 주세요" ] ]
+  };
+  var V6 = document.body.classList.contains("ver-6") && !!window.APRISM_AC6;
+  if (V6) {
+    DAYS = window.APRISM_AC6.DAYS;
+    ALERTS = window.APRISM_AC6.ALERTS;
+    HANDOVER = window.APRISM_AC6.HANDOVER;
+    if (document.body.classList.contains("ver-7") && document.documentElement.lang !== "en") {
+      var wpWord = function(t) {
+        return String(t).replace(/WP-0*(\d+)/g, "$1번 지점");
+      };
+      HANDOVER = {
+        when: HANDOVER.when,
+        items: HANDOVER.items.map(function(it) {
+          return [ it[0], wpWord(it[1]) ];
+        })
+      };
+    }
+    if (window.APRISM_ALERTS7) {
+      var C7 = {};
+      window.APRISM_ALERTS7.forCenter().forEach(function(a) {
+        C7[a.id] = a;
+      });
+      ALERTS = ALERTS.map(function(a) {
+        var b = C7[a.id];
+        delete C7[a.id];
+        return b || a;
+      }).concat(Object.keys(C7).map(function(id) {
+        return C7[id];
+      }));
+    }
+    if (document.body.classList.contains("ver-7") && /[?&]empty=1/.test(location.search)) {
+      ALERTS = ALERTS.filter(function(a) {
+        return !!a.done;
+      });
+    }
+    if (document.body.classList.contains("ver-7") && document.documentElement.lang !== "en" && window.APRISM_ALERTS7 && window.APRISM_ALERTS7.sug) {
+      ALERTS.forEach(function(a) {
+        var s = window.APRISM_ALERTS7.sug(a.mission, a.detect);
+        if (!s || a.done) {
+          return;
+        }
+        a.lead = s[0];
+        a.acts = s[1].map(function(r) {
+          return {
+            t: r[0],
+            delta: !!r[1],
+            to: r[2]
+          };
+        });
+        a.sug7 = true;
+      });
+    }
+  }
+  function of6(a) {
+    return window.APRISM_ALERT6 ? window.APRISM_ALERT6.of(a.title) : null;
+  }
+  function titleOf(a) {
+    if (!V6) {
+      return a.title;
+    }
+    var r = of6(a);
+    if (window.APRISM_ALERT6 && document.body.classList.contains("ver-7")) {
+      return window.APRISM_ALERT6.title(a.title);
+    }
+    return r ? r.detect + " · " + r.label + " " + r.value : a.title;
+  }
+  function resOf(a) {
+    var r = of6(a);
+    return r ? [ r.label, r.value ] : a.res || [ a.title, "" ];
+  }
+  function chOf(a) {
+    var r = of6(a);
+    return r && r.ch || a.ch || "";
+  }
+  function safetyHref(a) {
+    var q = new URLSearchParams;
+    if (a.mission) {
+      q.set("mission", a.mission);
+    }
+    if (a.detect) {
+      q.set("detect", a.detect);
+    }
+    return "./safety-v6.html?" + q.toString();
+  }
+  function chosenOf(a) {
+    if (state.chosen[a.id]) {
+      return state.chosen[a.id];
+    }
+    return V6 ? (a.acts || []).filter(function(c) {
+      return c.delta;
+    }).map(function(c) {
+      return c.t;
+    }) : [];
+  }
+  var state = {
+    tab: "open",
+    mission: "전체 미션",
+    period: "전체 기간",
+    sort: "위험 우선",
+    sev: {
+      all: true,
+      critical: false,
+      warning: false
+    },
+    picked: {
+      open: null,
+      done: null
+    },
+    chosen: {},
+    memo: {},
+    handover: true
+  };
+  function isDone(a) {
+    return !!a.done;
+  }
+  function inTab(a) {
+    return state.tab === "done" ? isDone(a) : !isDone(a);
+  }
+  function dayOf(a) {
+    return a.done ? a.done.day : a.day;
+  }
+  function picked() {
+    return state.picked[state.tab];
+  }
+  function setPicked(id) {
+    state.picked[state.tab] = id;
+  }
+  var STAGE_W = {
+    wait: "현장 응답 대기",
+    work: "현장 조치 중",
+    done: "조치 완료"
+  };
+  var STAGE7 = {
+    "C-1": "done",
+    "C-2": "wait",
+    "C-3": "work",
+    "C-4": "done",
+    "C-5": "done"
+  };
+  function stageOf(a) {
+    var S = window.APRISM_ALERTS7, d = a.done || {}, rq = S && d.reqId ? S.req.all()[d.reqId] : null;
+    var st = rq && STAGE_W[rq.st] && rq.st || (d.reqId ? "wait" : STAGE7[a.id]) || (d.day === "today" ? "wait" : "done");
+    var to = rq && rq.to || (S && S.req.to ? S.req.to({
+      detect: a.detect
+    }).text : "현장 작업자");
+    return {
+      st: st,
+      word: STAGE_W[st],
+      to: to
+    };
+  }
+  function stageHtml(a, withTo) {
+    var g = stageOf(a);
+    return '<span class="done-stage is-' + g.st + '"><span class="done-st">' + g.word + '</span>' + (withTo ? '<span class="ac-stage-to">' + esc(g.to) + '</span>' : "") + '</span>';
+  }
+  function order(a) {
+    var t = a.done ? a.done.at : a.time;
+    var m = t.match(/(\d{1,2}):(\d{2})/) || [ 0, 0, 0 ];
+    return (dayOf(a) === "today" ? 10000 : 0) + Number(m[1]) * 100 + Number(m[2]);
+  }
+  function dayRank(a) {
+    return (DAYS[dayOf(a)] || {
+      rank: 0
+    }).rank;
+  }
+  var SORT = {
+    "위험 우선": function(a, b) {
+      if (a.sev !== b.sev) {
+        return a.sev === "critical" ? -1 : 1;
+      }
+      return order(b) - order(a);
+    },
+    "최신순": function(a, b) {
+      return order(b) - order(a);
+    },
+    "오래된순": function(a, b) {
+      return order(a) - order(b);
+    }
+  };
+  function visible() {
+    var rule = SORT[state.sort] || SORT["위험 우선"];
+    var list = ALERTS.filter(function(a) {
+      if (!inTab(a)) {
+        return false;
+      }
+      if (state.mission !== "전체 미션" && a.mission !== state.mission) {
+        return false;
+      }
+      if (state.period === "오늘" && dayOf(a) !== "today") {
+        return false;
+      }
+      if (!state.sev.all) {
+        if (a.sev === "critical" && !state.sev.critical) {
+          return false;
+        }
+        if (a.sev === "warning" && !state.sev.warning) {
+          return false;
+        }
+      }
+      return true;
+    });
+    list.sort(function(a, b) {
+      if (state.tab === "done") {
+        var d = dayRank(b) - dayRank(a);
+        if (d) {
+          return d;
+        }
+      }
+      return rule(a, b);
+    });
+    return list;
+  }
+  function countBy(sev, done) {
+    return ALERTS.filter(function(a) {
+      return a.sev === sev && isDone(a) === done;
+    }).length;
+  }
+  function countChip(sev) {
+    return ALERTS.filter(function(a) {
+      if (a.sev !== sev || !inTab(a)) {
+        return false;
+      }
+      if (state.mission !== "전체 미션" && a.mission !== state.mission) {
+        return false;
+      }
+      if (state.period === "오늘" && dayOf(a) !== "today") {
+        return false;
+      }
+      return true;
+    }).length;
+  }
+  var V7 = document.body.classList.contains("ver-7");
+  function nd(t) {
+    return V7 ? String(t).replace(/\s*·\s*/g, ", ") : t;
+  }
+  function isSentence(t) {
+    return /[.요다]\s*$|[.!?]\s/.test(String(t).trim());
+  }
+  function cells(parts) {
+    return '<span class="ac-cells">' + parts.map(function(x) {
+      return '<span>' + esc(x) + '</span>';
+    }).join("") + '</span>';
+  }
+  function ndHtml(t) {
+    return V7 && !isSentence(t) && /·/.test(t) ? cells(String(t).split(/\s*·\s*/)) : esc(nd(t));
+  }
+  function deltaLine(t) {
+    return V7 && !/쓰지 않음/.test(t) ? String(t).replace(/\s*\([^)]*\)\s*$/, "") : nd(t);
+  }
+  function icon(name, size) {
+    return '<span class="i i-' + size + '" style="--i:var(' + name + ')" aria-hidden="true"></span>';
+  }
+  var colHead = $("[data-ac-colhead]");
+  var list = $("[data-ac-list]");
+  var detail = $("[data-ac-detail]");
+  var slot = $("[data-ac-handover]");
+  function renderColHead() {
+    var sortBox = null;
+    if (sortBox && sortBox.parentNode) {
+      sortBox.parentNode.removeChild(sortBox);
+    }
+    colHead.innerHTML = state.tab === "done" ? '<span class="ac-dc-check" role="columnheader"><span class="ac-sr">상태</span></span>' + '<span class="ac-dc-time" role="columnheader">조치</span>' + '<span class="ac-dc-body" role="columnheader">' + (V7 ? "알림" : "알림 · 조치 내용") + '</span>' + (V7 ? '<span class="ac-dc-stage" role="columnheader">진행</span><span class="ac-dc-sev" role="columnheader">원 등급</span><span class="ac-dc-occ" role="columnheader">발생</span>' : '<span class="ac-dc-sev" role="columnheader">원 등급 · 발생</span>') + '<span class="ac-dc-who" role="columnheader">담당</span>' + (sortBox ? '<span class="ac-dc-sort" role="columnheader"></span>' : "") : '<span class="ac-c-sev" role="columnheader"><span class="ac-sr">단계</span></span>' + '<span class="ac-c-time" role="columnheader">발생</span>' + '<span class="ac-c-title" role="columnheader">알림</span>' + '<span class="ac-c-place" role="columnheader">웨이포인트 · 위치</span>' + '<span class="ac-c-mission" role="columnheader">미션</span>' + '<span class="ac-c-act" role="columnheader"><span class="ac-sr">동작</span></span>';
+    if (sortBox) {
+      var cell = $(state.tab === "done" ? ".ac-dc-sort" : ".ac-c-act", colHead);
+      cell.appendChild(sortBox);
+      sortBox.hidden = false;
+    }
+  }
+  function openRow(a, sel) {
+    return '<div class="ac-row' + (document.body.classList.contains("ver-7") ? " ds-table-row" : "") + '" role="row" data-id="' + a.id + '" data-sev="' + a.sev + '"' + ' tabindex="' + (sel ? "0" : "-1") + '" aria-selected="' + (sel ? "true" : "false") + '">' + '<span class="ac-stripe" aria-hidden="true"></span>' + '<span class="ac-c-sev" role="gridcell">' + icon(SEV_ICON[a.sev], 16) + '<span class="ac-sr">' + SEV_LABEL[a.sev] + '</span></span>' + '<span class="ac-c-time ac-mono" role="gridcell">' + esc(a.time) + '</span>' + '<span class="ac-c-title t-label-1" role="gridcell">' + esc(titleOf(a)) + '</span>' + '<span class="ac-c-place" role="gridcell">' + placeHtml(a, "ac-place") + '</span>' + '<span class="ac-c-mission t-caption" role="gridcell">' + esc(a.mission) + '</span>' + '<span class="ac-c-act" role="gridcell">' + (V6 ? '<a class="btn btn-ghost is-xs ac-report" href="' + esc(safetyHref(a)) + '" title="안전진단에서 이 알림의 감지 결과 보기">' + icon("--ic-shield", 16) + '<span>진단 상세</span></a>' : '<button type="button" class="btn btn-ghost is-xs" data-report>안전진단</button>') + '</span>' + '</div>';
+  }
+  function placeHtml(a, placeCls) {
+    return (V6 && a.floor ? '<span class="floor-tag' + (document.body.classList.contains("ver-7") ? " ds-floor" : "") + '">' + esc(a.floor) + '</span>' : "") + (V7 && window.ds && /\d+/.test(a.wp || "") ? window.ds.wp(parseInt(/\d+/.exec(a.wp)[0], 10), {
+      small: true,
+      cls: "ac-wp",
+      attrs: 'role="img" aria-label="' + esc(a.wp) + '"'
+    }) : '<span class="ac-wp ac-mono-label">' + esc(a.wp) + '</span>') + '<span class="' + placeCls + ' t-body-4">' + esc(a.place) + '</span>';
+  }
+  function shortTime(t) {
+    return t.replace(/^(\d{1,2}:\d{2}):\d{2}$/, "$1");
+  }
+  function doneRow(a, sel) {
+    var d = a.done;
+    return '<div class="ac-done-row" role="row" data-id="' + a.id + '" data-sev="' + a.sev + '"' + ' tabindex="' + (sel ? "0" : "-1") + '" aria-selected="' + (sel ? "true" : "false") + '">' + '<span class="ac-dc-check" role="gridcell">' + icon("--ic-check", 16) + '<span class="ac-sr">' + (V6 ? "조치 요청됨" : "조치 완료") + '</span></span>' + '<span class="ac-dc-time ac-mono" role="gridcell">' + esc(d.at) + '</span>' + '<span class="ac-dc-body" role="gridcell">' + '<span class="ac-dc-title t-label-2">' + esc(titleOf(a)) + '</span>' + (V7 ? '<span class="ac-dc-act t-caption">' + cells(d.picked) + '</span>' : '<span class="ac-dc-act t-caption">' + esc(d.picked.join(", ")) + '</span>') + '</span>' + (V7 ? '<span class="ac-dc-stage t-caption" role="gridcell">' + stageHtml(a, false) + '</span>' : "") + '<span class="ac-dc-sev t-caption" role="gridcell">' + (document.body.classList.contains("ver-7") && window.ds ? window.ds.badge(a.sev === "critical" ? "crit" : "warn", SEV_LABEL[a.sev], {
+      plain: true
+    }) + '</span><span class="ac-dc-occ t-caption" role="gridcell">' + esc(shortTime(a.time)) : '<span class="ac-sev-dot" aria-hidden="true"></span>' + '<span>' + SEV_LABEL[a.sev] + " " + esc(shortTime(a.time)) + '</span>') + '</span>' + '<span class="ac-dc-who t-caption" role="gridcell">' + esc(d.by) + '</span>' + '</div>';
+  }
+  function renderList() {
+    var rows = visible();
+    renderColHead();
+    slot.hidden = !(state.tab === "done" && state.handover);
+    if (!rows.length) {
+      list.innerHTML = V7 ? emptyHtml() : '<p class="ac-empty t-body-3">조건에 맞는 알림이 없습니다.</p>';
+      renderNth(rows);
+      return;
+    }
+    var html = "";
+    var day = null;
+    rows.forEach(function(a) {
+      if (state.tab === "done" && dayOf(a) !== day) {
+        day = dayOf(a);
+        var n = rows.filter(function(x) {
+          return dayOf(x) === day;
+        }).length;
+        html += '<div class="ac-date-row" role="row">' + '<span class="t-label-2" role="gridcell">' + esc(DAYS[day].label) + '</span>' + '<span class="ac-date-count ac-mono" role="gridcell">' + n + '</span>' + '</div>';
+      }
+      html += state.tab === "done" ? doneRow(a, a.id === picked()) : openRow(a, a.id === picked());
+    });
+    list.innerHTML = html;
+    $$("[data-id]", list).forEach(function(row) {
+      row.addEventListener("click", function() {
+        pick(row.getAttribute("data-id"));
+      });
+      row.addEventListener("keydown", function(event) {
+        if (event.key === "ArrowDown") {
+          event.preventDefault();
+          step(1);
+        } else if (event.key === "ArrowUp") {
+          event.preventDefault();
+          step(-1);
+        } else if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          pick(row.getAttribute("data-id"));
+        }
+      });
+      var report = $(".btn", row);
+      if (report) {
+        report.addEventListener("click", function(e) {
+          e.stopPropagation();
+        });
+      }
+    });
+    renderNth(rows);
+  }
+  function filtersOn() {
+    return {
+      sev: !state.sev.all,
+      more: state.mission !== "전체 미션" || state.period !== "전체 기간"
+    };
+  }
+  function emptyHtml() {
+    var f = filtersOn(), word;
+    if (f.more) {
+      word = "조건에 맞는 알림이 없어요";
+    } else if (f.sev) {
+      word = state.sev.critical ? "위험 알림이 없어요" : "주의 알림이 없어요";
+    } else {
+      word = state.tab === "done" ? "조치 요청된 알림이 없어요" : "조치가 필요한 알림이 없어요";
+    }
+    return '<div class="ac-empty ac-empty7" role="status"><p class="t-body-3">' + word + '</p>' + (f.sev || f.more ? '<button type="button" class="btn btn-secondary is-xs" data-ac-clear>필터 해제</button>' : "") + '</div>';
+  }
+  function clearFilters() {
+    var all = $('[data-ac-sev="all"]');
+    if (all && all.getAttribute("aria-pressed") !== "true") {
+      all.click();
+    }
+    $$(".ac-f-mission .field-option, .ac-f-period .field-option").forEach(function(o) {
+      if (o === o.parentNode.firstElementChild && o.getAttribute("aria-selected") !== "true") {
+        o.click();
+      }
+    });
+  }
+  document.addEventListener("click", function(e) {
+    if (e.target.closest && e.target.closest("[data-ac-clear]")) {
+      clearFilters();
+    }
+  });
+  function renderNth(rows) {
+    rows = rows || visible();
+    var i = rows.findIndex(function(a) {
+      return a.id === shown();
+    });
+    $("[data-ac-nth]").textContent = rows.length ? i + 1 + " / " + rows.length : "0 / 0";
+    if (V7) {
+      var pg = $("[data-ac-nth]").closest(".ds-pager");
+      if (pg) {
+        pg.hidden = !rows.length;
+      }
+    }
+    $("[data-ac-prev]").disabled = i <= 0;
+    $("[data-ac-next]").disabled = i < 0 || i >= rows.length - 1;
+  }
+  function step(delta) {
+    var rows = visible();
+    var i = rows.findIndex(function(a) {
+      return a.id === picked();
+    });
+    var next = rows[i + delta];
+    if (next) {
+      pick(next.id);
+    }
+  }
+  var hoverId = null;
+  var hoverTimer = null;
+  function shown() {
+    return hoverId || picked();
+  }
+  function preview(id) {
+    clearTimeout(hoverTimer);
+    if (id === shown()) {
+      return;
+    }
+    if (detail.contains(document.activeElement)) {
+      return;
+    }
+    hoverTimer = setTimeout(function() {
+      hoverId = id;
+      renderNth();
+      renderDetail();
+    }, 60);
+  }
+  function previewOff() {
+    clearTimeout(hoverTimer);
+    if (hoverId === null) {
+      return;
+    }
+    hoverId = null;
+    renderNth();
+    renderDetail();
+  }
+  function pick(id) {
+    clearTimeout(hoverTimer);
+    hoverId = null;
+    setPicked(id);
+    var focus = null;
+    $$("[data-id]", list).forEach(function(row) {
+      var on = row.getAttribute("data-id") === id;
+      row.setAttribute("aria-selected", on ? "true" : "false");
+      row.setAttribute("tabindex", on ? "0" : "-1");
+      if (on) {
+        focus = row;
+      }
+    });
+    if (focus && list.contains(document.activeElement)) {
+      focus.focus();
+    }
+    renderNth();
+    renderDetail();
+  }
+  function alertOf(id) {
+    return ALERTS.filter(function(a) {
+      return a.id === id;
+    })[0] || null;
+  }
+  function took7(from, to) {
+    var s = function(t) {
+      var p = String(t).split(":");
+      return +p[0] * 60 + +p[1];
+    }, n = s(to) - s(from);
+    if (!(n > 0)) {
+      return "방금";
+    }
+    return "발생 후 " + (n >= 60 ? Math.floor(n / 60) + "시간 " + n % 60 + "분" : n + "분");
+  }
+  function sync7() {
+    var S = window.APRISM_ALERTS7;
+    if (!S || !V6) {
+      return;
+    }
+    var R = S.req.all();
+    ALERTS.forEach(function(a) {
+      var r = R[a.id];
+      if (r && !a.done) {
+        a.done = {
+          day: "today",
+          at: r.t.slice(0, 5),
+          by: r.who || "홍길동",
+          took: took7(a.time, r.t),
+          picked: (r.how || []).slice(),
+          memo: r.memo || "",
+          delta: deltaUse(a, r.how || []),
+          reqId: a.id
+        };
+      } else if (!r && a.done && a.done.reqId) {
+        delete a.done;
+      }
+    });
+  }
+  var selfReq = false;
+  document.addEventListener("aprism:requested", function() {
+    if (!selfReq) {
+      refresh();
+    }
+  });
+  function refresh() {
+    sync7();
+    clearTimeout(hoverTimer);
+    hoverId = null;
+    var rows = visible();
+    if (!picked() || !rows.some(function(a) {
+      return a.id === picked();
+    })) {
+      setPicked(rows.length ? rows[0].id : null);
+    }
+    renderCounts();
+    renderList();
+    renderDetail();
+    if (typeof newRiskBar === "function") {
+      newRiskBar();
+    }
+  }
+  function renderDetail() {
+    var a = alertOf(shown());
+    if (!a && V7 && !visible().length) {
+      detail.innerHTML = "";
+      return;
+    }
+    if (!a) {
+      detail.innerHTML = '<p class="ac-empty t-body-3">' + (V7 ? visible().length ? "왼쪽 목록에서 알림을 골라요" : "표시할 알림이 없어요" : visible().length ? "왼쪽 목록에서 알림을 고르세요." : "표시할 알림이 없습니다.") + '</p>';
+      return;
+    }
+    detail.innerHTML = a.done ? V6 ? recordHtml6(a) : recordHtml(a) : V6 ? openHtml6(a) : openHtml(a);
+    if (!a.done) {
+      wireDetail(a);
+    }
+    watchFade($(a.done ? ".ac-record" : ".ac-detail-contents", detail));
+  }
+  var fadeUpdate = null;
+  function watchFade(box) {
+    fadeUpdate = null;
+    if (!box) {
+      return;
+    }
+    var fade = document.createElement("div");
+    fade.className = "ac-scroll-fade";
+    fade.setAttribute("aria-hidden", "true");
+    box.appendChild(fade);
+    fadeUpdate = function() {
+      box.classList.toggle("is-end", box.scrollTop + box.clientHeight >= box.scrollHeight - 1);
+    };
+    box.addEventListener("scroll", fadeUpdate, {
+      passive: true
+    });
+    fadeUpdate();
+  }
+  window.addEventListener("resize", function() {
+    if (fadeUpdate) {
+      fadeUpdate();
+    }
+  });
+  function metaRow(label, value) {
+    return '<div class="ac-d-meta-row"><dt class="t-caption">' + label + '</dt>' + '<dd>' + value + '</dd></div>';
+  }
+  function snapMeta(a, rows) {
+    return '<div class="ac-d-snap-meta">' + '<figure class="ac-d-snap">' + '<img src="../assets/img/alert-live-' + a.live + '.webp" alt="' + esc(a.title) + ' 검출 장면" />' + '</figure>' + '<dl class="ac-d-meta">' + rows + '</dl>' + '</div>';
+  }
+  function sevBadge(a, prefix) {
+    return '<span class="verdict-chip ' + (document.body.classList.contains("ver-7") ? "ds-badge " : "") + (a.sev === "warning" ? "is-warn" : "is-crit") + '">' + prefix + SEV_LABEL[a.sev] + '</span>';
+  }
+  function openHtml(a) {
+    var chosen = state.chosen[a.id] || [];
+    return '<div class="ac-detail-contents">' + '<div class="ac-d-title-block">' + '<p class="ac-d-age t-caption">' + esc(a.stamp) + ' 발생</p>' + '<div class="ac-d-title-row">' + sevBadge(a, "") + '<h2 class="t-title-1">' + esc(a.title) + '</h2>' + '</div>' + '</div>' + snapMeta(a, metaRow("미션", '<span class="t-body-4">' + esc(a.mission) + '</span>') + metaRow("위치", '<span class="ac-mono-label">' + esc(a.wp) + '</span>' + '<span class="t-body-4">' + esc(a.place) + '</span>' + '<a class="t-caption" href="./' + (document.body.classList.contains("ver-6") ? "main-v6" : document.body.classList.contains("ver-5") ? "main-v5" : document.body.classList.contains("ver-3") ? "main-v3" : "main-v2-2") + '.html">지도에서 보기</a>') + metaRow("감지", '<span class="ac-d-chip t-caption">' + esc(a.detect) + '</span>') + metaRow("로봇", '<span class="ac-d-robot ac-mono">' + esc(a.robot) + '</span>')) + deltaCard(a) + actsBlock(a, chosen) + memoBlock(a) + '</div>' + actionsRow(a, chosen);
+  }
+  function deltaCard(a) {
+    return '<section class="ac-delta">' + '<div class="ac-delta-mark">' + icon("--ic-cpu", 16) + '<span class="t-label-2">DELTA 조치 제안</span></div>' + '<h3 class="t-title-2">' + esc(a.lead) + '</h3>' + '<ul class="ac-delta-reasons">' + a.why.map(function(w) {
+      return '<li class="t-body-4">' + esc(w) + '</li>';
+    }).join("") + '</ul>' + '<div class="ac-fp" style="--ac-fp:' + a.fp + '%">' + '<span class="ac-fp-label t-caption">오탐 가능성</span>' + '<span class="ac-fp-meter" role="img" aria-label="오탐 가능성 ' + a.fp + '퍼센트"><i></i></span>' + '<span class="ac-fp-value"><b class="t-label-2">' + a.fpLabel + '</b>' + '<span class="t-caption">' + a.fp + '%</span></span>' + '</div>' + '</section>';
+  }
+  function actsBlock(a, chosen) {
+    var hasDelta = a.acts.some(function(c) {
+      return c.delta;
+    });
+    return '<section class="ac-acts">' + '<div class="ac-acts-head">' + '<h3 class="t-label-1">조치 내용 <span class="ac-label-note">(여러 개 선택 가능)</span></h3>' + (hasDelta ? '<span class="badge t-caption"><span class="badge-dot" aria-hidden="true"></span>DELTA 추천</span>' : "") + '</div>' + '<div class="ac-presets">' + a.acts.map(function(c) {
+      var on = chosen.indexOf(c.t) > -1;
+      return '<button type="button" class="preset-chip" data-act="' + esc(c.t) + '"' + (c.delta ? ' data-delta' : "") + ' aria-pressed="' + (on ? "true" : "false") + '">' + esc(c.t) + '</button>';
+    }).join("") + '</div>' + '</section>';
+  }
+  function memoBlock(a) {
+    return '<section class="ac-memo field">' + '<label class="field-label" for="ac-memo">메모 <span class="ac-label-note">(선택)</span></label>' + '<textarea id="ac-memo" data-ac-memo maxlength="500" ' + 'placeholder="현장에 전달한 내용을 적어 주세요">' + esc(state.memo[a.id] || "") + '</textarea>' + '<span class="field-helper t-caption">교대 인수인계에 필요한 내용을 남깁니다. 최대 500자.</span>' + '</section>';
+  }
+  function actionsRow(a, chosen) {
+    var hasDraft = chosen.length > 0 || !!state.memo[a.id];
+    return '<div class="ac-actions">' + '<span class="ac-head-spacer"></span>' + '<p class="ac-draft t-caption" data-ac-draft' + (hasDraft ? "" : " hidden") + '>임시저장된 상태</p>' + '<button type="button" class="btn btn-accent is-md" data-ac-done' + (chosen.length ? "" : " disabled") + '>조치 완료</button>' + '</div>';
+  }
+  function recordHtml(a) {
+    var d = a.done;
+    return '<div class="ac-record">' + '<div class="ac-record-title">' + '<div class="ac-record-title-row">' + sevBadge(a, "원 등급 ") + '<h2 class="t-title-1">' + esc(a.title) + '</h2>' + '</div>' + '<p class="ac-record-age">' + '<span class="ac-record-at t-label-1">' + esc(DAYS[d.day].label) + ' ' + esc(d.at) + '</span>' + '<span class="ac-record-by t-caption">조치 · ' + esc(d.by) + ' · ' + esc(d.took) + '</span>' + '</p>' + '</div>' + snapMeta(a, metaRow("발생", '<span class="ac-mono">' + esc(a.stamp) + '</span>') + metaRow("미션", '<span class="t-body-4">' + esc(a.mission) + '</span>') + metaRow("위치", '<span class="ac-mono-label">' + esc(a.wp) + '</span>' + '<span class="t-body-4">' + esc(a.place) + '</span>') + metaRow("감지", '<span class="ac-d-chip t-caption">' + esc(a.detect) + '</span>') + metaRow("로봇", '<span class="ac-d-robot ac-mono">' + esc(a.robot) + '</span>')) + '<section class="ac-record-section">' + '<h3 class="t-caption">조치 내용</h3>' + '<div class="ac-chips">' + d.picked.map(function(t) {
+      return '<span class="ac-chip-done t-label-2">' + esc(t) + '</span>';
+    }).join("") + '</div>' + '</section>' + '<section class="ac-record-section">' + '<h3 class="t-caption">메모</h3>' + '<p class="ac-memo-box t-body-4' + (d.memo ? "" : " ac-memo-empty") + '">' + (d.memo ? esc(d.memo) : V7 ? "남긴 메모가 없어요" : "남긴 메모가 없습니다.") + '</p>' + '</section>' + '<section class="ac-record-section">' + '<h3 class="t-caption">처리 정보</h3>' + '<dl class="ac-info">' + infoRow("담당", '<span class="t-body-4">' + esc(d.by) + '</span>') + infoRow("소요", '<span class="t-body-4">' + esc(d.took) + '</span>') + infoRow("DELTA", '<span class="ac-info-delta t-body-4">' + esc(d.delta) + '</span>') + '</dl>' + '</section>' + '</div>';
+  }
+  function infoRow(label, value) {
+    return '<div class="ac-info-row"><dt class="t-caption">' + label + '</dt><dd>' + value + '</dd></div>';
+  }
+  function head6(a, prefix, under) {
+    var r = resOf(a);
+    return '<div class="ac-d-title-block ac-d6-head' + (a.sev === "critical" ? " is-critical" : "") + '">' + '<div class="ac-d6-top">' + sevBadge(a, prefix) + '<span class="ac-d6-kind t-label-2">' + esc(a.detect) + '</span></div>' + '<h2 class="t-title-1 ac-d6-title">' + esc(r[0]) + (r[1] ? ' <b class="ac-d6-val">' + esc(r[1]) + '</b>' : "") + function() {
+      var vd = r[1] && window.APRISM_VERDICT && window.APRISM_VERDICT(a.detect, r[1]);
+      return vd ? ' <span class="ac-d6-vd">' + esc(vd) + "</span>" : "";
+    }() + '</h2>' + under + '</div>';
+  }
+  function snap6(a, rows) {
+    var S7 = document.body.classList.contains("ver-7") && window.APRISM_ALERTS7, img = S7 && S7.img(a.detect) || a.img;
+    return '<div class="ac-d-snap-meta">' + '<figure class="ac-d-snap">' + '<img src="../assets/img/' + esc(img) + '" alt="' + esc(titleOf(a)) + ' 검출 장면" />' + '</figure>' + '<dl class="ac-d-meta">' + rows + '</dl>' + '</div>';
+  }
+  function meta6(a, withMap) {
+    return metaRow("미션", '<span class="t-body-4">' + esc(a.mission) + '</span>') + metaRow("위치", placeHtml(a, "ac-d-place") + (withMap ? '<a class="t-caption" href="./main-v6.html?' + esc(new URLSearchParams({
+      mission: a.mission,
+      floor: a.floor
+    }).toString()) + '">지도에서 보기</a>' : "")) + metaRow("로봇", '<span class="ac-d-robot t-body-4">' + esc(a.robot) + '</span>');
+  }
+  function openHtml6(a) {
+    return '<div class="ac-detail-contents">' + head6(a, "", '<p class="ac-d-age t-caption">' + esc(a.stamp) + ' 발생</p>') + snap6(a, meta6(a, true)) + delta6(a, chosenOf(a)) + '</div>' + '<div class="ac-actions">' + '<span class="ac-head-spacer"></span>' + '<p class="ac-draft t-caption" data-ac-draft' + (draft6(a) ? "" : " hidden") + '>임시저장된 상태</p>' + '<a class="btn btn-secondary is-md" href="' + esc(safetyHref(a)) + '" data-ma-more title="안전진단에서 이 알림의 감지 결과 보기" style="text-decoration:none">진단 상세</a>' + '<button type="button" class="btn btn-accent is-md" data-ac-done' + (chosenOf(a).length ? "" : " disabled") + '>조치 요청</button>' + '</div>';
+  }
+  function delta6(a, chosen) {
+    var fp = a.fp || 0;
+    var rows = a.acts.slice().sort(function(x, y) {
+      return (y.delta ? 1 : 0) - (x.delta ? 1 : 0);
+    }).map(function(c) {
+      var on = chosen.indexOf(c.t) > -1;
+      if (V7 && window.ds) {
+        return window.ds.act(esc(c.t), {
+          on: on,
+          ai: !!c.delta,
+          sub: c.to ? esc(c.to) : '',
+          cls: 'ma-check',
+          boxCls: 'ma-check-box',
+          textCls: 'ma-check-label',
+          attrs: 'data-act="' + esc(c.t) + '"'
+        });
+      }
+      return '<button type="button" class="ma-check" role="checkbox" data-act="' + esc(c.t) + '" aria-checked="' + (on ? "true" : "false") + '">' + '<span class="ma-check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>' + '<span class="ma-check-label">' + esc(c.t) + '</span>' + (c.delta ? '<span class="ma-check-tag' + (document.body.classList.contains("ver-7") ? " ds-badge is-neutral ds-i-delta" : "") + '">AI 추천</span>' : "") + '</button>';
+    }).join("");
+    return '<section class="ac-dl is-light-scope is-dark-scope' + (V7 ? ' ds-delta-card' : '') + '" aria-labelledby="ac-dl-label">' + '<div class="ac-dl-head' + (V7 ? ' ds-delta-head' : '') + '">' + '<span class="ac-dl-mark' + (V7 ? ' ds-delta-mark' : '') + '">' + icon("--ic-delta", 16) + '<span class="t-caption" id="ac-dl-label">DELTA 조치 제안</span></span>' + (a.sug7 ? "" : '<span class="ac-dl-fp t-caption">오탐 가능성 <span class="ac-dl-fpv' + (fp >= 40 ? " is-high" : fp >= 20 ? " is-mid" : "") + '">' + esc(a.fpLabel || "") + '(' + fp + '%)</span></span>') + '</div>' + '<p class="ac-dl-lead">' + esc(a.lead) + '</p>' + (!a.sug7 && a.why && a.why.length ? '<ul class="ac-dl-why">' + a.why.map(function(w) {
+      return '<li class="t-body-4">' + esc(w) + '</li>';
+    }).join("") + '</ul>' : "") + '<div class="ma-checks' + (V7 ? ' ds-acts' : '') + '" role="group" aria-label="조치 내용">' + rows + '</div>' + '<div class="ac-dl-memo">' + '<label class="t-label-2" for="ac-memo">메모 (선택)</label>' + '<textarea class="ma-memo-field" id="ac-memo" data-ac-memo data-ma-memo-field rows="2" maxlength="500" ' + 'placeholder="' + (a.sug7 ? '현장에 전달할 내용' : '예) 현장 작업자 대피 확인, 안전 요원 배치 후 재가동 준비') + '">' + esc(state.memo[a.id] || "") + '</textarea>' + '</div>' + '</section>';
+  }
+  function draft6(a) {
+    return !!state.chosen[a.id] || !!state.memo[a.id];
+  }
+  function recordHtml6(a) {
+    var d = a.done;
+    return '<div class="ac-record">' + head6(a, "원 등급 ", '<p class="ac-record-age">' + '<span class="ac-record-at t-label-1">' + esc(DAYS[d.day].label) + ' ' + esc(d.at) + '</span>' + '<span class="ac-record-by t-caption">' + (V7 ? cells([ '조치 ' + d.by, d.took ]) : '조치 · ' + esc(d.by) + ' · ' + esc(d.took)) + '</span>' + '</p>') + snap6(a, metaRow("발생", '<span class="ac-mono">' + esc(a.stamp) + '</span>') + meta6(a, false)) + '<section class="ac-record-section">' + '<h3 class="t-caption">조치 내용</h3>' + (V7 ? '<div class="ds-acts" role="list">' + d.picked.map(function(t) {
+      return window.ds.act(esc(t), {
+        result: true
+      });
+    }).join("") + '</div>' : '<div class="ac-chips">' + d.picked.map(function(t) {
+      return '<span class="ac-chip-done t-label-2">' + esc(t) + '</span>';
+    }).join("") + '</div>') + '</section>' + '<section class="ac-record-section">' + '<h3 class="t-caption">메모</h3>' + '<p class="ac-memo-box t-body-4' + (d.memo ? "" : " ac-memo-empty") + '">' + (d.memo ? esc(d.memo) : V7 ? "남긴 메모가 없어요" : "남긴 메모가 없습니다.") + '</p>' + '</section>' + '<section class="ac-record-section">' + '<h3 class="t-caption">처리 정보</h3>' + '<dl class="ac-info">' + (V7 ? infoRow("진행", '<span class="t-body-4">' + stageHtml(a, true) + '</span>') : "") + infoRow("담당", '<span class="t-body-4">' + esc(d.by) + '</span>') + infoRow("소요", '<span class="t-body-4">' + esc(d.took) + '</span>') + infoRow("DELTA", '<span class="ac-info-delta t-body-4">' + esc(deltaLine(d.delta)) + '</span>') + '</dl>' + '</section>' + '</div>';
+  }
+  function syncActions(a) {
+    var chosen = chosenOf(a);
+    var draft = $("[data-ac-draft]", detail);
+    var btn = $("[data-ac-done]", detail);
+    if (draft) {
+      draft.hidden = V6 ? !draft6(a) : !(chosen.length || state.memo[a.id]);
+    }
+    if (btn) {
+      btn.disabled = !chosen.length;
+    }
+  }
+  function wireDetail(a) {
+    $$("[data-act]", detail).forEach(function(cap) {
+      var attr = cap.getAttribute("role") === "checkbox" ? "aria-checked" : "aria-pressed";
+      cap.addEventListener("click", function() {
+        var t = cap.getAttribute("data-act");
+        var cur = chosenOf(a).slice();
+        var i = cur.indexOf(t);
+        if (i > -1) {
+          cur.splice(i, 1);
+        } else {
+          cur = cur.concat([ t ]);
+        }
+        state.chosen[a.id] = cur;
+        cap.setAttribute(attr, i > -1 ? "false" : "true");
+        syncActions(a);
+      });
+    });
+    var memo = $("[data-ac-memo]", detail);
+    if (memo) {
+      memo.addEventListener("input", function() {
+        state.memo[a.id] = memo.value;
+        syncActions(a);
+      });
+    }
+    var btn = $("[data-ac-done]", detail);
+    if (btn) {
+      btn.addEventListener("click", function() {
+        var acts = chosenOf(a).slice();
+        a.done = {
+          day: "today",
+          at: nowHM(),
+          by: "홍길동",
+          took: "방금",
+          picked: acts,
+          memo: state.memo[a.id] || "",
+          delta: deltaUse(a, acts)
+        };
+        var S7r = window.APRISM_ALERTS7;
+        if (S7r && V6 && S7r.req.find(a.mission, a.detect, a.wp) === a.id) {
+          var now = nowDate(), hms = [ now.getHours(), now.getMinutes(), now.getSeconds() ].map(function(n) {
+            return (n < 10 ? "0" : "") + n;
+          }).join(":");
+          a.done.reqId = a.id;
+          selfReq = true;
+          S7r.req.set(a.id, {
+            t: hms,
+            how: acts,
+            memo: a.done.memo,
+            who: a.done.by
+          });
+          selfReq = false;
+        }
+        delete state.chosen[a.id];
+        delete state.memo[a.id];
+        setPicked(null);
+        refresh();
+      });
+    }
+  }
+  function deltaUse(a, acts) {
+    var rec = a.acts.filter(function(c) {
+      return c.delta;
+    }).map(function(c) {
+      return c.t;
+    });
+    var used = rec.filter(function(t) {
+      return acts.indexOf(t) > -1;
+    });
+    var J = V7 ? ", " : " · ";
+    if (!used.length) {
+      return "AI 추천을 쓰지 않음 (추천: " + rec.join(J) + ")";
+    }
+    if (used.length === rec.length) {
+      return "AI 추천 그대로 사용 (" + rec.join(J) + ")";
+    }
+    return "AI 추천 가운데 일부만 사용 (" + used.join(J) + ")";
+  }
+  var T0 = Date.now(), CLK = null;
+  function nowDate() {
+    if (CLK === null) {
+      CLK = 0;
+      if (document.body.classList.contains("ver-7") && document.documentElement.lang !== "en") {
+        var m = /(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/.exec((document.querySelector(".status-bar") || document.body).textContent || "");
+        if (m) {
+          CLK = new Date(+m[1], m[2] - 1, +m[3], +m[4], +m[5], +m[6]).getTime() - T0;
+        }
+      }
+    }
+    return new Date(Date.now() + CLK);
+  }
+  function nowHM() {
+    var d = nowDate();
+    return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+  }
+  function renderCounts() {
+    var openCrit = countBy("critical", false), openWarn = countBy("warning", false);
+    var doneCrit = countBy("critical", true), doneWarn = countBy("warning", true);
+    var open = openCrit + openWarn, closed = doneCrit + doneWarn;
+    var openBadge = $("[data-ac-open-badge]");
+    if (openBadge) {
+      openBadge.textContent = (document.body.classList.contains("ver-7") ? "조치 필요 " : "미확인 ") + open + "건";
+    }
+    $("[data-ac-count-open]").textContent = open + "건";
+    $("[data-ac-count-done]").textContent = closed + "건";
+    var bc = $("[data-ac-badge-crit]"), bw = $("[data-ac-badge-warn]");
+    if (bc) {
+      bc.textContent = "위험 " + (state.tab === "done" ? doneCrit : openCrit);
+    }
+    var hb = document.querySelector(".ac-head-badges");
+    if (hb) {
+      hb.classList.toggle("is-done-tab", state.tab === "done");
+    }
+    if (bw) {
+      bw.textContent = "주의 " + (state.tab === "done" ? doneWarn : openWarn);
+    }
+    var tc = V7 ? countChip("critical") : openCrit + doneCrit;
+    var tw = V7 ? countChip("warning") : openWarn + doneWarn;
+    var fnum = function(sel, word, n) {
+      var e = $(sel);
+      if (V7) {
+        e.innerHTML = word + ' <span class="num ac-f-num">' + n + "</span>";
+      } else {
+        e.textContent = word + " " + n;
+      }
+    };
+    fnum("[data-ac-f-all]", "전체", V7 ? tc + tw : ALERTS.length);
+    fnum("[data-ac-f-crit]", "위험", tc);
+    fnum("[data-ac-f-warn]", "주의", tw);
+    $("[data-ac-summary]").hidden = state.tab !== "done";
+  }
+  function renderHandover() {
+    slot.innerHTML = '<section class="ac-handover">' + '<div class="ac-handover-head">' + '<span class="ac-handover-mark">' + icon(V6 ? "--ic-delta" : "--ic-cpu", 16) + '<span class="t-label-2">DELTA 인수인계 요약</span></span>' + '<span class="ac-handover-when t-caption">' + ndHtml(HANDOVER.when) + '</span>' + '<span class="ac-head-spacer"></span>' + '<button type="button" class="btn btn-ghost is-xs" data-ac-handover-close>닫기</button>' + '</div>' + '<dl class="ac-handover-list">' + HANDOVER.items.map(function(it) {
+      return '<div class="ac-handover-row">' + '<dt class="t-label-2">' + esc(it[0]) + '</dt>' + '<dd class="t-body-4">' + ndHtml(it[1]) + '</dd></div>';
+    }).join("") + '</dl>' + '<div class="ac-handover-actions">' + '<button type="button" class="btn btn-secondary is-xs">초안 수정</button>' + '<button type="button" class="btn btn-primary is-xs">보고서에 넣기</button>' + '</div>' + '</section>';
+    $("[data-ac-handover-close]", slot).addEventListener("click", function() {
+      state.handover = false;
+      slot.hidden = true;
+    });
+  }
+  function wire() {
+    $$("[data-ac-tab]").forEach(function(tab) {
+      tab.addEventListener("click", function() {
+        state.tab = tab.getAttribute("data-ac-tab");
+        $$("[data-ac-tab]").forEach(function(t) {
+          t.setAttribute("aria-selected", t === tab ? "true" : "false");
+        });
+        refresh();
+      });
+    });
+    $$("[data-ac-sev]").forEach(function(box) {
+      box.addEventListener("click", function() {
+        var key = box.getAttribute("data-ac-sev");
+        if (box.hasAttribute("aria-pressed")) {
+          state.sev = {
+            all: key === "all",
+            critical: key === "critical",
+            warning: key === "warning"
+          };
+          $$("[data-ac-sev]").forEach(function(b) {
+            b.setAttribute("aria-pressed", b === box ? "true" : "false");
+          });
+          setPicked(null);
+          refresh();
+          return;
+        }
+        if (key === "all") {
+          state.sev = {
+            all: true,
+            critical: false,
+            warning: false
+          };
+        } else {
+          state.sev[key] = !state.sev[key];
+          state.sev.all = !state.sev.critical && !state.sev.warning;
+        }
+        $$("[data-ac-sev]").forEach(function(b) {
+          b.setAttribute("aria-checked", state.sev[b.getAttribute("data-ac-sev")] ? "true" : "false");
+        });
+        setPicked(null);
+        refresh();
+      });
+    });
+    list.addEventListener("mouseover", function(event) {
+      var row = event.target.closest("[data-id]");
+      if (row) {
+        preview(row.getAttribute("data-id"));
+      }
+    });
+    list.addEventListener("mouseleave", previewOff);
+    $("[data-ac-prev]").addEventListener("click", function() {
+      step(-1);
+    });
+    $("[data-ac-next]").addEventListener("click", function() {
+      step(1);
+    });
+    $("[data-ac-summary]").addEventListener("click", function() {
+      state.handover = true;
+      renderHandover();
+      slot.hidden = false;
+    });
+    selects({
+      "ac-f-mission": function(v) {
+        state.mission = v;
+      },
+      "ac-f-period": function(v) {
+        state.period = v;
+      },
+      "ac-f-sort": function(v) {
+        state.sort = v;
+      }
+    });
+    statusMenus();
+    newRiskDemo();
+  }
+  function selects(handlers) {
+    var all = $$("[data-select]");
+    function closeAll(except) {
+      all.forEach(function(sel) {
+        if (sel === except) {
+          return;
+        }
+        sel.removeAttribute("data-open");
+        $("[data-select-trigger]", sel).setAttribute("aria-expanded", "false");
+        $(".field-menu", sel).hidden = true;
+      });
+    }
+    all.forEach(function(sel) {
+      var trigger = $("[data-select-trigger]", sel);
+      var menu = $(".field-menu", sel);
+      var value = $("[data-select-value]", sel);
+      var onPick = null;
+      Object.keys(handlers).forEach(function(cls) {
+        if (sel.classList.contains(cls)) {
+          onPick = handlers[cls];
+        }
+      });
+      trigger.addEventListener("click", function(event) {
+        event.stopPropagation();
+        var open = sel.hasAttribute("data-open");
+        closeAll();
+        if (open) {
+          return;
+        }
+        sel.setAttribute("data-open", "");
+        trigger.setAttribute("aria-expanded", "true");
+        menu.hidden = false;
+      });
+      $$(".field-option", sel).forEach(function(opt) {
+        opt.addEventListener("click", function() {
+          value.textContent = opt.textContent;
+          $$(".field-option", sel).forEach(function(o) {
+            o.removeAttribute("aria-selected");
+          });
+          opt.setAttribute("aria-selected", "true");
+          closeAll();
+          if (onPick) {
+            onPick(opt.textContent);
+            setPicked(null);
+            refresh();
+          }
+        });
+      });
+      sel.addEventListener("keydown", function(event) {
+        if (event.key === "Escape" && sel.hasAttribute("data-open")) {
+          closeAll();
+          trigger.focus();
+        }
+      });
+    });
+    document.addEventListener("click", function() {
+      closeAll();
+    });
+  }
+  var NEWRISK = [];
+  function newRiskBar() {
+    var open = $(".ac-open");
+    if (!open) {
+      return;
+    }
+    NEWRISK = NEWRISK.filter(function(id) {
+      return !visible().some(function(a) {
+        return a.id === id;
+      });
+    });
+    var hidden = NEWRISK.filter(function(id) {
+      return !visible().some(function(a) {
+        return a.id === id;
+      }) && ALERTS.some(function(a) {
+        return a.id === id && !isDone(a);
+      });
+    });
+    var bar = $(".ac-newrisk");
+    if (!hidden.length) {
+      if (bar) {
+        bar.remove();
+      }
+      return;
+    }
+    if (!bar) {
+      bar = document.createElement("div");
+      bar.className = "ac-newrisk";
+      bar.setAttribute("role", "status");
+      var f = $(".ac-filter", open);
+      open.insertBefore(bar, f || open.firstChild);
+    }
+    bar.innerHTML = icon("--ic-error", 16) + '<span class="t-label-2">새 위험 알림 ' + hidden.length + '건이 필터에 가려져 있어요</span>' + '<button type="button" class="btn btn-secondary is-xs" data-ac-newrisk>보기</button>';
+    $("[data-ac-newrisk]", bar).onclick = function() {
+      var id = hidden[0];
+      var tab = $('[data-ac-tab="open"]');
+      if (state.tab !== "open" && tab) {
+        tab.click();
+      }
+      var all = $('[data-ac-sev="all"]');
+      if (all) {
+        all.click();
+      }
+      $$(".ac-f-mission .field-option, .ac-f-period .field-option").forEach(function(o, i, arr) {
+        if (o === o.parentNode.firstElementChild && o.getAttribute("aria-selected") !== "true") {
+          o.click();
+        }
+      });
+      setPicked(id);
+      refresh();
+    };
+  }
+  function newRiskDemo() {
+    if (!V7 || !/[?&]newrisk=1/.test(location.search)) {
+      return;
+    }
+    setTimeout(function() {
+      var src = ALERTS.filter(function(a) {
+        return a.sev === "critical" && !isDone(a);
+      })[0];
+      if (!src) {
+        return;
+      }
+      var t = nowDate(), hms = [ t.getHours(), t.getMinutes(), t.getSeconds() ].map(function(n) {
+        return (n < 10 ? "0" : "") + n;
+      }).join(":");
+      var a = JSON.parse(JSON.stringify(src));
+      a.id = "A-NEW";
+      a.time = hms;
+      a.stamp = a.stamp.slice(0, 11) + hms;
+      a.mission = "발전기실 설비 점검";
+      a.floor = "B3";
+      a.wp = "WP-11";
+      a.place = "배관 랙 통로";
+      a.robot = "Robot 05";
+      ALERTS.push(a);
+      NEWRISK.push(a.id);
+      refresh();
+    }, 3000);
+  }
+  function statusMenus() {
+    var menus = $$("[data-status-menu]");
+    function close(except) {
+      menus.forEach(function(m) {
+        if (m === except) {
+          return;
+        }
+        $("[data-menu-trigger]", m).setAttribute("aria-expanded", "false");
+        $(".dropdown-menu", m).hidden = true;
+      });
+    }
+    menus.forEach(function(m) {
+      var trigger = $("[data-menu-trigger]", m);
+      var menu = $(".dropdown-menu", m);
+      trigger.addEventListener("click", function(event) {
+        event.stopPropagation();
+        var open = trigger.getAttribute("aria-expanded") === "true";
+        close(m);
+        trigger.setAttribute("aria-expanded", open ? "false" : "true");
+        menu.hidden = open;
+      });
+    });
+    document.addEventListener("click", function() {
+      close();
+    });
+    document.addEventListener("keydown", function(event) {
+      if (event.key === "Escape") {
+        close();
+      }
+    });
+  }
+  wire();
+  if (new URLSearchParams(location.search).get("tab") === "done") {
+    state.tab = "done";
+    $$("[data-ac-tab]").forEach(function(t) {
+      t.setAttribute("aria-selected", t.getAttribute("data-ac-tab") === "done" ? "true" : "false");
+    });
+  }
+  renderHandover();
+  refresh();
+})();

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>APRISM 개발 인계판</title>
+  <style>
+    :root { color-scheme: light dark; --bg: #fff; --fg: #111; --sub: #5b616b; --line: #e3e5e8; --link: #1d5fd6; }
+    @media (prefers-color-scheme: dark) { :root { --bg: #111; --fg: #f2f3f5; --sub: #a0a5ab; --line: #2c2f34; --link: #6ea2ff; } }
+    body { margin: 0; padding: 40px 16px; background: var(--bg); color: var(--fg); font: 15px/1.6 system-ui, sans-serif; }
+    main { max-width: 960px; margin: 0 auto; }
+    h1 { font-size: 24px; margin: 0 0 4px; } p { color: var(--sub); margin: 0 0 24px; }
+    table { width: 100%; border-collapse: collapse; } td { padding: 10px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    td:first-child { white-space: nowrap; font-family: ui-monospace, monospace; font-size: 14px; } a { color: var(--link); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>APRISM 개발 인계판</h1>
+    <p>2026-11-24 기준 사본 · 화면별 동작과 규칙은 Figma 화면 정의서(UI_99 · 00.룰), 자세한 안내는 README.md</p>
+    <table>
+      <tr><td><a href="screens/splash-v2.html">splash-v2.html</a></td><td>CM-01 스플래시</td></tr>
+      <tr><td><a href="screens/login-v2.html">login-v2.html</a></td><td>CM-02 · CM-03 · CM-07 · CM-13 로그인 · 인증 실패 · 첫 화면 · 교대</td></tr>
+      <tr><td><a href="screens/password-expired-v2.html">password-expired-v2.html</a></td><td>CM-05 비밀번호 변경 강제</td></tr>
+      <tr><td><a href="screens/control-v7.html">control-v7.html</a></td><td>관제 껍데기 (GNB 관제), 안에 전체 미션 · 미션 화면</td></tr>
+      <tr><td><a href="screens/building-v7.html">building-v7.html</a></td><td>공통-01 전체 미션 · 관제화면-03 통합 순회 현황</td></tr>
+      <tr><td><a href="screens/mission-setup-v7.html">mission-setup-v7.html</a></td><td>관제화면-01 미션 설정 · CM-06 자동 로그아웃</td></tr>
+      <tr><td><a href="screens/mission-precheck-v7.html">mission-precheck-v7.html</a></td><td>관제화면-02 사전 점검</td></tr>
+      <tr><td><a href="screens/main-v7.html">main-v7.html</a></td><td>관제화면-04 미션 관제 · 지도-01 · 로봇현황-01/02 · Delta-01</td></tr>
+      <tr><td><a href="screens/main-v7-chat.html">main-v7-chat.html</a></td><td>Delta-02 Delta 챗봇형</td></tr>
+      <tr><td><a href="screens/alert-center-v7.html">alert-center-v7.html</a></td><td>알림센터-01 알림 센터</td></tr>
+      <tr><td><a href="screens/report-v7.html">report-v7.html</a></td><td>보고서-01 보고서 (관제의 보고서 모달도 이 화면)</td></tr>
+      <tr><td><a href="screens/safety-v7.html">safety-v7.html</a></td><td>안전진단 (정의서 보류)</td></tr>
+    </table>
+  </main>
+</body>
+</html>
