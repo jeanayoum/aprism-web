@@ -2,7 +2,7 @@
 //   원래 파일(screens/ · assets/)은 건드리지 않는다. 주석(작업 기록)은 원래 파일에 그대로 남는다.
 //
 //   준비   npm i --no-save --no-package-lock terser      (저장소 맨 위에서 한 번, node_modules 는 .gitignore)
-//   실행   node tools/build-handoff.mjs && python tools/stamp-assets.py
+//   실행   node tools/build-handoff.mjs && node tools/export-handoff-data.mjs && python tools/stamp-assets.py
 //   결과   handoff/screens/*.html · handoff/assets/** · handoff/index.html(화면 목록)
 //
 //   JS 는 terser 로 주석만 뺀다(압축 · 이름 바꾸기 없음, 줄 맞춤은 terser 가 다시 함). CSS · HTML 은 문자열을 피해 주석만 뺀다.

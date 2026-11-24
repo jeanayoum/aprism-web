@@ -63,11 +63,42 @@
 
 ### 참고만 할 것
 
-- **시연 데이터** — `assets/js/alert-data-v7.js`(알림 12건 · 조치 제안 표 · 조치 요청 기록), `building.js` · `monitor.js` 안의 로봇 · 미션 값. 필드 이름과 꼴은 **정의서 공통-03 데이터 · 갱신**의 견본이에요. 실제 값은 서버에서 받아요.
+- **시연 데이터** — `assets/js/alert-data-v7.js`(알림 12건 · 조치 제안 표 · 조치 요청 기록), `building.js` · `monitor.js` 안의 로봇 · 미션 값. 같은 값을 정의서 꼴로 꺼낸 것이 아래 `data/`예요. 실제 값은 서버에서 받아요.
 - **시뮬레이션** — `route-sim.js`(로봇이 경로를 도는 흉내), 시뮬레이션 막대.
 - **저장** — 조치 요청 기록 · 로그인 · 화면 설정은 브라우저 저장소(localStorage · sessionStorage)에 흉내만 내요. 실제 저장 · 동시성 · 보존 규칙은 공통-03 · 공통-06이 기준이에요.
 - **로그인** — `auth.js`는 시연용이에요. 계정 확인 · 잠금 · 만료는 서버 몫이에요(CM-02 · CM-03 · CM-05).
 - **3D 지도** — `map-v6.js` + `map-model.js`(지도 모델 glb를 base64로 담음) + three.js 0.160(CDN). 모델과 렌더링 방식은 개발 환경에 맞게 다시 정해 주세요. 지도 규칙은 지도-01 · 로봇현황-02가 기준이에요.
+
+## 견본 데이터 (`data/`)
+
+화면을 채운 시연 값을 **정의서 공통-03(데이터 · 갱신)의 필드 꼴**로 꺼낸 JSON이에요. "서버는 이런 꼴로 보내 주세요"를 보여 주는 견본이에요. 화면은 이 파일을 읽지 않아요(화면은 JS 안의 같은 값을 써요).
+
+| 파일 | 내용 | 정의서 |
+|---|---|---|
+| `data/alerts.json` | 알림 12건 | 공통-03 알림 · 공통-02 알림 단계 |
+| `data/suggestions.json` | 조치 제안 — 감지 종류별 기본(`missionId: "*"`) + 미션이 따로 정한 것 | 공통-03 조치 제안 |
+| `data/action-requests.json` | 조치 요청 1건(꼴만 보여 줌) | 공통-03 조치 요청 · 공통-02 알림 처리 상태 |
+| `data/robots.json` | 로봇 12대 | 공통-03 로봇 · 공통-02 로봇 가용 상태 |
+| `data/missions.json` | 미션 8개, `정기 순회 점검`에는 지점 20개 | 공통-03 미션 |
+
+**정의서 낱말 ↔ JSON 이름**
+
+| 정의서 | JSON |
+|---|---|
+| 단계 (위험 · 주의) | `level`: `critical` · `warning` |
+| 처리 상태 (조치 필요) | `status`: `action_needed` |
+| 진행 단계 (현장 응답 대기 · 현장 조치 중 · 조치 완료) | `stage`: `wait` · `work` · `done` |
+| 로봇 가용 상태 (수행 중 · 대기 · 충전 중 · 완료 · 끊김) | `availability`: `running` · `idle` · `charging` · `done` · `lost` |
+| 미션 상태 (수행 중 · 대기 · 완료) | `status`: `running` · `waiting` · `done` |
+| 층 · 지점 | `floor`, `waypoint.id` · `waypoint.no` |
+| 설비 · 감지 종류 | `equipment`, `detectType` |
+| 측정 (항목 · 값 · 단위 · 기준) | `measure.item` · `value` · `unit` · `limit` |
+| 시각 | `occurredAt` · `requestedAt` — ISO 8601 (저장은 UTC, 화면은 현지 시각) |
+| AI 추천 · 받는 곳 | `aiRecommended`, `recipient.team` · `recipient.contact` |
+| 머무는 시간 | `dwellSec` (초) |
+
+- 영문 이름과 코드 값은 시안이 정한 임시 이름이에요. 서버 · 로봇 쪽 이름에 맞춰 바꿔도 돼요(정의서 공통-02).
+- 로봇 위치 좌표, 로봇 동작 상태(이동 · 측정 · 위험 감지 등), 신호 세기 기준처럼 시안에 실제 값이 없는 것은 넣지 않았어요. 공통-02 · 공통-03 · 공통-08을 봐 주세요.
 
 ## 다시 뽑기 (디자인 쪽)
 
@@ -75,7 +106,8 @@
 
 ```
 npm i --no-save --no-package-lock terser   # 처음 한 번
-node tools/build-handoff.mjs               # handoff/ 를 지우고 다시 만듦
+node tools/build-handoff.mjs               # handoff/ 를 지우고 다시 만듦(README 는 남김)
+node tools/export-handoff-data.mjs         # data/*.json 견본 다시 뽑기 (Chrome 필요)
 python tools/stamp-assets.py               # ?v= 캐시 꼬리표 맞추기
 ```
 

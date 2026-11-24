@@ -1,0 +1,215 @@
+{
+  "_note": "시안 견본 — 정의서 공통-03 꼴. 실제 값은 서버가 보냄",
+  "items": [
+    {
+      "id": "Robot 01",
+      "name": "Robot 01",
+      "missionId": "정기 순회 점검",
+      "availability": "running",
+      "floor": "B4",
+      "battery": {
+        "level": 78,
+        "charging": false
+      },
+      "signal": {
+        "level": 4
+      },
+      "progress": {
+        "done": 7,
+        "total": 20
+      },
+      "current": "N₂ 배관 압력 점검"
+    },
+    {
+      "id": "Robot 02",
+      "name": "Robot 02",
+      "missionId": null,
+      "availability": "idle",
+      "floor": "B4",
+      "battery": {
+        "level": 18,
+        "charging": false
+      },
+      "signal": {
+        "level": 2
+      },
+      "progress": null,
+      "current": "복귀 중"
+    },
+    {
+      "id": "Robot 03",
+      "name": "Robot 03",
+      "missionId": "소방 설비 점검",
+      "availability": "charging",
+      "floor": "B4",
+      "battery": {
+        "level": 35,
+        "charging": true
+      },
+      "signal": {
+        "level": 3
+      },
+      "progress": null,
+      "current": "대기 중"
+    },
+    {
+      "id": "Robot 04",
+      "name": "Robot 04",
+      "missionId": "야간 순회 점검",
+      "availability": "done",
+      "floor": "B4",
+      "battery": {
+        "level": 92,
+        "charging": false
+      },
+      "signal": {
+        "level": 4
+      },
+      "progress": {
+        "done": 20,
+        "total": 20
+      },
+      "current": "순회 완료"
+    },
+    {
+      "id": "Robot 05",
+      "name": "Robot 05",
+      "missionId": "발전기실 설비 점검",
+      "availability": "running",
+      "floor": "B4",
+      "battery": {
+        "level": 64,
+        "charging": false
+      },
+      "signal": {
+        "level": 3
+      },
+      "progress": {
+        "done": 13,
+        "total": 20
+      },
+      "current": "발전기 베어링 진동 측정"
+    },
+    {
+      "id": "Robot 06",
+      "name": "Robot 06",
+      "missionId": null,
+      "availability": "charging",
+      "floor": "B4",
+      "battery": {
+        "level": 8,
+        "charging": true
+      },
+      "signal": {
+        "level": 2
+      },
+      "progress": null,
+      "current": "충전 중"
+    },
+    {
+      "id": "Robot 07",
+      "name": "Robot 07",
+      "missionId": "공조 설비 순회",
+      "availability": "done",
+      "floor": "B3",
+      "battery": {
+        "level": 96,
+        "charging": true
+      },
+      "signal": {
+        "level": 4
+      },
+      "progress": {
+        "done": 20,
+        "total": 20
+      },
+      "current": "순회 완료"
+    },
+    {
+      "id": "Robot 08",
+      "name": "Robot 08",
+      "missionId": "주간 설비 점검",
+      "availability": "idle",
+      "floor": "B3",
+      "battery": {
+        "level": 47,
+        "charging": false
+      },
+      "signal": {
+        "level": 3
+      },
+      "progress": null,
+      "current": "대기 중"
+    },
+    {
+      "id": "Robot 09",
+      "name": "Robot 09",
+      "missionId": "유틸리티 순회",
+      "availability": "done",
+      "floor": "B4",
+      "battery": {
+        "level": 88,
+        "charging": false
+      },
+      "signal": {
+        "level": 4
+      },
+      "progress": {
+        "done": 20,
+        "total": 20
+      },
+      "current": "순회 완료"
+    },
+    {
+      "id": "Robot 10",
+      "name": "Robot 10",
+      "missionId": null,
+      "availability": "lost",
+      "floor": "B3",
+      "battery": {
+        "level": 29,
+        "charging": false
+      },
+      "signal": {
+        "level": 0
+      },
+      "progress": null,
+      "current": "통신 끊김"
+    },
+    {
+      "id": "Robot 11",
+      "name": "Robot 11",
+      "missionId": "전기실 열화상 점검",
+      "availability": "running",
+      "floor": "B3",
+      "battery": {
+        "level": 71,
+        "charging": false
+      },
+      "signal": {
+        "level": 4
+      },
+      "progress": {
+        "done": 7,
+        "total": 20
+      },
+      "current": "케미컬 공급 캐비닛 CDS-02 판독"
+    },
+    {
+      "id": "Robot 12",
+      "name": "Robot 12",
+      "missionId": null,
+      "availability": "charging",
+      "floor": "B3",
+      "battery": {
+        "level": 55,
+        "charging": true
+      },
+      "signal": {
+        "level": 3
+      },
+      "progress": null,
+      "current": "충전 중"
+    }
+  ]
+}
