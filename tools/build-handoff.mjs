@@ -116,7 +116,7 @@ function stripCss(s) {
 function tidy(s) { return s.replace(/[ \t]+$/gm, "").replace(/\n{3,}/g, "\n\n").replace(/^\n+/, ""); }
 function stripHtml(s) {
   s = s.replace(/<!--(?!\[if)[\s\S]*?-->/g, "");
-  s = s.replace(/(<style[^>]*>)([\s\S]*?)(<\/style>)/g, (_, a, b, c) => a + stripCss(b) + c);
+  s = s.replace(/(<style[^>]*>)([\s\S]*?)(<\/style>)/g, (_, a, b, c) => a + (/^[ \t]*\n/.test(b) ? "\n" : "") + stripCss(b) + c);
   return s.split("\n").filter((l, k, arr) => !(l.trim() === "" && (arr[k - 1] || "").trim() === "")).join("\n");
 }
 let terser;
