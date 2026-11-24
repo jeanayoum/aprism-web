@@ -1952,7 +1952,10 @@ body.ver-7 .rp-page .p-hd .lg.is-wm svg { display: block; height: 16px; width: a
  * 전체 미션 Delta 아래 제안(.ai-actions: 위험 n건부터 조치 · 주의 n건 묶어서 확인 · 현장 점검 한꺼번에 요청)은 대부분 Delta 에게 대화를 보내는 제안이라
  * 미션 탭 "이렇게 물어보세요" 칩(.dc6-q.ds-chip)과 같은 네모 칩 26. 알약은 답 카드 안의 조치 버튼(.dc6-btn)에만(11/24 디자이너 확인).
  * 문장 속 미션 이름 [M3 …] 은 다음 확인 줄 규칙(12)에 걸려 작아졌다 — Delta 문장(.dl2) 안에서는 문장 크기 그대로 */
-body.ver-7 .delta3 .dl2 :is(.dl-m, .dl-no, .dl-br) { font-size: inherit !important; line-height: inherit !important; }
+/* [11/24] 문장 속 미션 이름 [M번호 이름] 은 어느 Delta 문장이든(접힘 1 · 2줄, 펼침, 대화) 문장 크기 그대로, 이름은 흰색 굵게 · 번호 · 괄호는 회색(문형표 5).
+ * 12 · 회색은 펼친 Delta 다음 확인 줄(.dc6-row) 꼬리에만 */
+body.ver-7 .dl-m:not(.dc6-row .dl-m), body.ver-7 .dl-m:not(.dc6-row .dl-m) :is(.dl-no, .dl-br) { font-size: inherit !important; line-height: inherit !important; }
+body.ver-7 .dl-m:not(.dc6-row .dl-m) { color: var(--text-primary) !important; font-weight: var(--font-weight-bold); }   /* 2줄(회색 문장) 안에서도 흰색 굵게 — 할 일의 대상이 먼저 읽히게 */
 body.ver-7 .delta3 .ai-actions { flex-direction: row !important; flex-wrap: wrap !important; align-items: center !important; gap: var(--ds-chip-between) !important; }
 body.ver-7 .delta3 .ai-actions .btn.is-md { box-sizing: border-box !important; width: auto !important; height: var(--ds-chip-h) !important; min-height: var(--ds-chip-h) !important; padding: 0 var(--ds-chip-pad-x) !important; font-size: var(--ds-chip-font-size) !important; line-height: var(--ds-chip-line-height) !important; font-weight: var(--ds-chip-font-weight) !important; border: var(--ds-chip-border-width) solid var(--comp-button-secondary-border-default) !important; border-radius: var(--ds-chip-radius) !important; background-color: var(--comp-button-secondary-bg-default) !important; color: var(--comp-button-secondary-text-default) !important; box-shadow: var(--ds-chip-shadow-dark) !important; }
 body.ver-7 .delta3 .ai-actions .btn.is-md:hover { background-color: var(--comp-button-secondary-bg-hover) !important; }
