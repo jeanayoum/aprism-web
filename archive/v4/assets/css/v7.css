@@ -1,0 +1,1622 @@
+/*
+ * v7 (11/06~) — v6 화면을 복제한 다음 판. body 에 ver-6 과 ver-7 이 함께 붙는다: v6 규칙(v6.css)을 그대로 쓰고, 여기서 v7 에서 바뀐 것만 덮는다.
+ *   v6 한글판은 11/06 피드백 전 상태로 멈춘다. 영문판 *-v6-en.html 은 v7 한글판에서 만든다(tools/build-en.mjs).
+ */
+
+/*
+ * [11/06 디자이너] 상단 미션 탭 — 자주 누르는 단추라 높이를 키우고(40 → 44, 상태바 52 → 56), 미션 탭 너비를 하나로.
+ *   미션 탭(M1~M8)은 모두 같은 폭(남는 자리를 똑같이 나누되 최대 184), 넘치는 이름은 말줄임 — 전체 이름은 탭 title(마우스 올림).
+ *   [전체 미션] 탭은 미션이 아니라 짧은 제 폭 그대로
+ */
+body.ver-7 .status-bar { height: 56px; flex: 0 0 56px; }
+body.ver-7 .sb-tab { height: 44px; }
+body.ver-7 .sb-tab[data-mission] { flex: 1 1 0; min-width: 0; max-width: 184px; justify-content: flex-start; padding: 0 var(--space-12); gap: var(--space-4); }
+html[lang="en"] body.ver-7 .sb-tab[data-mission] { flex: 1 1 0; max-width: 184px; }
+html[lang="en"] body.ver-7 .sb-tab[data-mission] .sb-tab-name { overflow: hidden; text-overflow: ellipsis; }
+html[lang="en"] body.ver-7 .sb-tabs { overflow-x: visible; flex: 1 1 auto; }
+
+/*
+ * [11/06 디자이너] 왼쪽 "오늘 확인된 알림" 머리를 예전 배치로 — 이름 · 건수(점) …… 오른쪽 끝 접기, [전체보기]는 위 최신 알림 하나만(HTML).
+ *   이름은 위 "미확인 알림"과 같은 위계(t-title-2 · 16, HTML — 형제). v6 의 머리 배치 규칙(done-toggle · ah-all)을 되돌린다
+ */
+body.ver-7 .done-head { justify-content: space-between; gap: var(--space-8); }
+body.ver-7 .done-head .done-count { margin-left: auto; }
+body.ver-7 .done-head .done-fold { margin-right: calc(var(--space-4) * -1); }
+/* [11/06 디자이너] 두 목록 사이 선은 다시 뺀다(v6 처럼 투명) — 머리 이름 위계(16 / 14)로 나뉜다 */
+/* [11/06] 탭 줄이 남는 자리를 다 쓰게 — 탭 묶음이 글 폭만큼만 잡혀(1203) 오른쪽 226px 이 비어 있었다. 줄을 채우고 양옆 여백을 8 로:
+ *   1920 에서 미션 탭 하나 ≈ 168(가장 긴 "M2 발전기실 설비 점검 ▲" 가 말줄임 없이 든다), 좁은 화면에선 같은 폭으로 함께 줄고 넘치면 말줄임 */
+body.ver-7 .sb-tabs { flex: 1 1 auto; padding: 0 var(--space-8) 0 0; }   /* 왼쪽은 0 — v6 처럼 [전체 미션] 탭이 로고 칸(76)에 바로 붙는다 */
+body.ver-7 .sb-tab[data-mission] { padding: 0 var(--space-8); }
+
+/*
+ * [11/10 v7 · UT 개선 시각화 1b — 내부 결정] 미션 탭은 기본을 번호만(M2 ▲), 지금 보는 탭만 번호 + 이름.
+ *   v6 사용성 테스트에서 미션 이름을 16명 중 12명이 지금 지점 이름으로 답했고, 상태 파악 중 탭을 누른 사람은 0명 — 아홉 개의 긴 이름이 읽히지 않았다.
+ *   위 "모두 같은 폭(최대 184)" 규칙(11/06)을 대신한다: 탭은 제 내용 폭. 전체 이름은 마우스 올림(title)으로 그대로 본다.
+ *   알림 기호(▲ · ⓧ)와 새 위험 점은 번호 옆에 남는다 — 다른 미션에 무슨 일이 났는지는 이름 없이도 보인다.
+ *   탭 줄을 쓰는 다섯 화면(관제 · 전체 미션 · 안전진단 · 미션 설정 · 사전 점검)과 영문판이 같은 규칙을 탄다.
+ */
+body.ver-7 .sb-tab[data-mission],
+html[lang="en"] body.ver-7 .sb-tab[data-mission] { flex: 0 0 auto; max-width: none; min-width: 56px; justify-content: center; padding: 0 var(--space-12); }
+body.ver-7 .sb-tab[data-mission]:not(.is-on) .sb-tab-name { display: none; }
+body.ver-7 .sb-tab[data-mission].is-on .sb-tab-name,
+html[lang="en"] body.ver-7 .sb-tab[data-mission].is-on .sb-tab-name { overflow: visible; text-overflow: clip; white-space: nowrap; }
+
+/* [11/06 디자이너] [알림 센터 ›] — 조치 필요 알림 머리 오른쪽(알림 목록 바로 위). 글 뒤 화살표 사이 2 */
+body.ver-7 .ah-head .ah-all { display: inline-flex; align-items: center; gap: var(--space-2); }
+
+/* [11/06 디자이너] "조치 요청된 알림" 목록은 오늘 것만 — 범위는 제목 대신 건수 앞에 "오늘"(• 오늘 5건). 제목이 알림 센터 탭 이름과 똑같아진다 */
+/* [11/23 디자이너 · 정의서 관제화면-04 Q3] 범위가 "이 미션"으로 바뀌어 "오늘"을 뺐다 */
+/* 진행 단계 줄 — 단계 이름(아이콘은 공통 CSS 조치 진행 배지 절의 목록 꼴) · 받는 사람 */
+body.ver-7 .done-stage { display: flex; align-items: center; gap: var(--space-8); }
+body.ver-7 .done-stage .done-st { display: inline-flex; align-items: center; gap: var(--space-4); flex: 1 1 auto; min-width: 0; color: var(--text-secondary); }
+body.ver-7 .done-stage .done-st-t { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body.ver-7 .done-stage > span:last-child { flex: none; }
+/* [11/23 디자이너] 요청한 조치 — 마우스 · 초점 · 고른 줄에서만 셋째 줄 */
+body.ver-7 .done-item .done-req { display: none; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body.ver-7 .done-item:is(:hover, :focus-visible, [aria-pressed="true"]) .done-st:has(.done-req) .done-st-t { display: none; }
+body.ver-7 .done-item:is(:hover, :focus-visible, [aria-pressed="true"]) .done-req { display: block; }
+/* [11/23 지도-01 Q1] 설비 카드 점검 결과 — 알림이면 단계 색 */
+body.ver-7 [data-map-card-state][data-sev="caution"] { color: var(--status-warning-text); }
+body.ver-7 [data-map-card-state][data-sev="danger"] { color: var(--status-critical-text); }
+/* [11/23 디자이너] 로봇 선택 모달 카드 — 패널과 같은 2D 그림, 패널처럼 오른쪽을 본다 */
+body.ver-7 .robot-grid .robot-thumb > svg.robot-2d { display: block; width: auto; height: 100%; margin: 0 auto; transform: scaleX(-1); transform-origin: 50% 100%; overflow: visible; }
+/* [11/23 정의서 관제화면-03 Q2 · Q3] 통합 순회 현황 — 층을 펼치면 로봇 번호 · 알림 표식을 누를 수 있다, 미션 없는 로봇은 잠깐 짚기 */
+body.ver-7.is-floor-view .bld-bot, body.ver-7.is-floor-view .bld-alert { pointer-events: auto; cursor: pointer; }
+body.ver-7 .bld-bot.is-flash .bld-bot-name { animation: bld-flash 1.6s ease-out; }
+@keyframes bld-flash { 0%, 40%, 80% { box-shadow: 0 0 0 3px var(--status-info-icon); } 20%, 60%, 100% { box-shadow: 0 0 0 0 transparent; } }
+/* [11/23 Q5] 알림 목록 빈 상태 — 흐린 글 한 줄, 아이콘 · 색 없음 */
+body.ver-7 .ah-empty { margin: 0; padding: var(--space-40) var(--space-16); text-align: center; color: var(--text-tertiary); }
+/* [11/23 Q1] 관제 위 보고서 모달 — 보고서 화면을 투명 틀로 얹는다(report-modal-v7.js) */
+.rp-embed-frame { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; z-index: 1000; background: transparent; }
+html[lang="en"] body.ver-7 .done-head [data-done-count]::before { content: "Today "; }
+
+/*
+ * [11/06 디자이너] Delta 줄이기
+ *   1) 접힘 — [11/06 디자이너] 첫 줄만 남기던 것을 되돌려 v6 표시 그대로(두 줄 · 너비 220)
+ *   2) 펼침 — 맨 위 대상 카드를 아래 "다음 확인 항목" 줄처럼: [진단 아이콘] 제목(N₂ 압력계 기준 초과) + [위험 상세 확인] [위치 보기].
+ *      "현장 점검이 필요해요" 글 · 설명 · "먼저 보는 이유" 상자는 뺀다(위험 상세 확인에서 본다). 제목은 목록 줄과 같은 14 굵게, 아이콘 16 단계색
+ */
+body.ver-7 .dc6-card { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: var(--space-8); row-gap: var(--space-12); }   /* [11/13 여백 정리] 갭 10 → 8 */
+/* [11/23] 2칸(아이콘 | 제목)은 맨 위 카드(.dc6-need 있음)에만. 원인 분석처럼 묶음(.dc6-sec)만 있는 답 카드는 한 칸으로 쌓음(2칸에 걸려 옆으로 나뉘던 것) */
+body.ver-7 .dc6-card:not(:has(> .dc6-need)) { grid-template-columns: minmax(0, 1fr); align-items: stretch; }
+body.ver-7 .dc6-card > .dc6-need { grid-column: 1; grid-row: 1; margin: 0; font-size: 16px; line-height: 1; }
+body.ver-7 .dc6-card > .dc6-need > span:not(.i) { display: none; }
+body.ver-7 .dc6-card > .dc6-need > .dc6-diag { width: 16px; height: 16px; }
+body.ver-7 .dc-msg.dc6 .dc6-card > .dc6-eq { grid-column: 2; grid-row: 1; margin: 0; font-size: 14px; line-height: 20px; font-weight: 700; }
+body.ver-7 .dc6-card > .dc6-desc, body.ver-7 .dc6-card > .dc6-why { display: none; }
+body.ver-7 .dc6-card > .dc6-done, body.ver-7 .dc6-card > .dc6-btns { grid-column: 1 / -1; }
+
+/* [11/06 디자이너] Delta 접힘 너비는 v6 그대로 220(295 로 늘렸던 것 되돌림), 펼침은 295 */
+
+/* [11/06 디자이너] 펼친 Delta 오른쪽 위 단추 = [∧ 접기](X 대신) — 창을 닫는 게 아니라 접힌 카드로 돌아간다. 아이콘은 chevron-down 을 뒤집어 쓴다 */
+body.ver-7 .delta3 .delta3-close .i { --i: var(--ic-chevron-down); transform: rotate(180deg); }
+
+/*
+ * [11/06 디자이너] 펼친 Delta 판 안쪽 여백 좌우 · 아래 16 → 12. 판 4 + 안쪽 8 = 12
+ *   대화 칸 오른쪽은 스크롤 자리 8 + 판 4 = 12 라 안쪽 0. 머리(Delta) 왼쪽도 같은 선으로 맞춘다
+ */
+body.ver-7 .delta3.is-open.is-chat .dc-thread { padding: var(--space-12) 0 var(--space-16) var(--space-8); }
+body.ver-7 .dc6-sugg { padding: var(--space-12) var(--space-8) var(--space-8); }   /* [11/13 여백 정리] 위 10 → 12 */
+:root[data-theme][data-delta][data-glow] body.ver-7.ver-6.v2-2.v3 .delta3.is-open .delta3-body > .ai-input, body.ver-7.ver-6.v2-2.v3 .delta3.is-open .delta3-body > .ai-input { margin-left: var(--space-8); margin-right: var(--space-8); margin-bottom: var(--space-8); }
+body.ver-7.ver-3.v2-2.v3 .delta3.is-open .delta3-name { padding-left: var(--space-8); }
+/* [11/06 디자이너] 펼친 Delta 아래 여백 = 머리 위 여백(창 테에서 Delta 로고까지 12) — 입력 칸 아래가 17 이었다(1배율 실측) */
+:root[data-theme][data-delta][data-glow] body.ver-7.ver-6.v2-2.v3 .delta3.is-open .delta3-body > .ai-input, body.ver-7.ver-6.v2-2.v3 .delta3.is-open .delta3-body > .ai-input { margin-bottom: var(--space-4); }
+
+/* [11/06 디자이너] 우측 지점 목록 첫 카드 [출발], 마지막 카드 [도착] 꼬리표는 공통 CSS "테 있는 태그"(.ds-badge.is-line)로 옮김(11/23) */
+
+/*
+ * [11/06 디자이너] 상단 줄 오른쪽 정보(계정 · 테마 · 통신 · 시각) 세로 가운데 = 탭 글 가운데. 탭은 줄(52) 아래쪽 40 칸에 붙어 있어
+ *   오른쪽이 줄 가운데(26)에 서면 탭 글(32)보다 6 높았다 — 오른쪽 묶음도 같은 아래 40 칸 안에서 가운데로
+ */
+body.ver-7 .status-bar-right { align-self: flex-end; height: 44px; }   /* 40 이면 2 더 내려갔다(1배율 실측) — 44 에서 탭 글 · 계정 글 · 시각 가운데가 한 줄 */
+
+/*
+ * [11/06 디자이너] 안전진단 상단 미션 탭 크기 = 관제. 안전진단엔 경로 칸(span.status-bar-left[data-sf-crumb])이 하나 더 있는데
+ *   이 칸도 .status-bar-left 라 flex 1 을 받아 탭 줄과 남는 자리를 나눠 가졌다(탭 169 → 150, 긴 이름 말줄임). 늘지 않게
+ */
+body.ver-7 .status-bar-left > [data-sf-crumb] { flex: 0 0 auto; min-width: 0; }
+
+/*
+ * [11/10 v7 · UT 개선 시각화 1a — 디자이너] 우측 지점 목록 — 지나온 지점 카드는 한 줄(번호 · 이름)로, 시각 · 소요는 뺀다.
+ *   v6 사용성 테스트: 지점 목록은 가장 많이 누른 영역(자유 탐색 225회 · 15명)인데, 지나온 칸이 두 줄씩 쌓여 진행 중인 업무가 아래로 밀렸다(P16 · P06 · P01).
+ *   지나온 지점의 걸린 시간은 관제 중 판단에 쓰이지 않는다(기록은 보고서 몫). 지나온 칸도 예정 칸처럼 한 줄 — 두 줄은 지금 칸뿐이다.
+ *   v2.2 규칙(monitor.css — 시각 줄은 지금 칸 · 지난 칸 · 알림 칸)에서 지난 칸 · 알림이 걸렸던 지난 칸을 뺀다. 알림 세모(레일 표식)는 그대로.
+ *   시각 줄 몫으로 줄였던 아래 여백(12 → 8)도 되돌려 예정 칸과 같은 높이.
+ *   (처음 안 — 지나온 칸을 요약 카드 하나로 묶기(rail-fold-v7.js) — 은 지도 번호와 짝이 끊겨 11/10 이 안으로 바꿨다)
+ */
+body.ver-7 [data-timeline] .timeline-item[data-wp-state="completed"] .step-times-foot { display: none; }
+body.ver-7 [data-timeline] .timeline-item[data-wp-state="completed"] .step-card { padding-bottom: var(--space-12); }
+/* [11/10 디자이너] 지나온 지점 이름은 글자 톤 한 단계 아래(text/primary → text/secondary) — 지금 · 앞으로 갈 지점이 먼저 읽히게. 번호 · 알림 세모는 그대로 */
+body.ver-7 [data-timeline] .timeline-item[data-wp-state="completed"]:not(.is-selected) .step-title { color: var(--text-secondary); }
+
+/*
+ * [11/10 v7] 지도 도구 줄 정리(디자이너) — 로봇 위치(UT 개선 사용성 4a) · 전체 보기(화면 맞춤) · 눈 → 2D / 3D 글자 토글.
+ *   [11/10 2차 디자이너 · Figma UI_00 46:39 · 1671:13] 둘 다 "겨누는" 기능이라 같은 네 모서리 틀을 나눠 쓴다 — 전체 보기 = 틀만, 로봇 위치 = 틀 안에 로봇 얼굴.
+ *   로봇 위치는 Figma 에선 Icon / target 을 고친 것이지만, 코드의 --ic-target 은 미션 설정 · 사전 점검 "Way-point" 줄이 웨이포인트 뜻으로도 써서 새 이름(--ic-robot-locate)으로 둔다.
+ *   눈 아이콘은 "보이기 · 숨기기"로 읽혀 탑뷰로 알아보기 어려웠다. 지도 앱(Google · Apple 지도 · 내비게이션)처럼 글자로, 누르면 바뀔 상태를 적는다(map-v6.js).
+ *   글자는 아이콘 자리(20)와 같은 무게로 — Label/1 · 보조색, 단추 36 안 가운데. 2D(탑뷰)일 때는 단추가 눌린 상태(aria-pressed)로 아이콘색.
+ *   관제 · 미션 설정 · 사전 점검(한글 · 영문)의 지도 도구 줄이 같다. 로봇 위치는 로봇이 도는 관제에만.
+ */
+:root {
+  --ic-fit-screen: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2 8.00003V6.00002C2 3.79088 3.79086 2.00002 6.00001 2.00002L8 2.00003C8.55229 2.00003 9 2.44774 9 3.00003C9 3.55231 8.55229 4.00003 8 4.00003H6C4.89543 4.00003 4 4.89546 4 6.00003V8.00003C4 8.55231 3.55228 9.00003 3 9.00003C2.44772 9.00003 2 8.55231 2 8.00003Z' fill='%23000'/%3E%3Cpath d='M8.00001 22H6.00001C3.79087 22 2 20.2092 2 18L2.00001 16C2.00001 15.4477 2.44772 15 3.00001 15C3.55229 15 4.00001 15.4477 4.00001 16L4.00001 18C4.00001 19.1046 4.89544 20 6.00001 20H8.00001C8.55229 20 9.00001 20.4477 9.00001 21C9.00001 21.5523 8.55229 22 8.00001 22Z' fill='%23000'/%3E%3Cpath d='M22 8V6C22 3.79086 20.2091 2 18 2L16 2C15.4477 2 15 2.44772 15 3C15 3.55229 15.4477 4 16 4H18C19.1046 4 20 4.89543 20 6V8C20 8.55229 20.4477 9 21 9C21.5523 9 22 8.55229 22 8Z' fill='%23000'/%3E%3Cpath d='M16 22H18C20.2091 22 22 20.2091 22 18L22 16C22 15.4477 21.5523 15 21 15C20.4477 15 20 15.4477 20 16V18C20 19.1046 19.1046 20 18 20H16C15.4477 20 15 20.4477 15 21C15 21.5523 15.4477 22 16 22Z' fill='%23000'/%3E%3C/svg%3E");   /* [11/11] Figma 1671:13 Icon / fit-screen — 모서리 둥근 꺾쇠 */
+  --ic-robot-locate: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2 8.00003V6.00002C2 3.79088 3.79086 2.00002 6.00001 2.00002L8 2.00003C8.55229 2.00003 9 2.44774 9 3.00003C9 3.55231 8.55229 4.00003 8 4.00003H6C4.89543 4.00003 4 4.89546 4 6.00003V8.00003C4 8.55231 3.55228 9.00003 3 9.00003C2.44772 9.00003 2 8.55231 2 8.00003Z' fill='%23000'/%3E%3Cpath d='M8.00001 22H6.00001C3.79087 22 2 20.2092 2 18L2.00001 16C2.00001 15.4477 2.44772 15 3.00001 15C3.55229 15 4.00001 15.4477 4.00001 16L4.00001 18C4.00001 19.1046 4.89544 20 6.00001 20H8.00001C8.55229 20 9.00001 20.4477 9.00001 21C9.00001 21.5523 8.55229 22 8.00001 22Z' fill='%23000'/%3E%3Cpath d='M22 8V6C22 3.79086 20.2091 2 18 2L16 2C15.4477 2 15 2.44772 15 3C15 3.55229 15.4477 4 16 4H18C19.1046 4 20 4.89543 20 6V8C20 8.55229 20.4477 9 21 9C21.5523 9 22 8.55229 22 8Z' fill='%23000'/%3E%3Cpath d='M16 22H18C20.2091 22 22 20.2091 22 18L22 16C22 15.4477 21.5523 15 21 15C20.4477 15 20 15.4477 20 16V18C20 19.1046 19.1046 20 18 20H16C15.4477 20 15 20.4477 15 21C15 21.5523 15.4477 22 16 22Z' fill='%23000'/%3E%3Cpath d='M16.6667 8.58824C17.403 8.58824 18 9.16763 18 9.88235V15.7059C18 16.4206 17.403 17 16.6667 17H7.33333C6.59695 17 6 16.4206 6 15.7059V9.88235C6 9.16763 6.59695 8.58824 7.33333 8.58824H16.6667ZM9 11.8235C8.44772 11.8235 8 12.2581 8 12.7941C8 13.3302 8.44772 13.7647 9 13.7647C9.55228 13.7647 10 13.3302 10 12.7941C10 12.2581 9.55228 11.8235 9 11.8235ZM15 11.8235C14.4477 11.8235 14 12.2581 14 12.7941C14 13.3302 14.4477 13.7647 15 13.7647C15.5523 13.7647 16 13.3302 16 12.7941C16 12.2581 15.5523 11.8235 15 11.8235ZM14.6667 6C15.0349 6 15.3333 6.2897 15.3333 6.64706C15.3333 7.00442 15.0349 7.29412 14.6667 7.29412H9.33333C8.96514 7.29412 8.66667 7.00442 8.66667 6.64706C8.66667 6.2897 8.96514 6 9.33333 6H14.6667Z' fill='%23000'/%3E%3C/svg%3E");   /* [11/11] Figma 46:39 Icon / target — 둥근 꺾쇠 + 로봇 */
+}
+body.ver-7 .map-dim .map-dim-txt { display: block; min-width: 20px; text-align: center; line-height: 20px; letter-spacing: 0; color: currentColor; font-variant-numeric: tabular-nums; }
+body.ver-7 .map-dim[aria-pressed="true"] { color: var(--status-info-icon); }
+
+/*
+ * [11/10 v7 디자이너 · Figma UI_00 63:219 Mission Progress / Status=Brand] 진행 막대 머리.
+ *   1) 지금 하는 일 두 줄 — 지점 이름 / 행동(map-v6.js 가 .pt-head · .pt-act 로 감싼다). 16 / 24 Bold · text/primary(11/10 디자이너 14 → 16), 줄마다 말줄임
+ *   2) 오른쪽 % 크게 — 숫자 Data/Large 36 / 44 SemiBold -2%, 단위 Overline 13 / 18 Medium +4% · text/secondary. 제목 줄과 아래를 맞춘다(Title align MAX)
+ *   3) 남은 시간 = "약 12:17 종료 예정"(screen.js) — Caption 12 / 18 · text/tertiary
+ *   4) 지나온 수(7/20)는 아래 지점 목록 머리 "지점 7/20" 으로 옮겼다 — 여기서는 숨긴다
+ *   간격 — 제목 줄 ↔ 막대 8, 막대 ↔ 아랫줄 4(Figma). 막대 바탕 comp/chart/track(Figma — 예전 bg/page 는 어긋났던 값)
+ */
+/* [11/10] 가운데 정렬 — 제목이 한 줄로 남아도 큰 % 의 가운데에 선다(두 줄 48 ≈ 숫자 44 라 두 줄 모습은 그대로) */
+body.ver-7 .progress-meta { height: auto; align-items: center; margin-bottom: 0; }
+body.ver-7 .progress-title {
+  display: block;
+  white-space: normal;
+  overflow: hidden;
+  max-height: 48px;
+  font-size: var(--font-size-16);   /* [11/10 디자이너] 14 → 16 — 지점 카드 이름(14)보다 한 단계 위, "지금 하는 일"이 오른쪽 패널에서 먼저 읽히게 */
+  line-height: var(--font-line-height-24);
+  font-weight: var(--font-weight-bold);
+}
+body.ver-7 .progress-title .pt-head,
+body.ver-7 .progress-title .pt-act { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body.ver-7 .progress-percent {
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-40);   /* [11/10 디자이너] 48 은 제목보다 먼저 읽혀 과했다 — 40(숫자 높이 약 29 = 두 줄 제목 덩이의 80%). 줄 높이 48 은 두 줄 제목과 가운데 맞춤 */
+  line-height: 48px;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.02em;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+body.ver-7 .progress-percent .pp-unit {
+  font-size: var(--font-size-14);
+  line-height: var(--font-line-height-20);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.04em;
+  margin-left: 0;
+}
+body.ver-7 .progress-track { background-color: var(--comp-chart-track); }
+body.ver-7 .progress-foot { margin-top: calc(var(--space-4) * -1); }
+body.ver-7 .progress-left { font-size: var(--font-size-12); line-height: var(--font-line-height-18); }
+body.ver-7 .progress-count { display: none; }
+
+/*
+ * [11/10 v7 디자이너 · UT 개선 사용성 1b] 알림 목록 둘째 줄 — 층 꼬리표 · 웨이포인트 번호 원 · 지점 이름.
+ *   원은 지도 팝오버의 기본 지점 원(.mbt-pin.is-plain, v6.css — 16 · 1px 테 · 숫자 9 mono)을 그대로. 간격은 줄의 4.
+ *   ".ah-where > .floor-tag + span" 이 바로 뒤 칸을 늘이고 말줄임하는 규칙(monitor.css)이라 원은 늘지 않게 되돌린다 — 늘이는 건 지점 이름(.ah-wp)
+ */
+body.ver-7 .ah-where > .ah-wp-pin { flex: none; overflow: visible; white-space: normal; }
+
+/*
+ * [11/10 v7 디자이너] 우측 패널 머리 = 로봇 이름(map-v6.js 가 고른 카드 이름을 옮겨 적는다). "n대 배정 · n대 수행중"은 감춘다 — 미션 하나에 로봇 한 대.
+ *   카드 안 이름은 머리로 올라가 감춘다. 이름은 Label/1 · text/primary, 앞 로봇 아이콘은 그대로.
+ */
+body.ver-7 .robot-list .robot-counts [data-scope-count],
+body.ver-7 .robot-list .robot-counts .badge { display: none; }
+body.ver-7 .robot-list .robot-counts .robot-head-name { color: var(--text-primary); }
+body.ver-7 .robot-strip .robot-card .label .robot-id { display: none; }
+
+/*
+ * [11/10 v7 디자이너] 기본 지점 번호 원 — 테 = 층 꼬리표 바탕(bg/raised), 숫자 = 그 줄의 다른 글자와 같은 색. 밝은 테(#AFB7C8)가 목록에서 너무 눈에 들어왔다.
+ *   알림 목록(.ah-wp-pin)은 줄 글자색을 따른다(평소 tertiary, 고른 줄 primary). 팝오버의 기본 원(.mbt-pin.is-plain)은 보조 글자색.
+ *   지도 기본 핀(앞으로 갈 지점)도 같다 — map-v6.js rrPins v7 분기. 단계색 핀(위험 · 주의 · 지금 · 지나온)은 그대로
+ */
+/* [11/10 디자이너 2차] 기본 원 테 = 층 꼬리표 바탕보다 한 단계 밝게(다크 gray/700 → 600 · 라이트 gray/100 → 200) — 같은 색이면 테가 안 보였다.
+ *   지도 핀 막대(map-v6.js --pin)도 같은 색 */
+body.ver-7 { --pin-plain: var(--color-gray-600); }
+:root[data-theme="light"] body.ver-7 { --pin-plain: var(--color-gray-200); }
+body.ver-7 .mbt-pin.is-plain,
+:root[data-theme="light"] body.ver-7 .mbt-pin.is-plain { border-color: var(--pin-plain); color: var(--text-secondary); }
+body.ver-7 .ah-where > .mbt-pin.is-plain.ah-wp-pin,
+:root[data-theme="light"] body.ver-7 .ah-where > .mbt-pin.is-plain.ah-wp-pin { color: inherit; }
+:root[data-theme="light"] body.ver-7 .ah-item .ah-wp-pin { border-color: var(--pin-plain); }
+
+/* ==================================================================
+ * [11/10 v7 디자이너] 알림 팝오버 가로형 — Figma UI_00 1233:16459
+ *   판 564 · 여백 8 · 칸 사이 8 · 모서리 16 · 유리(bg/glass 55% + 흐림 20)
+ *   머리 한 줄: 위험 배지 · 제목 · 닫기 (감지 이름 · 더보기는 뺌)
+ *   왼쪽 사진(모서리 8) — 아래 띠에 지점 번호 · 위치 · 시각(bg/cell 알약, monitor.js 가 stamp 를 사진 안으로 옮긴다)
+ *   오른쪽 263: 권고 한 줄 · 체크리스트(1순위만 AI 추천) · 메모 · 버튼 둘(같은 폭)
+ *   위계 조정(코드): 메모 라벨은 한 톤 낮춤 · 권고 글은 제목(18)보다 낮은 14 SemiBold
+ * ================================================================== */
+body.ver-7 .map-alert.ma-v3 {
+  width: 564px;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 263px;
+  grid-template-areas: "head head" "snap lower";
+  gap: var(--space-8);
+  padding: var(--space-8);
+  border-color: var(--border-strong);
+  background-color: color-mix(in srgb, var(--bg-glass) 55%, transparent);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+body.ver-7 .map-alert.ma-v3::after {
+  background-color: color-mix(in srgb, var(--bg-glass) 55%, transparent);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+body.ver-7 .map-alert.ma-v3.no-snap { width: 360px; grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "lower"; }
+
+/* 머리 — 한 줄 */
+body.ver-7 .ma-v3 .ma-head { grid-area: head; display: flex; align-items: center; gap: var(--space-12); padding: 0; border-radius: 0; background: none; }
+body.ver-7 .ma-v3 .ma-title-block { display: flex; flex-direction: row; align-items: center; text-align: left; gap: var(--space-8); flex: 1 1 auto; min-width: 0; }
+body.ver-7 .ma-v3 .ma-top { flex: none; }
+body.ver-7 .ma-v3 .ma-kind { display: none; }
+body.ver-7 .ma-v3 .ma-title { flex: 1 1 auto; min-width: 0; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--font-size-18); line-height: var(--font-line-height-26); font-weight: 600; color: var(--text-primary); }
+body.ver-7 .ma-v3 .ma-title .ma-vd { display: inline; font-size: inherit; line-height: inherit; }
+
+/* 사진 — 칸을 꽉 채우고(cover), 누르면 크게 보기 */
+body.ver-7 .ma-v3 .ma-snap { grid-area: snap; position: relative; min-height: 160px; border-radius: 8px; overflow: hidden; background-color: var(--bg-cell); }
+body.ver-7 .ma-v3 .ma-snap::before { display: none; }
+body.ver-7 .ma-v3 .ma-shot { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; }
+/* 위치 · 시각 띠 — Title Block: 알약 · bg/cell · 여백 4/8/4/4 · 칸 사이 6 · 글 12/18 text/primary · 사진 끝에서 4 */
+body.ver-7 .ma-v3 .ma-snap > .ma-stamp.ma-stamp6 {
+  position: absolute; left: var(--space-4); right: var(--space-4); bottom: var(--space-4); z-index: 2;
+  display: flex; align-items: center; gap: var(--space-8); margin: 0; padding: var(--space-4) var(--space-8) var(--space-4) var(--space-4);
+  border-radius: 9999px; background-color: var(--bg-cell); color: var(--text-primary);
+  font-size: var(--font-size-12); line-height: var(--font-line-height-18);
+}
+body.ver-7 .ma-v3 .ma-stamp6 .mbt-pin { width: 18px; height: 18px; border-width: 1px; }
+body.ver-7 .ma-v3 .ma-stamp6 .mbt-pin::after { font-size: 10px; }
+body.ver-7 .ma-v3 .ma-stamp6 .ma-st-place::before { display: none; }
+body.ver-7 .ma-v3 .ma-stamp6 .ma-st-time { margin-left: auto; padding-left: var(--space-8); }
+
+/* 오른쪽 칸 — 위에 조치, 아래 끝에 버튼 */
+body.ver-7 .ma-v3 .ma-lower { grid-area: lower; display: flex; flex-direction: column; justify-content: space-between; gap: var(--space-8); min-width: 0; margin: 0; border-radius: 0; }
+body.ver-7 .ma-v3 .ma-lower::before { display: none; }
+body.ver-7 .ma-v3 .ma-lower-in { padding: 0; background: none; }
+body.ver-7 .ma-v3 .ma-delta { gap: var(--space-8); padding: 0; border-radius: 0; background: none; box-shadow: none; }
+body.ver-7 .ma-v3 .ma-delta-head { display: none; }
+body.ver-7 .ma-v3 .ma-act { gap: var(--space-8); }
+/* 체크리스트만 뒤집은 판(흰 면) — 판 밖 글은 유리 위라 on-inverse(뒤집은 판 안에서 = 바깥 화면의 기본 글자색) */
+body.ver-7 .ma-v3 .ma-delta-lead { margin: 0; font-size: var(--font-size-14); line-height: var(--font-line-height-20); font-weight: 600; color: var(--text-on-inverse); }
+body.ver-7 .ma-v3 .ma-memo-row #ma-memo-label,
+body.ver-7 .ma-v3 .ma-memo-row .icon-button { color: color-mix(in srgb, var(--text-on-inverse) 72%, transparent); }
+body.ver-7 .ma-v3 .ma-actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-8); padding: 0; border-radius: 0; background: none; }
+body.ver-7 .ma-v3 .ma-actions > .btn { width: 100%; justify-content: center; }
+/* 체크리스트 — Lists: bg/raised(뒤집은 판이라 흰 면) · border/default 1 · 모서리 4 · 줄 30(여백 4/4/4/8) */
+body.ver-7 .ma-v3 .ma-checks { border: var(--border-width-thin) solid var(--border-default); border-radius: var(--radius-4); background-color: var(--bg-raised); }
+body.ver-7 .ma-v3 .ma-check { min-height: 30px; padding: var(--space-4) var(--space-4) var(--space-4) var(--space-8); border-bottom-color: var(--border-default); }
+
+/* ==================================================================
+ * [11/10 v7 디자이너] 알림 팝오버 2차 — 지도 위쪽 고정 카드 + 지점까지 세로선, 배경은 다른 팝오버(로봇 · 설비)와 한 벌
+ *   자리: map-v6.js placeAlert(V7MA) — 위 끝 = Delta 위 끝, 가로 = Delta 오른쪽 ~ 지도 도구 왼쪽, 지점 x 를 따라가다 끝에서 멈춘다
+ *   선: 카드 아래 끝 → 지점(--line-x · --line-h), 단계색 2px · 끝에 점. 카메라는 지점을 카드 아래 칸 한가운데로(aimAt)
+ *   배경: 몸 gray/750 92% + 흐림 12(라이트 bg/raised 92%) · 머리 bg/raised 불투명(판 끝까지) · 테 대신 안쪽 1px 빛
+ * ================================================================== */
+body.ver-7 .map-alert.ma-v3,
+body.ver-7 .map-alert.ma-v3.is-below,
+body.ver-7 .map-alert.ma-v3.is-side-r,
+body.ver-7 .map-alert.ma-v3.is-side-l { transform: translate(-50%, 0); }
+body.ver-7 .map-alert.ma-v3 {
+  --fac-bg: color-mix(in srgb, var(--color-gray-750) 92%, transparent);
+  --ma-line-c: var(--status-warning-icon);
+  border: 0;
+  background-color: var(--fac-bg);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 8%), 0 6px 16px rgb(0 0 0 / 35%);
+}
+:root[data-theme="light"] body.ver-7 .map-alert.ma-v3 {
+  --fac-bg: color-mix(in srgb, var(--bg-raised) 92%, transparent);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 6%), 0 6px 16px rgb(0 0 0 / 14%);
+}
+body.ver-7 .map-alert.ma-v3.is-critical { --ma-line-c: var(--status-critical-icon); }
+/* 머리 — 판 여백(8)을 넘어 끝까지 채운다. 위 모서리 = 판 16 */
+body.ver-7 .ma-v3 .ma-head { margin: calc(var(--space-8) * -1) calc(var(--space-8) * -1) 0; padding: var(--space-8) var(--space-12) var(--space-8) var(--space-8); border-radius: 16px 16px 0 0; background-color: var(--bg-raised); }
+/* 세로선(::after) · 끝 점(::before) — 꼬리 세모 대신 */
+body.ver-7 .map-alert.ma-v3::after,
+body.ver-7 .map-alert.ma-v3::before {
+  top: 100%; bottom: auto; left: var(--line-x, 50%); right: auto;
+  clip-path: none; border: 0; -webkit-backdrop-filter: none; backdrop-filter: none;
+  background-color: var(--ma-line-c); pointer-events: none;
+}
+body.ver-7 .map-alert.ma-v3::after { width: 2px; height: var(--line-h, 0px); transform: translateX(-50%); border-radius: 1px; }
+body.ver-7 .map-alert.ma-v3::before { z-index: 1; width: 8px; height: 8px; margin-top: var(--line-h, 0px); transform: translate(-50%, -50%); border-radius: var(--radius-pill); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ma-line-c) 30%, transparent); }
+body.ver-7 .map-alert.ma-v3.is-no-tail::after,
+body.ver-7 .map-alert.ma-v3.is-no-tail::before { display: none; }
+
+/* [11/10 v7 디자이너] 알림 팝오버 3차 — 불필요한 여백 걷음(Figma 1233:16459 다시 실측)
+ *   판 여백 0 · 칸 사이 0 · 면 bg/map-chip 50% + 흐림 20 · 머리 bg/cell(여백 8, 판 끝까지)
+ *   사진은 왼쪽 아래 끝까지(왼쪽 아래 모서리만 판과 같은 16) · 위치 띠는 사진 끝에서 8 · 오른쪽 칸 여백 8 · 두 칸 같은 폭 */
+body.ver-7 .map-alert.ma-v3 {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0;
+  padding: 0;
+  background-color: color-mix(in srgb, var(--bg-map-chip) 50%, transparent);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+body.ver-7 .ma-v3 .ma-head { margin: 0; padding: var(--space-8); border-radius: 16px 16px 0 0; background-color: var(--bg-cell); }
+body.ver-7 .ma-v3 .ma-snap { min-height: 204px; border-radius: 0 0 0 16px; }
+body.ver-7 .ma-v3 .ma-snap > .ma-stamp.ma-stamp6 { left: var(--space-8); right: var(--space-8); bottom: var(--space-8); }
+body.ver-7 .ma-v3 .ma-lower { padding: var(--space-8); }
+body.ver-7 .map-alert.ma-v3.no-snap { grid-template-columns: minmax(0, 1fr); }
+
+/* [11/10 디자이너] 로봇 카드 — 로봇 이름 줄(20 + 간격 8)을 걷었다(이름은 패널 머리에 있다). 그래픽 칸도 내용 높이(버튼 24 + 8 + 상태 줄 셋)에 맞춰 142 → 114 */
+body.ver-7 .robot-strip.is-carousel .robot-card[aria-pressed="true"] { grid-template-rows: 24px auto; grid-template-areas: "thumb act" "thumb lists"; }
+body.ver-7 .robot-strip.is-carousel .robot-card .label { display: none; }
+body.ver-7 .robot-strip.is-carousel .robot-thumb { height: 114px; }
+body.ver-7 .robot-stage { height: calc(114px + var(--stage-pad) * 2); }
+body.ver-7 .rc-actions { top: 0; }   /* 이름 줄(20 + 8)이 빠진 만큼 버튼도 위 끝으로 */
+
+/* [11/10 디자이너] 알림 팝오버 배경 = 로봇 팝오버(.map-bot-tip)와 한 벌 — 몸 --fac-bg(gray/750 92% · 라이트 bg/raised 92%) + 흐림 12, 머리 bg/raised.
+ * 팝오버 ↔ 지점 세로선은 뺀다(디자이너) — 카드 자리(위쪽 고정)와 카메라 보정은 그대로 */
+body.ver-7 .map-alert.ma-v3 { background-color: var(--fac-bg); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+body.ver-7 .ma-v3 .ma-head { background-color: var(--bg-raised); }
+body.ver-7 .map-alert.ma-v3::after,
+body.ver-7 .map-alert.ma-v3::before { display: none; }
+/* [11/10 디자이너] 라운드 = 다른 팝오버(로봇 · 설비 10) */
+body.ver-7 .map-alert.ma-v3 { border-radius: var(--radius-container); }
+body.ver-7 .ma-v3 .ma-head { border-radius: var(--radius-container) var(--radius-container) 0 0; }
+body.ver-7 .ma-v3 .ma-snap { border-radius: 0 0 0 var(--radius-container); }
+/* [11/10 디자이너] 알림 이유(판정) — 조치 제안 위 한 줄. 단계색 13 SemiBold: 제목(18)보다 낮고 조치 제안(14)과 색으로 갈린다 */
+body.ver-7 .ma-v3 .ma-reason { margin: 0; font-size: var(--font-size-13); line-height: var(--font-line-height-18); font-weight: 600; color: var(--status-warning-text); font-variant-numeric: tabular-nums; }
+body.ver-7 .map-alert.is-critical .ma-reason { color: var(--status-critical-text); }
+body.ver-7 .ma-v3 .ma-reason[hidden] { display: none; }
+body.ver-7 .ma-v3 .ma-reason:not([hidden]) { margin-bottom: var(--space-4); }   /* 이유 ↔ 조치 제안 4 — 한 덩이로 읽힌다 */
+body.ver-7 .ma-v3 .ma-shot { -webkit-mask-image: none; mask-image: none; }   /* [11/10 디자이너] 사진 아래 끝 녹아듦(마스크 64) 뺌 — 사진이 칸을 꽉 채워 녹일 바탕이 없다
+/* [11/10 디자이너] 알림 목록 번호 원 = 층 꼬리표 높이(18) — 16 이라 한 줄에서 원만 작아 보였다. 팝오버 위치 띠의 원(18)과도 같다. 숫자 10 */
+body.ver-7 .ah-where > .mbt-pin.ah-wp-pin { width: 18px; height: 18px; }
+body.ver-7 .ah-where > .mbt-pin.ah-wp-pin::after { font-size: 10px; }
+
+/* [11/10 v7 디자이너] 위치 · 시각 = 지도 이름표(.ma-wp-label, map-v6.js) — 사진 위 띠는 감춘다(글은 이름표가 읽어 가도록 DOM 에는 남김) */
+body.ver-7 .ma-v3 .ma-snap > .ma-stamp.ma-stamp6 { display: none; }
+body.ver-7 .ma-v3 .ma-head-time { flex: none; margin-left: auto; color: var(--text-tertiary); font-size: var(--font-size-12); line-height: var(--font-line-height-18); font-variant-numeric: tabular-nums; }
+body.ver-7 .ma-v3 .ma-head-time { display: none; }   /* [11/10 디자이너] 머리 시각도 뺀다 — 시각은 지도 이름표 한 곳 */
+body.ver-7 .ma-v3 .ma-title-block { flex: 1 1 auto; }
+/* 이름표 — 바닥 고리 아래 14. 바탕 bg/cell(예전 띠와 같은 면) · 1줄 위치 12/18 primary SemiBold · 2줄 감지 시각 12/18 secondary */
+body.ver-7 .ma-wp-label {
+  position: absolute; left: var(--x, 0); top: var(--y, 0); z-index: 5;
+  display: flex; flex-direction: column; align-items: center;
+  padding: var(--space-4) var(--space-8); border-radius: 6px;
+  background-color: color-mix(in srgb, var(--bg-cell) 92%, transparent);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 8%), 0 4px 12px rgb(0 0 0 / 30%);
+  transform: translate(-50%, 14px);
+  pointer-events: none; white-space: nowrap; text-align: center;
+}
+:root[data-theme="light"] body.ver-7 .ma-wp-label { background-color: color-mix(in srgb, var(--bg-raised) 94%, transparent); box-shadow: inset 0 0 0 1px rgb(0 0 0 / 6%), 0 4px 12px rgb(0 0 0 / 12%); }
+body.ver-7 .ma-wp-label[hidden] { display: none; }
+body.ver-7 .ma-wp-label .mwl-place { color: var(--text-primary); font-size: var(--font-size-12); line-height: var(--font-line-height-18); font-weight: 600; }
+body.ver-7 .ma-wp-label .mwl-meta { color: var(--text-secondary); font-size: var(--font-size-12); line-height: var(--font-line-height-18); font-variant-numeric: tabular-nums; }
+
+/*
+ * [11/10 v7] 안전진단 현장 조치 요청 뒤 — safety.js reqSide
+ *   보낸 내용 잠금(.dl.is-sent): 체크 · 메모는 바꿀 수 없음, 글자는 그대로 읽힘(흐리게 하지 않음)
+ *   버튼: DS btn-accent:disabled + 확인 아이콘 '10:17 요청 전송됨'
+ *   조치 진행(.rqp): 머리(제목 + Mode Badge 대기 · 진행 · 완료) → 세로 단계 셋(점 + 이름 + 설명 + 시각) → 진행 중이면 [조치 완료 확인]
+ */
+body.ver-7 .sf .dl.is-sent .c1x { cursor: default; }
+body.ver-7 .sf .dl.is-sent .c1x input[type="checkbox"]:disabled { opacity: 1; cursor: default; }
+body.ver-7 .sf .dl.is-sent .rq-memo { margin: 0; min-height: 0; color: var(--text-primary); white-space: pre-wrap; word-break: keep-all; }
+body.ver-7 .sf .rqx:disabled { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-8); }
+body.ver-7 .sf .rqp { display: flex; flex-direction: column; gap: var(--space-12); margin-top: var(--space-12); padding: var(--space-16); border-radius: var(--radius-card); background-color: var(--bg-raised); }
+body.ver-7 .sf .rqp-h { display: flex; align-items: center; justify-content: space-between; }
+body.ver-7 .sf .rqp-h b { font-size: var(--font-size-16); line-height: var(--font-line-height-24); font-weight: 700; color: var(--text-primary); }
+body.ver-7 .sf .badge-mode.badge-normal { background-color: var(--status-safe-bg); border-color: var(--status-safe-border); }   /* Badge-미션 완료 — app-shell 주석대로 두 줄 더함 */
+body.ver-7 .sf .rqp-st { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+body.ver-7 .sf .rqp-st li { position: relative; display: grid; grid-template-columns: 20px 1fr auto; column-gap: var(--space-8); padding-bottom: var(--space-16); }
+body.ver-7 .sf .rqp-st li:last-child { padding-bottom: 0; }
+/* 점 사이 세로줄 — 지난 단계까지는 실선 info, 앞으로는 테두리색 */
+body.ver-7 .sf .rqp-st li:not(:last-child)::before { content: ""; position: absolute; left: 9px; top: 18px; bottom: 0; width: 2px; background-color: var(--border-default); }
+body.ver-7 .sf .rqp-st li.is-past::before { background-color: var(--status-info-icon); }
+body.ver-7 .sf .rqp-st i { position: relative; z-index: 1; width: 12px; height: 12px; margin: var(--space-4) var(--space-4) 0; border: 2px solid var(--border-default); border-radius: var(--radius-pill); background-color: var(--bg-raised); box-sizing: border-box; }
+body.ver-7 .sf .rqp-st li.is-past i { border-color: var(--status-info-icon); background-color: var(--status-info-icon); }
+body.ver-7 .sf .rqp-st li.is-now i { border-color: var(--status-info-icon); background-color: var(--bg-raised); box-shadow: 0 0 0 4px color-mix(in srgb, var(--status-info-icon) 24%, transparent); }
+body.ver-7 .sf .rqp-st.is-wait li.is-now i { animation: rqp-pulse 1.6s ease-in-out infinite; }
+body.ver-7 .sf .rqp-st.is-done li.is-now i { border-color: var(--text-tertiary); background-color: var(--text-tertiary); box-shadow: none; }   /* [11/23 디자이너] 조치 완료는 회색 */
+body.ver-7 .sf .rqp-st li div { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
+body.ver-7 .sf .rqp-st b { font-size: var(--font-size-14); line-height: var(--font-line-height-22); font-weight: 700; color: var(--text-tertiary); }
+body.ver-7 .sf .rqp-st li.is-past b { font-weight: 400; color: var(--text-secondary); }
+body.ver-7 .sf .rqp-st li.is-now b { color: var(--text-primary); }
+body.ver-7 .sf .rqp-st span { font-size: var(--font-size-14); line-height: var(--font-line-height-20); color: var(--text-tertiary); word-break: keep-all; }
+body.ver-7 .sf .rqp-st li.is-now span { color: var(--text-secondary); }
+body.ver-7 .sf .rqp-st time { font-size: var(--font-size-14); line-height: var(--font-line-height-22); color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+body.ver-7 .sf .rqd { width: 100%; height: var(--size-control-lg); font-size: var(--font-size-14); font-weight: 700; }
+@keyframes rqp-pulse { 50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--status-info-icon) 0%, transparent); } }
+@media (prefers-reduced-motion: reduce) { body.ver-7 .sf .rqp-st.is-wait li.is-now i { animation: none; } }
+/* 토스트 — DS .toast 그대로, 자리만 감지 결과 칸 아래 가운데(left 는 safety.js 가 #sfv 가운데로 적는다) */
+body.ver-7 > .toast.sf-toast { position: fixed; bottom: var(--space-32); z-index: 1000; }
+body.ver-7 > .toast.sf-toast .toast-undo[hidden] { display: none; }
+body.ver-7 > .toast.sf-toast:has(.toast-undo[hidden]) { padding-right: var(--space-16); min-height: 34px; }
+
+/* 목록 카드 — 진행 배지도 판정 칩 자리(사진 아래 걸침)에. safety.css 는 .pl 없는 줄을 숨긴다 */
+body.ver-7 .sf .rqp-b, body.ver-7 .sf .jrq { align-self: center; }
+/* 측정 이력 판정, 조치 진행 칸(11/23): 칸 너비 104(가장 긴 "현장 응답 대기" 101), 배지는 내용 너비로 왼쪽 맞춤. v6.css 같은 세기 규칙을 이기게 .ver-6 을 붙임 */
+body.ver-7.ver-6 .sf .hi, body.ver-7.ver-6 .sf .dBr2:not(.is-big) .hi { grid-template-columns: 84px 56px 104px minmax(0, 1fr); }
+body.ver-7.ver-6 .sf .hi > .ds-badge { justify-self: start; }   /* 11/23 2차: 꽉 채움 대신 내용 너비 + 왼쪽 맞춤(칸 너비 104 는 다음 칸 줄 맞춤용) */
+body.ver-7 .sf .cx .kd > .rw:has(.jrq) { display: flex; }
+body.ver-7 .sf .cx .kd > .rw:has(.jrq) + * { margin-top: 0; }
+/* 판정 카드 머리 오른쪽 — 넘은 지점 고르기(둘 이상일 때). 테 없이 면 색으로만 고른 것을 구분 */
+body.ver-7 .sf .jx .jrow { display: flex; align-items: center; align-self: stretch; width: 100%; }
+body.ver-7 .sf .jsp { display: flex; gap: var(--space-8); margin-left: auto; }
+body.ver-7 .sf .jsp-b { display: inline-flex; align-items: center; gap: var(--space-8); height: 36px; padding: 0 var(--space-12) 0 var(--space-8); border: 0; border-radius: var(--radius-4); background-color: transparent; font-size: var(--font-size-14); line-height: var(--font-line-height-20); color: var(--text-tertiary); cursor: pointer; }
+body.ver-7 .sf .jsp-b:hover { background-color: var(--bg-cell); }
+body.ver-7 .sf .jsp-b.on { background-color: var(--bg-cell); color: var(--text-primary); }
+body.ver-7 .sf .jsp-b b { font-weight: 700; }
+
+/* [11/10 v7 디자이너] 지점 팝오버 — 조치 처리 과정(map-v6.js wpProgress, Figma UI_00 1680:11326)
+ *   세로 단계 둘: 지난 점(8, 테 border/strong 2) — 이유 12/18 secondary + 요청한 조치(• 목록, 12/18 secondary)
+ *                 지금 고리(14, 테 border/brand 2) — 단계 이름 14/22 primary + 시각(보조). 점 사이 2px border/strong 세로줄
+ *   고리 = 로딩 — 응답 대기 · 현장 조치 중이면 한쪽이 비어 돈다. 조치 완료면 채운 초록 + 체크(멈춤) */
+body.ver-7 .mwp-prog[hidden] { display: none; }
+
+/* ==================================================================
+ * [11/11 v7 디자이너 · Figma UI_00 1068:16438] 로봇 카드 + 진행 막대 = 한 상자
+ *   상자 bg/map-chip(라이트 = 우물 gray/300) · 모서리 8 · 패널 끝에서 4
+ *   ① 로봇 칸 134 — 그래픽 | 정보(반반, 사이 8). 정보 = 위아래 12 · 상태 세 줄(26, 면 없음 · 사이 0) · 8 · 단추 둘(좌우 8 · 사이 8)
+ *      예전 판 바닥 띠(25) · 안쪽 그림자는 Figma 에 없어 뺐다
+ *   ② 진행 선 8 — 끝에서 끝까지 comp/chart/track · 채움 bg/inverse → bg/accent 가로 그라데이션 + 위로 퍼지는 빛(0 -5 20 · glow-halo) · 표식 16
+ *   ③ Progress Bar — bg/cell · 아래 모서리 8 · 여백 16/8 · 사이 4
+ *      왼쪽: 지금 하는 일 한 줄(16/24 Bold · 말줄임) + 남은 시간(12/18 · text/tertiary, 사이 4) · 오른쪽: % 24/32 SemiBold -1% + 단위 13/18 Medium +4%, 둘 다 text/primary
+ * ================================================================== */
+body.ver-7 .rc-box { border-radius: var(--radius-container, 8px); overflow: hidden; background-color: var(--bg-well); }
+body.ver-7 .robot-strip.is-carousel { padding: 0; border-radius: 0; background: none; box-shadow: none; }
+body.ver-7 .robot-strip.is-carousel::before,
+body.ver-7 .robot-strip.is-carousel::after { display: none; }
+body.ver-7 .robot-strip.is-carousel .robot-card[aria-pressed="true"] {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: 12px auto 8px 24px minmax(12px, 1fr);
+  grid-template-areas: "thumb ." "thumb lists" "thumb ." "thumb act" "thumb .";
+  column-gap: var(--space-8);
+  row-gap: 0;
+}
+body.ver-7 .robot-strip.is-carousel .robot-thumb { height: 134px; margin: 0; }
+body.ver-7 .robot-strip.is-carousel .robot-card .robot-lists { gap: 0; }
+body.ver-7 .robot-strip.is-carousel .robot-row,
+:root[data-theme="light"] body.ver-7 .right-panel .robot-strip.is-carousel .robot-row { min-height: 26px; padding: var(--space-4) var(--space-8); background: none; }
+body.ver-7 .robot-strip.is-carousel .robot-row:first-child { padding: 0 var(--space-4) 0 var(--space-8); }
+body.ver-7 .robot-carousel .rc-side { inset: 0; }
+body.ver-7 .rc-actions { top: 98px; left: calc(50% + var(--space-4) + var(--space-8)); right: var(--space-8); }
+
+body.ver-7 .rc-box .mission-header { padding: 0; }
+body.ver-7 .rc-box .progress-bar { gap: 0; }
+body.ver-7 .rc-box .progress-meta {
+  height: auto;
+  margin: 0;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-16) var(--space-8);
+  border-radius: 0;
+  background-color: var(--bg-cell);
+}
+body.ver-7 .rc-box .progress-titles { display: flex; flex-direction: column; gap: var(--space-4); flex: 1 1 auto; min-width: 0; }
+body.ver-7 .rc-box .progress-title { flex: none; max-height: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+body.ver-7 .rc-box .progress-title .pt-head,
+body.ver-7 .rc-box .progress-title .pt-act { display: inline; }
+body.ver-7 .rc-box .progress-left { font-size: var(--font-size-12); line-height: var(--font-line-height-18); color: var(--text-tertiary); }
+body.ver-7 .rc-box .progress-percent { font-size: var(--font-size-24); line-height: var(--font-line-height-32); letter-spacing: -0.01em; color: var(--text-primary); }
+body.ver-7 .rc-box .progress-percent .pp-unit { font-size: var(--font-size-13); line-height: var(--font-line-height-18); letter-spacing: 0.04em; }
+/* 상태 띠(통신 끊김 · 미션 완료 등)가 제목 자리에 오면 남은 시간은 띠 아래 줄로 */
+body.ver-7 .rc-box .progress-meta:has(> .rr-banner) { flex-wrap: wrap; }
+body.ver-7 .rc-box .progress-meta:has(> .rr-banner) .progress-titles { order: 3; flex-basis: 100%; }
+/* [11/11 디자이너] 로봇 그래픽 좌우 반전 — 머리가 오른쪽(정보 칸 쪽)을 본다. Figma 1068:16438 Robot-grahpics 와 같은 방향 */
+body.ver-7 .robot-strip.is-carousel .robot-thumb > svg { transform: scaleX(-1); }
+/* [11/11 디자이너 · Figma 1068:16446 List] 로봇 카드 상자 테두리 — 1px 안쪽 · border/divider. 안쪽 Progress Bar 아래 모서리는 상자(overflow hidden)가 자른다 */
+body.ver-7 .rc-box { border: var(--border-width-thin, 1px) solid var(--border-divider); }
+
+/* ==================================================================
+ * [11/11 v7 디자이너 · Figma UI_00 1713:13853 Pop over / Type=Vertical] 알림 팝오버 세로형 — 지도 왼쪽 아래 고정(map-v6.js placeAlert)
+ *   폭 321 · 테 3 안쪽(border/divider — 면과 같은 색이라 안쪽 여백처럼 보인다) · 흐림 20
+ *   머리 42(여백 8 · 사이 12, 제목 16/24 Bold) → 사진 315 × 204(모서리 8, 위치 · 시각 띠는 사진 아래 끝에서 8) → 아래 칸(여백 8): 조치 제안 · 체크리스트 · 메모 · 단추 둘(32)
+ *   높이 = Delta 아래 끝 ~ 우측 패널 아래 끝(--ma-max). 모자라면 사진이 먼저 줄고(최소 80), 그래도 모자라면 머리 한 줄(.is-folded)
+ *   면 · 라운드 10 · 조치 제안 글 굵기는 앞서 정한 값(로봇 팝오버와 한 벌 · 위계 조정)을 그대로 둔다
+ * ================================================================== */
+body.ver-7 .map-alert.ma-v3,
+body.ver-7 .map-alert.ma-v3.no-snap {
+  display: flex;
+  flex-direction: column;
+  width: 321px;
+  max-height: var(--ma-max, none);
+  padding: var(--space-4);
+  overflow: hidden;
+}
+body.ver-7 .ma-v3 .ma-head { flex: none; margin: calc(var(--space-4) * -1) calc(var(--space-4) * -1) 0; padding: var(--space-8) var(--space-8) var(--space-8) var(--space-12); gap: var(--space-12); }
+body.ver-7 .ma-v3 .ma-title { font-size: var(--font-size-16); line-height: var(--font-line-height-24); font-weight: var(--font-weight-bold); }
+body.ver-7 .ma-v3 .ma-snap { flex: 0 1 204px; min-height: 80px; height: 204px; border-radius: 8px; }
+body.ver-7 .ma-v3 .ma-lower { flex: none; padding: var(--space-8) var(--space-8) var(--space-4); }
+/* 위치 · 시각 띠를 사진 안으로 되돌린다(Figma) — 팝오버가 지점과 떨어져 있어 지도 이름표 대신 팝오버가 말한다 */
+body.ver-7 .ma-v3 .ma-snap > .ma-stamp.ma-stamp6 { display: flex; }
+body.ver-7 .ma-wp-label { display: none !important; }
+/* 접힘 — 머리 한 줄만. 머리를 누르면 Delta 를 접고 다시 편다 */
+body.ver-7 .map-alert.ma-v3.is-folded .ma-snap,
+body.ver-7 .map-alert.ma-v3.is-folded .ma-lower { display: none; }
+body.ver-7 .map-alert.ma-v3.is-folded .ma-head { cursor: pointer; border-radius: var(--radius-container); }
+/* [11/11 디자이너] 팝오버가 떠 있으면 Delta 펼침은 위쪽 반 — 위 20 에서 지도 가운데 - 4 까지. 팝오버는 그 아래(가운데 + 4 ~ 우측 패널 아래 끝)를 쓴다 */
+:root[data-theme] body.ver-7.ma-on.v2-2.v3 .delta3.is-open { height: calc(50% - var(--space-20) - 4px); }
+
+/* [11/11 디자이너] 팝오버 폭 = Delta 폭 295(Figma Delta 위젯 1320:14677 · 펼친 Delta 와 같은 폭 — 둘이 쌓일 때 양끝이 한 줄). 사진은 비율 그대로 315:204 → 289:187 */
+body.ver-7 .map-alert.ma-v3,
+body.ver-7 .map-alert.ma-v3.no-snap { width: 295px; }
+body.ver-7 .ma-v3 .ma-snap { flex-basis: 187px; height: 187px; }
+
+/* ==================================================================
+ * [11/11 v7 디자이너] 조치 요청 피드백 — 팝오버가 그 자리에서 "조치 요청됨" 판으로 바뀐다(monitor.js reqShow7)
+ *   단추: 누른 뒤 0.35초 "✓ 요청됨"(눌린 자리에서 확인) → 아래 칸이 처리 과정으로
+ *   머리 줄: ✓ 조치 요청됨(status/info — 진행 중 상태색, 해결의 초록은 아니다) · 시각 · 누가 → 누구에게
+ *   처리 과정: 지점 팝오버의 .mwp-steps 그대로 — 알림 이유 + 고른 조치 → 지금 단계(현장 응답 대기 · 도는 고리)
+ *   단추: [되돌리기 n](5초) → [진단 상세] · [다음 위험 →]. 둘 다 무채색(이동 · 보조)
+ *   위험 배지 · 머리는 그대로 — 요청은 해결이 아니다
+ * ================================================================== */
+body.ver-7 .ma-v3 .ma-confirm.is-sent { gap: var(--space-4); opacity: 1; background-color: var(--comp-button-accent-bg-default); color: var(--comp-button-accent-text-default, #fff); }
+body.ver-7 .ma-v3 .ma-confirm.is-sent .i { background-color: currentColor; }
+body.ver-7 .map-alert.ma-v3.is-requested > .ma-lower > .ma-lower-in,
+body.ver-7 .map-alert.ma-v3.is-requested > .ma-lower > .ma-actions { display: none; }   /* 자식만 — 물결 전환 때 안에 넣는 옛 판 복제까지 감추지 않게 */
+body.ver-7 .ma-req[hidden] { display: none; }
+body.ver-7 .ma-req { display: flex; flex-direction: column; gap: var(--space-12); animation: ma-req-in 240ms ease-out; }
+@keyframes ma-req-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { body.ver-7 .ma-req { animation: none; } }
+body.ver-7 .ma-req-ok { display: inline-flex; align-items: center; gap: var(--space-4); color: var(--status-info-text); font-size: var(--font-size-14); line-height: var(--font-line-height-20); font-weight: var(--font-weight-bold); }
+body.ver-7 .ma-req-ok .i { background-color: currentColor; }
+body.ver-7 .ma-req-meta { color: var(--text-secondary); font-size: var(--font-size-12); line-height: var(--font-line-height-18); }
+body.ver-7 .ma-req .mwp-steps { padding: 0 var(--space-4); }
+body.ver-7 .ma-req-memo { margin: var(--space-4) 0 0; color: var(--text-tertiary); font-size: var(--font-size-12); line-height: var(--font-line-height-18); }
+body.ver-7 .ma-req-memo[hidden] { display: none; }
+body.ver-7 .ma-req-actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-8); }
+body.ver-7 .ma-req-actions > .btn { width: 100%; justify-content: center; }
+body.ver-7 .ma-req-actions > [hidden] { display: none; }
+body.ver-7 .ma-req [data-req-undo] { font-variant-numeric: tabular-nums; }
+
+/* [11/11 디자이너] 지점 상자(머리 "지점 7/20" + 목록) 면 = 로봇 카드 진행 칸과 같은 bg/cell. 안쪽 그림자는 뺀다(밝아진 면 위에선 얼룩처럼 보인다)
+ *   지점 카드도 bg/cell 이라 상자와 붙어 버린다 — 카드는 한 단 위 bg/raised(다크 gray/700 · 라이트 흰)로 올린다. 지금 카드(어두운 면)는 그대로 */
+body.ver-7 .rr-wp-toggle,
+body.ver-7 .right-panel .timeline { background-color: var(--bg-cell); box-shadow: none; }
+/* [11/11 디자이너 2차] 안쪽 목록 상자는 예전 어두운 반투명(--bg-well = bg/map-chip · 라이트 gray/300 + 안쪽 그림자)으로 되돌린다 — 머리 줄만 bg/cell.
+ *   카드도 예전 면(bg/cell)으로 — 위에서 카드를 bg/raised 로 올렸던 건 상자와 붙지 않게 하려던 것이라 함께 되돌린다 */
+body.ver-7 .right-panel .timeline { background-color: var(--bg-well); box-shadow: var(--shadow-well); }
+
+/* [11/11 디자이너] 조치 요청 물결 전환 층(monitor.js wave7 · 실험 lab-req-wave-v7 에서 고른 값) — 모두 팝오버 안에 쌓인다(팝오버 둥근 끝에서 잘린다)
+ *   옛 판 복제(.wv-old)는 단추 자리부터 넓어지는 구멍(mask)으로 걷히고, 물결 앞머리(.wv-front) · 테 빛(.wv-rim) · 점(.wv-dot)이 그 위 */
+body.ver-7 .map-alert > .wv-old {
+  z-index: 6; pointer-events: none;
+  -webkit-mask-image: radial-gradient(circle at var(--ox) var(--oy), transparent calc(var(--r) - var(--feather)), #000 var(--r));
+          mask-image: radial-gradient(circle at var(--ox) var(--oy), transparent calc(var(--r) - var(--feather)), #000 var(--r));
+}
+body.ver-7 .map-alert > .wv-front { position: absolute; inset: 0; z-index: 7; pointer-events: none; mix-blend-mode: screen; }
+:root[data-theme="light"] body.ver-7 .map-alert > .wv-front { mix-blend-mode: multiply; }
+body.ver-7 .map-alert > .wv-front > i { position: absolute; inset: 0; }
+body.ver-7 .map-alert > .wv-rim { position: absolute; inset: 0; z-index: 8; pointer-events: none; border-radius: inherit; opacity: 0; }
+body.ver-7 .map-alert > .wv-dot { position: absolute; z-index: 9; width: 3px; height: 3px; border-radius: var(--radius-pill); pointer-events: none; }
+
+/* [11/11 디자이너] 진행 제목 한 줄 — 넘치면 장소 이름만 말줄임, 조사 · 행동("로 이동 중")은 늘 보인다(map-v6.js ptSplit 가 .pt-nm · .pt-pp 로 감싼다).
+ *   장소 전체 이름은 바로 아래 지점 목록의 지금 카드가 말한다. 높이는 한 줄 그대로(Figma 1068:16438) */
+body.ver-7 .rc-box .progress-title { display: flex; align-items: baseline; gap: var(--space-4); text-overflow: clip; }
+body.ver-7 .rc-box .progress-title .pt-head { display: inline-flex; flex: 0 1 auto; min-width: 0; overflow: hidden; }
+body.ver-7 .rc-box .progress-title .pt-nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body.ver-7 .rc-box .progress-title .pt-pp { flex: none; }
+body.ver-7 .rc-box .progress-title .pt-act { display: inline; flex: none; white-space: nowrap; }
+body.ver-7 .rc-box .progress-title:not(:has(.pt-head)) { display: block; text-overflow: ellipsis; }
+body.ver-7 .rc-box .progress-title .pt-head:not(:has(.pt-nm)) { display: block; text-overflow: ellipsis; white-space: nowrap; }   /* 조사 없는 머리(영문 "…, ") — 머리 글 자체를 줄인다 */
+
+/* [11/11 디자이너] 펼친 Delta 여백 —
+ *   머리(Delta 로고 줄) 아래 여백 = 위 여백(10) — 2 였다
+ *   입력 칸은 좌우 · 아래 여백 없이 안쪽 판 끝까지 꽉 차게. 아래 두 모서리는 안쪽 판 둥근 끝을 따른다 */
+body.ver-7.ver-3.v2-2.v3 .delta3.is-open .delta3-name { padding-bottom: var(--space-12); }
+:root[data-theme][data-delta][data-glow] body.ver-7.ver-6.v2-2.v3 .delta3.is-open .delta3-body > .ai-input,
+body.ver-7.ver-6.v2-2.v3 .delta3.is-open .delta3-body > .ai-input { margin-left: calc(var(--space-4) * -1); margin-right: calc(var(--space-4) * -1); margin-bottom: calc(var(--space-4) * -1); border-radius: 0; }
+body.ver-7.ver-6.v2-2.v3 .delta3.is-open .delta3-card,
+body.ver-7.ver-6.v2-2.v3 .delta3.is-open .delta3-body { overflow: visible; }
+body.ver-7.ver-6.v2-2.v3 .delta3.is-open .delta3-card { overflow: hidden; }   /* 안쪽 판(.delta3-card, 안 여백 4)의 둥근 끝이 입력 칸 아래 모서리를 자른다 — 입력 칸은 그 여백 4 를 음수 여백으로 넘어 판 끝까지 */
+
+/* [11/11] Delta 가로형 1차(body.d3-wide · 접힘 카드만 526 × 128)는 v4 가로형 그대로(body.d3-bar)로 바꾸며 걷었다 — 아래 d3-bar 블록 */
+
+/* [11/11 디자이너] Delta 요약 속 번호 원(.dl-wp 22)이 1배율에서 왼쪽 · 아래 테가 잘려 보였다 — 원의 끝이 요약 칸(.ai-line-2, overflow hidden)의 잘라내는 경계와 딱 붙어서.
+ *   칸 안쪽에 2 여유(padding)를 주고 같은 만큼 바깥 여백(margin)으로 되돌려 글 자리는 그대로. 위젯형 · 가로형 모두 */
+:root[data-theme] body.ver-7.v2-2.v3 .delta3:not(.is-open) .delta3-body > .ai-line-2 { padding: var(--space-2); margin: calc(var(--space-2) * -1); }
+
+/* [11/11 디자이너] 진행 칸 제목 ↔ % 균형 —
+ *   ① 사이 4 → 12: 장소가 길면 "이동 중35%" 처럼 글이 숫자에 붙었다(장소 이름이 그만큼 일찍 줄어든다)
+ *   ② % 칸 폭 고정(“100%” 자리 56, 오른쪽 맞춤): 진행률 자릿수가 바뀌어도 제목 칸 폭이 흔들리지 않는다
+ *   ③ % 는 왼쪽 두 줄 덩이(제목 + 남은 시간)의 세로 가운데 — 두 줄을 요약하는 값으로 읽힌다. 크기 24 그대로 */
+body.ver-7 .rc-box .progress-meta { gap: var(--space-12); align-items: center; }
+body.ver-7 .rc-box .progress-percent { flex: none; min-width: 56px; text-align: right; }
+/* [11/11 디자이너] % 숫자 32 로 키웠다가 24 로 되돌림(숫자 24/32 · 단위 13 · 칸 폭 56 — 위 균형 규칙 그대로) */
+/* [11/11 디자이너] 진행 칸 위아래 여백 16 → 12(좌우 8 그대로) */
+body.ver-7 .rc-box .progress-meta { padding-top: var(--space-12); padding-bottom: var(--space-12); }
+
+/* [11/11 디자이너] v7 Delta 가로형(main-v7-wide · body.d3-bar = v4 가로형 v3.css 규칙 그대로) —
+ *   번호 원 여유(.ai-line-2 안쪽 2)를 가로형 규칙이 바깥 여백 0 으로 덮어 카드가 5 높아졌다. 같은 무게로 -2 를 되돌려 v4 와 같은 높이(요약 칸 64) */
+:root[data-theme][data-delta][data-glow] body.ver-7.ver-3.v2-2.v3.d3-bar .delta3 .delta3-body > .ai-line-2 { margin: calc(var(--space-2) * -1); }
+
+
+/* [11/11 v7 디자이너] 지도 도구 2D · 3D 두 단추 — 영상 리플레이를 빼고 그 자리에 3D. 지금 보는 쪽이 계속 눌린 상태(aria-pressed, 위 규칙의 아이콘색).
+ *   관제 · 가로형 · 미션 설정 · 사전 점검 같은 줄. 로직 map-v6.js(data-map-3d) */
+
+/* [11/11 v7 디자이너] 조치 요청 뒤 팝오버 = 줄인 판 — Figma UI_00 1733:14619 실측
+ *   남기는 것: 머리(배지 + 제목) · 받은 팀 · 사람 정보 상자 · [되돌리기 5] [확인함]. 사진 · 더보기 · 닫기는 감춘다([확인함]이 닫는다)
+ *   정보 상자: status/info bg · border 1 · 반경 4 · 안쪽 8/12 · 사이 4 — 받는 사람 16/24 bold info/text, 요청한 조치 14/22 info/text 80% (• 목록)
+ *   단추 줄: 둘 다 Small(32) 반반 — 되돌리기 = Secondary, 확인함 = Primary(inverse). 5초 뒤 되돌리기가 빠지면 확인함이 줄을 채운다 */
+body.ver-7 .map-alert.ma-v3.is-requested > .ma-snap,
+body.ver-7 .map-alert.ma-v3.is-requested > .ma-head .ma-more-box,
+body.ver-7 .map-alert.ma-v3.is-requested > .ma-head [data-ma-close] { display: none; }
+body.ver-7 .map-alert.ma-v3.is-requested > .ma-lower { padding-top: 0; }
+body.ver-7 .ma-req { gap: var(--space-8); }
+/* [11/20] 조치 요청됨 상자(.ma-req-head)는 공통 안내 상자 .ds-notice 로 옮김(테 없음, 안쪽 12, 아이콘 + 제목 + 목록) */
+body.ver-7 .ma-req-to { margin: 0; color: var(--status-info-text); font-size: var(--font-size-16); line-height: var(--font-line-height-24); font-weight: var(--font-weight-bold); }
+/* 조치 요청됨 상자 목록 — 점 없는 줄(공통 안내 상자 .ds-notice ul.desc, 11/23) */
+body.ver-7 .ma-req-acts:empty { display: none; }
+body.ver-7 .ma-req-actions { display: flex; }
+body.ver-7 .ma-req-actions > .btn { flex: 1 1 0; min-width: 0; height: var(--size-control-sm); }
+
+/* [11/11 v7 디자이너] 우측 지점 목록 레일 — 주의 · 위험도 세모 대신 단계 색 점(지나온 지점 점과 같은 6). 지도 바닥 점과 같은 말 */
+:root[data-theme] body.ver-7.v2-2 [data-timeline] .timeline-item[data-wp-alert] .rail-dot { width: 6px; height: 6px; border: 0; border-radius: var(--radius-pill); clip-path: none; background-color: currentColor; }
+
+/* [11/11 v7 디자이너] 지도 번호 핀 — 원과 막대를 곡선으로 잇는다(핀 모양). 2차: 곡선 범위를 줄이고(폭 8 · 높이 4) 저해상도에서도 또렷하게
+ *   원 테 안쪽 끝(바깥 아래에서 2px 위)부터 붙이고, 양옆을 가로 2.9 · 세로 4 타원으로 깎아 막대 굵기(2.25)까지 좁힌다.
+ *   1배율에서 번지지 않게 가림 경계를 0.5px 로 좁게(98% → 100% 는 작은 크기에서 흐려 덩어리로 보였다). 색 = 원 테 색 */
+body.ver-7 .rr-pin .rr-pin-head::before {
+  --fw: calc(8px * var(--pz, 1)); --fr: calc(2.875px * var(--pz, 1)); --fh: calc(4px * var(--pz, 1));
+  content: ""; position: absolute; left: 50%; top: 100%; width: var(--fw); height: 0;
+  border-top: var(--fh) solid; border-top-color: inherit; transform: translateX(-50%); pointer-events: none;
+  -webkit-mask: radial-gradient(var(--fr) var(--fh) at 0 100%, transparent calc(100% - .5px), #000 100%) left / 50% 100% no-repeat,
+                radial-gradient(var(--fr) var(--fh) at 100% 100%, transparent calc(100% - .5px), #000 100%) right / 50% 100% no-repeat;
+          mask: radial-gradient(var(--fr) var(--fh) at 0 100%, transparent calc(100% - .5px), #000 100%) left / 50% 100% no-repeat,
+                radial-gradient(var(--fr) var(--fh) at 100% 100%, transparent calc(100% - .5px), #000 100%) right / 50% 100% no-repeat;
+}
+body.ver-7 .rr-pin.is-low .rr-pin-head::before { display: none; }
+
+/* [11/11 v7 디자이너] 웨이포인트 상자 머리 — Figma UI_00 1736:14747 실측(map-v6.js wpHead)
+ *   머리: bg/raised · 안쪽 8 8 16 8 · 사이 8 — 줄 1 "웨이포인트" 16/24 bold + "7/20" 14/20 medium(둘 다 primary) · 오른쪽 꺾쇠 20(secondary)
+ *            줄 2 [지도] [목록] 전환 — 바탕 bg/map-chip · 안쪽 2 · 사이 2 · 반경 4, 칸 24 · 13/18 medium, 고른 칸 = Secondary 단추(면 + 테 1), 나머지 = Ghost
+ *   아래 목록(또는 지도) 상자는 머리 밑 6 을 덮고 올라온다 — bg/map-chip · 테 1 border/divider · 반경 8 */
+body.ver-7 .rr-wp-head { display: flex; flex-direction: column; gap: var(--space-8); flex: none; padding: var(--space-8) var(--space-8) var(--space-16); border-radius: 8px 8px 0 0; background-color: var(--bg-raised); }
+body.ver-7.rr-wp-closed .rr-wp-head { padding-bottom: var(--space-8); border-radius: 8px; }
+body.ver-7 .rr-wp-head > .rr-wp-toggle { display: flex; align-items: center; gap: var(--space-8); width: 100%; height: 24px; margin: 0; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; color: var(--text-primary); }
+body.ver-7 .rr-wp-head .rr-wp-t { font-size: var(--font-size-16); line-height: var(--font-line-height-24); font-weight: var(--font-weight-bold); }
+body.ver-7 .rr-wp-head .rr-wp-n { font-size: var(--font-size-14); line-height: var(--font-line-height-20); font-weight: var(--font-weight-medium, 500); font-variant-numeric: tabular-nums; }
+body.ver-7 .rr-wp-head > .rr-wp-toggle::after { width: 20px; height: 20px; margin-left: auto; color: var(--text-secondary); background-color: var(--text-secondary); transform: none; }
+body.ver-7 .rr-wp-head > .rr-wp-toggle[aria-expanded="false"]::after { transform: rotate(180deg); }   /* [11/11 디자이너] 접힘 = [∧](위로 펴진다) · 펼침 = [∨] — 예전 [>] */
+body.ver-7 .rr-wp-seg { display: flex; gap: var(--space-2); padding: var(--space-2); border-radius: var(--radius-4); background-color: var(--bg-map-chip); }
+body.ver-7.rr-wp-closed .rr-wp-seg { display: none; }
+body.ver-7 .rr-wp-seg > button { flex: 1 1 0; height: 24px; padding: 0 var(--space-8); border: 1px solid transparent; border-radius: var(--radius-4); background: none; color: var(--comp-button-ghost-text-default); font: inherit; font-size: var(--font-size-13); line-height: var(--font-line-height-18); font-weight: var(--font-weight-medium, 500); cursor: pointer; }
+body.ver-7 .rr-wp-seg > button[aria-selected="true"] { border-color: var(--comp-button-secondary-border-default); background-color: var(--comp-button-secondary-bg-default); color: var(--comp-button-secondary-text-default); }
+body.ver-7 .rr-wp-seg > button:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 1px; }
+body.ver-7 .right-panel .rr-wp-head + .timeline,
+body.ver-7 .rr-wp-mini { position: relative; margin-top: calc(var(--space-4) * -1); border: 1px solid var(--border-divider); border-radius: 8px; background-color: var(--bg-map-chip); box-shadow: none; }
+body.ver-7.rr-wp-map .right-panel [data-timeline] { display: none !important; }
+body.ver-7 .rr-wp-mini { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; padding: var(--space-8); }
+body.ver-7 .rr-wp-mini[hidden], body.ver-7.rr-wp-closed .rr-wp-mini { display: none; }
+body.ver-7 .rr-wp-mini > svg { width: 100%; height: 100%; max-height: 100%; }
+
+/* [11/11 v7 디자이너] 로봇개 조금 작게 — 86%, 발바닥 · 오른쪽 끝은 그 자리(바닥 가운데 기준으로 줄이고 줄어든 반만큼 오른쪽으로) → 왼쪽에 여유 */
+body.ver-7 .robot-strip.is-carousel .robot-thumb > svg.robot-2d { transform-origin: 50% 100%; transform: translateX(7%) scaleX(-1) scale(.86); }
+
+/* [11/11 v7 디자이너] 웨이포인트 [지도] 고급 미니맵(mini-plan.js svgHQ): 색 규칙은 11/20 공통 CSS(components-v7.css "지도 부품")로 옮김. 고정 색 대신 토큰, 라이트 테마도 따라감 */
+
+/* ================= [11/11 v7 디자이너] Delta 챗봇형 시안(main-v7-chat · body.d3-chat · delta-chatbot-v7.js) =================
+ *   Delta = 지도 오른쪽 아래 오브 단추(56, 오른쪽 끝 = 지도 도구 줄 오른쪽 끝 · 아래 끝 = 우측 패널 아래 끝) + 왼쪽 말풍선(Delta 두 줄).
+ *   대화창 = 원래 Delta 창(.delta3.is-open)을 오브 왼쪽에 아래 끝 맞춰 세운다(지도 도구 줄을 덮지 않게). 왼쪽 위 Delta 카드는 숨긴다.
+ *   알림 팝오버 = 왼쪽 위(우측 패널 위 여백)부터 아래 끝까지 꽉 — 사진 칸이 남는 높이를 먹는다 */
+:root[data-theme][data-delta][data-glow] body.ver-7.d3-chat.v2-2.v3 .delta3:not(.is-open) { display: none !important; }
+:root[data-theme][data-delta][data-glow] body.ver-7.d3-chat.v2-2.v3 .delta3.is-open,
+:root[data-theme][data-delta][data-glow] body.ver-7.d3-chat.ma-on.v2-2.v3 .delta3.is-open {
+  --d3-w: 380px;
+  left: auto !important; top: auto !important; transform: none !important;
+  right: calc(var(--dchat-r, 16px) + 56px + 12px) !important; bottom: var(--dchat-lift, var(--dchat-b, 16px)) !important;
+  width: 380px !important; height: min(560px, calc(100% - var(--dchat-lift, var(--dchat-b, 16px)) - 32px)) !important; max-height: none;
+  animation: dchat-in .2s ease-out;
+}
+@keyframes dchat-in { from { opacity: 0; transform: translateY(8px) !important; } to { opacity: 1; } }
+body.ver-7.d3-chat .delta3 .d3-grip, body.ver-7.d3-chat .delta3 [role="separator"] { display: none !important; }   /* 너비 손잡이 — 챗봇 창은 폭 고정 */
+
+body.ver-7 .dchat { position: absolute; right: var(--dchat-r, 16px); bottom: var(--dchat-ob, var(--dchat-b, 16px)); z-index: 8; display: flex; align-items: flex-end; gap: var(--space-12); pointer-events: none; }
+body.ver-7 .dchat > * { pointer-events: auto; }
+body.ver-7 .dchat-orb { position: relative; flex: none; width: 56px; height: 56px; padding: 0; border: 0; border-radius: var(--radius-pill); overflow: visible; cursor: pointer;
+  background: none; transition: transform .15s; }   /* [11/11 디자이너] 오브 뒤 파란 원판 · 테 · 그림자 걷음 — 오브만 보인다 */
+body.ver-7 .dchat-orb:hover { transform: scale(1.06); }
+body.ver-7 .dchat-orb:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 3px; }
+body.ver-7 .dchat-orb-in { position: absolute; inset: 0; border-radius: var(--radius-pill); overflow: hidden; }
+body.ver-7 .dchat-orb-in > canvas { width: 100% !important; height: 100% !important; display: block; }
+body.ver-7 .dchat-badge { position: absolute; top: 2px; right: 2px; width: 12px; height: 12px; border-radius: var(--radius-pill); border: 2px solid #0A0F18; background-color: var(--status-critical-icon); }
+body.ver-7 .dchat[data-sev="warning"] .dchat-badge { background-color: var(--status-warning-icon); }
+body.ver-7 .dchat-badge[hidden] { display: none; }
+body.ver-7 .dchat-bubble { position: absolute; right: calc(56px + 12px); bottom: calc(var(--dchat-lift, var(--dchat-b, 16px)) - var(--dchat-ob, var(--dchat-b, 16px))); width: max-content; display: flex; align-items: flex-start; gap: var(--space-4); max-width: 300px; padding: var(--space-12) var(--space-16);
+  border: 1px solid var(--border-divider); border-radius: var(--radius-container) var(--radius-container) var(--radius-card) var(--radius-container); background-color: transparent; box-shadow: 0 8px 24px rgb(0 0 0 / 40%); animation: dchat-pop .24s ease-out;
+  -webkit-backdrop-filter: blur(12px) saturate(1.12); backdrop-filter: blur(12px) saturate(1.12); }
+@keyframes dchat-pop { from { opacity: 0; transform: translateY(6px) scale(.97); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { body.ver-7 .dchat-bubble, :root[data-theme][data-delta][data-glow] body.ver-7.d3-chat.v2-2.v3 .delta3.is-open { animation: none; } }
+body.ver-7 .dchat-bubble[hidden] { display: none; }
+/* [11/11 디자이너] 말풍선 면 = 접힌 Delta 위젯(.delta3-card, v6.css 11/03 블록)과 같은 색 — 단계별 · 라이트 채움까지 그대로 */
+body.ver-7 .dchat .dchat-bubble { background-image: linear-gradient(to bottom, var(--bg-cell), color-mix(in srgb, var(--bg-selected) 40%, transparent)); box-shadow: inset 0 2px 3px -1px rgb(255 255 255 / 14%), 0 8px 24px rgb(0 0 0 / 40%); }
+body.ver-7 .dchat[data-sev="critical"] .dchat-bubble { background-image: linear-gradient(to bottom, #5a2a2a, rgb(120 40 36 / 55%)); box-shadow: inset 0 2px 3px -1px rgb(255 255 255 / 14%), 0 0 18px rgb(255 90 82 / 25%), 0 8px 24px rgb(0 0 0 / 40%); }
+body.ver-7 .dchat[data-sev="warning"] .dchat-bubble { background-image: linear-gradient(to bottom, #4a3d22, rgb(110 84 30 / 50%)); }
+:root[data-theme="light"] body.ver-7 .dchat .dchat-bubble {
+  --tone-c: linear-gradient(in oklab 165deg, #7C7397 0%, #6F7DAE 34%, #4A7FD6 70%, #2F6FE0 100%); --tone-in: rgb(130 175 255 / 28%); --tone-base: #4A7FD6;
+  background-color: var(--tone-base); background-image: var(--tone-c); border-color: transparent;
+  box-shadow: inset 0 2px 3px -1px rgb(255 255 255 / 35%), inset 0 0 20px 0 var(--tone-in), 0 8px 24px rgb(11 14 19 / 14%);
+  --text-primary: #FFFFFF; --text-secondary: rgb(255 255 255 / 86%); --text-tertiary: rgb(255 255 255 / 76%);
+}
+:root[data-theme="light"] body.ver-7 .dchat[data-sev="critical"] .dchat-bubble { --tone-c: linear-gradient(in oklab 165deg, #7C7397 0%, #B86A77 34%, #E2573B 70%, #EC4426 100%); --tone-in: rgb(255 120 80 / 35%); --tone-base: #E2573B; }
+:root[data-theme="light"] body.ver-7 .dchat[data-sev="warning"] .dchat-bubble { --tone-c: linear-gradient(in oklab 165deg, #7C7397 0%, #A68566 34%, #C88F1A 70%, #C08308 100%); --tone-in: rgb(255 200 90 / 30%); --tone-base: #C88F1A; }
+:root[data-theme="light"] body.ver-7 .dchat-x:hover { background-color: rgb(255 255 255 / 18%); }
+body.ver-7 .dchat[data-sev="critical"] .dchat-bubble { border-color: color-mix(in srgb, var(--status-critical-icon) 55%, transparent); }
+body.ver-7 .dchat[data-sev="warning"] .dchat-bubble { border-color: color-mix(in srgb, var(--status-warning-icon) 55%, transparent); }
+body.ver-7 .dchat-bubble-body { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; padding: 0; border: 0; background: none; text-align: left; cursor: pointer; font: inherit; }
+body.ver-7 .dchat-l1 { color: var(--text-primary); font-size: var(--font-size-14); line-height: var(--font-line-height-20); font-weight: var(--font-weight-bold); }
+body.ver-7 .dchat-l2 { color: var(--text-secondary); font-size: var(--font-size-13); line-height: var(--font-line-height-20); }
+body.ver-7 .dchat-l2:empty { display: none; }
+body.ver-7 .dchat-x { flex: none; display: grid; place-items: center; width: 24px; height: 24px; margin: calc(var(--space-4) * -1) 0 0; padding: 0; border: 0; border-radius: var(--radius-4); background: none; color: var(--text-tertiary); cursor: pointer; }
+body.ver-7 .dchat-x:hover { background-color: var(--bg-cell); color: var(--text-primary); }
+body.ver-7 .dchat-x .i { background-color: currentColor; }
+
+body.ver-7.d3-chat .map-alert.ma-v3:not(.is-docked):not(.is-requested):not(.is-folded) { height: var(--ma-max); max-height: var(--ma-max); }
+body.ver-7.d3-chat .map-alert.ma-v3:not(.is-docked):not(.is-requested):not(.is-folded) .ma-snap { flex: 0 0 187px; height: 187px; }   /* [11/11 2차] 사진은 원래 높이 — 남는 높이는 아래 판단 근거(ma-insight-v7.js) */
+body.ver-7.d3-chat .map-alert.ma-v3 .ma-snap > .ma-shot { width: 100%; height: 100%; object-fit: cover; }
+/* 말풍선 둘째 줄 — Delta 카드와 같은 번호 원 · 이름 굵게(v6.css .delta3 .dl-wp 를 말풍선에도) */
+body.ver-7 .dchat-l2 .dl-wp-name { color: var(--text-primary); font-weight: var(--font-weight-bold); }
+body.ver-7 .dchat-l2 .dl-wp { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; width: 20px; height: 20px; margin-right: var(--space-2); border-radius: var(--radius-pill);
+  background-color: rgb(10 15 24 / 45%); color: #C9D0DC; font-size: 12px; line-height: 1; font-weight: 800; font-variant-numeric: tabular-nums; vertical-align: middle; }
+body.ver-7 .dchat-l2 .dl-wp[data-sev] { border: 2px solid #0A0F18; color: #0A0F18; }
+body.ver-7 .dchat-l2 .dl-wp[data-sev="critical"] { background-color: #FF383C; }
+body.ver-7 .dchat-l2 .dl-wp[data-sev="warning"] { background-color: #FFC800; }
+
+/* [11/11] 새 APRISM 로고(가로 워드마크 · assets/img/logo/aprism.svg 를 icons/brand-wordmark.svg 로 인라인).
+ *   로고 칸 폭(GNB 레일 76)은 그대로 두고 좌우 여백만 16 → 8 로 줄여 워드마크 폭 60(높이 약 7.7). 색은 글자색(text/primary) 그대로 */
+body.ver-7 .status-bar-logo { padding-left: var(--space-8); padding-right: var(--space-8); }
+body.ver-7 .status-bar-logo .i { width: 60px; height: 8px; }
+
+/* [11/11] Delta 패널 이름 = 글자 'Delta' 대신 DELTA 워드마크(assets/img/logo/delta.svg → icons/brand-delta.svg).
+ *   높이 12 = 예전 16px 글자의 대문자 높이 · 폭은 비율대로 78. 색은 이름 글자색 그대로. 접힘 상태에선 예전처럼 숨는다 */
+body.ver-7.ver-3.v2-2.v3 .delta3.is-open .delta3-name b.delta3-logo { display: flex; align-items: center; height: 24px; }
+body.ver-7 .delta3 .delta3-name b.delta3-logo .i { width: 78px; height: 12px; }
+
+/* ================= [11/11 v7 디자이너] Delta 챗봇형 — 대화창 자리 고르기(크롬 개발자 도구 Dock side 처럼, delta-chatbot-v7.js) =================
+ *   ① 떠 있기(기본 · 위 블록 그대로 380) ② 오른쪽 붙임(body.dchat-dock-right) ③ 새 창(body.dchat-popup = 옮겨 간 창 쪽)
+ *   단추는 창 머리 [∧] 왼쪽 무채색 셋 — 고른 것만 밝게(파랑은 안 쓴다, 색 위계) */
+/* [11/11 디자이너] 셋을 한 묶음으로 — 웨이포인트 [지도 | 목록](.rr-wp-seg)과 같은 꼴: 바탕 칩 · 안쪽 2 · 고른 칸만 보조 단추 면 */
+body.ver-7 .delta3 .dchat-dockbar { flex: none; display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2); margin-right: var(--space-8); border-radius: var(--radius-4); background-color: var(--bg-map-chip); }
+body.ver-7 .delta3:not(.is-open) .dchat-dockbar { display: none; }
+body.ver-7 .delta3 .dchat-dock { display: grid; place-items: center; width: 28px; height: 24px; padding: 0; border: 1px solid transparent; border-radius: var(--radius-4); background: none; color: var(--comp-button-ghost-text-default); cursor: pointer; }
+body.ver-7 .delta3 .dchat-dock:hover { color: var(--text-primary); }
+body.ver-7 .delta3 .dchat-dock[aria-pressed="true"] { border-color: var(--comp-button-secondary-border-default); background-color: var(--comp-button-secondary-bg-default); color: var(--comp-button-secondary-text-default); }
+body.ver-7 .delta3 .dchat-dock:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 1px; }
+body.ver-7 .delta3 .dchat-dock svg { display: block; }
+
+/* ② 오른쪽 붙임 — 지도 칸이 대화창 폭 + 칸 사이만큼 좁아지고, 대화창은 그 자리(우측 패널 왼쪽)에 지도 칸과 같은 높이로 선다.
+ *   지도 그림(.map-view)은 원래 우측 패널 뒤까지 깔려 크기가 안 바뀐다 — 가운데만 다시 잡는다(map-v6.js aprism:map-room) */
+body.ver-7.d3-chat .two-col > .map-panel { transition: margin-right .2s ease; }
+body.ver-7.d3-chat.dchat-dock-right.dchat-open .two-col > .map-panel { margin-right: calc(var(--dchat-w, 380px) + var(--dchat-gap, 20px)); }
+body.ver-7.dchat-resizing .two-col > .map-panel { transition: none; }
+body.ver-7.dchat-resizing { cursor: ew-resize; user-select: none; }
+:root[data-theme][data-delta][data-glow] body.ver-7.d3-chat.dchat-dock-right.v2-2.v3 .delta3.is-open,
+:root[data-theme][data-delta][data-glow] body.ver-7.d3-chat.dchat-dock-right.ma-on.v2-2.v3 .delta3.is-open {
+  --d3-w: var(--dchat-w, 380px);
+  right: var(--dchat-dock-r, 360px) !important; top: var(--dchat-dock-t, 20px) !important; bottom: max(var(--dchat-dock-b, 20px), var(--dchat-lift, 0px)) !important;   /* 시안 리모콘이 펼쳐져 있으면 그 위까지 */
+  width: var(--dchat-w, 380px) !important; height: auto !important;
+}
+/* 폭 손잡이 — 왼쪽 끝 8px. 올리면 가는 세로선 */
+body.ver-7 .delta3 .dchat-edge { display: none; }
+body.ver-7.dchat-dock-right .delta3.is-open .dchat-edge { display: block; position: absolute; z-index: 5; left: -4px; top: 12px; bottom: 12px; width: 8px; cursor: ew-resize; touch-action: none; }
+body.ver-7.dchat-dock-right .delta3.is-open .dchat-edge::after { content: ""; position: absolute; left: 3px; top: 0; bottom: 0; width: 2px; border-radius: 1px; background-color: var(--text-tertiary); opacity: 0; transition: opacity .15s; }
+body.ver-7.dchat-dock-right .delta3.is-open .dchat-edge:hover::after, body.ver-7.dchat-resizing .delta3 .dchat-edge::after { opacity: .7; }
+
+/* ③ 새 창 — 옮겨 간 Delta 창이 브라우저 창을 꽉 채운다 */
+html:has(> body.dchat-popup) { height: 100%; background-color: var(--bg-page); }
+body.dchat-popup { height: 100%; margin: 0; overflow: hidden; background-color: var(--bg-page); }
+:root[data-theme][data-delta][data-glow] body.ver-7.d3-chat.dchat-popup.v2-2.v3 .delta3.is-open,
+:root[data-theme][data-delta][data-glow] body.ver-7.d3-chat.dchat-popup.ma-on.v2-2.v3 .delta3.is-open {
+  position: fixed !important; inset: 0 !important; left: 0 !important; top: 0 !important; right: 0 !important; bottom: 0 !important;
+  width: auto !important; height: auto !important; max-height: none; transform: none !important; border-radius: 0; animation: none;
+}
+/* [11/11 디자이너] 로고를 오른쪽 탭 글자 줄에 맞춰 6px 내림 — 워드마크 가운데(28) → 탭 글자 몸통 가운데(34, '전체 미션' · 'M1' 실측) */
+body.ver-7 .status-bar-logo .i { transform: translateY(6px); }
+
+/* [11/11 v7 디자이너] 좌측 패널 폭 340 → 320 — 우측 패널(320)과 같은 폭(지도를 가운데 둔 대칭) · 8px 배수(340 은 42.5×8).
+ *   탭끼리 열 너비 통일(10/29) 그대로 — 관제 · 전체 미션(--lp-w) · 미션 설정 · 사전 점검(.sian) · 안전진단(.sf) · 보고서(.rp-body) 같이.
+ *   320 이면 거르기 줄(버튼 셋 190 + 정렬 84 + 좌우 24 = 298)과 알림 제목 한 줄이 그대로 들어간다.
+ *   1600 이하에서 우측 패널이 308 로 줄 때(app-shell.css) 좌측도 308 — 대칭 유지 */
+body.ver-7.v2 { --lp-w: 320px; }
+body.ver-7.sian .context-panel:not(.is-collapsed) { flex-basis: 320px; }
+body.ver-7.sian .lp-body { width: 320px; }
+/* [11/20] 접힌 상태(.is-fold)는 빼야 접기 단추가 먹음(320 이 접힌 폭을 덮어 안 닫히던 것) */
+body.ver-7 .sf:not(.is-fold) { grid-template-columns: 320px minmax(0, 1fr); }
+body.ver-7 .rp-body:not(.is-fold) { grid-template-columns: 320px minmax(0, 1fr); }
+@media (max-width: 1600px) {
+  body.ver-7.v2 { --lp-w: 308px; }
+  body.ver-7.sian .context-panel:not(.is-collapsed) { flex-basis: 308px; }
+  body.ver-7.sian .lp-body { width: 308px; }
+  body.ver-7 .sf:not(.is-fold), body.ver-7 .rp-body:not(.is-fold) { grid-template-columns: 308px minmax(0, 1fr); }
+}
+
+/* [11/11 디자이너] Delta 번호 원(.dl-wp) = 지도 위험 · 주의 핀 머리(map-v6.js rrPins v7 분기)와 같은 꼴 — 채움 원 → 속 비운 단계색 테 + 단계색 숫자.
+ *   다크: 속 #0A0F18 · 테/숫자 위험 #FF383C · 주의 #FFCC00 / 라이트: 속 #FFFFFF · 테 위험 #FF383C · 주의 #F2A900, 숫자 주의만 #8A6100(대비)
+ *   Delta 창(요약 · 대화 답) · 챗봇형 말풍선 모두 */
+:root[data-theme] body.ver-7 .delta3 .dl-wp[data-sev], :root[data-theme] body.ver-7 .dchat-l2 .dl-wp[data-sev] { border: 2px solid; background-color: #0A0F18; }
+:root[data-theme] body.ver-7 .delta3 .dl-wp[data-sev="critical"], :root[data-theme] body.ver-7 .dchat-l2 .dl-wp[data-sev="critical"] { border-color: #FF383C; background-color: #0A0F18; color: #FF383C; }
+:root[data-theme] body.ver-7 .delta3 .dl-wp[data-sev="warning"], :root[data-theme] body.ver-7 .dchat-l2 .dl-wp[data-sev="warning"] { border-color: #FFCC00; background-color: #0A0F18; color: #FFCC00; }
+:root[data-theme="light"] body.ver-7 .delta3 .dl-wp[data-sev], :root[data-theme="light"] body.ver-7 .dchat-l2 .dl-wp[data-sev] { background-color: #FFFFFF; }
+:root[data-theme="light"] body.ver-7 .delta3 .dl-wp[data-sev="critical"], :root[data-theme="light"] body.ver-7 .dchat-l2 .dl-wp[data-sev="critical"] { border-color: #FF383C; background-color: #FFFFFF; color: #FF383C; }
+:root[data-theme="light"] body.ver-7 .delta3 .dl-wp[data-sev="warning"], :root[data-theme="light"] body.ver-7 .dchat-l2 .dl-wp[data-sev="warning"] { border-color: #F2A900; background-color: #FFFFFF; color: #8A6100; }
+
+/* [11/11 디자이너] 떠 있기 = 오브 바로 위 정사각형(body.dchat-above, delta-chatbot-v7.js place 가 남는 높이를 재서 붙인다)
+ *   오른쪽 끝 = 오브 오른쪽 끝(--dchat-r) · 아래 끝 = 오브 위 12(--dchat-ab) · 한 변 = 최대 460(11/11 380 → 460), 층 전환 아래 12 까지 남는 만큼(--dchat-sq, 320 ↓ 면 붙이지 않아 오브 왼쪽 자리)
+ *   오브에서 위로 커지며 나온다. 칸이 낮아 '이렇게 물어보세요' 제목은 빼고 칩만 한 줄(넘치면 옆으로 민다) */
+:root[data-theme][data-delta][data-glow] body.ver-7.d3-chat.dchat-above.v2-2.v3 .delta3.is-open,
+:root[data-theme][data-delta][data-glow] body.ver-7.d3-chat.dchat-above.ma-on.v2-2.v3 .delta3.is-open {
+  --d3-w: var(--dchat-sq, 380px);
+  right: var(--dchat-r, 16px) !important; bottom: var(--dchat-ab, 84px) !important;
+  width: var(--dchat-sq, 380px) !important; height: var(--dchat-sq, 380px) !important;
+  transform-origin: 100% 100%; animation: dchat-grow .22s cubic-bezier(.2, .8, .2, 1);
+}
+@keyframes dchat-grow { from { opacity: 0; scale: .9; translate: 0 8px; } to { opacity: 1; scale: 1; translate: 0 0; } }
+@media (prefers-reduced-motion: reduce) { :root[data-theme][data-delta][data-glow] body.ver-7.d3-chat.dchat-above.v2-2.v3 .delta3.is-open { animation: none; } }
+body.ver-7.dchat-above .delta3.is-open .dc6-sugg { padding: var(--space-8) var(--space-8) var(--space-8); }   /* [11/13 여백 정리] 아래 6 → 8 */
+body.ver-7.dchat-above .delta3.is-open .dc6-sugg-l { display: none; }
+body.ver-7.dchat-above .delta3.is-open .dc6-qs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+body.ver-7.dchat-above .delta3.is-open .dc6-qs::-webkit-scrollbar { display: none; }
+body.ver-7.dchat-above .delta3.is-open .dc6-qs > * { flex: none; }
+
+/* [11/11 v7 디자이너] 챗봇형 팝오버 판단 근거(ma-insight-v7.js) — 사진 아래 남는 높이를 채운다: 기준 줄 → 측정 추이 → 추정 원인 → 권고 · 조치 체크
+ *   아래 칸이 남는 높이를 받고, 그 안에서 이 칸만 줄어 스크롤된다(조치 체크 · 단추는 늘 보인다) */
+body.ver-7.d3-chat .map-alert.ma-v3:not(.is-docked):not(.is-requested):not(.is-folded) .ma-lower { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+body.ver-7.d3-chat .map-alert.ma-v3:not(.is-docked):not(.is-requested):not(.is-folded) .ma-lower-in { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+body.ver-7.d3-chat .map-alert.ma-v3 .ma-lower-in > :not(.ma-ins) { flex: none; }
+body.ver-7 .ma-ins { flex: 1 1 auto; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: var(--space-12); margin: var(--space-8) 0 var(--space-12); scrollbar-width: thin; }
+body.ver-7 .ma-ins[hidden], body.ver-7 .ma-ins-sec[hidden], body.ver-7 .ma-ins-first[hidden] { display: none; }
+body.ver-7 .ma-ins-sec { display: flex; flex-direction: column; gap: var(--space-8); padding: var(--space-8) var(--space-12); border-radius: var(--radius-4); background-color: var(--bg-cell); }
+body.ver-7 .ma-ins-h { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-8); margin: 0; color: var(--text-secondary); font-size: var(--font-size-12); line-height: var(--font-line-height-18); font-weight: var(--font-weight-medium, 500); }
+body.ver-7 .ma-ins-sub { color: var(--text-tertiary); font-weight: 400; }
+body.ver-7 .ma-ins-svg { display: block; width: 100%; height: auto; overflow: visible; }
+body.ver-7 .ma-ins-std { stroke: var(--text-tertiary); stroke-width: 1; stroke-dasharray: 3 3; }
+body.ver-7 .ma-ins-stdt { fill: var(--text-tertiary); font-size: 10px; font-variant-numeric: tabular-nums; }
+body.ver-7 .ma-ins-line { fill: none; stroke: var(--text-secondary); stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
+body.ver-7 .ma-ins-pt { fill: var(--bg-cell); stroke: var(--text-secondary); stroke-width: 1.5; }
+body.ver-7 .ma-ins-pt.is-over.is-critical { stroke: var(--status-critical-icon); fill: var(--status-critical-icon); }
+body.ver-7 .ma-ins-pt.is-over.is-warning { stroke: var(--status-warning-icon); fill: var(--status-warning-icon); }
+body.ver-7 .ma-ins-v { fill: var(--text-tertiary); font-size: 10px; font-variant-numeric: tabular-nums; }
+body.ver-7 .ma-ins-v.is-over.is-critical { fill: var(--status-critical-text); font-weight: 700; }
+body.ver-7 .ma-ins-v.is-over.is-warning { fill: var(--status-warning-text); font-weight: 700; }
+body.ver-7 .ma-ins-list { margin: 0; padding: 0 0 0 var(--space-20); color: var(--text-primary); font-size: var(--font-size-13); line-height: var(--font-line-height-20); }
+body.ver-7 .ma-ins-list > li::marker { color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
+body.ver-7 .ma-ins-first { margin: 0; color: var(--text-secondary); font-size: var(--font-size-12); line-height: var(--font-line-height-18); }
+body.ver-7 .ma-ins-sec.is-trend { flex: 1 1 auto; min-height: 104px; }
+body.ver-7 .ma-ins-chart { position: relative; flex: 1 1 auto; min-height: 64px; }
+body.ver-7 .ma-ins-chart > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+body.ver-7 .ma-ins-sec.is-cause { flex: none; }
+
+/* [11/11 디자이너] Delta 창 머리 단추(자리 셋 · 접기) — 호버 · 고른 면이 불투명 회색이라 반투명 판과 따로 놀았다 → 흰(라이트는 검은) 반투명 면.
+ *   자리 묶음 ↔ 접기 사이 8 → 4 */
+body.ver-7 .delta3 .dchat-dockbar { margin-right: var(--space-4); }   /* 묶음 바탕 bg/map-chip 은 원래 반투명 — 그대로 */
+body.ver-7 .delta3 .dchat-dock:hover { background-color: rgb(255 255 255 / 8%); }
+body.ver-7 .delta3 .dchat-dock[aria-pressed="true"] { border-color: rgb(255 255 255 / 16%); background-color: rgb(255 255 255 / 14%); color: var(--text-primary); }
+body.ver-7.ver-3.v2-2.v3 .delta3 .delta3-close:hover { background-color: rgb(255 255 255 / 10%); }
+:root[data-theme="light"] body.ver-7 .delta3 .dchat-dock:hover { background-color: rgb(0 0 0 / 5%); }
+:root[data-theme="light"] body.ver-7 .delta3 .dchat-dock[aria-pressed="true"] { border-color: rgb(0 0 0 / 10%); background-color: rgb(255 255 255 / 70%); }
+:root[data-theme="light"] body.ver-7.ver-3.v2-2.v3 .delta3 .delta3-close:hover { background-color: rgb(0 0 0 / 6%); }
+/* [11/11 디자이너] 판단 근거 상자 바탕 = 알림 목록 바탕(--bg-inset) — 팝오버 면보다 한 단 어둡게 */
+body.ver-7 .ma-ins-sec { background-color: var(--bg-inset); }
+body.ver-7 .ma-ins-pt { fill: var(--bg-inset); }
+
+/* [11/11 디자이너] 대화창이 열리면 큰 오브는 줄어들며 사라진다(body.dchat-orb-off — 새 창일 땐 남는다). 창은 같은 모서리에서 커진다(dchat-grow) */
+body.ver-7 .dchat-orb { transition: transform .2s ease, opacity .2s ease, visibility 0s linear 0s; transform-origin: 100% 100%; }
+body.ver-7.dchat-orb-off .dchat-orb { opacity: 0; transform: scale(.5); visibility: hidden; pointer-events: none; transition: transform .2s ease, opacity .16s ease, visibility 0s linear .2s; }
+@media (prefers-reduced-motion: reduce) { body.ver-7 .dchat-orb, body.ver-7.dchat-orb-off .dchat-orb { transition: none; } }
+/* 말풍선 상태(닫힘) — 오브 아래 DELTA 워드마크(52 × 8, 사이 8 — 11/18 여백 정리 6 → 8, 아래 여백 16 안에 꼭 맞는다). 그만큼 오브를 올리고 말풍선도 오브 아래 끝에 맞춰 같이 올린다 */
+body.ver-7 .dchat-logo { position: absolute; left: 50%; top: calc(100% + var(--space-8)); width: 52px; height: 8px; transform: translateX(-50%); pointer-events: none;
+  background-color: var(--text-primary); -webkit-mask: var(--ic-brand-delta) center / contain no-repeat; mask: var(--ic-brand-delta) center / contain no-repeat; }
+body.ver-7.dchat-open .dchat-logo { display: none; }
+body.ver-7:not(.dchat-open) .dchat { padding-bottom: var(--space-16); }
+
+/* [11/11 디자이너] 말풍선 = iOS 메시지 꼴 — 모서리 18 · 오른쪽 아래는 꼬리(.dchat-tail)가 오브 쪽으로 감아 나간다.
+ *   자리: 아래 끝 = DELTA 로고 아래 끝(오브는 말풍선 아래쪽 옆에 선다) · 오브와 사이 18(꼬리 끝에서 5).
+ *   면 · 테는 ::before 로 옮기고 오른쪽 테 아래 20 을 비워(mask) 꼬리와 이음매 없이 잇는다 — 꼬리는 같은 면 끝 색(--tf) · 같은 테(--bl).
+ *   그림자 · 흐림은 말풍선 자신이 든다(가림이 그림자까지 자르지 않게) */
+body.ver-7 .dchat .dchat-bubble {
+  --bl: var(--border-divider); --bi: linear-gradient(to bottom, var(--bg-cell), color-mix(in srgb, var(--bg-selected) 40%, transparent)); --bc: transparent;
+  --tf: color-mix(in srgb, var(--bg-selected) 40%, transparent); --bin: inset 0 2px 3px -1px rgb(255 255 255 / 14%);
+  right: calc(56px + 18px); isolation: isolate; border-color: transparent !important; border-radius: var(--radius-container) var(--radius-container) 0 var(--radius-container);
+  background: none !important; box-shadow: 0 8px 24px rgb(0 0 0 / 40%);
+}
+body.ver-7 .dchat[data-sev="critical"] .dchat-bubble { --bl: color-mix(in srgb, var(--status-critical-icon) 55%, transparent); --bi: linear-gradient(to bottom, #5a2a2a, rgb(120 40 36 / 55%)); --tf: rgb(120 40 36 / 55%); box-shadow: 0 0 18px rgb(255 90 82 / 25%), 0 8px 24px rgb(0 0 0 / 40%); }
+body.ver-7 .dchat[data-sev="warning"] .dchat-bubble { --bl: color-mix(in srgb, var(--status-warning-icon) 55%, transparent); --bi: linear-gradient(to bottom, #4a3d22, rgb(110 84 30 / 50%)); --tf: rgb(110 84 30 / 50%); }
+:root[data-theme="light"] body.ver-7 .dchat .dchat-bubble { --bl: transparent; --bc: var(--tone-base); --bi: var(--tone-c); --tf: #2F6FE0; --bin: inset 0 2px 3px -1px rgb(255 255 255 / 35%), inset 0 0 20px 0 var(--tone-in); box-shadow: 0 8px 24px rgb(11 14 19 / 14%); }
+:root[data-theme="light"] body.ver-7 .dchat[data-sev="critical"] .dchat-bubble { --tf: #EC4426; }
+:root[data-theme="light"] body.ver-7 .dchat[data-sev="warning"] .dchat-bubble { --tf: #C08308; }
+body.ver-7 .dchat .dchat-bubble::before {
+  content: ""; position: absolute; inset: -1px; z-index: -1; pointer-events: none;
+  border: 1px solid var(--bl); border-radius: inherit; background-color: var(--bc); background-image: var(--bi); box-shadow: var(--bin);
+  -webkit-mask: linear-gradient(#000 0 0) right bottom / 1px 20px no-repeat, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+          mask: linear-gradient(#000 0 0) right bottom / 1px 20px no-repeat exclude, linear-gradient(#000 0 0);
+}
+body.ver-7 .dchat-tail { position: absolute; right: -14px; bottom: -1px; overflow: visible; pointer-events: none;
+  clip-path: path("M0 0C0 9 4 16.5 13.5 19.5C9 20 3.5 20 0 20Z"); -webkit-backdrop-filter: blur(12px) saturate(1.12); backdrop-filter: blur(12px) saturate(1.12); }
+body.ver-7 .dchat-tail .f { fill: var(--tf); }
+body.ver-7 .dchat-tail .s { fill: none; stroke: var(--bl); stroke-width: 1; }
+
+/* [11/11 디자이너] 좌측 패널 머리 오른쪽 끝 맞춤 — 상자는 셋 다 같은 끝(384)인데 보이는 끝이 달랐다(1배율 실측):
+ *   접기 아이콘 381 · [알림 센터 >] 꺾쇠 378(16 칸 안 가운데 글리프) · "오래된 순" 383(글자는 여백 없음) → 셋 다 381 로.
+ *   꺾쇠 칸은 3 바깥으로, 정렬 단추는 2 안으로 */
+body.ver-7 .context-panel .ah-all { margin-right: calc(var(--space-4) * -1); }
+body.ver-7 .context-panel .ah-sort-btn { margin-right: 0; }   /* 11/12 글자 + 아이콘으로 바꾸며 다시 잼 — 아래 블록 */
+
+/* [11/11 디자이너] 다크 말풍선도 라이트처럼 색조를 섞는다 — 같은 짜임(oklab 165°: 회보라 → 중간 → 단계색)을 어둡게 낮춰 90% 로(뒤 지도가 조금 비친다).
+ *   안쪽 단계색 번짐(--bin)도 라이트와 같은 방식. 꼬리 = 그라데이션 끝 색 */
+:root:not([data-theme="light"]) body.ver-7 .dchat .dchat-bubble {
+  --bi: linear-gradient(in oklab 165deg, rgb(46 42 62 / 90%) 0%, rgb(43 51 80 / 90%) 34%, rgb(31 55 102 / 90%) 70%, rgb(26 58 122 / 90%) 100%);
+  --tf: rgb(26 58 122 / 90%);
+  --bin: inset 0 2px 3px -1px rgb(255 255 255 / 14%), inset 0 0 20px 0 rgb(90 140 255 / 18%);
+}
+:root:not([data-theme="light"]) body.ver-7 .dchat[data-sev="critical"] .dchat-bubble {
+  --bi: linear-gradient(in oklab 165deg, rgb(46 42 62 / 90%) 0%, rgb(62 38 53 / 90%) 34%, rgb(90 35 40 / 90%) 70%, rgb(110 36 32 / 90%) 100%);
+  --tf: rgb(110 36 32 / 90%);
+  --bin: inset 0 2px 3px -1px rgb(255 255 255 / 14%), inset 0 0 20px 0 rgb(255 100 80 / 20%);
+}
+:root:not([data-theme="light"]) body.ver-7 .dchat[data-sev="warning"] .dchat-bubble {
+  --bi: linear-gradient(in oklab 165deg, rgb(46 42 62 / 90%) 0%, rgb(58 50 38 / 90%) 34%, rgb(77 58 26 / 90%) 70%, rgb(92 69 18 / 90%) 100%);
+  --tf: rgb(92 69 18 / 90%);
+  --bin: inset 0 2px 3px -1px rgb(255 255 255 / 14%), inset 0 0 20px 0 rgb(255 190 80 / 16%);
+}
+
+/* [11/11 디자이너] 휠 로봇(모베드) 그림을 그림 칸 가운데로 — v7 로봇개 보정(좌우 반전 · 오른쪽 7%)이 모베드에도 걸려 17 오른쪽에 섰다
+ *   (1배율 실측: 칸 1577–1728 가운데 1652.5 · 그림 1607–1733 가운데 1669.6, 오른 바퀴가 정보 칸 쪽으로 넘침). v6 의 left 5 보정에서 17 을 뺀다 */
+body.ver-7 .robot-strip.is-carousel .robot-2d.is-mobed { left: -12px; }
+
+/* [11/11 디자이너] 챗봇형 창 머리 접기 = [∨] — 창이 아래 오브 쪽으로 접혀 들어간다. 일반 main-v7 은 왼쪽 위 카드로 접혀 올라가 [∧] 그대로 */
+body.ver-7.d3-chat .delta3 .delta3-close .i { transform: none; }
+
+/* [11/12 디자이너] 로봇 카드 그림 — 발 · 바퀴 아래 바닥 그림자(robot-2d.js .r2-shadow)를 뺀다. 로봇개 · 휠 로봇 모두 */
+body.ver-7 .robot-2d .r2-shadow { display: none; }
+
+/* [11/12 디자이너] 정렬 단추 = 글자 + 아이콘 [오래된 순 ⇅] — 글자가 지금 상태, ⇅ 는 누르면 바뀐다는 표시(바로 위 [알림 센터 >] 와 같은 꼴).
+ *   ah-sort.js 는 v6 와 같이 써서 순서는 v7 CSS 에서만 바꾼다 */
+body.ver-7 .ah-sort-btn > .i { order: 2; }
+
+/* [11/12 디자이너] 로봇 카드 진행 글 칸 바탕 = 웨이포인트 머리(.rr-wp-head)와 같은 bg/raised(예전 bg/cell — 한 단 어두웠다) */
+:root[data-theme] body.ver-7 .rc-box .progress-meta { background-color: var(--bg-raised); }
+
+/* [11/12 디자이너] 칸 여백 · 간격 맞춤(1배율 실측 뒤)
+ *   위 안쪽 여백 = 12: 진행 글 칸(12 그대로) · 웨이포인트 머리(8 → 12) — 둘 다 16/24 굵은 제목으로 시작하는 칸
+ *   제목 → 조작 줄 = 12: 좌측 "조치 필요 알림" → 거르기 칩(14 → 12, 머리줄 높이 28 의 남는 2 를 칸 위 여백에서 뺀다) · 웨이포인트 제목 → [지도 | 목록](8 → 12)
+ *   진행 제목 → "약 … 종료 예정"(4)은 그대로 — 제목에 딸린 설명 줄이라 붙어 한 덩이로 읽혀야 한다 */
+body.ver-7 .rr-wp-head { padding-top: var(--space-12); gap: var(--space-12); }
+body.ver-7 .ah-body .ah-sec { padding-top: var(--space-12); }
+
+/* [11/12 디자이너] 상태 배너(위험 감지 · 일시정지 · 긴급정지 · 통신 끊김 · 미션 완료)가 있으면 진행 글 칸이 70 → 86 으로 커졌다 —
+ *   배너가 % (높이 32)와 한 줄에 놓여 그 줄이 32 가 되고, 줄 바꿈 간격(12)까지 붙었다. 이동 중과 같은 짜임으로:
+ *   왼쪽 = 배너(24) · 사이 4 · 설명 줄, 오른쪽 % 는 두 줄의 세로 가운데 */
+body.ver-7 .rc-box .progress-meta:has(> .rr-banner) { display: grid; grid-template-columns: minmax(0, 1fr) auto; row-gap: var(--space-4); column-gap: var(--space-12); align-items: center; }
+body.ver-7 .rc-box .progress-meta:has(> .rr-banner) > .rr-banner { grid-column: 1; grid-row: 1; }
+body.ver-7 .rc-box .progress-meta:has(> .rr-banner) > .progress-titles { grid-column: 1; grid-row: 2; order: 0; flex-basis: auto; }
+body.ver-7 .rc-box .progress-meta:has(> .rr-banner) > .progress-percent { grid-column: 2; grid-row: 1 / span 2; }
+
+/* [11/12 디자이너] 지금 지점 카드 상태 한 줄(route-sim.js st7) — 이동 중 · 측정 중 · 위험 감지 · 일시정지 · 자동복귀 · 긴급정지 · 통신 끊김 모두 같은 틀
+ *   [아이콘 16] [상태 이름 13/18 굵게, 상태 색] ··· [보조 정보 12/18, 카드 글자색 72%] (+ 일시정지 [재개] 22)
+ *   상태 색: 파랑 #1E7BE6 · 빨강 #E5383B · 회색 = 카드 글자색 70% — 카드 바탕이 테마마다 달라 양쪽에서 읽히는 중간 값 */
+body.ver-7 .rr-notes:has(> .rr-st), body.ver-7 .rr-home-st { margin-top: var(--space-8); }
+body.ver-7 .rr-st { --st: #1E7BE6; display: flex; align-items: center; gap: var(--space-4); min-height: 22px; font-size: 13px; line-height: 18px; color: var(--step-now-fg, inherit); }
+body.ver-7 .rr-st.is-red { --st: #E5383B; }
+body.ver-7 .rr-st.is-gray { --st: color-mix(in srgb, currentColor 70%, transparent); }
+body.ver-7 .rr-st-ic { flex: none; display: grid; place-items: center; width: 16px; height: 16px; color: var(--st); }
+body.ver-7 .rr-st-ic > svg { display: block; width: 16px; height: 16px; overflow: visible; }
+body.ver-7 .rr-st-l { flex: none; color: var(--st); font-weight: 700; font-variant-numeric: tabular-nums; }
+body.ver-7 .rr-st-m { margin-left: auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: color-mix(in srgb, currentColor 72%, transparent); font-size: 12px; font-variant-numeric: tabular-nums; }
+body.ver-7 .rr-st-m:empty { display: none; }
+/* 이동 중 점 셋이 차례로 밝아진다(흐름) · 측정 고리 */
+body.ver-7 .rr-st-ic circle.d1, body.ver-7 .rr-st-ic circle.d2, body.ver-7 .rr-st-ic circle.d3 { fill: currentColor; animation: rr-st-dot 1.2s ease-in-out infinite; }
+body.ver-7 .rr-st-ic circle.d2 { animation-delay: .2s; }
+body.ver-7 .rr-st-ic circle.d3 { animation-delay: .4s; }
+@keyframes rr-st-dot { 0%, 100% { opacity: .3; } 40% { opacity: 1; } }
+body.ver-7 .rr-st-ic .trk { fill: none; stroke: color-mix(in srgb, currentColor 25%, transparent); stroke-width: 2.4; }
+body.ver-7 .rr-st-ic .val { fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; transition: stroke-dashoffset .3s; }
+@media (prefers-reduced-motion: reduce) { body.ver-7 .rr-st-ic circle { animation: none; opacity: 1; } }
+/* 일시정지 [재개] — 줄 끝 작은 보조 단추(파랑 채움 대신 테 단추: 이 칸의 주인공은 상태) */
+body.ver-7 .rr-st .rr-resume { flex: none; height: 22px; margin: 0 0 0 var(--space-4); padding: 0 var(--space-8); border: 1px solid color-mix(in srgb, currentColor 30%, transparent); border-radius: 4px; background: none; color: inherit; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+body.ver-7 .rr-st .rr-resume:hover { background-color: color-mix(in srgb, currentColor 10%, transparent); }
+
+/* [11/12 디자이너] 지금 지점 카드도 시각 줄(예정 10:11–10:13 · 2분)을 뺀다 — 시각이 든 지점만 3줄이 돼 높이가 들쭉날쭉했다.
+ *   지금 칸의 시간은 상태 줄("약 n초 남음")이 말한다. 지나온 칸은 11/10 에 이미 뺐다 → 지금 칸 = 이름 + 상태 두 줄 */
+body.ver-7 [data-timeline] .timeline-item.is-running .step-times-foot { display: none; }
+
+/* [11/12 디자이너 2차] 지금 지점 카드 상태 줄 — 아이콘을 모두 뺀다(상태 이름 · 색만). 이동 중 점은 위 진행 제목에 있다.
+ *   측정 중 진행 = 번호 원 둘레 고리(파랑, --rr-pct 를 route-sim.js 가 넣는다) · 자동복귀 = 미션 중단이라 무채색(.is-gray, 위 상태 띠 ■ 회색과 같은 톤)
+ *   상태 줄이 붙은 카드는 시각 줄을 숨긴다(지금 칸 규칙이 안 걸리는 긴급정지 카드까지) */
+body.ver-7 [data-timeline] .timeline-item:has(.rr-st) .step-times-foot { display: none; }
+body.ver-7 [data-timeline] .timeline-item:has(.rr-st.is-measure) .step-no { position: relative; }
+body.ver-7 [data-timeline] .timeline-item:has(.rr-st.is-measure) .step-no::after {
+  content: ""; position: absolute; inset: calc(var(--space-4) * -1);   /* [11/18] 여백 정리 -3 → -4 */ border-radius: 50%; pointer-events: none;
+  background: conic-gradient(#1E7BE6 calc(var(--rr-pct, 0) * 1%), color-mix(in srgb, #1E7BE6 22%, transparent) 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2px)); mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2px));
+}
+body.ver-7 .rr-st .rr-st-m:empty + .rr-resume { margin-left: auto; }   /* 일시정지 — 보조 정보가 위로 올라가 비면 [재개]가 줄 끝 */
+
+/* [11/12 디자이너] 카드 제목 ↔ 아랫줄 간격 줄임 — 제목 글자 끝에서 아랫줄 글자 위까지 13 이 떠 보였다(카드 칸 사이 4 + 줄 위 여백 6 + 줄 높이 22 안쪽 2).
+ *   줄 위 여백 0 · 상태 줄 높이 20 → 약 6. 지나온 알림 지점의 설명 줄(.rr-alert-line)도 같은 값 */
+body.ver-7 .rr-notes:has(> .rr-st), body.ver-7 .rr-home-st { margin-top: 0; }
+body.ver-7 .rr-st { min-height: 20px; }
+body.ver-7 [data-timeline] .rr-alert-line { margin-top: 0; }
+
+/* [11/12 디자이너] 층 고르기(B3 · B4) = 웨이포인트 [지도 | 목록](.rr-wp-seg)과 같은 꼴 — 세로로 쌓을 뿐.
+ *   판 안쪽 4(위 조작 판과 같게) · 칩 바탕 bg/map-chip · 안쪽 2 · 사이 2 · 모서리 4 · 칸 높이 24 · 13/18 medium
+ *   고른 층 = Secondary 단추(면 + 테 1), 나머지 = Ghost. 다크 · 라이트 같은 토큰(예전 라이트 흰 면 · 그림자 덮어쓰기는 걷는다) */
+:root[data-theme] body.ver-7 .map-tools-box.is-floors { padding: var(--space-4); }
+:root[data-theme] body.ver-7 .map-tools-box.is-floors .map-floors { gap: var(--space-2); padding: var(--space-2); border: 0; border-radius: var(--radius-4); background-color: var(--bg-map-chip); overflow: visible; }
+:root[data-theme] body.ver-7 .map-tools-box.is-floors .map-floor {
+  position: relative; width: 100%; height: 24px; padding: 0; border: 1px solid transparent; border-radius: var(--radius-4); background: none; box-shadow: none;
+  color: var(--comp-button-ghost-text-default); font-family: inherit; font-size: var(--font-size-13); line-height: var(--font-line-height-18); font-weight: var(--font-weight-medium, 500);
+}
+:root[data-theme] body.ver-7 .map-tools-box.is-floors .map-floor:hover { background: none; color: var(--text-primary); }
+:root[data-theme] body.ver-7 .map-tools-box.is-floors .map-floor.is-on { border-color: var(--comp-button-secondary-border-default); background-color: var(--comp-button-secondary-bg-default); box-shadow: none; color: var(--comp-button-secondary-text-default); }
+:root[data-theme] body.ver-7 .map-tools-box.is-floors .map-floor:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 1px; }
+/* 로봇이 있는 층 점 자리는 components-v7.css 점 배지 (11/20, 항목 안 오른쪽 위 4) */
+
+/* [11/12 디자이너] 지도 조작 판 오른쪽이 번쩍이던 것 — 녹화(assets/source/오류.mp4)에서 1.2초 주기 · 0.3초 간격 두 번 = 테두리 위험 빛 박동(edge-beat)과 같은 박자.
+ *   빛 층(.edge-light, 지도 판 전체를 덮음)이 plus-lighter 로 빛을 더해, 박동마다 Chrome 이 그 아래 흐림 판(backdrop-filter) 가장자리를 다시 합성하다 튀었다.
+ *   라이트처럼 일반 혼합으로 — 빛 세기는 1배율 비교에서 차이가 거의 없다 */
+body.ver-7 .two-col > .edge-light { mix-blend-mode: normal; }
+
+/* [11/12 디자이너] 웨이포인트 목록 칸 위쪽이 덜 채워져 보이던 것 — 목록 칸(반투명 검정 50%)이 머리(불투명 bg/raised) 밑으로 6 겹쳐 올라가,
+ *   겹친 6 만 회색이 비쳐 밝았다(레일 기둥은 제 바탕이 있어 거기만 어두웠다). 겹침을 없애고 그만큼 머리 아래 여백을 16 → 10 — 칸 사이 간격은 그대로 */
+body.ver-7 .right-panel .rr-wp-head + .timeline, body.ver-7 .rr-wp-mini { margin-top: 0; }
+body.ver-7 .rr-wp-head { padding-bottom: var(--space-12); }
+body.ver-7.rr-wp-closed .rr-wp-head { padding-bottom: var(--space-8); }
+
+/* [11/12 디자이너] v7 가로형(main-v7-wide · d3-bar) 펼침 = 가로 너비만큼 세로도(526 × 296 → 526 × 526, 정사각형).
+ *   너비 손잡이로 폭(--d3-w)을 바꾸면 높이도 따라간다. 지도 칸보다 길어지지 않게 아래 32 여유 */
+:root[data-theme][data-delta][data-glow] body.ver-7.ver-3.v2-2.v3.d3-bar .delta3.is-open { height: min(var(--d3-w, 526px), calc(100% - 32px)); }
+
+/* [11/12 디자이너] v7 가로형 접힌 카드 아래 줄 = 위젯형과 같은 동작 — 쉴 때는 근거 줄("위험 3건 원인 분석 중…"),
+ *   올리거나(hover) Tab 으로 들어오면 단추 줄([처리 순서 보기] 알약 + 대화 말풍선)로 바뀐다. v4 가로형의 늘 떠 있는 [+] 는 걷는다.
+ *   단추 꼴 = 위젯형(v3.css .delta3-plus · v5.css .delta3-talk) 그대로 */
+:root[data-theme][data-delta][data-glow] body.ver-7.ver-3.v2-2.v3.d3-bar .delta3:not(.is-open) .delta3-clue { padding-right: var(--space-8); }
+:root[data-theme][data-delta][data-glow] body.ver-7.ver-3.v2-2.v3.d3-bar .delta3:not(.is-open):is(:hover, :focus-within) .delta3-clue { display: none; }
+:root[data-theme][data-delta][data-glow] body.ver-7.ver-3.v2-2.v3.d3-bar .delta3:not(.is-open) .delta3-head {
+  position: static; order: 3; display: flex; align-items: center; gap: var(--space-8);
+  width: auto; height: 0; padding: 0 var(--space-8); overflow: hidden; opacity: 0;
+}
+:root[data-theme][data-delta][data-glow] body.ver-7.ver-3.v2-2.v3.d3-bar .delta3:not(.is-open):is(:hover, :focus-within) .delta3-head { height: 40px; padding: var(--space-8); opacity: 1; }
+:root[data-theme][data-delta][data-glow] body.ver-7.ver-3.v2-2.v3.d3-bar .delta3 .delta3-plus {
+  flex: 1 1 auto; width: auto; height: 24px;
+  border: var(--border-width-thin) solid rgb(255 255 255 / 18%); border-radius: var(--radius-pill);
+  background-color: rgb(255 255 255 / 10%); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+}
+:root[data-theme][data-delta][data-glow] body.ver-7.ver-3.v2-2.v3.d3-bar .delta3 .delta3-plus:hover { background-color: rgb(255 255 255 / 18%); }
+:root[data-theme="light"][data-delta][data-glow] body.ver-7.ver-3.v2-2.v3.d3-bar .delta3 .delta3-plus { border-color: rgb(0 0 0 / 8%); background-color: rgb(255 255 255 / 45%); }
+:root[data-theme="light"][data-delta][data-glow] body.ver-7.ver-3.v2-2.v3.d3-bar .delta3 .delta3-plus:hover { background-color: rgb(255 255 255 / 70%); }
+body.ver-7.ver-3.v2-2.v3.d3-bar .delta3 .delta3-plus .i { display: none; }
+body.ver-7.ver-3.v2-2.v3.d3-bar .delta3:not(.is-open) .delta3-plus-label { display: inline; }
+
+/* [11/12 v7 디자이너] 누를 수 있는 자리(번호 핀 · 설비 · 계단) 위에서는 손가락 — 11/06 지도 끌기 손(grab, v6.css)이 우선순위로 덮어 늘 끌기 손만 보였다 */
+body.ver-7 .map-canvas.is-picking:not(.is-turning):not(.is-panning) { cursor: pointer; }
+
+/* [11/12 디자이너] 웨이포인트 목록(지도) 칸 위 두 둥근 모서리 바깥이 비어 보이던 것 — 머리(bg/raised) 아래로 패널 바탕(어두운 면)이 비쳤다.
+ *   머리 밑에 높이 8(칸 반지름) 조각을 달고 두 모서리의 둥근 바깥만 남겨(mask) 머리 색으로 채운다.
+ *   칸 전체 뒤에 깔면 칸이 반투명이라 위 8 이 밝게 비친다(같은 날 고친 겹침과 같은 얼룩) — 그래서 모서리만. 접힘은 칸이 없어 뺀다 */
+body.ver-7 .rr-wp-head { position: relative; }
+body.ver-7 .rr-wp-head::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 8px; background-color: var(--bg-raised); pointer-events: none;
+  -webkit-mask: radial-gradient(circle at 100% 100%, transparent 7.5px, #000 8px) left top / 8px 8px no-repeat, radial-gradient(circle at 0 100%, transparent 7.5px, #000 8px) right top / 8px 8px no-repeat;
+          mask: radial-gradient(circle at 100% 100%, transparent 7.5px, #000 8px) left top / 8px 8px no-repeat, radial-gradient(circle at 0 100%, transparent 7.5px, #000 8px) right top / 8px 8px no-repeat; }
+body.ver-7.rr-wp-closed .rr-wp-head::after { display: none; }
+
+/* [11/12 디자이너] 카운팅 — 미션 탭을 바꿀 때 진행 % · 웨이포인트 수(7/20)를 0 에서 세어 올리고 막대도 0 에서 차오른다(count-up-v7.js).
+ *   글자는 진짜 값 그대로 — 진짜 숫자만 칸(.cu-raw)으로 감싸 투명하게 두고, 그 칸 안에 겹친 카운터(::before)가 --cu-n 을 0.6초 동안 옮겨 가며 보인다(아래 11/13) */
+@property --cu-n { syntax: "<integer>"; inherits: false; initial-value: 0; }
+body.ver-7 .is-counting { counter-reset: cu var(--cu-n); transition: --cu-n 600ms cubic-bezier(.22, .61, .36, 1); }
+
+body.ver-7 .rc-box .progress-meta { position: relative; z-index: 1; margin-top: calc(var(--space-8) * -1); }   /* 글 칸이 진행 막대(17) 아래 8 을 덮어 보이는 막대 9 */
+body.ver-7 .rc-box .progress-meta { border-top-left-radius: 0; border-top-right-radius: 0; -webkit-mask: var(--ds-chamfer-mask); mask: var(--ds-chamfer-mask); }   /* 진행 막대 위 글 칸: 막대와 같은 깎은 모서리(공통 CSS 진행 막대 절 --ds-chamfer-mask) */
+
+/* [11/13 디자이너] 세는 동안 % 가 4 위로 떴다 내려오던 것 — 글자 크기 0 · flex · 위에 덮는 층처럼 줄을 바꾸거나 따로 그리는 방식은 기준선이 어긋났다.
+ *   진짜 숫자만 인라인 블록 칸(.cu-raw, count-up-v7.js 가 세는 동안만 감싼다 — 글자는 그대로라 Delta 답 · 팝오버가 읽는 값도 그대로)으로 감싸 투명하게,
+ *   카운터는 그 칸 안에 겹친다 — 같은 칸 · 같은 글자 · 같은 줄 높이라 기준선이 같을 수밖에 없다. 오른쪽 맞춤이라 % 숫자는 단위에 붙어 자란다 */
+body.ver-7 .is-counting .cu-raw { display: inline-block; position: relative; color: transparent; }
+body.ver-7 .is-counting .cu-raw::before { position: absolute; top: 0; color: var(--text-primary); white-space: nowrap; }
+body.ver-7 .rc-box .progress-percent.is-counting .cu-raw::before { right: 0; content: counter(cu); }
+body.ver-7 .rr-wp-head .rr-wp-n.is-counting .cu-raw::before { left: 0; content: counter(cu) "/" attr(data-cu-total); }
+
+/* [11/13 디자이너] v7 관제 글자 위계 정리(1920 실측 검토 뒤) — 목록 이름 14 / 단추 · 라벨 13 / 보조 12, 굵기 800 은 상단 탭 · 지금 웨이포인트만
+ *   ① 로봇 정보: 라벨(Mission · Battery · Signal) 13/500 이 값(12/400)보다 컸다 — 라벨 12/400 text/tertiary, 값 13/500(배지는 상태색 그대로 · 나머지 text/primary)
+ *   ② 조치 필요 알림 · 조치 요청된 알림 제목 13 → 14/20 — 우측 웨이포인트 카드 이름(14/500)과 같은 단계. 시간 · 위치(12)는 그대로
+ *   ③ 정렬 단추 [오래된 순 ⇅] 12/400 → 13/500 — 같은 머리줄 [알림 센터 ›]와 같은 크기
+ *   ④ 지도 2D/3D 14/800 → 13/500 — 같은 도구 기둥의 층 B3/B4 · [지도 | 목록]과 같은 꼴(칸 높이는 그대로 20)
+ *   ⑤ 우측 머리 "Robot 01" 14/800 → 14/700 — 800 이 아래 칸 제목(16/700)과 맞먹었다 */
+body.ver-7 .robot-strip.is-carousel .robot-row > span:first-child { font-size: var(--font-size-12); line-height: var(--font-line-height-18); font-weight: var(--font-weight-regular, 400); color: var(--text-tertiary); }
+body.ver-7 .robot-strip.is-carousel .robot-row > .badge,
+body.ver-7 .robot-strip.is-carousel .robot-row .battery > .t-caption { font-size: var(--font-size-13); line-height: var(--font-line-height-18); font-weight: var(--font-weight-medium, 500); }
+body.ver-7 .robot-strip.is-carousel .robot-row .battery > .t-caption { color: var(--text-primary); }
+body.ver-7 .ah-item .ah-title,
+body.ver-7 .done-item .done-title { font-size: var(--font-size-14); line-height: var(--font-line-height-20); }
+body.ver-7 .context-panel .ah-sort-btn { font-size: var(--font-size-13); line-height: var(--font-line-height-18); font-weight: var(--font-weight-medium, 500); }
+body.ver-7 .map-dim .map-dim-txt { font-size: var(--font-size-13); font-weight: var(--font-weight-medium, 500); }
+body.ver-7 .robot-list .robot-counts .robot-head-name { font-weight: var(--font-weight-bold); }
+
+/* ==================================================================
+ * [11/13 디자이너 · 아티팩트 "Spacing_디자인시스템_v7 — 여백 정리"(11/12 실측)] 단계에 없는 여백 31곳을 가까운 단계로
+ *   단계 = 2 · 4 · 8 · 12 · 16 · 20 · 24 · 32 · 40 · 48 · 64 그대로(6 · 10 은 단계에 넣지 않는다)
+ *   갭 6 → 4(한 줄에 붙은 점 · 아이콘 + 글자, 높이 20 이하) 또는 8(떨어진 것들의 묶음) · 갭 10 → 8 · 패딩 5 → 4 · 6 → 8 · 10 → 12 · 14 → 16
+ *   그대로 두는 값(테두리 1 보정 5 · 11 · 15 · 19, 보고서 종이 안 1 · 7 · 56, 자리 비움 36 · 117, 미세 보정 1 · 3, 겹침 음수 마진)은 건드리지 않는다.
+ *   공용 CSS(alert-center · v6 · v3 · app-shell)는 v6 · 영문판도 써서 v7 에서만 덮는다
+ * ================================================================== */
+/* 갭 6 → 4 */
+:root body.ver-7 .ac-delta-mark,                        /* 알림 판정 표시 · 알림센터 */
+:root body.ver-7 .ac-c-place,                           /* 알림 위치 줄 · 알림센터 */
+:root body.ver-7 .rr-st,                                /* 로봇 상태 줄 · 관제 */
+:root body.ver-7 .sf .hi .t,                            /* 안전진단 강조 줄 제목 */
+:root body.ver-7 .ac-d-meta-row > dd,                   /* 알림 상세 정보 값(가로) · 알림센터 */
+:root body.ver-7 .sfx-rl,                               /* 안전진단 지점 줄 표시 */
+:root body.ver-7 .ac-handover-mark { gap: var(--space-4); }   /* 인계 표시 · 알림센터 */
+/* 갭 6 → 8 */
+:root body.ver-7 .sb-tab:not([data-mission]),           /* 미션 탭(전체 미션) — 미션 번호 탭은 이미 4(위 11/10 규칙) */
+:root body.ver-7 .ac-handover-list,                     /* 인계 목록 · 알림센터 */
+:root body.ver-7 .ac-chips,                             /* 알림 칩 줄 · 알림센터 */
+:root body.ver-7 .ac-info,                              /* 알림 정보 묶음 · 알림센터 */
+:root body.ver-7 .ma-v3 .ma-snap > .ma-stamp.ma-stamp6 { gap: var(--space-8); }   /* 알림 카드 사진 시각 · 관제 */
+/* 갭 10 → 8 */
+:root body.ver-7 .done-head,                            /* 처리 완료 머리 · 관제 */
+:root body.ver-7 .ac-tab,                               /* 알림센터 탭 */
+:root body.ver-7 .ac-detail-head { gap: var(--space-8); }   /* 알림 상세 머리 · 알림센터 */
+/* 패딩 5 → 4 (위아래) */
+:root body.ver-7 .ac-date-row { padding-top: var(--space-4); padding-bottom: var(--space-4); }    /* 알림 날짜 줄 */
+:root body.ver-7 .ac-chip-done { padding-top: var(--space-4); padding-bottom: var(--space-4); }   /* 처리 완료 칩 */
+/* 패딩 6 → 8 */
+:root body.ver-7 .signal-chip { height: 28px; padding-top: 0; padding-bottom: 0; }   /* 상단 신호 칩 — 옆 계정 · 테마 칩과 같은 높이 28(11/13 디자이너). 위아래 여백 대신 칩의 가운데 정렬(flex)로 막대를 세운다 — 7 같은 단계 밖 값을 쓰지 않는다 */
+:root body.ver-7 .ac-col-head { padding-top: var(--space-8); padding-bottom: var(--space-8); }   /* 알림 목록 머리줄 · 알림센터(왼쪽 19 = 테두리 보정, 그대로) */
+/* 패딩 6 → 8(오른쪽) · 10 → 12(왼쪽) — 조치 체크 줄 · 알림센터 · 안전진단 */
+:root body.ver-7 .ac-dl .ma-check { padding-right: var(--space-8); padding-left: var(--space-12); }
+/* 패딩 10 → 12 */
+:root body.ver-7 .ah-body .ah-sec { padding-top: var(--space-12); }                 /* 알림 목록 구역 위 · 관제(11/12 의 10) */
+:root body.ver-7 .rr-wp-head { padding-bottom: var(--space-12); }                  /* 경로(웨이포인트) 패널 머리 아래 · 관제(11/12 의 10) */
+:root body.ver-7.rr-wp-closed .rr-wp-head { padding-bottom: var(--space-8); }      /* 접힘은 그대로 8 */
+:root body.ver-7 .rp-toc .rp-th { padding-bottom: var(--space-12); }               /* 보고서 목차 머리 아래 */
+:root body.ver-7 .ac-memo-box { padding-top: var(--space-12); padding-bottom: var(--space-12); }   /* 알림센터 메모 칸 */
+:root[data-theme] body.ver-7.ver-3.v2-2.v3 .delta3 .delta3-name { padding-top: var(--space-12); }   /* Delta 이름 줄 위(접힘 · 펼침) */
+:root[data-theme] body.ver-7.ver-3.v2-2.v3 .delta3.is-open .delta3-name { padding-bottom: var(--space-12); }   /* Delta 이름 줄 아래(펼침, 위 11/11 의 10) */
+/* 패딩 14 → 16 */
+:root body.ver-7 .rp-dh { padding-top: var(--space-16); }                          /* 보고서 본문 머리 위 */
+/* [11/13 여백 정리 V2 — 재측정] 같은 규칙인데 위 묶음에서 빠졌던 3곳 */
+:root body.ver-7 .ac-dc-sev { gap: var(--space-4); }                                  /* 갭 6 → 4 · 알림 판정 표시(처리 완료 탭) · 알림센터 */
+:root body.ver-7 .sf .dl.is-light-scope .c1x { padding-right: var(--space-8); padding-left: var(--space-12); }   /* 패딩 6 → 8 · 10 → 12 · 조치 체크 줄 · 안전진단 상세 */
+
+/* [11/13 디자이너] 핀 목(원 ↔ 막대 곡선)이 지도를 확대하면 계단처럼 보이던 것 — 원형 그라데이션 마스크의 딱딱한 경계(0.5px)는 커질수록 픽셀이 드러난다.
+ *   같은 모양(폭 8 · 높이 4 상자에서 양옆을 가로 2.875 · 세로 4 타원으로 깎아 막대 굵기 2.25 까지 좁힘)을 SVG 경로 마스크로 — 벡터라 배율과 상관없이 매끄럽다 */
+body.ver-7 .rr-pin .rr-pin-head::before {
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 4' preserveAspectRatio='none'%3E%3Cpath d='M0 0H8A2.875 4 0 0 0 5.125 4H2.875A2.875 4 0 0 0 0 0Z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 4' preserveAspectRatio='none'%3E%3Cpath d='M0 0H8A2.875 4 0 0 0 5.125 4H2.875A2.875 4 0 0 0 0 0Z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+}
+/*   막대도 원 · 목과 같은 100%(route-rules.css 막대 .85) — 목(100%)과 막대(85%) 사이에 색이 끊긴 네모 경계가 보였다. 목만 .85 로 내리면 둘이 겹친 자리가 진해져 둘 다 100% 로 */
+body.ver-7 .rr-pin::before { opacity: 1; }
+
+/* [11/13 디자이너 · Figma UI_00 1736:14747] 웨이포인트 상자 — 라인 색 · 위쪽 그라데이션
+ *   ① 상자(머리 + 목록) 테 border/strong 1(안쪽) · 모서리 8 · 그림자 0 1 2 (23,23,25 / 6%) + 0 4 10 (23,23,25 / 10%) · 안을 자른다(Figma clip)
+ *   ② 머리 바탕 = 위 끝 bg/selected → 4.2(머리 84 의 5%) 에서 bg/raised — 위 테두리 안쪽으로 빛 띠. 모서리는 상자가 자른다
+ *   ③ 목록 · 지도 칸 테 border/divider 2(안쪽) + 위쪽 안쪽 그림자 0 10 8 검정 25% — 머리 밑으로 들어간 우물처럼 */
+body.ver-7 .right-panel .panel-card.is-fill {
+  border-radius: 8px; overflow: hidden;   /* [11/13 디자이너] 테(border/strong 1)는 되돌림 — 그림자 · 자르기만 */
+  box-shadow: 0 1px 2px rgb(23 23 25 / 6%), 0 4px 10px rgb(23 23 25 / 10%);
+}
+body.ver-7 .rr-wp-head,
+body.ver-7.rr-wp-closed .rr-wp-head { border-radius: 0; background: linear-gradient(to bottom, var(--bg-selected) 0, var(--bg-raised) 4.2px); }
+body.ver-7 .right-panel .rr-wp-head + .timeline,
+body.ver-7 .rr-wp-mini { box-shadow: inset 0 10px 8px rgb(0 0 0 / 25%); }   /* [11/13 디자이너] 테는 예전 border/divider 1 그대로(2 로 굵혔던 것 되돌림) */
+/* [11/13 여백 정리 — Delta 답변 카드(조치 제안), 화면 규칙대로 코드만] 갭 6 → 4(한 줄) 또는 8(묶음), 갭 10 → 8, 패딩 10 → 12, 14 → 16
+ *   Figma DELTA Suggestion 컴포넌트는 나중 순서. 펼친 카드 바깥 마진 6, 미세 보정 1 과 3 은 규칙 밖이라 그대로 */
+:root body.ver-6.ver-7 .delta3 .dc-msg.dc6 { gap: var(--space-8); }                 /* Delta 답변 묶음 10 → 8 */
+:root body.ver-6.ver-7 .dc-msg.dc6 .dc6-need { gap: var(--space-4); }               /* 필요한 조치 줄 6 → 4 */
+:root body.ver-6.ver-7 .dc6-btn { padding-left: var(--space-16); padding-right: var(--space-16); }   /* 조치 제안 버튼 14 → 16 */
+:root body.ver-6.ver-7 .dc6-row { padding-top: var(--space-12); padding-bottom: var(--space-12); gap: var(--space-8); }   /* 다음 확인 항목 줄 패딩 10 → 12, 갭 10 → 8 */
+:root body.ver-6.ver-7 .dc6-row-t { gap: var(--space-4); }                          /* 다음 확인 항목 제목 6 → 4 */
+:root body.ver-6.ver-7 .dc6-sugg { gap: var(--space-8); }                           /* 추천 질문 구역 6 → 8 */
+:root body.ver-6.ver-7 .dc6-qs { gap: var(--space-8); }                             /* 추천 질문 줄 6 → 8 */
+:root body.ver-6.ver-7 .dc6-q { padding-left: var(--space-12); padding-right: var(--space-12); }   /* 추천 질문 칩 10 → 12 */
+/* [11/13 여백 4의 배수로 통일] 남은 단계 밖 값(1, 3, 5, 6, 11, 15, 19, -3)을 4의 배수로. v7 에서만
+ *   예외: 2px 은 보류, 보고서 종이 안쪽(7, 56, 1)은 그대로, 보고서 목차와 쪽 영역 위 119 는 머리 높이에서 나온 배치 값 */
+:root body.ver-6.ver-7 .delta3 .dl-wp { padding-top: 0; }                                         /* Delta 지점 번호 1 → 0 */
+:root body.ver-6.ver-7 [data-timeline] .timeline-item:not(:first-child) .rail-stub { margin-top: calc(-1 * var(--border-width-thin)); }   /* 타임라인 선 잇기: 선 두께만큼 겹침, 숫자 대신 선 두께 토큰 */
+:root body.ver-7 .ac-col-head, :root body.ver-7 .ac-row, :root body.ver-7 .ac-handover { padding-left: var(--space-20); }   /* 알림센터 목록 머리줄, 줄, 인계 상자 왼쪽 19 → 20 */
+:root body.ver-7 .sf .hd { padding-bottom: var(--space-12); }                                   /* 안전진단 머리 아래 11 → 12 */
+:root body.ver-7 .sf .mhead { padding-bottom: var(--space-16); }                                /* 안전진단 표 머리 아래 15 → 16 */
+:root:root[data-theme="light"][data-delta][data-glow] body.ver-6.ver-7.v2-2.v3 .delta3.is-open .delta3-card { margin-right: var(--space-8); margin-bottom: var(--space-8); margin-left: var(--space-8); }   /* 펼친 Delta 카드 바깥 6 → 8 */
+:root body.ver-6.ver-7 .dc6-row-x { gap: 0; }                                                     /* 다음 확인 항목 화살표 1 → 0 */
+:root body.ver-6.ver-7 .dc6-q { padding-top: var(--space-4); padding-bottom: var(--space-4); }   /* 추천 질문 칩 위아래 3 → 4 */
+/* ==================================================================
+ * [11/13 디자이너 · 아티팩트 "Rounding_디자인시스템_v7 — 라운딩 정리"(11/12 실측)] 모서리 값을 다섯 단계로
+ *   단계 = 0 · 2 · 4 · 8 · 완전 둥글게(pill). 6 · 10 · 12 · 16 · 18 과 직접 쓴 999px · 50% 를 없앤다
+ *   6 → 4(패널 안 묶음 · 사진 · 메모 칸), Delta 창만 8 · 12 · 10 → 8(알림 상세 패널 · 지도 위 카드 · 말풍선) · 16 · 18 → 8(Delta 말풍선)
+ *   4 → 2 는 꼬리표 · 체크박스 · 배터리 막대만(버튼 · 카드는 4 그대로) · 999px · 50% → pill(모양은 같다)
+ *   v7.css 안의 값(지도 알림 카드 10, Delta 말풍선 16 · 18, 원 50%)은 제자리에서 고쳤다
+ *   공용 CSS(app-shell · monitor · alert-center · safety · v6 · route-rules)는 v6 · 영문판도 써서 v7 에서만 덮는다
+ *   뺀 것: 지도 그림(로봇 점 · 핀), 시뮬레이션 조작 막대(.rsim), CSS 로 그린 아이콘(배터리)
+ * ================================================================== */
+:root body.ver-7 { --radius-tag: var(--radius-2); }     /* 꼬리표 · 체크박스 모서리 2 — Figma 정리 때 같은 이름으로 올린다 */
+/* 12 · 10 → 8 */
+:root body.ver-7 .ac-dl,                                 /* 알림 상세 패널 · 알림센터 */
+:root body.ver-7 .map-card,                              /* 지도 지점 카드 · 관제 */
+:root body.ver-7 .map-wp,                                /* 지도 지점 카드 · 관제 */
+:root body.ver-7 .map-bot-tip { border-radius: var(--radius-container); }   /* 지도 로봇 카드 · 관제 */
+:root body.ver-7 .map-card .map-card-head,
+:root body.ver-7 .map-wp .map-card-head,
+:root body.ver-7 .map-bot-tip .map-card-head { border-radius: var(--radius-container) var(--radius-container) 0 0; }   /* 지도 카드 머리 */
+:root body.ver-7 .dc-msg.is-me { border-radius: var(--radius-container) var(--radius-container) var(--radius-card) var(--radius-container); }   /* Delta 내 질문 말풍선(12 12 4 12) */
+/* 6 → 8 — Delta 창(바깥 면) */
+:root[data-theme][data-delta][data-glow] body.ver-7.ver-6.v2-2.v3 .delta3.is-open .delta3-card { border-radius: var(--radius-container); }
+/* 6 → 4 */
+:root body.ver-7 .ac-d-snap,                             /* 알림 상세 사진 · 알림센터 */
+:root body.ver-7 .ac-dl .ma-checks,                      /* 조치 체크 묶음 · 알림센터 */
+:root body.ver-7 .ac-memo-box,                           /* 알림센터 메모 칸 */
+:root body.ver-7 .sf .dl.is-light-scope .cks,            /* 조치 체크 묶음 · 안전진단 */
+:root body.ver-7 .dc6-why,                               /* Delta 답변 근거 상자 */
+:root body.ver-7 .dc6-gap,                               /* Delta 답변 주의 상자 */
+:root body.ver-7 .dc6-recs li,                           /* Delta 추천 조치 줄 */
+:root body.ver-7 .dc6-act,                               /* Delta 조치 줄 */
+:root body.ver-7 .dc6-confirm { border-radius: var(--radius-card); }   /* Delta 확인 상자 */
+/* 4 → 2 — 꼬리표 · 체크박스 */
+:root body.ver-7 .floor-tag,                             /* 층 꼬리표 · 관제 · 알림센터 · 안전진단 */
+:root body.ver-7 .ma-check-tag,
+:root body.ver-7 .ac-dl .ma-check-tag,
+:root body.ver-7 .sf .ma-check-tag,                      /* 조치 꼬리표(AI 추천) */
+:root body.ver-7 .check-box,
+:root body.ver-7 .ma-check-box,
+:root body.ver-7 .ac-dl .ma-check-box,
+:root body.ver-7 .sf .c1x input[type="checkbox"] { border-radius: var(--radius-tag); }   /* 체크박스 */
+/* 4 → 2 — 배터리 막대 · 미션설정 */
+:root body.ver-7 .mp-bat-bar { border-radius: var(--radius-chart); }
+:root body.ver-7 .mp-bat-bar .rest { border-radius: var(--radius-chart) 0 0 var(--radius-chart); }
+/* 999px · 50% · 5(선 끝) → pill — 모양은 그대로 */
+:root body.ver-7 .dc6-btn,                               /* Delta 답변 버튼 */
+:root body.ver-7 .dc6-q,                                 /* Delta 질문 칩 */
+:root body.ver-7 .dc6-jump,                              /* Delta 아래로 가기 */
+:root body.ver-7 .map-card-tag,                          /* 지도 카드 꼬리표 */
+:root body.ver-7 .rail-dot,                              /* 타임라인 점 */
+:root body.ver-7 .mbt-pin,                               /* 지점 핀 */
+:root body.ver-7 .delta3 .dl-wp,                         /* Delta 지점 번호 */
+:root body.ver-7 .sf .hd .lvh .lvd,                      /* 안전진단 단계 점 */
+:root body.ver-7 .sfx-dot { border-radius: var(--radius-pill); }   /* 안전진단 지점 점 */
+:root body.ver-7 [data-timeline] .step-no { border-radius: var(--radius-pill) !important; }   /* 경로 지점 번호 — route-rules 의 50% !important 를 같은 세기로 덮는다(22 × 22 고정) */
+:root[data-theme] body.ver-7.ver-6.v2-2 [data-timeline] .timeline-item:first-child .rail-stub { border-radius: var(--radius-pill) var(--radius-pill) 0 0; }   /* 타임라인 세로선 위 끝(5 5 0 0, 폭 10) */
+:root[data-theme] body.ver-7.ver-6.v2-2 [data-timeline] .timeline-item:last-child .rail-line { border-radius: 0 0 var(--radius-pill) var(--radius-pill); }   /* 타임라인 세로선 아래 끝 */
+
+/* ================= [11/13 디자이너] 챗봇형 팝오버 덩어리 = 결과 → 원인 → 조치(ma-insight-v7.js 2차) =================
+ *   덩어리 머리(.ma-grp-h) 셋이 같은 꼴 — 12/18 semibold secondary + 오른쪽 보조 글(tertiary). 덩어리 안 사이 6 · 덩어리 사이 16.
+ *   결과 · 원인 = 카드(bg/inset · 반경 6 · 안쪽 10 12), 조치 = 위 구분선(border/divider) 뒤 머리 + 권고 · 체크 · 메모(카드 없이 — 행동 칸)
+ *   예전 기준 줄(.ma-reason)은 결과 카드 칩으로 흡수 */
+body.ver-7.d3-chat .map-alert.ma-v3.has-ins .ma-reason { display: none; }
+body.ver-7.d3-chat .ma-ins { gap: var(--space-16); margin: var(--space-4) 0 0; }
+body.ver-7 .ma-grp { display: flex; flex-direction: column; gap: var(--space-8); min-height: 0; }
+body.ver-7 .ma-grp-h { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-8); margin: 0; color: var(--text-secondary); font-size: var(--font-size-12); line-height: var(--font-line-height-18); font-weight: var(--font-weight-semibold, 600); }
+body.ver-7 .ma-grp-sub { color: var(--text-tertiary); font-weight: 400; }
+body.ver-7 .ma-grp-sub:empty { display: none; }
+body.ver-7 .ma-ins-card { display: flex; flex-direction: column; gap: var(--space-8); min-height: 0; padding: var(--space-12) var(--space-12); border-radius: 6px; background-color: var(--bg-inset); }
+/* ① 결과 — 값 줄 + 칩 + 그래프(남는 높이) */
+body.ver-7 .ma-grp.is-result { flex: 1 1 auto; }
+body.ver-7 .ma-grp.is-result > .ma-ins-card { flex: 1 1 auto; }
+body.ver-7 .ma-grp.is-result.no-chart, body.ver-7 .ma-grp.is-result.no-chart > .ma-ins-card { flex: none; }
+body.ver-7 .ma-res-top { display: flex; align-items: center; justify-content: space-between; gap: var(--space-8); }
+body.ver-7 .ma-res-v { color: var(--status-critical-text); font-size: 22px; line-height: 28px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.2px; }
+body.ver-7 .ma-ins[data-sev="warning"] .ma-res-v { color: var(--status-warning-text); }
+body.ver-7 .ma-res-v small { margin-left: var(--space-2); font-size: var(--font-size-13); font-weight: 600; color: var(--text-secondary); }
+body.ver-7 .ma-res-chip { flex: none; padding: var(--space-2) var(--space-8); border-radius: 999px; background-color: color-mix(in srgb, var(--status-critical-icon) 16%, transparent); color: var(--status-critical-text); font-size: var(--font-size-12); line-height: var(--font-line-height-18); font-weight: 600; font-variant-numeric: tabular-nums; }
+body.ver-7 .ma-ins[data-sev="warning"] .ma-res-chip { background-color: color-mix(in srgb, var(--status-warning-icon) 16%, transparent); color: var(--status-warning-text); }
+body.ver-7 .ma-res-chip[hidden] { display: none; }
+body.ver-7 .ma-grp.is-result .ma-ins-chart { position: relative; flex: 1 1 auto; min-height: 72px; max-height: 200px; }
+body.ver-7 .ma-grp.is-result.no-chart .ma-ins-chart { display: none; }
+body.ver-7 .ma-ins-zone.is-critical { fill: color-mix(in srgb, var(--status-critical-icon) 7%, transparent); }
+body.ver-7 .ma-ins-zone.is-warning { fill: color-mix(in srgb, var(--status-warning-icon) 7%, transparent); }
+body.ver-7 .ma-ins-grid { stroke: var(--border-divider); stroke-width: 1; }
+body.ver-7 .ma-ins-std.is-critical { stroke: color-mix(in srgb, var(--status-critical-icon) 70%, transparent); stroke-width: 1; stroke-dasharray: 4 3; }
+body.ver-7 .ma-ins-std.is-warning { stroke: color-mix(in srgb, var(--status-warning-icon) 70%, transparent); stroke-width: 1; stroke-dasharray: 4 3; }
+body.ver-7 .ma-ins-stdt { font-size: 10px; font-weight: 600; font-variant-numeric: tabular-nums; }
+body.ver-7 .ma-ins-stdt.is-critical { fill: var(--status-critical-text); }
+body.ver-7 .ma-ins-stdt.is-warning { fill: var(--status-warning-text); }
+body.ver-7 .ma-ins-f0 { stop-color: var(--text-secondary); stop-opacity: .22; }
+body.ver-7 .ma-ins-f1 { stop-color: var(--text-secondary); stop-opacity: 0; }
+body.ver-7 .ma-ins-area { fill: url(#maInsFill); }
+body.ver-7 .ma-ins-line { stroke: var(--text-secondary); stroke-width: 1.75; }
+body.ver-7 .ma-ins-pt { fill: var(--bg-inset); }
+body.ver-7 .ma-ins-pt.is-last { stroke-width: 2; }
+body.ver-7 .ma-ins-lastv { font-size: 11px; font-weight: 800; font-variant-numeric: tabular-nums; }
+body.ver-7 .ma-ins-lastv.is-critical { fill: var(--status-critical-text); }
+body.ver-7 .ma-ins-lastv.is-warning { fill: var(--status-warning-text); }
+body.ver-7 .ma-ins-t { fill: var(--text-tertiary); font-size: 10px; font-variant-numeric: tabular-nums; }
+body.ver-7 .ma-ins-t.is-last { fill: var(--text-secondary); font-weight: 600; }
+/* ② 원인 — 순위 · 이름 · 가능성 막대, 1순위 강조 + 먼저 볼 것 */
+body.ver-7 .ma-grp.is-cause { flex: none; }
+body.ver-7 .ma-cause { display: flex; flex-direction: column; gap: var(--space-8); margin: 0; padding: 0; list-style: none; }
+body.ver-7 .ma-cause > li { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; grid-template-rows: auto 3px; column-gap: var(--space-8); row-gap: var(--space-4); align-items: center; }
+body.ver-7 .ma-cause-n { grid-row: 1 / span 2; align-self: start; display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background-color: rgb(255 255 255 / 8%); color: var(--text-secondary); font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; }
+body.ver-7 .ma-cause-t { color: var(--text-secondary); font-size: var(--font-size-13); line-height: var(--font-line-height-18); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body.ver-7 .ma-cause-p { color: var(--text-tertiary); font-size: var(--font-size-12); line-height: var(--font-line-height-18); font-variant-numeric: tabular-nums; }
+body.ver-7 .ma-cause-bar { grid-column: 2 / span 2; height: 3px; border-radius: 2px; background-color: rgb(255 255 255 / 7%); overflow: hidden; }
+body.ver-7 .ma-cause-bar > i { display: block; height: 100%; border-radius: inherit; background-color: var(--text-tertiary); }
+body.ver-7 .ma-cause > li.is-top .ma-cause-n { background-color: var(--text-primary); color: var(--bg-inset); }
+body.ver-7 .ma-cause > li.is-top .ma-cause-t { color: var(--text-primary); font-weight: 700; }
+body.ver-7 .ma-cause > li.is-top .ma-cause-p { color: var(--text-secondary); font-weight: 600; }
+body.ver-7 .ma-cause > li.is-top .ma-cause-bar > i { background-color: var(--text-secondary); }
+body.ver-7 .ma-first { display: flex; gap: var(--space-8); margin: var(--space-2) 0 0; padding-top: var(--space-8); border-top: 1px solid var(--border-divider); color: var(--text-secondary); font-size: var(--font-size-12); line-height: var(--font-line-height-18); }
+body.ver-7 .ma-first > b { flex: none; color: var(--text-primary); font-weight: 700; }
+body.ver-7 .ma-first[hidden] { display: none; }
+/* ③ 조치 — 구분선 뒤 머리. 판단(위) → 행동(아래) 경계 */
+body.ver-7.d3-chat .map-alert.ma-v3 .ma-grp-h.is-act { flex: none; margin-top: var(--space-16); padding-top: var(--space-12); border-top: 1px solid var(--border-divider); }
+body.ver-7.d3-chat .map-alert.ma-v3.is-requested .ma-grp-h.is-act { display: none; }
+/* 그래프가 없는 알림(안전감지) — 사진이 결과의 근거라 남는 높이를 사진이 갖는다(결과 · 원인 카드는 내용만큼). 1순위 번호 글자는 진하게 */
+body.ver-7.d3-chat .map-alert.ma-v3.ins-nochart:not(.is-docked):not(.is-requested):not(.is-folded) .ma-snap { flex: 1 1 auto; height: auto; min-height: 187px; }
+body.ver-7.d3-chat .map-alert.ma-v3.ins-nochart .ma-ins { flex: none; }
+body.ver-7 .ma-cause > li.is-top .ma-cause-n { color: #0A0F18; }
+body.ver-7.d3-chat .map-alert.ma-v3.ins-nochart:not(.is-docked):not(.is-requested):not(.is-folded) > .ma-lower { flex: 0 0 auto; }
+
+/* [11/13 디자이너] 결과 칸은 늘 접힌 높이 — 그래프 72 고정(남는 높이로 늘지 않는다). 남는 높이는 사진(최소 187)이 갖는다.
+ *   좁은 화면에서 결과 카드가 눌려 그래프 시각 글자가 아래 "원인" 머리와 겹쳤다 → 그래프 · 덩어리를 줄지 않게(flex none) */
+body.ver-7.d3-chat .map-alert.ma-v3.has-ins:not(.is-docked):not(.is-requested):not(.is-folded) .ma-snap { flex: 1 1 auto; height: auto; min-height: 187px; }
+body.ver-7.d3-chat .map-alert.ma-v3.has-ins:not(.is-docked):not(.is-requested):not(.is-folded) > .ma-lower { flex: 0 0 auto; }
+body.ver-7.d3-chat .map-alert.ma-v3.has-ins .ma-ins { flex: none; overflow: visible; }
+body.ver-7.d3-chat .ma-grp.is-result, body.ver-7.d3-chat .ma-grp.is-result > .ma-ins-card { flex: none; }
+body.ver-7.d3-chat .ma-grp.is-result .ma-ins-chart { flex: none; height: 72px; min-height: 72px; max-height: 72px; }
+/* 낮은 화면 — 사진이 먼저 줄고(최소 96), 그래도 모자라면 결과 · 원인 칸이 안에서 스크롤(그래프는 접힌 72 그대로 · 조치 · 단추는 늘 보인다) */
+body.ver-7.d3-chat .map-alert.ma-v3.has-ins:not(.is-docked):not(.is-requested):not(.is-folded) .ma-snap { min-height: 96px; flex-shrink: 1; }
+body.ver-7.d3-chat .map-alert.ma-v3.has-ins:not(.is-docked):not(.is-requested):not(.is-folded) > .ma-lower { min-height: 0; max-height: calc(100% - 42px - 96px); }
+body.ver-7.d3-chat .map-alert.ma-v3.has-ins:not(.is-docked):not(.is-requested):not(.is-folded) .ma-lower-in { min-height: 0; }
+body.ver-7.d3-chat .map-alert.ma-v3.has-ins .ma-ins { flex: 0 1 auto; min-height: 0; overflow-y: auto; }
+/* [11/17 여백 정리] 공용 CSS(monitor, app-shell)의 6, 10 중 v7 화면에 실제로 적용되는 곳(관제 숨은 요소). 공용 파일은 v6 때문에 그대로, v7 에서만 덮음 */
+:root body.v2-2.ver-7 .map-wp-time { margin-top: calc(var(--space-4) * -1); }                       /* 지도 지점 시각 -6 → -4 */
+:root body.v2-2.ver-7 .map-wp-more { padding-top: var(--space-12); }                                /* 지도 지점 더보기 버튼 위 10 → 12 */
+:root body.ver-7 .ma-meta-row > dd { column-gap: var(--space-4); }                                  /* 지도 카드 정보 줄(번호와 이름 사이) 6 → 4 */
+:root body.v2-2.ver-7 .map-card-rows { gap: var(--space-8); }                                       /* 지도 카드 줄 묶음 6 → 8 */
+:root body.ver-7 .rd-cam { padding-left: var(--space-12); padding-right: var(--space-12); }        /* 로봇 상세 카메라 좌우 10 → 12 */
+
+/* ========== [11/18] 칩과 버튼 정리 (저장소 루트 CLAUDE.md "칩과 버튼", 칩과 버튼 종류 아티팩트 https://claude.ai/artifact/3wVW7MFis2uDw3CmSuhdHK)
+ * 공용 CSS는 건드리지 않고 v7에서만 덮는다. 여백, 간격, 모서리, 글자는 tokens.css의 토큰만 쓴다. 높이는 토큰이 없어 숫자로 둔다.
+ * ========== */
+
+/* ---------- 칩 Status, Small 22 ---------- */
+/* 공통 CSS 클래스(.ds-badge, .ds-floor)를 쓰는 것은 빼고, 아직 예전 클래스만 쓰는 것에만 (11/19 4단계)
+ */
+body.ver-7 .badge:not(.badge-dot):not(.badge-mode):not(.badge-marker):not(.ds-badge):not(.ds-chip),
+body.ver-7 .tag-running:not(.ds-badge),
+body.ver-7 .verdict-chip:not(.ds-badge),
+body.ver-7 .ac-count-badge,
+body.ver-7 .ac-chip-done,
+body.ver-7 .ma-check-tag:not(.ds-badge),
+body.ver-7 .sfx-fl:not(.ds-floor) {
+  box-sizing: border-box !important; height: 22px !important; min-height: 22px !important;
+  padding: 0 var(--space-8) !important; font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-medium) !important;
+  align-items: center !important; gap: var(--space-4) !important;
+}
+
+/* 칩(거르기, 질문 고르기, 체크형)과 칩 모양 탭은 components-v7.css 의 .ds-chip, .ds-tab-chip 으로 옮김 (11/19) */
+
+/* 버튼 규칙은 components-v7.css "버튼"으로 옮김 (11/19) */
+
+/* 구간 전환 모양은 components-v7.css 의 .ds-seg 로 옮김 (11/19). 여기는 층 판 바깥 상자와 배치만 */
+body.ver-7 .map-tools-box.is-floors { background: transparent !important; box-shadow: none !important; border: 0 !important; padding: 0 !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+body.ver-7 .lyseg { display: inline-flex !important; }
+
+/* 버튼 규칙은 components-v7.css "버튼"으로 옮김 (11/19) */
+
+/* ---------- 칩과 칩 사이 4 ---------- */
+body.ver-7 .ac-head-badges, body.ver-7 .ac-chips { column-gap: var(--space-4) !important; gap: var(--space-4) !important; }   /* 거르기, 질문 칩 사이는 components-v7.css .ds-chips */
+body.ver-7 .ac-filter .ac-check + .ac-check { margin-left: calc(var(--space-4) * -1) !important; } /* 줄 간격 12에서 4를 빼 항목 사이 8, 눈에 보이는 거리 16 */
+
+/* ---------- 아이콘과 글자 사이: 칩과 버튼 22, 26은 4, 버튼 32, 40은 8. 2와 10은 없앰 ---------- */
+body.ver-7 .dc6-row { gap: var(--space-8) !important; }
+
+
+/* ---------- 간격 토큰 고르기 결과 (11/17) ---------- */
+body.ver-7 .sb-tab:not([data-mission]) { column-gap: var(--space-8) !important; gap: var(--space-8) !important; } /* 미션 탭 전체 미션 6 → --space-8 */
+body.ver-7 .ma-check:not(.z1) { padding-left: var(--space-8) !important; padding-right: var(--space-8) !important; } /* 조치 체크 줄 10/6 → --space-8 */
+
+/* ---------- 작은 점도 아이콘: 지름 6을 아이콘 상자 12 가운데에 둠 (앞뒤 3은 상자 안 여백, 간격 토큰이 아님) ---------- */
+body.ver-7 .badge-dot { margin-left: calc((12px - 6px) / 2) !important; margin-right: calc((12px - 6px) / 2) !important; }
+body.ver-7 .tag-running::before { margin-left: calc((12px - 6px) / 2) !important; margin-right: calc((12px - 6px) / 2) !important; }
+
+
+/* ---------- [11/18] 미션설정, 사전 점검 지도 도구를 관제와 같게: 조작 판과 층 판 둘 ----------
+ * 바깥 레일(.map-tools)은 면을 빼고, 조작 판에 원래 레일 면을 준다. 층 판(.map-tools-box.is-floors)은 위 관제 층 규칙을 그대로 받음 */
+:root[data-theme] body.ver-7.sian .map-tools { padding: 0; gap: var(--space-8); background: transparent; box-shadow: none; }
+:root[data-theme] body.ver-7.sian .map-tools > .map-tools-box:not(.is-floors) { display: flex; flex-direction: column; gap: var(--space-8); padding: var(--space-4); border-radius: var(--radius-container); background-color: var(--color-gray-800); }
+:root[data-theme="light"] body.ver-7.sian .map-tools > .map-tools-box:not(.is-floors) { background-color: color-mix(in srgb, var(--color-gray-100) 80%, transparent); }
+:root[data-theme] body.ver-7.sian .map-tools > .map-tools-box.is-floors { display: flex; flex-direction: column; }
+
+/* [11/20] 안전진단 감지 카드 오른쪽 아래 화살표(.more): 카드 전체가 누르는 곳이고 화살표는 그 표시 아이콘(버튼 아님). 면을 빼고 글자색 아이콘 16만 */
+body.ver-7 .sf .cx .kd .more { background-color: transparent !important; color: var(--text-secondary) !important; box-shadow: none !important; }
+body.ver-7 .sf .cx .kd:hover .more, body.ver-7 .sf .cx .kd:focus-visible .more { color: var(--text-primary) !important; }
+
+/* [11/20 정의서 공통-00 Q4] 화면이 없는 메뉴 = 비활성(개발 전) — v7.js 가 aria-disabled 를 붙인다 */
+body.ver-7 .menu-item[aria-disabled="true"] { opacity: 0.38; pointer-events: none; }
+
+/* [11/20 정의서 공통-00 Q3] 서버 연결 끊김 — 칩 앞에 위험 기호, 막대는 꺼진 칸 색(v7.js APRISM_NET) */
+body.ver-7 .signal-chip.is-down { gap: var(--space-4); color: var(--status-critical-icon); }
+body.ver-7 .signal-chip .net-sev { flex: none; color: var(--status-critical-icon); }
+/* [11/20 정의서 공통-00 Q8] 폭 1600 미만은 줄이지 않고 가로 스크롤 */
+@media (max-width: 1599px) {
+  html:has(body.ver-7) { overflow-x: auto; }
+  body.ver-7 { min-width: 1600px; }
+}
+
+/* [11/20] 알림센터 조치 요청된 알림 상세의 조치 내용은 공통 조치 목록(.ds-acts, 결과 상태)으로 옮김(components-v7.css) */
+
+/* [11/20] 알림센터 조치 요청된 알림: 이미 처리를 맡긴 일이라 신호색을 뺌(목록 패널은 신호색 하나만). 원 등급은 모양과 글자만 회색으로 남김
+ *   목록: 원 등급 태그 회색, 알림 이름 보통 굵기, 머리 건수 회색. 상세: 원 등급은 보통 판정 배지(색 그대로), 값과 판정 글자 기본 색 */
+body.ver-7 .ac-done-row .ds-badge:is(.is-crit, .is-warn) { color: var(--text-tertiary) !important; --ds-i-color: var(--text-tertiary); }
+body.ver-7 .ac-done-row .ac-dc-title { font-weight: var(--font-weight-regular); }
+body.ver-7 .ac-record .ac-d6-val, body.ver-7 .ac-record .ac-d6-vd { color: var(--text-primary) !important; }
+body.ver-7 .ac-head-badges.is-done-tab .ds-badge:is(.is-crit, .is-warn) { color: var(--text-tertiary) !important; --ds-i-color: var(--text-tertiary); }
+/* [11/20] 가운데점, 쉼표 대신 칸 나눔: 칸 사이 12. 원 등급과 발생은 두 칸 */
+body.ver-7 .ac-cells { display: inline-flex; align-items: center; gap: var(--space-12); min-width: 0; }
+body.ver-7 .ac-dc-act .ac-cells { display: inline; } body.ver-7 .ac-dc-act .ac-cells > span + span { margin-left: var(--space-12); }
+body.ver-7 .ac-dc-sev { width: 56px !important; gap: 0 !important; }
+body.ver-7 .ac-dc-occ { flex: none; width: 72px; color: var(--text-tertiary); white-space: nowrap; }
+
+/* [11/20 정의서 CM-06] 자동 로그아웃의 [로그아웃] = 보조 행동, 무채색 글자(색상 위계 3) — 주요 행동 [연장하기]만 파랑 */
+body.ver-7 [data-autologout-now] { color: var(--text-secondary); }
+body.ver-7 [data-autologout-now]:hover { color: var(--text-primary); }
+
+/* [11/20 정의서 CM-13] 관제사 교대 모달 — 계정 잠금 안내(로그인 화면 .login-alert 와 같은 꼴: 빨간 테두리만, 면 없음) */
+.v7m-alert { display: flex; gap: var(--space-12); align-items: flex-start; padding: var(--space-12) var(--space-16); border: var(--border-width-thin) solid var(--status-critical-border); border-radius: var(--radius-control); background-color: transparent; }
+.v7m-alert[hidden] { display: none; }
+.v7m-alert > .i { flex: none; --i: var(--ic-error); color: var(--status-critical-icon); }
+.v7m-alert-title { margin: 0 0 var(--space-4); color: var(--status-critical-text); font-size: 14px; font-weight: 700; line-height: 20px; }
+.v7m-alert-text { margin: 0; color: var(--text-secondary); font-size: 13px; line-height: 20px; word-break: keep-all; }
+.modal.is-shift .shift-go[aria-busy="true"] { cursor: progress; }
+
+/* [11/20 v7 디자이너] 안전진단 카드 시각 줄: 숫자만 있어 무엇인지 안 읽힘 → 앞에 "발생 시간" 이름표(흐린 글자), 시각은 한 단 진하게 */
+body.ver-7 .sf .cx .kd .tm { display: inline-flex; align-items: center; gap: var(--space-4); color: var(--text-secondary); }
+body.ver-7 .sf .cx .kd .tm-k { color: var(--text-tertiary); }
+
+/* [11/20 정의서 관제화면-01 Q5] 실행 로봇 — 대기 로봇만 고를 수 있다. 못 고르는 로봇은 흐리게, 이유는 오른쪽 */
+body.ver-7 .field-option[aria-disabled="true"] { display: flex; align-items: center; justify-content: space-between; gap: var(--space-8); color: var(--text-tertiary); cursor: not-allowed; pointer-events: none; }
+body.ver-7 .field-option[aria-disabled="true"] .field-option-why { color: var(--text-tertiary); font-size: 12px; }
+/* [11/23 디자이너] 실행 로봇 줄 · 칸 = 이름 | 상태 태그 + 배터리 (미션 모니터링 로봇 패널과 같은 부품) */
+body.ver-7 [data-mp-robot] .field-option { display: flex; align-items: center; gap: var(--space-12); }
+body.ver-7 [data-mp-robot] [data-select-value] { display: flex; flex: 1 1 auto; align-items: center; gap: var(--space-12); min-width: 0; }
+body.ver-7 [data-mp-robot] .field-option-name { flex: 1 1 auto; min-width: 0; }
+body.ver-7 [data-mp-robot] .field-option-meta { display: inline-flex; flex: none; align-items: center; gap: var(--space-12); }
+body.ver-7 [data-mp-robot] .field-option-meta .ds-badge { font-size: var(--font-size-12); }
+body.ver-7 [data-mp-robot] .field-option[aria-disabled="true"] .field-option-meta { opacity: 0.7; }
+
+/* [11/23 정의서 관제화면-02 Q1] 사전 점검 실패 줄 — 빨간 아이콘 · 실패 글, 아래 사유 한 줄 */
+body.ver-7 .precheck-row.is-failed .i { color: var(--status-critical-icon); }
+body.ver-7 .precheck-row.is-failed .meta { color: var(--status-critical-text); }
+body.ver-7 .precheck-why { padding: 0 var(--space-16) var(--space-12) var(--space-12); color: var(--status-critical-text); word-break: keep-all; border-bottom: var(--border-width-thin) solid var(--border-default); }
+/* [11/23 디자이너] 실패 줄과 사유를 한 덩이로 — 실패 줄 아래 선을 빼고 사유 아래에만, 사유는 아이콘 왼쪽 끝에 맞춤(줄 왼쪽 여백 12, 11/23 디자이너) */
+body.ver-7 .ds-list.is-divided > .precheck-row.is-failed { border-bottom: 0 !important; padding-bottom: var(--space-4) !important; }   /* 공통 목록 구분선(!important)보다 세게 */
+/* [11/23 디자이너] '점검 항목' 줄은 머리 — 아래 항목과 면 · 선으로 가름(지도 팝오버 머리와 같은 bg-raised) */
+body.ver-7 .precheck-head { background-color: var(--bg-raised); border-bottom: var(--border-width-thin) solid var(--border-default); }
+body.ver-7 .precheck-head .label { color: var(--text-secondary); font-weight: var(--font-weight-bold); letter-spacing: 0; }
+body.ver-7 .inline-notice[hidden], body.ver-7 .mp-actions .btn[hidden] { display: none; }
+
+/* [11/23 정의서 관제화면-01 Q3] 미션 설정 요약 고정 — 스크롤 밖으로 나와 [사전 점검 시작] 위에 선다 */
+body.ver-7 .mp-stage > .mp-summary { flex: none; margin: var(--space-8) 0 0; }
+/* [11/23 디자이너] 요약 글 좌우 = 머리 제목 자리(패널 안쪽 12: 판 여백 8 + 4). 아이콘 왼쪽 끝 · 값 오른쪽 끝이 머리 글과 같은 선 */
+body.ver-7 .mp-stage > .mp-summary .sum-row { padding-left: var(--space-4) !important; padding-right: 0 !important; }
+body.ver-7 .mp-stage > .mp-summary .mp-bat { padding-left: var(--space-4) !important; padding-right: var(--space-4) !important; }
+
+/* [11/23 디자이너] 미션 설정 · 사전 점검 머리 = 관제 왼쪽 패널 머리(조치 필요 알림 .ah-head)와 같은 자리.
+   관제 제목은 패널 왼쪽 12 · 위 18(본문 위 16 + 28 줄 안 가운데 2). 여기는 판 여백 8 이 이미 있어 머리 여백 왼쪽 4 · 위 18 */
+body.ver-7 .mp-stage > .mp-header { padding: 18px var(--space-4) var(--space-16); }
+
+/* [11/23 디자이너] 실행 로봇 목록 줄 사이 구분선 */
+body.ver-7 [data-mp-robot] .field-option + .field-option { border-top: var(--border-width-thin) solid var(--border-default); }
+body.ver-7 [data-mp-robot] .field-option { border-radius: 0; }
+
+/* [11/23 디자이너] 미션 설정 — 설정 칸을 관제 "조치 필요 알림" 목록 상자(.ah-box)처럼 어두운 바탕 한 덩이로 묶고,
+   바꿀 수 있는 칸(실행 로봇 · 점검항목)만 패널 색으로 띄운다. 읽기 전용(미션 이름 · 대상 설비)은 어두운 바탕 그대로.
+   요약 · [사전 점검 시작]은 묶음 밖(패널 색) — 묶음이 끝나는 자리가 설정과 결과의 경계. 바탕 · 모서리 값은 .ah-box 와 같은 짝(다크 · 라이트) */
+body.ver-7.sian [data-stage-show="setup"] .mp-scroll { margin-top: 0; border-radius: 8px; background-color: var(--bg-map-chip); }
+/* [11/23 디자이너] 묶음 위 머리 아래 선 · 사이 여백 없앰 — 묶음이 머리 바로 아래에 선다 */
+body.ver-7.sian [data-stage-show="setup"] > .mp-header { border-bottom: 0; }
+body.ver-7.sian [data-stage-show="setup"] .mp-form { padding: var(--space-12) 0 var(--space-12) var(--space-12); }
+/* [11/23 디자이너] 좌우 여백 같게 — 스크롤바(트랙 12)가 오른쪽 여백 12 자리에 선다. 짧아 스크롤바가 없을 때도 자리를 비워 둬 여백이 그대로 */
+body.ver-7.sian [data-stage-show="setup"] .mp-scroll { scrollbar-gutter: stable; }
+/* [11/23 디자이너] 묶음 칸은 둥근 판이라 스크롤 위쪽 선 · 그림자를 뺀다(아래쪽 "더 있음" 그림자만 남김) */
+body.ver-7.sian .mp-stage .mp-scroll.is-scrolled { border-top-color: transparent; box-shadow: none; }
+body.ver-7.sian .mp-stage .mp-scroll.is-scrolled.has-more { box-shadow: inset 0 -6px 6px -6px var(--sc-sh); }
+body.ver-7.sian [data-stage-show="setup"] [data-mp-robot] .field-box { border-radius: 8px; background-color: var(--sb-tab-on); }
+body.ver-7.sian [data-stage-show="setup"] .check-list { background-color: var(--sb-tab-on); }
+body.ver-7 .mp-stage > .mp-summary .value .ds-badge { padding-right: 0 !important; margin-right: 0 !important; }   /* 상태 태그 글 끝도 같은 선 */
+
+/* [11/23 디자이너] 미션 설정 칸 글 위계 — 라벨은 작고 옅게(13 · 500 · tertiary), 값은 본문(14 · primary).
+   읽기 전용 값(미션 이름 · 대상 설비)은 칸 상자가 없으니 높이 36 을 걷고 라벨 바로 아래(4)에 붙인다 */
+body.ver-7.sian [data-stage-show="setup"] .mp-form .field-label,
+body.ver-7.sian [data-stage-show="setup"] .mp-form .check-group-head .label { font-size: var(--font-size-13) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-medium) !important; color: var(--text-tertiary); }   /* 공통 라벨 크기(!important, components-v7.css)보다 세게 — 이 화면만 */
+body.ver-7.sian [data-stage-show="setup"] .mp-form > label.field { gap: var(--space-4); }
+body.ver-7.sian [data-stage-show="setup"] .mp-form .field-box.is-readonly { height: auto !important; min-height: 0 !important; }
+/* [11/23 디자이너] 해제한 점검항목 — 번호 원 · "건너뜀" 없이 빈 체크와 옅은 이름만(번호 원 자리는 비워 이름 줄을 맞춤) */
+body.ver-7.sian .check-row[aria-checked="false"] .check-ord { visibility: hidden; }
+body.ver-7.sian .check-row[aria-checked="false"] .check-skip { display: none !important; }
+
+/* [11/23 디자이너] 알림 센터 웨이포인트 번호 원(.ds-wp.is-s) — 바탕은 바로 앞 층 꼬리표와 같게(고른 줄은 bg/inset, 상세 위치 줄도 꼬리표 바탕) */
+body.ver-7 .ds-wp.ac-wp { flex: none; background-color: var(--bg-raised); color: var(--text-secondary); }
+:root[data-theme="light"] body.ver-7 .ds-wp.ac-wp { background-color: var(--color-gray-100); color: var(--text-tertiary); }
+/* 고른 줄(바탕 bg/raised)에선 층 꼬리표 · 번호 원이 줄과 같은 색이 돼 안 보였다 — 한 단계 짙게(v6 .floor-tag 규칙과 같은 값) */
+body.ver-7 .ac-row[aria-selected="true"] .ds-floor { background-color: var(--bg-inset) !important; }
+body.ver-7 .ac-row[aria-selected="true"] .ds-wp.ac-wp { background-color: var(--bg-inset); }
+
+/* [11/23 디자이너] 안전진단 상세 발생위치 — 번호 원 + 지점 이름 */
+body.ver-7 .jinfo .sf-wpv { display: inline-flex; align-items: center; gap: var(--space-6); max-width: 100%; }
+body.ver-7 .jinfo .sf-wpv > span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body.ver-7 .jinfo .ds-wp.sf-wp { flex: none; background-color: var(--bg-raised); color: var(--text-secondary); }
+:root[data-theme="light"] body.ver-7 .jinfo .ds-wp.sf-wp { background-color: var(--color-gray-100); color: var(--text-tertiary); }
+
+/* ==================================================================
+ * [11/23 디자이너] 알림 센터 틀 점검(B안 — 구조는 그대로, 수치 · 부품을 관제 · 보고서에 맞춤)
+ * ================================================================== */
+/* 제목 = 보고서 머리와 같은 단계(위 작은 줄 + 제목 16/700). 경로 표시가 위 작은 줄 몫 */
+body.ver-7 .ac-title-row h1 { font-size: var(--font-size-20); line-height: 28px; font-weight: var(--font-weight-bold); }   /* [11/23 2차] 16 → 20 — 탭이 상자 밖 페이지 층으로 올라와 제목이 탭(14/700)보다 한 단계 위 */
+body.ver-7 .ac-title-row { min-height: 32px; }
+/* 판 = 테두리 대신 바탕 판(관제 오른쪽 패널처럼), 안쪽 칸 나눔 선만 남김 */
+body.ver-7 .ac-board { border: 0; background-color: transparent; }   /* [11/23 2차] 판 바탕은 탭 줄 아래 칸들만(아래 블록) */
+body.ver-7 .ac-open { border-right-color: var(--border-divider); }
+body.ver-7 .ac-list-wrap { background-color: transparent; }
+body.ver-7 .ac-col-head { background-color: transparent; }
+/* 안쪽 여백 = 좌우 20 한 값(목록 머리 · 줄 · 탭 머리 · 상세 같게). 탭 글자 첫 자는 줄 글자와 같은 세로선(4 + 탭 16 = 20) */
+:root body.ver-7 .ac-col-head, :root body.ver-7 .ac-row { padding-right: var(--space-20); }
+body.ver-7 .ac-panel-head { padding-left: var(--space-4); padding-right: var(--space-20); }
+/* 탭 버튼 글자 크기가 토큰 없이 브라우저 기본(13.33)이었다 — 안 글자(14 · 13)는 그대로, 버튼도 토큰으로 */
+body.ver-7 .ac-tab { font-size: var(--font-size-14); }
+/* 열 너비 = 알림 칸만 늘고 나머지는 기본 너비에서 줄어들 수 있게(고정 px 이면 좁은 화면에서 알림 칸만 남았다) */
+body.ver-7 .ac-c-place { flex: 0 1 272px; min-width: 180px; }
+body.ver-7 .ac-c-mission { flex: 0 1 130px; min-width: 96px; }
+body.ver-7 .ac-row .ac-place { min-width: 0; }
+/* 상세 칸 = 판 너비의 40%(560~720) — 1920 에선 예전 700 과 거의 같고, 좁아지면 같이 줄어든다 */
+body.ver-7 .ac-detail { width: clamp(560px, 40%, 720px); }
+
+/* [11/23 디자이너] 알림센터 거르기 줄 = 등급 붙은 칩(라벨 없음, 관제와 같다) | 기간 · 미션 드롭다운 칩 — 표 열 순서. 정렬 칩은 목록 머리 오른쪽(목록에만 걸린다) */
+body.ver-7 .ac-filter { gap: var(--space-4); align-items: center; }
+body.ver-7 .ac-filter .ac-filter-divider { margin: 0 var(--space-8); }
+/* [11/23 디자이너] 정렬 = 열 머리 오른쪽 끝 칸의 글 단추(관제 ah-sort-btn), 메뉴는 오른쪽에 붙여 연다. 조치 요청된 탭엔 같은 너비의 빈 칸을 줄 끝에 둔다 */
+body.ver-7 .ac-c-act:has(> .ac-sort), body.ver-7 .ac-dc-sort { flex: none; width: 104px; display: flex; justify-content: flex-end; align-items: center; }
+body.ver-7 .ac-sort { position: relative; }
+body.ver-7 .ac-sort .ah-sort-btn { color: var(--text-secondary); }
+body.ver-7 .ac-sort > .field-menu { left: auto; right: 0; min-width: 120px; width: max-content; }
+/* [11/23 디자이너] 거르기 줄을 목록 칸 안 탭 아래로 — 좌우 20(목록과 같은 세로선), 위 12 · 아래 4(열 머리가 이어 받음) */
+body.ver-7 .ac-open > .ac-filter { padding: var(--space-12) var(--space-20); border-bottom: var(--border-width-thin) solid var(--border-divider); }   /* [11/23 2차] 거르기 줄 | 열 머리 사이 가로선 */
+/* [11/23 디자이너 2차] 탭 줄은 상자 밖(페이지 층, 바탕 없음) — 아래 선이 목록 · 상세 두 칸을 가로질러 한 줄. 상자(bg/inset)는 거르기 줄부터 목록 · 상세를 감싼다 */
+body.ver-7 .ac-open { border-right: 0; }
+body.ver-7 .ac-open > .ac-filter, body.ver-7 .ac-open > .ac-handover-slot, body.ver-7 .ac-open > .ac-list-wrap, body.ver-7 .ac-detail-body { background-color: var(--bg-map-chip); }   /* [11/23 4차] 관제 조치 필요 알림 목록 상자(.ah-box)와 같은 바탕 — 미션 설정 묶음과도 같은 짝 */
+body.ver-7 .ac-open > .ac-filter { border-top-left-radius: 0; margin-top: 0; }   /* [11/23 3차] 탭 줄 바로 아래 붙임(간격 · 위 모서리 없음) */
+body.ver-7 .ac-detail-body { border-top-right-radius: 0; margin-top: 0; border-left: var(--border-width-thin) solid var(--border-divider); }
+body.ver-7 .ac-panel-head, body.ver-7 .ac-detail-head { background: transparent; }
+/* [11/23 디자이너 5차] 탭 줄 글자 선 = 위 제목 · [보고서 내보내기] 와 같은 세로선 — 탭 좌우 여백 없앰(밑줄은 글자 폭), 탭 사이 24, 페이지 넘김 오른쪽 여백 없앰 */
+body.ver-7 .ac-panel-head { padding-left: 0; }
+body.ver-7 .ac-tabs { gap: var(--space-24); }
+body.ver-7 .ac-tabs.ds-tab-line > .ac-tab.ds-tab { padding-left: 0 !important; padding-right: 0 !important; }   /* 공통 .ds-tab 여백(!important)을 이 줄에서만 0 */
+body.ver-7 .ac-detail-head { padding-right: 0; }
+/* [11/23 디자이너 6차] 탭이 머리 높이(48)를 꽉 채워 밑줄이 머리 아래 선 위에 겹친다 — 탭 밑줄과 상자 사이 4px 틈 없앰 */
+body.ver-7 .ac-tabs.ds-tab-line > .ac-tab.ds-tab { height: auto !important; min-height: 0 !important; align-self: stretch; margin-bottom: -1px; }
+body.ver-7 .ac-tabs { align-self: stretch; }
+/* [11/23 디자이너 7차] 정렬 글 단추 = 거르기 줄 안(미션 칩 | 나눔선 | 위험 우선 ⇅). 오른쪽 끝은 [오늘 조치 요약 만들기] 자리 */
+body.ver-7 .ac-filter > .ac-sort { align-self: center; }
+body.ver-7 .ac-filter > .ac-sort > .field-menu { left: 0; right: auto; }
+/* [11/23 디자이너 8차 · 11차 오른쪽 맞춤] 등급 칩 숫자 = 고정폭 두 자리 칸(세 자리부터는 늘어남) — 탭 이동 때 칩 폭이 바뀌어 옆 거르기 · 정렬이 흔들리던 것 */
+body.ver-7 .ac-sev-chips .ac-f-num { display: inline-block; min-width: 2.4ch; font-variant-numeric: tabular-nums; text-align: right; }
+/* [11/23 디자이너 9차] 제목 "알림 센터" 와 탭 줄 사이를 8 줄임(제목 아래 → 탭 글자 위 약 26 → 18) */
+body.ver-7 .ac-board { margin-top: calc(var(--space-8) * -1); }
+/* [11/23 디자이너 10차] 조치 요청된 알림 줄 앞 체크 = 회색(관제 조치 요청된 목록의 조치 완료 표시와 같은 text/tertiary — 초록은 쓰지 않음) */
+body.ver-7 .ac-dc-check { color: var(--text-tertiary); }
+/* [11/23 디자이너 10차] 조치 요청된 상세 머리의 조치 시각도 초록 대신 기본 글자색 */
+body.ver-7 .ac-record-at { color: var(--text-primary); }
+/* [11/23 디자이너 Q2] 조치 요청된 알림 진행 단계 칸(관제 .done-stage 와 같은 점 · 말) */
+body.ver-7 .ac-dc-stage { flex: none; width: 112px; white-space: nowrap; }
+body.ver-7 .ac-dc-stage .done-stage { display: inline-flex; }
+body.ver-7 .ac-info .done-stage { display: inline-flex; gap: var(--space-8); }
+body.ver-7 .ac-info .done-stage .ac-stage-to { color: var(--text-secondary); }
+/* [11/23 디자이너 Q3] 필터 밖 새 위험 안내 띠 — 필터 줄 위, 위험 색 */
+body.ver-7 .ac-newrisk { display: flex; align-items: center; gap: var(--space-8); padding: var(--space-8) var(--space-20); background-color: var(--status-critical-bg); color: var(--status-critical-text); border-bottom: var(--border-width-thin) solid var(--border-divider); }
+body.ver-7 .ac-newrisk > .i { color: var(--status-critical-icon); flex: none; }
+body.ver-7 .ac-newrisk > span.t-label-2 { flex: 1 1 auto; }
+/* [11/23 디자이너] 알림센터 빈 목록 = 관제 빈 목록(.ah-empty)과 같은 꼴 — 가운데 흐린 글 한 줄 + 필터가 걸렸으면 [필터 해제] */
+body.ver-7 .ac-empty7 { display: flex; flex-direction: column; align-items: center; gap: var(--space-12); margin: 0; padding: var(--space-40) var(--space-16); text-align: center; color: var(--text-tertiary); }
+body.ver-7 .ac-empty7 > p { margin: 0; }
+body.ver-7 .ds-pager[hidden] { display: none !important; }   /* [11/23] 빈 목록이면 페이지 넘김 숨김 */
+/* [11/23 디자이너 · 정의서 Delta-02 Q2] 말풍선은 위젯형 판처럼 두 줄만 — 키워드 줄(.dchat-l1, "위험 3건 포함 12건 누적")은 2줄과 겹쳐 뺌. 첫 문장이 굵은 1줄 */
+body.ver-7 .dchat-l1 { display: none; }
+body.ver-7 .dchat-l2 .dl1 { color: var(--text-primary); font-size: var(--font-size-14); line-height: var(--font-line-height-20); font-weight: var(--font-weight-bold); }
+/* [11/23 디자이너] 보고서 월 선택(.rp-mg) — 날짜 달력 머리를 누르면 열두 달 4 × 3. 날짜 칸(.rp-cd)과 같은 색 규칙 */
+body.ver-7 .rp-cal-t { border: 0; background: none; padding: var(--space-2) var(--space-8); border-radius: var(--radius-4); color: var(--text-primary); font-family: inherit; cursor: pointer; }
+body.ver-7 .rp-cal-t:hover { background-color: var(--comp-button-ghost-bg-hover); }
+body.ver-7 .rp-cal-h > span.rp-ib { visibility: hidden; }
+body.ver-7 .rp-mg { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-8); }
+body.ver-7 .rp-cm { position: relative; height: 48px; border: 0; border-radius: var(--radius-4); background: none; color: var(--text-tertiary); font-family: inherit; cursor: pointer; }
+body.ver-7 .rp-cm:hover:not(:disabled) { background-color: var(--bg-glass); }
+body.ver-7 .rp-cm:disabled { opacity: 0.45; cursor: default; }
+body.ver-7 .rp-cm.has { color: var(--text-primary); font-weight: var(--font-weight-bold); }
+body.ver-7 .rp-cm.has::after { content: ""; position: absolute; left: 50%; bottom: 6px; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background-color: var(--text-secondary); }
+body.ver-7 .rp-cm.is-today { box-shadow: inset 0 0 0 var(--border-width-thin) var(--border-strong); }
+body.ver-7 .rp-cm.is-on { background-color: var(--comp-button-inverse-bg-default); color: var(--comp-button-inverse-text-default); }
+body.ver-7 .rp-cm.is-on::after { background-color: currentColor; }

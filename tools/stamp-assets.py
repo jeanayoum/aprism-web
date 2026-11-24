@@ -56,7 +56,8 @@ def stamp(html_path):
 def main():
     touched, problems = [], []
     for base, dirs, files in os.walk(ROOT):
-        dirs[:] = [d for d in dirs if d not in (".git", "tools")]
+        # archive/ 는 얼린 예전 버전이라 고치지 않는다(tools/archive-version.mjs)
+        dirs[:] = [d for d in dirs if d not in (".git", "tools", "archive")]
         for name in files:
             if not name.endswith(".html"):
                 continue
