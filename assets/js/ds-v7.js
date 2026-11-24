@@ -215,7 +215,7 @@
  * 건수("1명")는 단위 목록에 없어 그대로 SUIT. 목록을 다시 그리면 다음 프레임에 다시 감싼다. */
 (function () {
   var SEL = ".ah-title > span:not([class]), .ac-c-title[role=\"gridcell\"], .sf .kd .big, .ac-d6-val";
-  var RE = /-?\d+(?:[.,]\d+)?\s?(?:MPa|kPa|Pa|℃|°C|%|ppm|dB|mm|kg\/cm²|m³\/h)?\s*$/;
+  var RE = /-?\d+(?:[.,]\d+)?\s?(?:MPa|kPa|Pa|bar|℃|°C|%|ppm|dB|mm|kg\/cm²|m³\/h)?\s*$/;
   function wrap(el) {
     if (el.querySelector(".ds-meas")) return;
     var t = el.lastChild;
