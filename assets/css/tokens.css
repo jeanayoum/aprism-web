@@ -998,3 +998,14 @@ html:has(> body.ver-7) body.ver-7 {
 /* 파랑 하나로: GNB 고른 메뉴(다크는 --bg-accent = blue-600 이었음)와 체크 상자 켜짐(--ds-check-on = blue-700/600)도 aqua-700 */
 html:has(> body.ver-7):is([data-theme], :not([data-theme])) body.ver-7 .ds-gnb-item[aria-current="page"] .ds-gnb-icon { background-color: var(--comp-gnb-brand) !important; }
 html:has(> body.ver-7):is([data-theme], :not([data-theme])) body.ver-7 :is(.ds-act-box, .ds-chip.is-check .check-box, .check-row .check-box) { --ds-check-on: var(--color-aqua-700); }
+
+/* ================= [11/24 브랜딩 2단계] 분광 램프 =================
+ * Delta 오브(prism-orb.js PALETTES)를 같은 방식으로 훑은 아홉 정지점 램프. 경보 테두리 · Delta 판 · AI 패널이 함께 쓴다.
+ * "APRISM 의 빛은 프리즘처럼 갈라진다" — 경보 빛과 DELTA 를 잇는 브랜드 시각 언어(위험의 보라 끝까지 그대로 둠, 사용자 11/24).
+ * 값은 예전 화면 곳곳의 hex 그대로 — 모양은 하나도 안 바뀐다. 그라데이션 정지점 목록이라 linear-gradient(각도, var(--color-spectrum-*)) 로 쓴다. */
+:root {
+  --color-spectrum-info: #1B77EE 0%, #0A49D7 12.5%, #1E2FB0 25%, #493891 37.5%, #74608B 50%, #858DA3 62.5%, #71A7C9 75%, #459EE9 87.5%, #1B77EE 100%;
+  --color-spectrum-safe: #2AD982 0%, #0EBB57 12.5%, #10893B 25%, #2F603E 37.5%, #5A595F 50%, #77778A 62.5%, #75A9A6 75%, #55D2A2 87.5%, #2AD982 100%;
+  --color-spectrum-warning: #F2B020 0%, #D38210 12.5%, #A5521A 25%, #813D39 37.5%, #7D4F5A 50%, #9C7D6B 62.5%, #CBAD61 75%, #EEC242 87.5%, #F2B020 100%;
+  --color-spectrum-critical: #F05937 0%, #D9321D 12.5%, #A3121E 25%, #6D0B3B 37.5%, #572262 50%, #6D487C 62.5%, #A3687B 75%, #D96F5E 87.5%, #F05937 100%;
+}
