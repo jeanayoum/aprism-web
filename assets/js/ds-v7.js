@@ -172,3 +172,41 @@
     seg: function (items, o) { return tabs('ds-seg', items, o); },
   };
 })();
+
+
+/* [11/24 브랜딩] 경보 맥박 위상 맞추기 — 위험 표시가 언제 생겼든 2s 경계에 맞춰 함께 뛴다(components-v7.css "경보 맥박 하나로").
+ * CSS 애니메이션이 시작될 때 startTime 을 문서 시간의 박자 경계로 옮긴다.
+ *   바로 도는 것(지연 < 한 박): 지난 경계로 → 박이 이어서 맞음.
+ *   새 위험의 빠른 3박 뒤에 이어지는 것(지연 4s): 그 지연이 끝날 때 다음 경계에서 합류.
+ * 맥박 모양 · 박자 값은 CSS(--ds-alert-beat)가 정하고, 여기서는 위상만 맞춘다. */
+(function () {
+  'use strict';
+  if (!document.timeline) { return; }
+  // 이 파일은 <head> 에서 읽힌다 — body 가 아직 없으니 판정은 일이 생길 때 한다.
+  var NAMES = { 'edge-pulse': 1, 'kd-beat': 1, 'rr-point': 1, 'bld-ring': 1 };
+  function on() { return document.body && document.body.classList.contains('ver-7'); }
+  function beatMs() {
+    var v = getComputedStyle(document.body).getPropertyValue('--ds-alert-beat').trim();
+    var n = parseFloat(v); if (!n) { return 2000; }
+    return /ms$/.test(v) ? n : n * 1000;
+  }
+  function snapAnim(a, P) {
+    if (!a.effect || a.playState === 'idle' || a.startTime == null) { return; }
+    var t = document.timeline.currentTime, d = a.effect.getTiming().delay || 0;
+    var want = d < P ? Math.floor(t / P) * P : Math.ceil((a.startTime) / P) * P;
+    if (Math.abs(a.startTime - want) > 1) { a.startTime = want; }
+  }
+  function snapAll() {
+    if (!on() || !document.getAnimations) { return; }
+    var P = beatMs();
+    document.getAnimations().forEach(function (a) { if (NAMES[a.animationName]) { snapAnim(a, P); } });
+  }
+  var queued = false;
+  document.addEventListener('animationstart', function (e) {
+    if (!NAMES[e.animationName] || queued) { return; }
+    queued = true;
+    requestAnimationFrame(function () { queued = false; snapAll(); });
+  }, true);
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', snapAll); } else { snapAll(); }
+  window.addEventListener('load', snapAll);
+})();

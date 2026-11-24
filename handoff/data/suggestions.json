@@ -1,0 +1,212 @@
+{
+  "_note": "시안 견본 — 정의서 공통-03 꼴. 실제 값은 서버가 보냄",
+  "items": [
+    {
+      "key": {
+        "missionId": "*",
+        "detectType": "안전감지"
+      },
+      "message": "작업자에게 즉시 착용을 안내하고 고소 작업을 멈추세요.",
+      "actions": [
+        {
+          "label": "작업자 즉시 착용 안내",
+          "aiRecommended": true,
+          "recipient": {
+            "team": "현장 작업자",
+            "contact": "무전 2채널"
+          }
+        },
+        {
+          "label": "고소 작업 일시 중지",
+          "aiRecommended": false,
+          "recipient": {
+            "team": "작업 감독자",
+            "contact": "내선 2214"
+          }
+        },
+        {
+          "label": "안전관리팀 전달",
+          "aiRecommended": false,
+          "recipient": {
+            "team": "안전관리팀",
+            "contact": "업무 메신저"
+          }
+        }
+      ]
+    },
+    {
+      "key": {
+        "missionId": "*",
+        "detectType": "누출감지"
+      },
+      "message": "구역 출입을 통제하고 설비팀에 밸브 확인을 요청하세요.",
+      "actions": [
+        {
+          "label": "구역 출입 통제",
+          "aiRecommended": true,
+          "recipient": {
+            "team": "현장 작업자",
+            "contact": "무전 2채널"
+          }
+        },
+        {
+          "label": "설비팀 밸브 확인 요청",
+          "aiRecommended": false,
+          "recipient": {
+            "team": "설비팀",
+            "contact": "내선 2310"
+          }
+        },
+        {
+          "label": "현장 확인",
+          "aiRecommended": false,
+          "recipient": {
+            "team": "순회 근무자",
+            "contact": "무전 1채널"
+          }
+        }
+      ]
+    },
+    {
+      "key": {
+        "missionId": "*",
+        "detectType": "온도감지"
+      },
+      "message": "부하를 줄이고 점검을 요청하세요.",
+      "actions": [
+        {
+          "label": "부하 감소 요청",
+          "aiRecommended": true,
+          "recipient": {
+            "team": "운전원",
+            "contact": "내선 2201"
+          }
+        },
+        {
+          "label": "설비 점검 요청",
+          "aiRecommended": false,
+          "recipient": {
+            "team": "설비팀",
+            "contact": "내선 2310"
+          }
+        },
+        {
+          "label": "현장 확인",
+          "aiRecommended": false,
+          "recipient": {
+            "team": "순회 근무자",
+            "contact": "무전 1채널"
+          }
+        }
+      ]
+    },
+    {
+      "key": {
+        "missionId": "*",
+        "detectType": "계기인식"
+      },
+      "message": "계측팀에 계기 교정을 요청하세요.",
+      "actions": [
+        {
+          "label": "계기 교정 요청",
+          "aiRecommended": true,
+          "recipient": {
+            "team": "계측팀",
+            "contact": "내선 2420"
+          }
+        },
+        {
+          "label": "운전원 수동 판독 요청",
+          "aiRecommended": false,
+          "recipient": {
+            "team": "운전원",
+            "contact": "내선 2201"
+          }
+        }
+      ]
+    },
+    {
+      "key": {
+        "missionId": "*",
+        "detectType": "이상음향"
+      },
+      "message": "진동 정밀 측정을 요청하세요.",
+      "actions": [
+        {
+          "label": "진동 정밀 측정 요청",
+          "aiRecommended": true,
+          "recipient": {
+            "team": "설비팀",
+            "contact": "내선 2310"
+          }
+        },
+        {
+          "label": "설비 정지 검토 요청",
+          "aiRecommended": false,
+          "recipient": {
+            "team": "운전원",
+            "contact": "내선 2201"
+          }
+        }
+      ]
+    },
+    {
+      "key": {
+        "missionId": "*",
+        "detectType": "부분방전"
+      },
+      "message": "절연 진단을 요청하고 전기팀에 알리세요.",
+      "actions": [
+        {
+          "label": "절연 진단 요청",
+          "aiRecommended": true,
+          "recipient": {
+            "team": "전기팀",
+            "contact": "내선 2405"
+          }
+        },
+        {
+          "label": "감시 강화",
+          "aiRecommended": false,
+          "recipient": {
+            "team": "전기팀",
+            "contact": "업무 메신저"
+          }
+        }
+      ]
+    },
+    {
+      "key": {
+        "missionId": "정기 순회 점검",
+        "detectType": "계기인식"
+      },
+      "message": "현장 점검을 요청하세요.",
+      "actions": [
+        {
+          "label": "로봇 정지, 현장 점검 요청",
+          "aiRecommended": true,
+          "recipient": {
+            "team": "설비팀",
+            "contact": "내선 2310"
+          }
+        },
+        {
+          "label": "현장 무전 연락, 작업 중지 요청",
+          "aiRecommended": false,
+          "recipient": {
+            "team": "현장 작업자",
+            "contact": "무전 2채널"
+          }
+        },
+        {
+          "label": "재측정 후 판단",
+          "aiRecommended": false,
+          "recipient": {
+            "team": "순회 근무자",
+            "contact": "무전 1채널"
+          }
+        }
+      ]
+    }
+  ]
+}

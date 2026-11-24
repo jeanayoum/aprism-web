@@ -1,0 +1,29 @@
+{
+  "_note": "시안 견본 — 정의서 공통-03 꼴. 실제 값은 서버가 보냄",
+  "items": [
+    {
+      "alertId": "A-1",
+      "actions": [
+        "계기 교정 요청"
+      ],
+      "memo": "",
+      "requester": {
+        "name": "(로그인한 관제사 이름)",
+        "role": "관제사"
+      },
+      "recipient": {
+        "team": "계측팀",
+        "contact": "내선 2420"
+      },
+      "requestedAt": "2026-11-02T10:24:10+09:00",
+      "stage": "wait",
+      "stageHistory": [
+        {
+          "stage": "wait",
+          "at": "2026-11-02T10:24:10+09:00"
+        }
+      ],
+      "result": null
+    }
+  ]
+}

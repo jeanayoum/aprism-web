@@ -30,7 +30,7 @@ body.ver-7, body.ds-auth {   /* body.ds-auth: 로그인 쪽 화면(안내 상자
   --ds-badge-row-gap: var(--space-8);             /* 표 칸 배지와 글자 사이 */
   /* 회색 배지 면 --ds-badge-neutral-bg: 테마와 판 범위마다 달라 아래 블록 (11/20) */
   /* --ds-badge-ai-bg: var(--bg-map-chip); */   /* AI 추천 면 (예전 회색 배지 면) */
-  --ds-ai-ramp: #1B77EE 0%, #0A49D7 12.5%, #1E2FB0 25%, #493891 37.5%, #74608B 50%, #858DA3 62.5%, #71A7C9 75%, #459EE9 87.5%, #1B77EE 100%;   /* AI 추천 Delta 아이콘 (Delta 스펙트럼) */
+  --ds-ai-ramp: var(--color-spectrum-info);   /* AI 추천 Delta 아이콘 (Delta 스펙트럼) */
 
   /* WP 번호 원 */
   --ds-wp-size: 20px;                             /* 번호 칸, 지도 (4의 배수, 아이콘과 같은 단계) */
@@ -259,6 +259,8 @@ body.ver-7, body.ds-auth {   /* body.ds-auth: 로그인 쪽 화면(안내 상자
   --ds-motion-enter: 420ms;                       /* 떠 있는 판 들어오기 */
   --ds-motion-slow: 820ms;                        /* 완료 물결(조치 요청 뒤 팝업이 바뀌는 물결) */
   --ds-motion-flash: 1200ms;                      /* 새 기록 줄 반짝임(조치 요청된 알림 목록에 줄이 들어올 때) */
+  --ds-alert-beat: 2s;                            /* 경보 맥박(11/24 브랜딩): 위험 표시 모두 이 한 박자, 같은 위상(ds-v7.js 가 맞춤) */
+  --ds-alert-beat-new: 1.2s;                      /* 새로 생긴 위험만 처음 3번 빠르게 → 4s 부터 한 박자로 */
   --ds-ease-base: ease-out;                       /* 나타남, 상태 바뀜 */
   --ds-ease-enter: cubic-bezier(.22, 1, .36, 1);  /* 들어오기: 빨리 와서 천천히 멈춤 */
   --ds-ease-exit: cubic-bezier(.55, 0, .8, .25);  /* 나가기: 천천히 떠나 빨리 사라짐 */
@@ -1689,18 +1691,18 @@ body.ver-7:not(.d3-chat):not(.ma-on) .delta3.is-open { width: var(--d3-w, var(--
 /* [11/23] 알림 팝오버가 함께 열리면(.ma-on) 대화 창은 위쪽 반, 팝오버는 아래쪽 반(예전 v7.css 규칙을 위 !important 가 덮고 있었다) */
 body.ver-7.ma-on:not(.d3-chat) .delta3.is-open { width: var(--d3-w, var(--ds-delta-open-w)) !important; height: calc(50% - var(--ds-delta-open-inset) - 4px) !important; }
 /* Delta 전용 변수 (라이트 면, 펼침 위 테 빛에 씀) */
-:root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open):not(.is-warning):not(.is-critical) { --d3-ramp: #1B77EE 0%, #0A49D7 12.5%, #1E2FB0 25%, #493891 37.5%, #74608B 50%, #858DA3 62.5%, #71A7C9 75%, #459EE9 87.5%, #1B77EE 100%; }
-:root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open).is-warning { --d3-ramp: #F2B020 0%, #D38210 12.5%, #A5521A 25%, #813D39 37.5%, #7D4F5A 50%, #9C7D6B 62.5%, #CBAD61 75%, #EEC242 87.5%, #F2B020 100%; }
-:root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open).is-critical { --d3-ramp: #F05937 0%, #D9321D 12.5%, #A3121E 25%, #6D0B3B 37.5%, #572262 50%, #6D487C 62.5%, #A3687B 75%, #D96F5E 87.5%, #F05937 100%; }
-:root[data-theme="light"] body.ver-7 .delta3:not(.is-open):not(.is-warning):not(.is-critical) { --tone-base: #4A7FD6; --tone-in: rgb(130 175 255 / 28%); --tone-glow: rgb(47 111 224 / 26%); --tone-c: linear-gradient(in oklab 165deg, #7C7397 0%, #6F7DAE 34%, #4A7FD6 70%, #2F6FE0 100%); --tone-e: linear-gradient(in oklab 105deg, #6E6890 0%, #6F7DAE 38%, #4A7FD6 72%, #2F6FE0 100%); --d3-ramp: #1B77EE 0%, #0A49D7 12.5%, #1E2FB0 25%, #493891 37.5%, #74608B 50%, #858DA3 62.5%, #71A7C9 75%, #459EE9 87.5%, #1B77EE 100%; }
-:root[data-theme="light"] body.ver-7 .delta3:not(.is-open).is-warning { --tone-base: #C88F1A; --tone-in: rgb(255 200 90 / 30%); --tone-glow: rgb(200 140 20 / 30%); --tone-c: linear-gradient(in oklab 165deg, #7C7397 0%, #A68566 34%, #C88F1A 70%, #C08308 100%); --tone-e: linear-gradient(in oklab 105deg, #6E6890 0%, #A68566 38%, #C88F1A 72%, #C08308 100%); --d3-ramp: #F2B020 0%, #D38210 12.5%, #A5521A 25%, #813D39 37.5%, #7D4F5A 50%, #9C7D6B 62.5%, #CBAD61 75%, #EEC242 87.5%, #F2B020 100%; }
-:root[data-theme="light"] body.ver-7 .delta3:not(.is-open).is-critical { --tone-base: #E2573B; --tone-in: rgb(255 120 80 / 35%); --tone-glow: rgb(236 68 38 / 34%); --tone-c: linear-gradient(in oklab 165deg, #7C7397 0%, #B86A77 34%, #E2573B 70%, #EC4426 100%); --tone-e: linear-gradient(in oklab 105deg, #6E6890 0%, #B86A77 38%, #E2573B 72%, #EC4426 100%); --d3-ramp: #F05937 0%, #D9321D 12.5%, #A3121E 25%, #6D0B3B 37.5%, #572262 50%, #6D487C 62.5%, #A3687B 75%, #D96F5E 87.5%, #F05937 100%; }
-:root:not([data-theme="light"]) body.ver-7 .delta3.is-open:not(.is-warning):not(.is-critical) { --d3-ramp: #1B77EE 0%, #0A49D7 12.5%, #1E2FB0 25%, #493891 37.5%, #74608B 50%, #858DA3 62.5%, #71A7C9 75%, #459EE9 87.5%, #1B77EE 100%; }
-:root:not([data-theme="light"]) body.ver-7 .delta3.is-open.is-warning { --d3-ramp: #F2B020 0%, #D38210 12.5%, #A5521A 25%, #813D39 37.5%, #7D4F5A 50%, #9C7D6B 62.5%, #CBAD61 75%, #EEC242 87.5%, #F2B020 100%; }
-:root:not([data-theme="light"]) body.ver-7 .delta3.is-open.is-critical { --d3-ramp: #F05937 0%, #D9321D 12.5%, #A3121E 25%, #6D0B3B 37.5%, #572262 50%, #6D487C 62.5%, #A3687B 75%, #D96F5E 87.5%, #F05937 100%; }
-:root[data-theme="light"] body.ver-7 .delta3.is-open:not(.is-warning):not(.is-critical) { --tone-base: #4A7FD6; --tone-in: rgb(130 175 255 / 28%); --tone-glow: rgb(47 111 224 / 26%); --tone-c: linear-gradient(in oklab 165deg, #7C7397 0%, #6F7DAE 34%, #4A7FD6 70%, #2F6FE0 100%); --tone-e: linear-gradient(in oklab 105deg, #6E6890 0%, #6F7DAE 38%, #4A7FD6 72%, #2F6FE0 100%); --d3-ramp: #1B77EE 0%, #0A49D7 12.5%, #1E2FB0 25%, #493891 37.5%, #74608B 50%, #858DA3 62.5%, #71A7C9 75%, #459EE9 87.5%, #1B77EE 100%; }
-:root[data-theme="light"] body.ver-7 .delta3.is-open.is-warning { --tone-base: #C88F1A; --tone-in: rgb(255 200 90 / 30%); --tone-glow: rgb(200 140 20 / 30%); --tone-c: linear-gradient(in oklab 165deg, #7C7397 0%, #A68566 34%, #C88F1A 70%, #C08308 100%); --tone-e: linear-gradient(in oklab 105deg, #6E6890 0%, #A68566 38%, #C88F1A 72%, #C08308 100%); --d3-ramp: #F2B020 0%, #D38210 12.5%, #A5521A 25%, #813D39 37.5%, #7D4F5A 50%, #9C7D6B 62.5%, #CBAD61 75%, #EEC242 87.5%, #F2B020 100%; }
-:root[data-theme="light"] body.ver-7 .delta3.is-open.is-critical { --tone-base: #E2573B; --tone-in: rgb(255 120 80 / 35%); --tone-glow: rgb(236 68 38 / 34%); --tone-c: linear-gradient(in oklab 165deg, #7C7397 0%, #B86A77 34%, #E2573B 70%, #EC4426 100%); --tone-e: linear-gradient(in oklab 105deg, #6E6890 0%, #B86A77 38%, #E2573B 72%, #EC4426 100%); --d3-ramp: #F05937 0%, #D9321D 12.5%, #A3121E 25%, #6D0B3B 37.5%, #572262 50%, #6D487C 62.5%, #A3687B 75%, #D96F5E 87.5%, #F05937 100%; }
+:root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open):not(.is-warning):not(.is-critical) { --d3-ramp: var(--color-spectrum-info); }
+:root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open).is-warning { --d3-ramp: var(--color-spectrum-warning); }
+:root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open).is-critical { --d3-ramp: var(--color-spectrum-critical); }
+:root[data-theme="light"] body.ver-7 .delta3:not(.is-open):not(.is-warning):not(.is-critical) { --tone-base: #4A7FD6; --tone-in: rgb(130 175 255 / 28%); --tone-glow: rgb(47 111 224 / 26%); --tone-c: linear-gradient(in oklab 165deg, #7C7397 0%, #6F7DAE 34%, #4A7FD6 70%, #2F6FE0 100%); --tone-e: linear-gradient(in oklab 105deg, #6E6890 0%, #6F7DAE 38%, #4A7FD6 72%, #2F6FE0 100%); --d3-ramp: var(--color-spectrum-info); }
+:root[data-theme="light"] body.ver-7 .delta3:not(.is-open).is-warning { --tone-base: #C88F1A; --tone-in: rgb(255 200 90 / 30%); --tone-glow: rgb(200 140 20 / 30%); --tone-c: linear-gradient(in oklab 165deg, #7C7397 0%, #A68566 34%, #C88F1A 70%, #C08308 100%); --tone-e: linear-gradient(in oklab 105deg, #6E6890 0%, #A68566 38%, #C88F1A 72%, #C08308 100%); --d3-ramp: var(--color-spectrum-warning); }
+:root[data-theme="light"] body.ver-7 .delta3:not(.is-open).is-critical { --tone-base: #E2573B; --tone-in: rgb(255 120 80 / 35%); --tone-glow: rgb(236 68 38 / 34%); --tone-c: linear-gradient(in oklab 165deg, #7C7397 0%, #B86A77 34%, #E2573B 70%, #EC4426 100%); --tone-e: linear-gradient(in oklab 105deg, #6E6890 0%, #B86A77 38%, #E2573B 72%, #EC4426 100%); --d3-ramp: var(--color-spectrum-critical); }
+:root:not([data-theme="light"]) body.ver-7 .delta3.is-open:not(.is-warning):not(.is-critical) { --d3-ramp: var(--color-spectrum-info); }
+:root:not([data-theme="light"]) body.ver-7 .delta3.is-open.is-warning { --d3-ramp: var(--color-spectrum-warning); }
+:root:not([data-theme="light"]) body.ver-7 .delta3.is-open.is-critical { --d3-ramp: var(--color-spectrum-critical); }
+:root[data-theme="light"] body.ver-7 .delta3.is-open:not(.is-warning):not(.is-critical) { --tone-base: #4A7FD6; --tone-in: rgb(130 175 255 / 28%); --tone-glow: rgb(47 111 224 / 26%); --tone-c: linear-gradient(in oklab 165deg, #7C7397 0%, #6F7DAE 34%, #4A7FD6 70%, #2F6FE0 100%); --tone-e: linear-gradient(in oklab 105deg, #6E6890 0%, #6F7DAE 38%, #4A7FD6 72%, #2F6FE0 100%); --d3-ramp: var(--color-spectrum-info); }
+:root[data-theme="light"] body.ver-7 .delta3.is-open.is-warning { --tone-base: #C88F1A; --tone-in: rgb(255 200 90 / 30%); --tone-glow: rgb(200 140 20 / 30%); --tone-c: linear-gradient(in oklab 165deg, #7C7397 0%, #A68566 34%, #C88F1A 70%, #C08308 100%); --tone-e: linear-gradient(in oklab 105deg, #6E6890 0%, #A68566 38%, #C88F1A 72%, #C08308 100%); --d3-ramp: var(--color-spectrum-warning); }
+:root[data-theme="light"] body.ver-7 .delta3.is-open.is-critical { --tone-base: #E2573B; --tone-in: rgb(255 120 80 / 35%); --tone-glow: rgb(236 68 38 / 34%); --tone-c: linear-gradient(in oklab 165deg, #7C7397 0%, #B86A77 34%, #E2573B 70%, #EC4426 100%); --tone-e: linear-gradient(in oklab 105deg, #6E6890 0%, #B86A77 38%, #E2573B 72%, #EC4426 100%); --d3-ramp: var(--color-spectrum-critical); }
 /* 접힘 바깥 판 */
 body.ver-7 .delta3:not(.is-open) { border-radius: 0 !important; }
 :root[data-theme="light"] body.ver-7 .delta3:not(.is-open) { box-shadow: none !important; background-color: transparent !important; }
@@ -1889,3 +1891,26 @@ body.ver-7 .ds-photo > img { position: absolute; inset: 0; width: 100%; height: 
 body.ver-7 .ds-photo.is-none { display: grid; place-items: center; background-color: var(--bg-inset); color: var(--text-tertiary); }
 body.ver-7 .ds-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-4); color: var(--text-secondary); }
 body.ver-7 .ds-empty > b { font-size: var(--font-size-18); line-height: var(--font-line-height-26); color: var(--text-primary); }
+
+/* ================= 경보 맥박 하나로 (11/24 브랜딩 2단계 · 시각 원리 2회차) =================
+ * 빛 기준: 빛은 진행 중인 것에만. 경보 빛 = 위험은 맥박, 주의는 멈춘 빛. 진행 빛은 맥박 없음.
+ *   위험: 모두 --ds-alert-beat(2s) 한 박자, 화면 안 모든 위험 표시가 같은 위상(ds-v7.js 가 시작 시각을 2s 경계에 맞춤).
+ *   새로 생긴 위험: 처음 3번만 --ds-alert-beat-new(1.2s), 4s 부터 한 박자로(3.6s 뒤 0.4s 쉬고 2s 경계에서 합류).
+ *   주의: 맥박 없이 멈춘 빛(엣지 글로우 1번 줄을 숨 가장 밝은 자리에 세움).
+ * 예전: 엣지 2s(기본) · 2.4s(유리) · 급증 1.2s 계속 · 감지 카드 2.4s · 고른 핀 1.2s · 전체 층 링 1.6s. 맥박 모양(keyframes)은 그대로, 박자만 바꿈. */
+body.ver-7 .two-col.is-critical > .edge-light::before { animation: edge-pulse var(--ds-alert-beat) linear infinite !important; }
+body.ver-7 .two-col.is-critical > .edge-light::after { animation: edge-pulse var(--ds-alert-beat) linear .3s infinite !important; }
+body.ver-7.is-surge .two-col.is-critical > .edge-light::before { animation: edge-beat var(--ds-alert-beat-new) linear 3, edge-pulse var(--ds-alert-beat) linear 4s infinite !important; }
+body.ver-7.is-surge .two-col.is-critical > .edge-light::after { animation: edge-beat var(--ds-alert-beat-new) linear .3s 3, edge-pulse var(--ds-alert-beat) linear 4.3s infinite !important; }
+body.ver-7 .two-col.is-warning > .edge-light::before { animation: none !important; opacity: .6; box-shadow: inset 0 0 var(--pulse-blur) var(--pulse-from) var(--glow-color-60); }
+body.ver-7 .two-col.is-warning > .edge-light::after { animation: none !important; opacity: 0; }
+body.ver-7 .sf .kd.is-todo { animation: kd-beat var(--ds-alert-beat) ease-in-out infinite !important; }
+body.ver-7 .sf .kd.is-todo.is-new { animation: kd-first var(--ds-alert-beat-new) ease-in-out 3, kd-beat var(--ds-alert-beat) ease-in-out 4s infinite !important; }
+body.ver-7 .sf .kd.is-todo:hover, body.ver-7 .sf .kd.is-todo:focus-visible { animation-play-state: paused !important; }
+body.ver-7 .rr-pin.is-point .rr-pin-head { animation-duration: var(--ds-alert-beat) !important; }
+body.ver-7 .bld-alert.is-critical::before { animation-duration: var(--ds-alert-beat) !important; }
+@media (prefers-reduced-motion: reduce) {
+  body.ver-7 .two-col.is-critical > .edge-light::before, body.ver-7.is-surge .two-col.is-critical > .edge-light::before { animation: none !important; opacity: .6; box-shadow: inset 0 0 var(--pulse-blur) var(--pulse-from) var(--glow-color-60); }
+  body.ver-7 .two-col.is-critical > .edge-light::after, body.ver-7.is-surge .two-col.is-critical > .edge-light::after { animation: none !important; opacity: 0; }
+  body.ver-7 .sf .kd.is-todo, body.ver-7 .sf .kd.is-todo.is-new, body.ver-7 .rr-pin.is-point .rr-pin-head, body.ver-7 .bld-alert.is-critical::before { animation: none !important; }
+}

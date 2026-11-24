@@ -1930,8 +1930,7 @@ body.v2-2 .context-panel.is-collapsed .panel-head::after { opacity: 0; }
    * 오브 팔레트를 고치면 이 값도 같이 다시 뽑아야 한다.
    */
   --ai-spectrum-ramp:
-    #1B77EE 0%, #0A49D7 12.5%, #1E2FB0 25%, #493891 37.5%, #74608B 50%,
-    #858DA3 62.5%, #71A7C9 75%, #459EE9 87.5%, #1B77EE 100%;
+    var(--color-spectrum-info);
 }
 
 .ai-panel.is-open .ai-box { padding: var(--space-4); }
@@ -2631,8 +2630,7 @@ body.v2-2 .context-panel.is-collapsed .panel-head::after { opacity: 0; }
   --ai-input-focus-bg: var(--color-yellow-900);
   /* PALETTES.warning 을 같은 방식으로 훑은 값. */
   --ai-spectrum-ramp:
-    #F2B020 0%, #D38210 12.5%, #A5521A 25%, #813D39 37.5%, #7D4F5A 50%,
-    #9C7D6B 62.5%, #CBAD61 75%, #EEC242 87.5%, #F2B020 100%;
+    var(--color-spectrum-warning);
 }
 
 /*
@@ -2659,8 +2657,7 @@ body.v2-2 .context-panel.is-collapsed .panel-head::after { opacity: 0; }
     #f4463f 100%);
   /* PALETTES.critical 을 같은 방식으로 훑은 값. */
   --ai-spectrum-ramp:
-    #F05937 0%, #D9321D 12.5%, #A3121E 25%, #6D0B3B 37.5%, #572262 50%,
-    #6D487C 62.5%, #A3687B 75%, #D96F5E 87.5%, #F05937 100%;
+    var(--color-spectrum-critical);
 }
 
 /* 태그는 alert/danger 짝을 그대로 쓴다 — 주의 쪽이 하드코딩이라 여기서는 토큰으로 뒀다. */

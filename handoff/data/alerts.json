@@ -1,0 +1,313 @@
+{
+  "_note": "시안 견본 — 정의서 공통-03 꼴. 실제 값은 서버가 보냄",
+  "items": [
+    {
+      "id": "A-1",
+      "level": "critical",
+      "missionId": "정기 순회 점검",
+      "robotId": "Robot 01",
+      "floor": "B4",
+      "waypoint": {
+        "id": "WP-04",
+        "no": 4
+      },
+      "equipment": "N₂ 배관 압력계",
+      "detectType": "계기인식",
+      "measure": {
+        "item": "압력",
+        "value": 0.86,
+        "unit": "MPa",
+        "limit": 0.8,
+        "text": "0.86 MPa"
+      },
+      "trend": [
+        0.77,
+        0.79,
+        0.86
+      ],
+      "occurredAt": "2026-11-02T10:12:40+09:00",
+      "photo": "assets/img/detect-v7/gauge.webp",
+      "summary": "N₂ 배관 압력 0.86 MPa 로 정상 범위(0.60 ~ 0.80)를 넘었어요. 최근 3회 측정이 잇달아 올라 NG 로 판정했어요.",
+      "status": "action_needed"
+    },
+    {
+      "id": "A-4",
+      "level": "warning",
+      "missionId": "정기 순회 점검",
+      "robotId": "Robot 01",
+      "floor": "B4",
+      "waypoint": {
+        "id": "WP-03",
+        "no": 3
+      },
+      "equipment": "냉각수 배관 밸브",
+      "detectType": "누출감지",
+      "measure": {
+        "item": "누출 의심도",
+        "value": 62,
+        "unit": "%",
+        "limit": null,
+        "text": "62%"
+      },
+      "trend": [],
+      "occurredAt": "2026-11-02T10:11:19+09:00",
+      "photo": "assets/img/detect-v7/leak.webp",
+      "summary": "밸브 이음부에서 누출 의심도 62% 로 기준 55% 를 넘었어요. 연속 2프레임에서 나왔어요.",
+      "status": "action_needed"
+    },
+    {
+      "id": "A-9",
+      "level": "warning",
+      "missionId": "발전기실 설비 점검",
+      "robotId": "Robot 05",
+      "floor": "B3",
+      "waypoint": {
+        "id": "WP-06",
+        "no": 6
+      },
+      "equipment": "수배전반",
+      "detectType": "부분방전",
+      "measure": {
+        "item": "부분방전 점수",
+        "value": 9.41,
+        "unit": null,
+        "limit": null,
+        "text": "9.41"
+      },
+      "trend": [],
+      "occurredAt": "2026-11-02T09:36:42+09:00",
+      "photo": null,
+      "summary": "이상 점수 9.41 로 임계 9.23 을 넘었어요. PRPD 패턴이 코로나 방전 유형과 일치해요.",
+      "status": "action_needed"
+    },
+    {
+      "id": "A-10",
+      "level": "warning",
+      "missionId": "발전기실 설비 점검",
+      "robotId": "Robot 05",
+      "floor": "B3",
+      "waypoint": {
+        "id": "WP-12",
+        "no": 12
+      },
+      "equipment": "냉각 펌프 P-2",
+      "detectType": "이상음향",
+      "measure": {
+        "item": "이상음향 점수",
+        "value": 21.6,
+        "unit": null,
+        "limit": null,
+        "text": "21.6"
+      },
+      "trend": [],
+      "occurredAt": "2026-11-02T09:56:05+09:00",
+      "photo": "assets/img/detect-v7/sound.webp",
+      "summary": "이상 점수 21.6 으로 기준 19.0 을 넘었어요. 저주파 대역 에너지가 늘어 베어링 마모 패턴과 비슷해요.",
+      "status": "action_needed"
+    },
+    {
+      "id": "A-8",
+      "level": "warning",
+      "missionId": "발전기실 설비 점검",
+      "robotId": "Robot 05",
+      "floor": "B3",
+      "waypoint": {
+        "id": "WP-02",
+        "no": 2
+      },
+      "equipment": "발전기 베어링",
+      "detectType": "온도감지",
+      "measure": {
+        "item": "최고 온도",
+        "value": 68.4,
+        "unit": "℃",
+        "limit": null,
+        "text": "68.4 ℃"
+      },
+      "trend": [],
+      "occurredAt": "2026-11-02T09:20:14+09:00",
+      "photo": "assets/img/detect-v7/temp.webp",
+      "summary": "베어링 표면 온도 68.4℃ 로 주의 기준 65℃ 를 넘었어요. 주변 온도보다 31℃ 높아요.",
+      "status": "action_needed"
+    },
+    {
+      "id": "A-11",
+      "level": "warning",
+      "missionId": "발전기실 설비 점검",
+      "robotId": "Robot 05",
+      "floor": "B4",
+      "waypoint": {
+        "id": "WP-13",
+        "no": 13
+      },
+      "equipment": "공기 압축기 C-1",
+      "detectType": "계기인식",
+      "measure": {
+        "item": "압력",
+        "value": 7.9,
+        "unit": "bar",
+        "limit": null,
+        "text": "7.9 bar"
+      },
+      "trend": [],
+      "occurredAt": "2026-11-02T10:01:12+09:00",
+      "photo": "assets/img/detect-v7/gauge.webp",
+      "summary": "토출 압력 7.9 bar 로 정상 범위(8.2~8.8) 아래예요. 흡입 필터가 막혔을 가능성이 있어요.",
+      "status": "action_needed"
+    },
+    {
+      "id": "A-5",
+      "level": "warning",
+      "missionId": "정기 순회 점검",
+      "robotId": "Robot 01",
+      "floor": "B4",
+      "waypoint": {
+        "id": "WP-05",
+        "no": 5
+      },
+      "equipment": "냉각 펌프 P-2",
+      "detectType": "이상음향",
+      "measure": {
+        "item": "이상음향 점수",
+        "value": 20.4,
+        "unit": null,
+        "limit": null,
+        "text": "20.4"
+      },
+      "trend": [],
+      "occurredAt": "2026-11-02T10:13:52+09:00",
+      "photo": "assets/img/detect-v7/sound.webp",
+      "summary": "이상 점수 20.4 로 기준 19.0 을 넘었어요. 저주파 대역 에너지가 늘어 베어링 마모 패턴과 비슷해요.",
+      "status": "action_needed"
+    },
+    {
+      "id": "A-6",
+      "level": "warning",
+      "missionId": "정기 순회 점검",
+      "robotId": "Robot 01",
+      "floor": "B4",
+      "waypoint": {
+        "id": "WP-05",
+        "no": 5
+      },
+      "equipment": "냉각 펌프 P-2",
+      "detectType": "온도감지",
+      "measure": {
+        "item": "최고 온도",
+        "value": 48.6,
+        "unit": "℃",
+        "limit": null,
+        "text": "48.6 ℃"
+      },
+      "trend": [],
+      "occurredAt": "2026-11-02T10:14:10+09:00",
+      "photo": "assets/img/detect-v7/temp.webp",
+      "summary": "펌프 하우징 최고 48.6℃ 로 기준 40℃ 를 넘었어요. 평소 36.2℃ 보다 12.4℃ 높아요.",
+      "status": "action_needed"
+    },
+    {
+      "id": "A-7",
+      "level": "warning",
+      "missionId": "정기 순회 점검",
+      "robotId": "Robot 01",
+      "floor": "B4",
+      "waypoint": {
+        "id": "WP-06",
+        "no": 6
+      },
+      "equipment": "수배전반 MCC-1",
+      "detectType": "부분방전",
+      "measure": {
+        "item": "부분방전 점수",
+        "value": 9.05,
+        "unit": null,
+        "limit": null,
+        "text": "9.05"
+      },
+      "trend": [],
+      "occurredAt": "2026-11-02T10:15:31+09:00",
+      "photo": null,
+      "summary": "CH1 이상 점수 9.05 로 기준 8.60 을 넘었어요. CH2 · CH3 은 정상 범위예요.",
+      "status": "action_needed"
+    },
+    {
+      "id": "A-2",
+      "level": "critical",
+      "missionId": "정기 순회 점검",
+      "robotId": "Robot 01",
+      "floor": "B4",
+      "waypoint": {
+        "id": "WP-07",
+        "no": 7
+      },
+      "equipment": "고소 작업 발판",
+      "detectType": "안전감지",
+      "measure": {
+        "item": "안전모 미착용",
+        "value": 1,
+        "unit": "명",
+        "limit": null,
+        "text": "1명"
+      },
+      "trend": [],
+      "occurredAt": "2026-11-02T10:16:48+09:00",
+      "photo": null,
+      "summary": "고소 작업 발판에서 안전모를 쓰지 않은 작업자 1명이 신뢰도 0.91 로 검출됐어요.",
+      "status": "action_needed"
+    },
+    {
+      "id": "A-3",
+      "level": "critical",
+      "missionId": "전기실 열화상 점검",
+      "robotId": "Robot 11",
+      "floor": "B3",
+      "waypoint": {
+        "id": "WP-02",
+        "no": 2
+      },
+      "equipment": "HEPA Filter 차압계",
+      "detectType": "계기인식",
+      "measure": {
+        "item": "차압",
+        "value": 312,
+        "unit": "Pa",
+        "limit": null,
+        "text": "312 Pa"
+      },
+      "trend": [
+        null,
+        null,
+        null
+      ],
+      "occurredAt": "2026-11-02T09:44:18+09:00",
+      "photo": "assets/img/detect-v7/gauge.webp",
+      "summary": "차압 312 Pa 로 교체 기준 250 Pa 를 넘었어요. 최근 3회 측정이 잇달아 올라 NG 로 판정했어요.",
+      "status": "action_needed"
+    },
+    {
+      "id": "A-12",
+      "level": "warning",
+      "missionId": "전기실 열화상 점검",
+      "robotId": "Robot 11",
+      "floor": "B3",
+      "waypoint": {
+        "id": "WP-04",
+        "no": 4
+      },
+      "equipment": "N₂ 배관 압력계",
+      "detectType": "계기인식",
+      "measure": {
+        "item": "압력",
+        "value": 0.62,
+        "unit": "MPa",
+        "limit": null,
+        "text": "0.62 MPa"
+      },
+      "trend": [],
+      "occurredAt": "2026-11-02T10:15:52+09:00",
+      "photo": "assets/img/detect-v7/gauge.webp",
+      "summary": "압력 0.62 MPa 로 정상 범위(0.65~0.75) 아래예요. 최근 2회 측정에서 조금씩 내려가고 있어요.",
+      "status": "action_needed"
+    }
+  ]
+}
