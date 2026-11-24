@@ -214,8 +214,8 @@
 /* [11/24 브랜딩] 숫자 글꼴 — 알림 제목 · 안전진단 큰 값 끝의 "숫자 + 단위"(잰 값)를 .ds-meas 로 감싸 Mono 로(components-v7.css 끝).
  * 건수("1명")는 단위 목록에 없어 그대로 SUIT. 목록을 다시 그리면 다음 프레임에 다시 감싼다. */
 (function () {
-  var SEL = ".ah-title > span:not([class]), .ac-c-title[role=\"gridcell\"], .sf .kd .big, .ac-d6-val";
-  var RE = /-?\d+(?:[.,]\d+)?\s?(?:MPa|kPa|Pa|bar|℃|°C|%|ppm|dB|mm|kg\/cm²|m³\/h)?\s*$/;
+  var SEL = ".ah-title > span:not([class]), .ac-c-title[role=\"gridcell\"], .sf .kd .big, .ac-d6-val, .map-alert .ma-reason";
+  var RE = /[+\-−]?\d+(?:[.,]\d+)?\s?(?:MPa|kPa|Pa|bar|℃|°C|%|ppm|dB|mm|kg\/cm²|m³\/h)?\s*$/;
   function wrap(el) {
     if (el.querySelector(".ds-meas")) return;
     var t = el.lastChild;
