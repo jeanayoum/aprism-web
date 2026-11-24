@@ -264,6 +264,8 @@
   var DAY = "2026-11-02 ";   // v6 · v7 상태바 시계의 오늘(alert-center-data-v6.js 와 같다)
   function copy(o) { return JSON.parse(JSON.stringify(o)); }
   function robotName(i) { return "Robot " + (i < 9 ? "0" : "") + (i + 1); }
+  // [11/24] 로봇 이름 표기는 공통 함수(ds-v7.js APRISM_ROBOT_LABEL) — 없으면(옛 화면) 위 robotName
+  function robotLabel(x) { return window.APRISM_ROBOT_LABEL ? window.APRISM_ROBOT_LABEL(x) : (typeof x === "number" ? robotName(x) : String(x || "")); }
   // 예전 판 항목 이름 — "이상음향 점수" · "부분방전 점수" 는 v7 에서 붙인 이름이다(alert-text-v6.js lab7). 예전 열쇠 · 알림 센터 제목은 "이상 점수"
   function label6(a) { return a.label === a.detect + " 점수" ? "이상 점수" : a.label; }
   function text(a) { return a.label + " " + a.value; }
@@ -387,6 +389,7 @@
   function img7(detect) { return IMG7[detect] || null; }   // assets/img/ 아래 경로
 
   window.APRISM_ALERTS7 = {
+    robotLabel: robotLabel,
     list: ALERTS,
     img: img7,
     sug: sugOf,

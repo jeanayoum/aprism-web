@@ -18,6 +18,14 @@
  *
  * 공통 옵션: cls (덧붙일 클래스), attrs (덧붙일 속성 문자열)
  * ========================================================================== */
+/* [11/24 디자이너] 로봇 이름 표기 = "Robot 01" 하나(대문자 ROBOT 쓰지 않음). 모든 v7 화면이 읽는 이 파일 한 곳에 둔다.
+ * 순번(0부터) 또는 이름 글("ROBOT 5", "robot 05")을 받아 "Robot 05" 로. 지도(map-v6.js) · 알림 자료(alert-data-v7.js)가 이것을 쓴다 */
+window.APRISM_ROBOT_LABEL = function (x) {
+  function n2(k) { return "Robot " + (k < 10 ? "0" : "") + k; }
+  if (typeof x === "number") { return n2(x + 1); }
+  var m = /robot\s*0*(\d+)/i.exec(String(x || ""));
+  return m ? n2(parseInt(m[1], 10)) : String(x || "");
+};
 (function () {
   // 칩 안 아이콘 (배지 아이콘은 아래 badge() 주석)
   function ic(kind, tone) {

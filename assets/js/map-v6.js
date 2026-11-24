@@ -322,6 +322,9 @@
     done: 0x89b9ed, left: 0x4990e0, dot: 0xc7ddf8
   };
 
+  // [11/24 디자이너] 로봇 이름 표기는 공통 "Robot 01"(alert-data-v7.js APRISM_ROBOT_LABEL) — 지도 안 이름(팝오버 · 이름표 · 계단 이동 표시)을 여기서 한 번에 맞춘다
+  if (window.APRISM_ROBOT_LABEL) { ROBOTS.forEach(function (b) { if (b && b.name) { b.name = window.APRISM_ROBOT_LABEL(b.name); } }); }
+
   // 모델을 이 크기(가장 긴 변)로 키워서 다룬다. 이유는 build() 에 적어 두었다.
   var SPAN_UNITS = 120;
 
