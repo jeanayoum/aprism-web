@@ -1321,7 +1321,7 @@
           boxEl.appendChild(mark);
           row.appendChild(boxEl);
           var lab = el("span", "ma-check-label" + (DS7 ? " ds-act-text" : ""), act.t);
-          if (DS7 && src.to) { lab.appendChild(el("small", null, src.to)); }   // [11/23] 받는 곳 줄(알림 센터 · 안전진단과 같은 꼴)
+          // [11/24 디자이너] 받는 곳 줄은 뺐다 — 조치 내용이 먼저, 받는 곳(임시 값)은 정보가 과함. 요청 뒤 "받은 팀"은 req.to(감지별 담당 TO 표)가 따로 말함
           row.appendChild(lab);
           if (act.ai) { row.appendChild(el("span", "ma-check-tag" + (document.body.classList.contains("ver-7") ? " ds-badge is-neutral ds-i-delta" : ""), "AI 추천")); }   // [11/19 v7] 출처 배지 A안
           options.appendChild(row);

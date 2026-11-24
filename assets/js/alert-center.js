@@ -971,7 +971,7 @@
     var rows = a.acts.slice().sort(function (x, y) { return (y.delta ? 1 : 0) - (x.delta ? 1 : 0); }).map(function (c) {
       var on = chosen.indexOf(c.t) > -1;
       // [11/20 v7] 조치 목록 한 줄은 ds.act (공통 CSS). 누름 처리는 예전 이름(.ma-check, data-act)을 그대로 봄
-      if (V7 && window.ds) { return window.ds.act(esc(c.t), { on: on, ai: !!c.delta, sub: c.to ? esc(c.to) : '', cls: 'ma-check', boxCls: 'ma-check-box', textCls: 'ma-check-label', attrs: 'data-act="' + esc(c.t) + '"' }); }
+      if (V7 && window.ds) { return window.ds.act(esc(c.t), { on: on, ai: !!c.delta, cls: 'ma-check', boxCls: 'ma-check-box', textCls: 'ma-check-label', attrs: 'data-act="' + esc(c.t) + '"' }); }
       return '<button type="button" class="ma-check" role="checkbox" data-act="' + esc(c.t) + '" aria-checked="' + (on ? "true" : "false") + '">' +
         '<span class="ma-check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>' +
         '<span class="ma-check-label">' + esc(c.t) + '</span>' +
