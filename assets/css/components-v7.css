@@ -1925,3 +1925,10 @@ body.ver-7.is-surge .two-col.is-critical::before { content: ""; position: absolu
 body.ver-7.is-surge .two-col.is-critical > .edge-light { background-image: radial-gradient(circle var(--ds-wave-r) at 0 0, transparent calc(var(--ds-wave-r) - 260px), rgb(240 89 55 / calc(.10 * var(--ds-wave-o))) calc(var(--ds-wave-r) - 160px), rgb(110 40 140 / calc(.12 * var(--ds-wave-o))) calc(var(--ds-wave-r) - 60px), transparent var(--ds-wave-r)); animation: ds-wave 2.6s cubic-bezier(.3, .6, .4, 1) 1 both; }
 @keyframes ds-wave { 0% { --ds-wave-r: 0px; --ds-wave-o: 1; } 75% { --ds-wave-o: 1; } 100% { --ds-wave-r: 3000px; --ds-wave-o: 0; } }
 @media (prefers-reduced-motion: reduce) { body.ver-7.is-surge .two-col.is-critical::before { display: none; } body.ver-7.is-surge .two-col.is-critical > .edge-light { animation: none; background-image: none; } }
+
+/* ===== [11/24 브랜딩] 숫자 글꼴 — 잰 값은 Mono, UI 숫자는 SUIT 고정폭
+ * 잰 값 = 센서 값 · 시각 · 좌표(층 꼬리표 포함). 건수 · 퍼센트 진행률 · 쪽수 · 순번 같은 UI 숫자는 SUIT tabular-nums.
+ * 알림 제목처럼 글 안에 든 값은 ds-v7.js 가 끝의 "숫자 + 단위"를 .ds-meas 로 감싼다. 브랜드 문서 "시각 원칙 · 숫자 글꼴" */
+body.ver-7 :is(.utc-clock .num, .ah-time, .sf .kd .tm, .ds-meas, .precheck-row .meta, .rp-item.is-mission .rp-tm, .rp-moslot .rp-tm, .ft .fr.f1 .ev-h b, .ft .fr.gau:not(.hd) > span:is(:nth-child(4), :nth-child(5))) { font-family: var(--font-family-mono) !important; font-variant-numeric: tabular-nums; letter-spacing: 0; }
+body.ver-7 .ds-meas { font-size: .95em; }
+body.ver-7 :is(.ac-tab-count, .ds-pager-n, .ac-nth) { font-family: var(--font-family-sans) !important; font-variant-numeric: tabular-nums; }
