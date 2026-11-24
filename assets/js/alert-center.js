@@ -1036,7 +1036,9 @@
           (V7 ? infoRow("진행", '<span class="t-body-4">' + stageHtml(a, true) + '</span>') : "") +   // [11/23 Q2] 진행 단계 · 받는 사람
           infoRow("담당", '<span class="t-body-4">' + esc(d.by) + '</span>') +
           infoRow("소요", '<span class="t-body-4">' + esc(d.took) + '</span>') +
-          infoRow("DELTA", '<span class="ac-info-delta t-body-4">' + esc(deltaLine(d.delta)) + '</span>') +
+          (V7 && d.picked && d.picked.length
+            ? infoRow("조치", infoActs(a, d))   // [11/24 디자이너] "AI 추천 그대로 사용" 대신 실제 조치 내용, AI 추천에서 온 조치만 Delta 글자
+            : infoRow("DELTA", '<span class="ac-info-delta t-body-4">' + esc(deltaLine(d.delta)) + '</span>')) +
         '</dl>' +
       '</section>' +
     '</div>';
@@ -1097,6 +1099,21 @@
         refresh();
       });
     }
+  }
+
+  // [11/24 v7] 처리 정보 "조치" 줄 — 고른 조치 이름을 적고, AI 추천에서 온 조치는 Delta 아이콘 + Delta 글자 색(.ac-info-ai)
+  //   추천 목록은 알림의 acts(delta:true). 없으면 기록 문구 괄호 안("AI 추천 ... (가, 나)")에서 읽는다
+  function infoActs(a, d) {
+    var rec = (a.acts || []).filter(function (c) { return c.delta; }).map(function (c) { return c.t; });
+    if (!rec.length && d.delta && !/쓰지 않음/.test(d.delta)) {
+      var m = /\(([^)]*)\)\s*$/.exec(d.delta);
+      if (m) { rec = m[1].split(/\s*[·,]\s*/); }
+    }
+    return '<span class="ac-info-acts t-body-4">' + d.picked.map(function (t) {
+      return rec.indexOf(t) > -1
+        ? '<span class="ac-info-ai"><span class="ac-info-ai-i" aria-hidden="true"></span>' + esc(t) + '<span class="ds-sr"> (AI 추천)</span></span>'
+        : '<span>' + esc(t) + '</span>';
+    }).join("") + '</span>';
   }
 
   // 처리 정보의 "DELTA" 줄 — 고른 조치가 추천과 얼마나 겹치는지로 적는다.
