@@ -4268,11 +4268,12 @@
     wpTog.textContent = "지점 " + rail.querySelectorAll(".timeline-item[data-waypoint]").length + "곳";
     // [11/10 v7 디자이너] 진행 막대 아래의 지나온 수(7/20)를 이 머리로 옮겨 하나로 — "지점 7/20"
     if (document.body.classList.contains("ver-7")) {
+      wpTog.classList.add("ds-title-row");   // 공통 제목 줄(11/24)
       var cnt = document.querySelector("[data-progress-count]"), ct = cnt ? cnt.textContent.trim() : "";
       if (/^\d+\/\d+$/.test(ct)) {
         wpTog.textContent = "";
-        var t1 = document.createElement("span"); t1.className = "rr-wp-t"; t1.textContent = document.documentElement.lang === "en" ? "Waypoints" : "웨이포인트";
-        var t2 = document.createElement("span"); t2.className = "rr-wp-n num"; t2.textContent = ct;
+        var t1 = document.createElement("span"); t1.className = "rr-wp-t ds-title-name"; t1.textContent = document.documentElement.lang === "en" ? "Waypoints" : "웨이포인트";
+        var t2 = document.createElement("span"); t2.className = "rr-wp-n ds-title-count num"; t2.textContent = ct;
         wpTog.appendChild(t1); wpTog.appendChild(t2);
       }
     }

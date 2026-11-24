@@ -1,11 +1,11 @@
 /* ==========================================================================
  * v7 공통 CSS: 배지, 칩, 탭, 버튼 (한 벌)
- * - v7 화면 10개가 이 파일을 불러온다. v7에서만 켜진다(body.ver-7). v6 이하는 그대로
+ * - v7 이후 화면(v7, v8 …)이 이 파일을 불러온다(11/24 결정). body.ver-7 에서 켜지므로 v8 이후 화면도 body 에 ver-7 을 함께 둔다. v6 이하는 그대로
  * - 디자인 값은 바로 아래 "디자인 값" 블록 한 곳에서만 고친다. 공통 CSS 규칙과 미리보기(tools/ds-preview)가 모두 이 값을 본다
  * - 값은 토큰만 쓴다(tokens.css). 높이처럼 토큰이 없는 것만 숫자
  * - 배지, 칩, 탭: .ds-badge, .ds-wp, .ds-floor, .ds-chip, .ds-tab-line, .ds-tab-chip, .ds-seg (화면 코드를 이 클래스로 바꾸는 중, assets/js/ds-v7.js 가 같은 마크업을 만들어 줌)
  * - 상단 미션 탭: .sb-tab, .sb-tab-more, .sb-more-menu (11/20 정의서 공통-01 Q6 으로 등록, 그리는 곳은 assets/js/mission-tabs-v6.js, 값은 파일 끝 "상단 미션 탭" 블록)
- * - 파일 차례: 디자인 값 → 컴포넌트(글자 단계, 아이콘, 배터리, 리스트, 패널 머리, 안내 상자, 토글, 지도 도구 상자, 지도 팝오버, 배지, 태그, 점 배지, WP 번호 원, 층, 조치 목록과 체크 상자, 칩, 탭, 구간 전환, 버튼) → Delta 부품 → 지도 부품(2D 지도 경로, 번호 원) → 맨 끝 사례(Case Studies: 컴포넌트를 엮은 화면 한 덩이, 예: DELTA 조치 제안 카드)
+ * - 파일 차례: 디자인 값 → 컴포넌트(글자 단계, 아이콘, 배터리, 리스트, 패널 머리, 안내 상자, 토글, 지도 도구 상자, 지도 팝오버, 배지, 태그, 점 배지, WP 번호 원, 층, 조치 목록과 체크 상자, 칩, 탭, 구간 전환, 버튼, 제목 줄, 묶음, 기준 비교, 측정 이력) → Delta 부품 → 지도 부품(2D 지도 경로, 번호 원) → 맨 끝 사례(Case Studies: 컴포넌트를 엮은 화면 한 덩이, 예: DELTA 조치 제안 카드, 감지 상세 판)
  * - 버튼: 지금 화면이 쓰는 .btn, .icon-button 등에 바로 걸림 (파일 아래쪽 "버튼")
  * - 나누는 기준: 누르지 않는 표시는 배지, 조건을 켜거나 값을 고르면 칩, 보이는 내용이 통째로 바뀌면 탭, 행동과 이동은 버튼
  * - 인계 문서: https://claude.ai/artifact/P6i1TzG3SDpNn9gPTiF1mg
@@ -342,7 +342,6 @@ body.ver-7 :is(
   body.ver-7 .ma-ins-t.is-last,
   body.ver-7 .ma-res-chip,
   body.ver-7 .ma-res-v small,
-  body.ver-7 .ma-v3 .ma-delta-lead,
   body.ver-7 .ma-v3 .ma-reason,
   body.ver-7 .ma-v3 .ma-title,
   body.ver-7 .ma-wp-label .mwl-place,
@@ -416,6 +415,17 @@ body.ver-7 .i-12 { width: var(--ds-icon-12); height: var(--ds-icon-12); }
 body.ver-7 .i-16 { width: var(--ds-icon-16); height: var(--ds-icon-16); }
 body.ver-7 .i-20 { width: var(--ds-icon-20); height: var(--ds-icon-20); }
 body.ver-7 .i-24 { width: var(--ds-icon-24); height: var(--ds-icon-24); }
+/* 감지 아이콘 세트 (11/24, 안전진단 감지 6종): 장비착용 고깔, 계기인식 계기, 누출감지 물방울, 온도감지 온도계, 이상음향 소리, 부분방전 번개.
+ *   모양은 안전진단 v8 아티팩트 시안 정의 그대로(v6.css --ic-cone, icons-outline.css 의 계기 · 온도계 · 번개와 같은 모양). v7 화면은 여기 한 곳을 씀
+ *   2D 지도 위 상태(원 표식, 세모 꼬리 핀)는 아래 지도 부품 "감지 표식" */
+body.ver-7 {
+  --ic-cone: url("data:image/svg+xml,%3Csvg width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22none%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cpath d=%22M10.3 3h3.4l1.4 4.8H8.9L10.3 3Z%22 fill=%22black%22/%3E%3Cpath d=%22M8.3 9.8h7.4l1.2 4.2H7.1l1.2-4.2Z%22 fill=%22black%22/%3E%3Cpath d=%22M6.5 16h11l.6 2H5.9l.6-2Z%22 fill=%22black%22/%3E%3Crect x=%223%22 y=%2219%22 width=%2218%22 height=%222.5%22 rx=%221.2%22 fill=%22black%22/%3E%3C/svg%3E");   /* 장비착용 */
+  --ic-gauge: url("data:image/svg+xml,%3Csvg width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22none%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cpath d=%22M16.3555 9.2845C16.8607 8.931 17.4625 9.56295 17.1259 10.0934L14.2211 14.6655L14.2222 14.6667C14.2222 15.2855 13.9879 15.8788 13.5712 16.3164C13.1544 16.754 12.5894 17 12 17C11.4106 17 10.8456 16.754 10.4288 16.3164C10.0121 15.8788 9.77778 15.2855 9.77778 14.6667C9.77782 14.0479 10.0121 13.4545 10.4288 13.0169C10.8456 12.5794 11.4107 12.3333 12 12.3333L16.3555 9.2845ZM12 13.5C11.3864 13.5 10.8889 14.0224 10.8889 14.6667C10.8889 15.311 11.3864 15.8333 12 15.8333C12.6137 15.8333 13.1111 15.311 13.1111 14.6667C13.1111 14.0224 12.6136 13.5 12 13.5ZM12 3C17.5228 3 22 7.70101 22 13.5C22 14.1443 21.5025 14.6667 20.8889 14.6667C20.2752 14.6667 19.7778 14.1443 19.7778 13.5C19.7778 8.98967 16.2955 5.33333 12 5.33333C7.70445 5.33333 4.22222 8.98967 4.22222 13.5C4.22222 14.1443 3.72476 14.6667 3.11111 14.6667C2.49746 14.6667 2 14.1443 2 13.5C2 7.70101 6.47715 3 12 3Z%22 fill=%22%23000%22/%3E%3C/svg%3E");   /* 계기인식 */
+  --ic-drop: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2.2c.35 0 .6.16.82.46C14.6 5.2 18.8 10.7 18.8 14.6a6.8 6.8 0 0 1-13.6 0c0-3.9 4.2-9.4 5.98-11.94.22-.3.47-.46.82-.46Z'/></svg>");   /* 누출감지 */
+  --ic-thermometer: url("data:image/svg+xml,%3Csvg width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22none%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cpath d=%22M14.0003 13.5352C14.2963 13.7063 14.5752 13.9186 14.8284 14.1719C16.3903 15.7339 16.3903 18.2661 14.8284 19.8281C13.2663 21.3902 10.7333 21.3902 9.17118 19.8281C7.60953 18.2661 7.60953 15.7339 9.17118 14.1719C9.42456 13.9185 9.7041 13.7063 10.0003 13.5352V4.82831C10.0003 4.29795 10.2109 3.7893 10.5859 3.41425C11.3669 2.63318 12.6333 2.63318 13.4143 3.41414C13.7895 3.78923 14.0003 4.29804 14.0003 4.82854V13.5352Z%22 stroke=%22%23000%22 stroke-width=%222%22 stroke-linejoin=%22round%22/%3E%3Ccircle cx=%2212%22 cy=%2217%22 r=%224%22 fill=%22%23000%22/%3E%3Crect x=%2210%22 y=%228%22 width=%224%22 height=%226%22 fill=%22%23000%22/%3E%3C/svg%3E");   /* 온도감지 */
+  --ic-sound: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M3 9.2h3.6L11.4 5c.6-.5 1.6-.1 1.6.7v12.6c0 .8-1 1.2-1.6.7l-4.8-4.2H3a1 1 0 0 1-1-1v-3.6a1 1 0 0 1 1-1Z'/><path d='M15.6 8.6a5 5 0 0 1 0 6.8M18.4 6a8.6 8.6 0 0 1 0 12' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'/></svg>");   /* 이상음향 */
+  --ic-bolt: url("data:image/svg+xml,%3Csvg width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22none%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cpath d=%22M13.5225 4.29507C13.4804 3.36826 12.3084 2.99345 11.7363 3.72381L5.26639 11.9833C4.75225 12.6396 5.21987 13.5999 6.05361 13.5999H9.24442C9.77905 13.5999 10.2191 14.0205 10.2434 14.5545L10.4775 19.7048C10.5196 20.6316 11.6916 21.0065 12.2637 20.2761L18.7336 12.0166C19.2478 11.3603 18.7801 10.3999 17.9464 10.3999H14.7556C14.221 10.3999 13.7809 9.97943 13.7566 9.44536L13.5225 4.29507Z%22 fill=%22%23000%22/%3E%3C/svg%3E");   /* 부분방전 */
+}
 
 /* ---------- 예전 14 아이콘을 12로 (11/19): 판정 삼각형, 체크 표시, 화살표, Delta 표식 ----------
    원래 규칙은 app-shell.css, monitor.css, alert-center.css, safety.css, v5.css, v6.css에 그대로 두고 v7에서만 덮음 */
@@ -512,6 +522,16 @@ body.ver-7 .ds-badge.is-num { width: auto !important; min-width: var(--ds-badge-
 body.ver-7 .ds-badge.is-onmap { background-color: var(--bg-panel) !important; color: var(--text-secondary) !important; }
 body.ver-7 .ds-badge.is-onmap.is-strong { color: var(--text-primary) !important; }
 body.ver-7 .ds-badge.is-onmap.is-marked { background-color: var(--text-primary) !important; color: var(--bg-page) !important; }
+/* 라이브 배지 (11/24, .ds-badge.is-onmap.is-strong.ds-i-dot.is-live): 라이브 화면 왼쪽 위 꼬리표. 지도 위 배지 + 작은 점, 점만 위험 빨강으로 깜빡임(안전진단 v8 A, B) */
+body.ver-7 .ds-badge.is-live { --ds-i-color: var(--status-critical-icon); }
+body.ver-7 .ds-badge.is-live::before { animation: ds-live-blink 1.2s infinite; }
+@keyframes ds-live-blink { 50% { opacity: .3; } }
+@media (prefers-reduced-motion: reduce) { body.ver-7 .ds-badge.is-live::before { animation: none; } }
+/* 감지 표식 배지 (11/24, .ds-badge.is-plain.ds-i-none.is-mark): 아이콘 자리에 감지 표식 원(.ds-detect-mark) 16. 지도 범례 [● 위험] [● 주의] [● 완료] [○ 예정] */
+body.ver-7 .ds-badge.is-mark { gap: var(--ds-badge-gap) !important; }
+body.ver-7 .ds-badge.is-mark > .ds-detect-mark { width: var(--ds-icon-16); height: var(--ds-icon-16); box-shadow: none; }
+body.ver-7 .ds-badge.is-mark > .ds-detect-mark.is-plan { box-shadow: inset 0 0 0 1px var(--text-secondary); }
+body.ver-7 .ds-badge.is-mark > .ds-detect-mark > .i { width: var(--ds-icon-12); height: var(--ds-icon-12); }
 /* 전체 미션 지도: 로봇 상태(수행중, 표시됨)는 부모 .bld-bot 이 가짐 */
 body.ver-7 .bld-bot.is-run > .ds-badge.is-onmap { color: var(--text-primary) !important; }
 body.ver-7 .bld-bot.is-marked > .ds-badge.is-onmap { background-color: var(--text-primary) !important; color: var(--bg-page) !important; }
@@ -522,6 +542,7 @@ body.ver-7 .ds-dot { display: inline-block; flex: none; box-sizing: border-box; 
 body.ver-7 .ds-dot.is-crit { background-color: var(--status-critical-icon) !important; }
 body.ver-7 .ds-dot.is-warn { background-color: var(--status-warning-icon) !important; }
 body.ver-7 .ds-dot.is-info { background-color: var(--status-info-icon) !important; }
+body.ver-7 .ds-dot.is-neutral { background-color: var(--text-tertiary) !important; }   /* 11/24 측정 완료(판정 정상) 지점, 안전진단 상세 지점 줄 */
 
 /* 아이콘: 상자 12, 채운 모양 */
 body.ver-7 .ds-badge::before { content: none !important; }
@@ -572,6 +593,13 @@ body.ver-7 .ds-phead-t { flex: 1 1 auto !important; min-width: 0 !important; mar
 body.ver-7 .ds-phead > button { order: 1 !important; }
 body.ver-7 :is(.context-panel.is-collapsed, .sf.is-fold, .rp-body.is-fold) .ds-phead { gap: 0 !important; }
 body.ver-7 :is(.context-panel.is-collapsed, .sf.is-fold, .rp-body.is-fold) .ds-phead::after { opacity: 0 !important; }
+
+/* ---------- 제목 줄 (11/24, .ds-title-row): 묶음이나 판 맨 위 이름 + 건수 한 줄. 관제 경로 패널 머리 "웨이포인트 7/20" 값 그대로 ----------
+ * 이름 .ds-title-name 16/24/700, 건수 .ds-title-count 14/20/500(숫자 폭 고정), 둘 다 text/primary, 사이 4(관제 화면에 보이는 값), 세로 가운데. 높이와 자리는 놓인 판이 정함
+ * 쓰는 곳: 관제 경로 패널 머리(.rr-wp-toggle), 안전진단 v8 미션별 지도, 진단표 */
+body.ver-7 .ds-title-row { display: flex; align-items: center; gap: var(--space-4); color: var(--text-primary); }
+body.ver-7 .ds-title-name { font-size: var(--font-size-16); line-height: var(--font-line-height-24); font-weight: var(--font-weight-bold); }
+body.ver-7 .ds-title-count { font-size: var(--font-size-14); line-height: var(--font-line-height-20); font-weight: var(--font-weight-medium); font-variant-numeric: tabular-nums; }
 
 /* ---------- 안내 상자 (11/20, .ds-notice): 아이콘 16 + 제목(굵게) + 본문 ----------
  * 화면: 사전 점검, 미션설정 안내(정보), 관제 로봇 상세 서랍 알림(주의, 위험), 관제 알림 팝오버 "조치 요청됨"(정보), 교대 모달과 로그인 계정 잠금(위험), 비밀번호 변경(로그인 쪽, 주의). 예전 .inline-notice 옆에 .ds-notice
@@ -990,6 +1018,25 @@ body.ver-7 .ds-robot-tile[aria-pressed="true"] { box-shadow: inset 0 0 0 var(--b
 body.ver-7 .ds-robot-tile:focus-visible { outline: var(--border-width-strong) solid var(--border-focus) !important; outline-offset: calc(var(--space-2) * -1) !important; }
 body.ver-7 .ds-robot-tile.is-offline { opacity: 0.55; cursor: not-allowed; }
 
+/* ---------- 로봇 카드 (11/24, .ds-robot-card): 로봇 하나의 지금 상태. 카드 규칙(안쪽 12, 블록 사이 12, 모서리 4, 면 bg/raised) ----------
+ *   이름 .ds-robot-card-name(16/24/700), 그림 .robot-thumb.ds-robot-card-fig(관제 로봇 카드와 같은 robot-2d.js 그림, 걷기 data-r2="walk"),
+ *   줄 .ds-robot-card-rows > .ds-robot-card-row(높이 26, 이름 12/18 text/tertiary 44 + 값): 운영 상태 태그(ds.statusCls), 배터리 .ds-battery(ds.battery), 측정 진행 .ds-progress + 개수
+ *   글과 그림 한 줄 .ds-robot-card-top(그림 오른쪽 160), 아래를 채우는 라이브 .ds-robot-card-live. 쓰는 곳: 안전진단 v8 A안(줄 | 그림 + 라이브), B안(그림 위, 줄 아래) */
+body.ver-7 .ds-robot-card { display: flex; flex-direction: column; align-items: stretch; gap: var(--ds-card-gap); box-sizing: border-box; padding: var(--ds-card-pad); border-radius: var(--ds-card-radius); background-color: var(--bg-raised); overflow: hidden; }
+body.ver-7 .ds-robot-card-name { flex: none; font-size: var(--font-size-16); line-height: var(--font-line-height-24); font-weight: var(--font-weight-bold); }
+body.ver-7 .ds-robot-card .ds-robot-card-fig { flex: 1 1 auto; min-height: 0; height: auto; display: flex; justify-content: center; overflow: visible; }
+body.ver-7 .ds-robot-card-fig > svg.robot-2d { display: block; width: auto; height: 100%; max-width: 100%; transform: scaleX(-1); transform-origin: 50% 100%; overflow: visible; }
+body.ver-7 .ds-robot-card-rows { flex: none; display: flex; flex-direction: column; }
+body.ver-7 .ds-robot-card-row { display: flex; align-items: center; gap: var(--space-8); min-height: 26px; }
+body.ver-7 .ds-robot-card-row > span:first-child { flex: none; width: 44px; font-size: var(--font-size-12); line-height: var(--font-line-height-18); color: var(--text-tertiary); }
+body.ver-7 .ds-robot-card-prog { flex: 1; min-width: 0; display: flex; align-items: center; gap: var(--space-8); }
+body.ver-7 .ds-robot-card-prog > .ds-progress { flex: 1; min-width: 0; }
+body.ver-7 .ds-robot-card-prog > .num { font-size: var(--font-size-12); line-height: var(--font-line-height-18); color: var(--text-secondary); }
+body.ver-7 .ds-robot-card-top { flex: none; display: flex; align-items: center; gap: var(--space-16); }
+body.ver-7 .ds-robot-card-top > .ds-robot-card-rows { flex: 1; min-width: 0; }
+body.ver-7 .ds-robot-card-top > .ds-robot-card-fig { flex: none; width: 160px; height: 104px; }
+body.ver-7 .ds-robot-card-live { flex: none; }
+
 /* ---------- 로그인 쪽 버튼 (11/23, body.ds-auth): 로그인, 비밀번호 변경 화면은 v7 규칙 전체가 아니라 이 부품만 받음 ----------
  * 로그인 버튼 .ds-auth-btn = 버튼 Large 40(좌우 16, 글자 16/500, 모서리 4, 폭 꽉 채움). 색은 예전대로(보조, 강조 .is-accent, 위험 .is-danger)
  * 비밀번호 보기 .ds-auth-iconbtn = 아이콘 버튼 24(안쪽 4, 아이콘 16, 모서리 4). 다른 계정으로 로그인 .ds-auth-ghost = 글자 버튼 Ghost M 32(좌우 12, 14/20/500) */
@@ -1118,6 +1165,39 @@ body.ver-7 .timeline-item.is-pending .ds-card.is-step { background-color: var(--
 body.ver-7 .timeline-item.is-done .ds-card.is-step { background-color: var(--ds-step-done-bg) !important; }   /* 진행 완료 */
 body.ver-7 .timeline-item.is-done .ds-card.is-step .step-title { color: var(--text-secondary) !important; }
 body.ver-7 .timeline-item.is-selected .ds-card.is-step { outline: var(--border-width-thin) solid var(--step-now-bg) !important; outline-offset: var(--border-width-thin) !important; }   /* 고름 */
+
+/* ---------- 묶음 (11/24, .ds-sec): 판 안 한 덩이 = 제목 줄 + 내용. 사이 12, 남은 높이 채움 .is-fill ----------
+ *   제목 .ds-sec-head(16/24/700) + 보조 span(14/500 text/tertiary). 기준 비교, 측정 이력, 근거 사진이 이 틀에 들어감 */
+body.ver-7 .ds-sec { display: flex; flex-direction: column; gap: var(--space-12); min-height: 0; }
+body.ver-7 .ds-sec.is-fill { flex: 1; }
+body.ver-7 .ds-sec-head { display: flex; align-items: center; gap: var(--space-8); font-size: var(--font-size-16); line-height: var(--font-line-height-24); font-weight: var(--font-weight-bold); }
+body.ver-7 .ds-sec-head > span { font-size: var(--font-size-14); color: var(--text-tertiary); font-weight: var(--font-weight-medium); }
+
+/* ---------- 기준 비교 (11/24, .ds-limit): 측정값 하나를 주의, 위험 기준과 나란히 보는 막대 ----------
+ *   마크업: .ds-sec > .ds-sec-head("기준 비교" + 기준 값) + .ds-limit > .ds-limit-bar + .ds-limit-axis
+ *   막대 .ds-limit-bar: 홈(높이 12) + 채움 .f(판정 색) 또는 허용 띠 .band(범위 기준), 눈금 .m(주의) .m.c(위험), 값 원 .pt(20, 판 색 테 4)
+ *   기준 숫자 .ds-limit-axis(눈금 아래 가운데), 읽기용 글 small 은 숨김
+ *   쓰는 곳: 감지 상세 판(.ds-detail), 발생 위치 옆 콜아웃(.ds-pop) */
+body.ver-7 .ds-limit { display: flex; flex-direction: column; gap: var(--space-4); padding-top: var(--space-8); }
+body.ver-7 .ds-limit small { display: none; }
+body.ver-7 .ds-limit-bar { position: relative; height: 12px; border-radius: var(--radius-4); background-color: var(--bg-inset); }
+body.ver-7 .ds-limit-bar > .f { position: absolute; left: 0; top: 0; bottom: 0; border-radius: var(--radius-4); }
+body.ver-7 .ds-limit-bar > .band { position: absolute; top: 0; bottom: 0; background-color: rgb(238 240 243 / 16%); }
+body.ver-7 .ds-limit-bar > .m { position: absolute; top: -6px; bottom: -6px; width: 2px; margin-left: -1px; background-color: var(--status-warning-icon); }
+body.ver-7 .ds-limit-bar > .m.c { background-color: var(--status-critical-icon-subtle); }
+body.ver-7 .ds-limit-bar > .pt { position: absolute; top: 50%; width: 20px; height: 20px; margin: -10px 0 0 -10px; border-radius: var(--radius-pill); border: 4px solid var(--bg-raised); }
+body.ver-7 .ds-limit-bar > .pt > b { display: none; }
+body.ver-7 .ds-limit-axis { position: relative; height: 20px; }
+body.ver-7 .ds-limit-axis > span { position: absolute; transform: translateX(-50%); color: var(--text-tertiary); white-space: nowrap; }
+
+/* ---------- 측정 이력 (11/24, .ds-history): 같은 지점을 순회마다 잰 값을 잇는 꺾은선 ----------
+ *   마크업: .ds-sec > .ds-sec-head("측정 이력" + 기간) + .ds-history > 기간 .ds-seg.ds-history-range + 그래프 칸 .ds-history-graph
+ *   그래프 칸이 남은 높이를 채우고, 안의 svg 는 화면 JS 가 칸 크기에 맞춰 그림(안전진단 v8 safety-v8.js drawHG)
+ *   쓰는 곳: 감지 상세 판(.ds-detail) */
+body.ver-7 .ds-history { display: flex; flex-direction: column; }
+body.ver-7 .ds-history-range { align-self: flex-start; margin: var(--space-4) var(--space-0); }
+body.ver-7 .ds-history-graph { flex: 1; min-height: 0; }
+body.ver-7 .ds-history-graph svg { display: block; }
 
 /* ---------- WP 번호 원: 왼쪽 알림 목록, 지도 팝오버, 점검 줄, 오른쪽 경로 목록, Delta 어디서 쓰든 하나 ----------
  * 크기는 아이콘과 같은 4의 배수 두 단계(11/19): 번호 칸, 지도, 팝오버 머리 20(.ds-wp), 글자 줄 안 16(.ds-wp.is-s)
@@ -1678,6 +1758,44 @@ body.ver-7 .delta3.is-open .delta3-card { border-radius: var(--radius-container)
 /* 펼침 본문 바탕 */
 body.ver-7 .delta3.is-open .delta3-body::before { border-radius: var(--radius-4) !important; background-color: transparent !important; }
 
+/* ---------- 지도 부품: 2D 지도 판 (11/24, .ds-map-panel): 2D 지도(mini-plan.js 그림)를 담는 판. 값은 안전진단 v7 왼쪽 2D 지도 .sfx-map 그대로(모서리 8, 면 --bg-map-chip, 세로 배치) ----------
+ *   쓰는 곳: 안전진단 v7 왼쪽 지도(.sfx-map 에 덧붙임), 안전진단 v8 B안 작은 지도(변형)
+ *   변형 .is-head: 머리 줄 .ds-map-panel-head(이름 16/24/700 + 오른쪽 범례) + 지도. 안쪽 12 16, 사이 8, 모서리 4(안전진단 v8 B안 미션별, 상세 오른쪽 위) */
+body.ver-7 .ds-map-panel { position: relative; display: flex; flex-direction: column; overflow: hidden; border-radius: var(--radius-8); background-color: var(--bg-map-chip); }
+body.ver-7 .ds-map-panel.is-head { gap: var(--space-8); box-sizing: border-box; padding: var(--space-12) var(--space-16); border-radius: var(--radius-4); }
+body.ver-7 .ds-map-panel-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-8); }
+body.ver-7 .ds-map-panel-head > b { font-size: var(--font-size-16); line-height: var(--font-line-height-24); font-weight: var(--font-weight-bold); }
+
+/* ---------- 지도 부품: 지도 위 정보 줄 (11/24, .ds-mapbar): 지도 위 반투명 판 한 줄에 기존 배지를 엮음. 요약 [위험 2건 주의 2건 남은 지점 12곳](건수 = 면 없는 배지), 범례(감지 표식 배지) ----------
+ * 안쪽 4 12, 사이 8, 모서리 4, 면 검정 60%, 굵은 글(고른 감지 이름) text/primary. 쓰는 곳: 안전진단 v8 A안 미션별, 상세 지도 */
+body.ver-7 .ds-mapbar { display: inline-flex; align-items: center; gap: var(--space-8); padding: var(--space-4) var(--space-12); border-radius: var(--radius-4); background-color: rgb(7 10 16 / 60%); color: var(--text-primary); font-size: var(--font-size-14); line-height: var(--font-line-height-22); }
+body.ver-7 .ds-mapbar > b { font-weight: var(--font-weight-bold); }
+
+/* ---------- 지도 부품: 감지 표식 (11/24, 감지 아이콘 세트의 2D 지도 상태) ----------
+ * 원 .ds-detect-mark: 감지 아이콘(--ic-cone · gauge · drop · thermometer · sound · bolt)이 든 원 28(아이콘 16), 작게 .is-s 20(아이콘 12)
+ *   상태는 면 색: 위험 .is-crit, 주의 .is-warn, 기본(측정 완료) .is-done 회색, 예정 .is-plan 테만. 지도 바닥과 떼는 어두운 고리 2
+ * 자리 .ds-detect-at: 지점 가운데에 놓는 껍데기(누르면 그 지점). 고른 지점 .is-sel = 흰 고리 3
+ * 핀 .ds-detect-pin: 넘은 지점(위험, 주의) 위 흰 말풍선 + 아래 세모 꼬리, 안에 원을 감지 수만큼(원 32, 작게 .is-s 24 · 안쪽 2). 고른 감지 원 .is-sel = 어두운 고리 3
+ * 쓰는 곳: 안전진단 v8 A안 미션별, 상세, 전체 미션 타일, B안 상세 작은 지도, 범례 */
+body.ver-7 .ds-detect-at { position: absolute; z-index: 1; transform: translate(-50%, -50%); cursor: pointer; }
+body.ver-7 .ds-detect-mark { display: grid; place-items: center; flex: none; box-sizing: border-box; width: 28px; height: 28px; padding: var(--space-0); border-radius: var(--radius-pill); line-height: 0; color: var(--text-on-inverse); background-color: var(--text-tertiary); box-shadow: 0 0 0 2px var(--color-gray-850); }
+body.ver-7 .ds-detect-mark > .i { display: block; width: var(--ds-icon-16); height: var(--ds-icon-16); margin: var(--space-0); color: inherit; }
+body.ver-7 .ds-detect-mark.is-s { width: 20px; height: 20px; }
+body.ver-7 .ds-detect-mark.is-s > .i { width: var(--ds-icon-12); height: var(--ds-icon-12); }
+body.ver-7 .ds-detect-mark.is-crit { background-color: var(--status-critical-icon-subtle); }
+body.ver-7 .ds-detect-mark.is-warn { background-color: var(--status-warning-icon); }
+body.ver-7 .ds-detect-mark.is-done { background-color: var(--text-tertiary); }
+body.ver-7 .ds-detect-mark.is-plan { background-color: var(--color-gray-850); color: var(--text-secondary); box-shadow: inset 0 0 0 1.5px var(--text-secondary); }
+body.ver-7 .ds-detect-at.is-sel > .ds-detect-mark { box-shadow: 0 0 0 3px var(--text-primary); }
+body.ver-7 .ds-detect-pin { position: absolute; transform: translate(-50%, calc(-100% - 12px)); display: flex; gap: var(--space-4); padding: var(--space-4); border-radius: var(--radius-pill); background-color: var(--bg-inverse); filter: drop-shadow(0 4px 8px rgb(0 0 0 / 40%)); }
+body.ver-7 .ds-detect-pin::after { content: ""; position: absolute; left: 50%; top: 100%; margin: -1px 0 0 -7px; border: 7px solid transparent; border-top: 14px solid var(--bg-inverse); border-bottom: 0; }
+body.ver-7 .ds-detect-pin > .ds-detect-mark { width: 32px; height: 32px; box-shadow: none; }
+body.ver-7 :is(.ds-detect-pin > .ds-detect-mark.is-sel, .ds-detect-pin.is-sel > .ds-detect-mark) { box-shadow: 0 0 0 3px var(--color-gray-950); }
+body.ver-7 .ds-detect-pin.is-s { transform: translate(-50%, calc(-100% - 8px)); gap: var(--space-2); padding: var(--space-2); }
+body.ver-7 .ds-detect-pin.is-s::after { margin-left: -5px; border-width: 5px; border-top-width: 9px; }
+body.ver-7 .ds-detect-pin.is-s > .ds-detect-mark { width: 24px; height: 24px; }
+body.ver-7 .ds-detect-pin.is-s > .ds-detect-mark > .i { width: var(--ds-icon-12); height: var(--ds-icon-12); }
+
 /* ==========================================================================
  * 사례 (Case Studies, 11/20): 컴포넌트를 실제 화면 한 덩이로 엮은 것. 새 부품이 아니라 조합 규칙만 둔다
  * ========================================================================== */
@@ -1694,6 +1812,9 @@ body.ver-7 .ds-delta-card {
 body.ver-7 .ds-delta-head { display: flex !important; align-items: center !important; justify-content: space-between !important; gap: var(--space-8) !important; margin: var(--space-0) !important; }
 body.ver-7 .ds-delta-mark { display: inline-flex !important; align-items: center !important; gap: var(--space-4) !important; color: var(--text-secondary) !important; font-size: var(--font-size-12) !important; line-height: var(--font-line-height-18) !important; font-weight: var(--font-weight-regular) !important; }
 body.ver-7 .ds-delta-mark > :is(.i, .dlogo) { flex: none !important; width: 16px !important; height: 16px !important; margin: var(--space-0) !important; vertical-align: middle !important; background-color: var(--comp-gnb-text-brand) !important; }
+/* 제안 문구 .ds-delta-lead (11/24): DELTA 제안 한 줄. 14/22/700, 낱말 단위 줄바꿈. 글자 값은 여기 한 곳(화면 CSS 에 글자 값 두지 않음). 위 여백, 색은 놓인 판이 정함
+ * 쓰는 곳: 안전진단 v7 상세 .ti, 알림센터 상세 .ac-dl-lead, 관제 알림 팝업 .ma-delta-lead, 안전진단 v8 */
+body.ver-7 .ds-delta-lead { font-size: var(--font-size-14) !important; line-height: var(--font-line-height-22) !important; font-weight: var(--font-weight-bold) !important; word-break: keep-all; }
 
 /* ==========================================================================
  * 상단 미션 탭 (11/20 정의서 공통-01 Q6 등록) — 상태바 [전체 미션] [M1 …] … [+N]
@@ -1739,7 +1860,32 @@ body.ver-7 .ds-alertpop .ma-stamp { left: var(--space-8) !important; right: var(
 body.ver-7 .ds-alertpop .ma-lower { padding-top: var(--space-8); padding-right: var(--space-8) !important; padding-bottom: var(--space-4) !important; padding-left: var(--space-8) !important; gap: var(--space-8) !important; }
 body.ver-7 .ds-alertpop .ma-reason { margin: var(--space-0) var(--space-0) var(--space-4) !important; font-size: var(--font-size-13) !important; line-height: var(--font-line-height-20) !important; font-weight: var(--font-weight-bold) !important; }
 body.ver-7 .ds-alertpop :is(.ma-delta, .ma-act, .ma-memo) { gap: var(--space-8) !important; }
-body.ver-7 .ds-alertpop .ma-delta-lead { font-size: var(--font-size-14) !important; line-height: var(--font-line-height-20) !important; font-weight: var(--font-weight-bold) !important; }
 body.ver-7 .ds-alertpop .ma-memo-row { gap: var(--space-4) !important; }
 body.ver-7 .ds-alertpop .ma-actions { grid-template-columns: 1fr 1fr !important; gap: var(--space-8) !important; }
 body.ver-7 .ds-alertpop .ma-req { animation: ds-appear var(--ds-motion-base) var(--ds-ease-base) both; }
+
+/* ---------- 사례: 감지 상세 판 (11/24, .ds-detail): 감지 하나의 판정과 근거. 안쪽 24, 덩이 사이 16, 모서리 4, 면 bg/raised ----------
+ * 조합: 지점 줄 .ds-tab-line.ds-detail-tabs → 판정 머리 .ds-verdict → 정보 줄 .ds-meta → 기준 비교(.ds-limit, 컴포넌트) → 두 칸 .ds-detail-cols [근거 사진 .ds-photo, 측정 이력(.ds-history, 컴포넌트)]
+ *   지점 줄: 판 위 끝까지 붙인 줄 탭 + 아래 구분선. 예정 지점 .is-plan 은 점 없이 흐리게, 측정 완료 점 .ds-dot.is-neutral
+ *   판정 머리 .ds-verdict = 배지 + 값 .ds-verdict-val(32/40/700) + 기준과 차이 .ds-verdict-gap(18/26/700)
+ *   정보 줄 .ds-meta = 네 칸(이름 text/tertiary 위, 값 16/700 아래, 칸 사이 64) + 아래 구분선
+ *   근거 사진 .ds-photo(모서리 4, 사진 꽉 채움, 사진 없음 .is-none), 두 칸 사이 32
+ *   측정 전 지점: 판정 머리부터 빈 상태 .ds-empty 로 바꿈
+ * 화면: 안전진단 v8 A안, B안 상세 */
+body.ver-7 .ds-detail { display: flex; flex-direction: column; gap: var(--space-16); padding: var(--space-24); border-radius: var(--radius-4); background-color: var(--bg-raised); }
+body.ver-7 .ds-detail > .ds-detail-tabs { flex-wrap: wrap; margin: calc(var(--space-24) * -1) calc(var(--space-24) * -1) var(--space-0); padding: var(--space-12) var(--space-24) var(--space-0); border-bottom: var(--border-width-thin) solid var(--border-on-glass); }
+body.ver-7 .ds-detail-tabs > .ds-tab.is-plan { color: var(--text-disabled) !important; }
+body.ver-7 .ds-detail-tabs > .ds-tab.is-plan:hover { color: var(--text-secondary) !important; }
+body.ver-7 .ds-verdict { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-8) var(--space-12); }
+body.ver-7 .ds-verdict .ds-verdict-val { font-size: var(--font-size-32); line-height: var(--font-line-height-40); font-weight: var(--font-weight-bold); }
+body.ver-7 .ds-verdict .ds-verdict-gap { font-size: var(--font-size-18); line-height: var(--font-line-height-26); font-weight: var(--font-weight-bold); }
+body.ver-7 .ds-meta { display: grid; grid-template-columns: repeat(4, max-content); justify-content: start; column-gap: var(--space-64); padding-bottom: var(--space-24); margin-bottom: var(--space-8); border-bottom: var(--border-width-thin) solid var(--border-on-glass); }
+body.ver-7 .ds-meta > div { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-4); min-width: 0; text-align: left; }
+body.ver-7 .ds-meta > div > span { color: var(--text-tertiary); }
+body.ver-7 .ds-meta > div > b { font-size: var(--font-size-16); font-weight: var(--font-weight-bold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+body.ver-7 .ds-detail-cols { flex: 1; min-height: 0; display: grid; gap: var(--space-32); }
+body.ver-7 .ds-photo { position: relative; flex: 1; min-height: 0; border-radius: var(--radius-4); overflow: hidden; background-color: var(--color-gray-950); }
+body.ver-7 .ds-photo > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+body.ver-7 .ds-photo.is-none { display: grid; place-items: center; background-color: var(--bg-inset); color: var(--text-tertiary); }
+body.ver-7 .ds-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-4); color: var(--text-secondary); }
+body.ver-7 .ds-empty > b { font-size: var(--font-size-18); line-height: var(--font-line-height-26); color: var(--text-primary); }

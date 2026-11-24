@@ -984,7 +984,7 @@
         (a.sug7 ? "" : '<span class="ac-dl-fp t-caption">오탐 가능성 <span class="ac-dl-fpv' + (fp >= 40 ? " is-high" : fp >= 20 ? " is-mid" : "") + '">' +
           esc(a.fpLabel || "") + '(' + fp + '%)</span></span>') +
       '</div>' +
-      '<p class="ac-dl-lead">' + esc(a.lead) + '</p>' +
+      '<p class="ac-dl-lead ds-delta-lead">' + esc(a.lead) + '</p>' +
       // 근거 — 팝오버에는 자리가 없어 빠진 줄. 알림 센터는 넉넉해 제안 바로 아래에 둔다(11/02 디자이너)
       (!a.sug7 && a.why && a.why.length ? '<ul class="ac-dl-why">' +
         a.why.map(function (w) { return '<li class="t-body-4">' + esc(w) + '</li>'; }).join("") + '</ul>' : "") +

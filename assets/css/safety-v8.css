@@ -1,0 +1,229 @@
+/* ==========================================================================
+ * [11/24 v8] 안전진단 시안 A · B (screens/safety-v8-a.html, safety-v8-b.html, assets/js/safety-v8.js)
+ * 아티팩트 시안을 v7 공통 CSS(components-v7.css) 위로 옮김. 여기에는 이 화면에만 한 번 쓰는 배치와 꼴만 둔다
+ *   기존 공통 컴포넌트만 씀(이 작업에서 공통 CSS 에 새 컴포넌트를 만들지 않음, 11/24 사용자 지시): 배지와 태그, 버튼, 칩 탭, 줄 탭, 구간 전환, 점,
+ *     DELTA 조치 제안 카드, 조치 목록, 메모 칸, 처리 단계, 지도 도구 상자, 토스트, 상단바 미션 탭, 2D 미니맵 색(v6.css .mini-plan). 감지 아이콘 둘은 공통 CSS 아이콘 절
+ *   기존 것으로 대체되지 않는 꼴은 아래 "화면 전용 꼴" 절
+ *   색 = 토큰, 여백 = 여백 토큰 단계, 모서리 = 2 · 4 · 8 · 완전 둥글게, 글자 = 글자 토큰
+ *   칸 자리(left, top, width, height)는 safety-v8.js 가 1836 x 1016 본문 안에 직접 놓음(본문 안쪽 12)
+ *   다크 테마 전용(그래프 색을 다크 토큰에서 읽음)
+ * ========================================================================== */
+
+/* ---------- 바탕: 화면 안 별칭 → 토큰 ---------- */
+.sv8 {
+  --panel: var(--bg-cell); --card: var(--bg-raised); --map: var(--bg-map-chip); --inset: var(--bg-inset);
+  --line: var(--border-default); --line2: var(--border-on-glass);
+  --t1: var(--text-primary); --t2: var(--text-secondary); --t3: var(--text-tertiary);
+  --crit: var(--status-critical-icon-subtle); --crit-t: var(--status-critical-text); --crit-bg: var(--status-critical-bg);
+  --warn: var(--status-warning-icon); --warn-t: var(--status-warning-text); --warn-bg: var(--status-warning-bg);
+  --info: var(--status-info-icon); --info-t: var(--status-info-text);
+  --hover: var(--color-gray-650);                                                     /* 카드 올림 면 */
+  --card-crit: color-mix(in srgb, var(--status-critical-icon) 10%, var(--bg-raised));   /* 위험 카드 면(위험 아이콘 색 10%) */
+  --card-crit-hover: color-mix(in srgb, var(--status-critical-icon) 16%, var(--bg-raised));
+  --ease: cubic-bezier(.2, .7, .2, 1);
+  position: relative; flex: 1 1 auto; min-width: 0; min-height: 0; overflow: auto;
+  color: var(--t1); font-size: var(--font-size-14); line-height: var(--font-line-height-22); font-variant-numeric: tabular-nums;
+}
+.sv8 button { font-family: inherit; }
+.sv8 button:focus-visible, .sv8 [tabindex]:focus-visible { outline: var(--border-width-strong) solid var(--border-focus); outline-offset: var(--space-2); }
+/* 본문 = 창 크기를 따라 채움(오른쪽, 아래 8 띄움, v7 안전진단과 같음). 1920 x 1080 보다 작으면 1836 x 1016 을 지키고 넘침은 스크롤 */
+.sv8 .body { position: absolute; left: var(--space-0); top: var(--space-0); right: var(--space-8); bottom: var(--space-8); min-width: 1836px; min-height: 1016px; border-radius: var(--radius-8); background-color: var(--panel); }
+body.ver-7:has(.sb-tab.is-on:first-child) .sv8 .body { border-top-left-radius: var(--radius-none); }
+.sv8 .abs, .sv8 main.body > :is(.ds-detail, .live) { position: absolute; }
+.sv8[data-scr="all"] main.body { overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--bg-selected) transparent; }
+.sv8 .sp { flex: 1; }
+.sv8 .sv { display: block; overflow: visible; }
+.sv8 .steps { display: inline-flex; gap: var(--space-4); }
+.sv8 .sv8-zoom { flex-direction: column; }
+.sv8-toast { position: fixed; }
+body.ver-8 .status-bar-left { display: flex; }   /* 상단바 왼쪽 = 로고 + 미션 탭 한 줄. 세로 정렬은 v6.css(stretch) 그대로 — 고른 탭이 본문에 붙음 */
+
+/* ---------- 화면 전용 꼴 (11/24): 기존 공통 컴포넌트로 대체되지 않는 것. 공통 CSS 에 올리지 않음(사용자 지시) ---------- */
+/* 범례 .lg: [표식 + 이름] 가로 줄. 판정 표식은 공통 배지(면 없음) */
+.sv8 .lg { display: flex; align-items: center; gap: var(--space-16); color: var(--t2); font-size: var(--font-size-14); line-height: var(--font-line-height-22); }
+.sv8 .lg.is-tight { gap: var(--space-8); }
+.sv8 .lg > span:not(.ds-badge) { display: inline-flex; align-items: center; gap: var(--space-4); }
+/* 감지 이름 줄: 이름 .k-h + 회차 .k-seq / 지점 .k-wp */
+.sv8 .k-h { display: flex; align-items: center; gap: var(--space-8); font-size: var(--font-size-16); line-height: var(--font-line-height-24); font-weight: var(--font-weight-bold); color: var(--t1); }
+.sv8 .k-seq { color: var(--t2); font-size: var(--font-size-14); font-weight: var(--font-weight-medium); }
+.sv8 .k-wp { font-size: var(--font-size-14); color: var(--t2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* 라이브 화면 .live: 사진 틀만(16:9 비율 유지). 꼬리표는 공통 라이브 배지 .ds-badge.is-onmap.is-live */
+.sv8 .live { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-radius: var(--radius-4); background-color: var(--color-gray-950); }
+.sv8 .live > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.sv8 .live > .ds-badge { position: absolute; }
+/* 제목 줄은 공통 .ds-title-row(11/24) */
+/* DELTA 보조 글(공통 카드 안, 제안 문구는 공통 .ds-delta-lead) */
+.sv8 .memo { color: var(--t2); }
+/* ---------- 지도 ---------- */
+.sv8 .mp-box { position: relative; aspect-ratio: 1150 / 520; }
+.sv8 .mp-box .mini-plan { width: 100%; height: 100%; display: block; }
+.sv8 .mp-box.only :is(.mp-ok, .mp-plan, .mp-c, .mp-w) { display: none; }   /* 상세 작은 지도: 고른 감지 표식만 */
+.sv8 .sv8-maplg { left: var(--space-24); bottom: var(--space-20); }   /* 상세 지도 범례 자리(꼴은 공통 .ds-mapbar.lg) */
+.sv8 .amap-in { position: absolute; left: var(--space-0); top: var(--space-0); width: 1788px; height: 0; transform-origin: 0 0; }
+/* A안: 감지 카드에 올리면 지도에서 그 감지 핀만 또렷하게 */
+.sv8 :is(.ds-detect-pin, .ds-detect-pin > .ds-detect-mark) { transition: opacity .18s, transform .22s cubic-bezier(.2, .8, .2, 1.2); }
+.sv8 .ds-detect-pin > .ds-detect-mark { cursor: pointer; }
+.sv8.hk .ds-detect-pin:not(.hot) { opacity: .3; }
+.sv8.hk .ds-detect-pin.hot { z-index: 5; }
+.sv8.hk .ds-detect-pin > .ds-detect-mark:not(.hot) { opacity: .35; }
+.sv8.hk .ds-detect-pin > .ds-detect-mark.hot { transform: scale(1.3); box-shadow: 0 0 0 3px var(--t1); animation: sv8-bob .9s ease-in-out infinite; }
+@keyframes sv8-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -4px; } }
+/* B안: 진단표 칸에 올리면 작은 지도에 그 지점 표식과 이름 */
+.sv8 .mkh { pointer-events: none; z-index: 3; }
+.sv8 .mkh .ds-detect-mark { animation: sv8-pop .28s cubic-bezier(.2, .8, .2, 1.2); }
+.sv8 .mkl { position: absolute; transform: translate(-50%, calc(-100% - 16px)); pointer-events: none; z-index: 3; }   /* 꼴은 공통 지도 위 배지 .ds-badge.is-onmap.is-strong */
+@keyframes sv8-pop { from { transform: scale(.4); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* ---------- 감지 카드(A안 미션별: 이름, 지점, 오른쪽 위 값, 아래 그림) ---------- */
+.sv8 .det { position: absolute; display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-20); border: 0; border-radius: var(--radius-4); background-color: var(--card); color: inherit; font: inherit; text-align: left; cursor: pointer; transition: background-color var(--ds-motion-fast) ease; }
+.sv8 .det:hover { background-color: var(--hover); }
+.sv8 .det.crit.tint { background-color: var(--card-crit); }
+.sv8 .det.crit.tint:hover { background-color: var(--card-crit-hover); }
+.sv8 .det .gx { flex: 1; min-height: 0; display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-12); }
+.sv8 .det .gx .sv { max-height: 100%; }
+.sv8 .det.lc { justify-content: flex-start; align-items: stretch; gap: var(--space-0); padding: var(--space-12) var(--space-16); overflow: hidden; }
+.sv8 .det.lc .k-wp { display: block; margin-top: var(--space-4); }
+.sv8 .det.lc .lv { position: absolute; right: var(--space-16); font-size: var(--font-size-40); line-height: var(--font-line-height-48); font-weight: var(--font-weight-medium); white-space: nowrap; }
+.sv8 .det.lc .lcg { position: absolute; right: var(--space-16); display: block; overflow: visible; }
+
+/* ---------- 가로 B안 왼쪽 감지 목록 ---------- */
+.sv8 .lst { position: absolute; display: flex; flex-direction: column; border-radius: var(--radius-4); overflow: hidden; }
+.sv8 .lst .det { position: relative; flex: 1 1 0; min-height: 0; display: grid; grid-template-columns: 1fr 190px; grid-template-rows: auto auto 1fr; column-gap: var(--space-12); padding: var(--space-12) var(--space-16); border-radius: var(--radius-none); background: none; }
+.sv8 .lst .det + .det { border-top: var(--border-width-thin) solid var(--line2); }
+.sv8 .lst .det:hover { background-color: var(--card); }
+.sv8 .lst .det .gx { grid-column: 2; grid-row: 2 / 4; align-items: center; justify-content: center; }
+.sv8 .lst .det .k-h { grid-column: 1 / -1; white-space: nowrap; position: relative; z-index: 1; }
+.sv8 .lst .det .k-wp { grid-column: 1; }
+.sv8 .lst .det.sel { background-color: var(--bg-selected); }
+.sv8 .lst .det.hl { background-color: var(--hover); }
+.sv8[data-scr="d"] .lst .det:not(.sel) { opacity: .45; transition: opacity .15s; }
+.sv8[data-scr="d"] .lst .det:not(.sel):is(:hover, :focus-visible) { opacity: 1; }
+
+/* ---------- 상세 자리 ---------- */
+.sv8 .tabsx { display: flex; align-items: center; gap: var(--space-8); height: 44px; }
+/* 콜아웃(발생 위치 옆 기준 비교): 손잡이 = 공통 아이콘 버튼 24(--ic-info), 판 = 공통 떠 있는 판 .ds-pop. 여기는 자리와 열고 닫기만 */
+.sv8 .ds-meta > div > span:has(> .qtip) { display: inline-flex; align-items: center; height: var(--font-line-height-22); }   /* 버튼 24 가 이름 줄 22 를 키우지 않게 */
+.sv8 .qtip { position: relative; display: inline-flex; margin-left: var(--space-4); }
+.sv8 .qtip-b { display: none; position: absolute; left: calc(var(--space-8) * -1); top: calc(100% + var(--ds-pop-offset)); z-index: 30; width: 520px; flex-direction: column; color: var(--t1); text-align: left; }
+.sv8 .qtip:is(:hover, :focus-within) .qtip-b { display: flex; }
+.sv8 .ds-detail .ds-history { height: 236px; }   /* B안: 표와 그래프가 같은 높이 */
+/* A안 상세: 왼쪽 근거 사진(16:9), 오른쪽 측정 이력 */
+.sv8[data-s="A"] .ds-detail-cols > .ds-sec:last-child { gap: var(--space-0); }
+.sv8[data-s="A"][data-scr="d"] .ds-detail-cols { flex: none; align-items: start; grid-template-columns: 503px 1fr !important; }
+.sv8[data-s="A"][data-scr="d"] .ds-detail-cols > .ds-sec, .sv8[data-s="A"][data-scr="d"] .ds-detail-cols > .ds-sec:last-child > .ds-sec { flex: none; }
+.sv8[data-s="A"][data-scr="d"] .ds-detail .ds-photo { flex: none; aspect-ratio: 16 / 9; height: auto; }
+.sv8[data-s="A"][data-scr="d"] .ds-detail .ds-history { flex: none; height: auto; }
+.sv8[data-s="A"][data-scr="d"] .ds-detail .ds-history-graph { flex: none; height: 247px; }
+
+/* ---------- DELTA 조치 제안(공통 .ds-delta-card 안 자리만) ---------- */
+.sv8 .dl { position: absolute; display: flex; flex-direction: column; gap: var(--space-12); }
+.sv8 .dl-c { min-height: 0; }
+.sv8 .ds-delta-head .ds-delta-mark { flex: 1; }
+.sv8 .ds-memo { width: 100%; height: 96px; resize: vertical; box-sizing: border-box; font-family: inherit; }
+.sv8 .rqb { width: 100%; flex: none; }
+.sv8[data-s="A"][data-scr="d"] .dl { height: 568px; }
+.sv8[data-s="A"][data-scr="d"] .dl-c { flex: 1; }
+.sv8 .dlh { gap: var(--space-4); white-space: nowrap; }
+.sv8 .dlh .dlh-sub { color: var(--t2); }
+
+/* ---------- A안 전체 미션: 층 머리 + 미션 지도 타일 ---------- */
+.sv8 .flh { display: flex; align-items: center; gap: var(--space-12); border-bottom: var(--border-width-thin) solid var(--line2); }
+.sv8 .flh b { font-size: var(--font-size-16); line-height: var(--font-line-height-24); font-weight: var(--font-weight-bold); }
+.sv8 .flh span { color: var(--t2); }
+.sv8 .tile { position: absolute; display: flex; flex-direction: column; align-items: stretch; gap: var(--space-12); padding: var(--space-16); border: 0; border-radius: var(--radius-4); background-color: var(--map); color: inherit; font: inherit; text-align: left; cursor: pointer; transition: background-color var(--ds-motion-fast) ease; }
+.sv8 .tile:hover { background-color: var(--color-gray-850); }
+.sv8 .tile .ti { flex: none; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4) var(--space-12); }
+.sv8 .tile .id { color: var(--t2); font-weight: var(--font-weight-bold); }
+.sv8 .tile .nm { font-size: var(--font-size-18); line-height: var(--font-line-height-26); font-weight: var(--font-weight-bold); }
+.sv8 .tile .rb { color: var(--t2); }
+.sv8 .tile > span:last-child { position: relative; display: block; flex: 1; min-height: 0; }
+.sv8 .tile .mini-plan { width: 100%; height: auto; display: block; }
+.sv8 .tile.pl { opacity: .45; cursor: default; }
+.sv8 .tile.pl:hover { background-color: var(--map); }
+.sv8 .tile .wait { color: var(--t2); font-weight: var(--font-weight-bold); }
+.sv8 .tile .ds-detect-pin { pointer-events: none; }
+.sv8 .tile .mini-plan :is(.mp-c, .mp-w)[data-j] { visibility: hidden; }   /* 지도 그림의 세모 대신 핀 */
+/* 진행 막대(작게): 홈 --comp-chart-track, 채움 파랑, 높이 4 */
+.sv8 .pg { display: flex; align-items: center; gap: var(--space-8); padding-right: var(--space-20); }
+.sv8 .pg i { position: relative; flex: 1; max-width: 84px; height: 4px; border-radius: var(--radius-4); background-color: var(--comp-chart-track); overflow: hidden; }
+.sv8 .pg i u { position: absolute; left: 0; top: 0; bottom: 0; background-color: var(--info); }
+.sv8 .pg span { white-space: nowrap; }
+
+/* ---------- B안 전체 미션: 왼쪽 요약 + 오른쪽 미션마다 감지 6장 ---------- */
+.sv8 .v7a { display: grid; grid-template-columns: 296px 1fr; gap: var(--space-12); }
+.sv8 .v7l { display: flex; flex-direction: column; gap: var(--space-12); padding: var(--space-16) var(--space-0); border-radius: var(--radius-4); background-color: var(--panel); }
+.sv8 .v7l .t0 { padding: var(--space-0) var(--space-16) var(--space-12); color: var(--t2); border-bottom: var(--border-width-thin) solid var(--line2); }
+.sv8 .v7l .t1 { padding: var(--space-0) var(--space-16); display: flex; flex-direction: column; gap: var(--space-2); }
+.sv8 .v7l .t1 b { font-size: var(--font-size-16); line-height: var(--font-line-height-24); }
+.sv8 .v7l .t1 span { color: var(--t2); }
+.sv8 .v7l .rows { margin: var(--space-0) var(--space-12); border-radius: var(--radius-4); background-color: rgb(255 255 255 / 4%); }
+.sv8 .v7l .row { display: flex; align-items: center; gap: var(--space-8); height: 48px; padding: var(--space-0) var(--space-12); border-top: var(--border-width-thin) solid var(--line2); }
+.sv8 .v7l .row:first-child { border-top: 0; }
+.sv8 .v7l .row .n { margin-left: auto; }
+.sv8 .v7l .row .n b { font-size: var(--font-size-16); margin-right: var(--space-2); }
+.sv8 .v7l .row .n span { color: var(--t2); font-size: var(--font-size-12); }
+.sv8 .v7r { min-width: 0; display: flex; flex-direction: column; border-radius: var(--radius-4); background-color: var(--panel); overflow: hidden; }
+.sv8 .v7cr { flex: none; display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--space-8); padding: var(--space-16) var(--space-20); border-bottom: var(--border-width-thin) solid var(--line2); }
+.sv8 .v7cr span { color: var(--t2); white-space: nowrap; }
+.sv8 .v7cr b { color: var(--t1); font-weight: var(--font-weight-bold); margin-right: var(--space-4); }
+.sv8 .v7s { flex: 1; min-height: 0; overflow-y: auto; padding: var(--space-4) var(--space-20) var(--space-20); scrollbar-width: thin; scrollbar-color: var(--bg-selected) transparent; }
+.sv8 .v7h { display: inline-flex; align-items: center; gap: var(--space-4); height: 32px; margin: var(--space-16) var(--space-0) var(--space-8) calc(var(--space-4) * -1); padding: var(--space-0) var(--space-4); border: 0; border-radius: var(--radius-4); background: none; color: var(--t1); font: inherit; font-size: var(--font-size-16); line-height: var(--font-line-height-24); font-weight: var(--font-weight-bold); cursor: pointer; }
+.sv8 .v7h:hover { background-color: var(--comp-button-ghost-bg-hover); }
+.sv8 .v7h.pl { cursor: default; color: var(--t2); }
+.sv8 .v7h.pl:hover { background: none; }
+.sv8 .v7h .wait { margin-left: var(--space-8); color: var(--t3); font-size: var(--font-size-14); font-weight: var(--font-weight-medium); }
+.sv8 .v7h .i { transition: transform .18s; }
+.sv8 .v7h:not(.pl):hover .i { transform: translateX(3px); }
+.sv8 .v7g { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--space-8); }
+.sv8 .v7c { min-width: 0; display: flex; flex-direction: column; padding: var(--space-4); border: 0; border-radius: var(--radius-4); background-color: var(--card); color: inherit; font: inherit; text-align: left; cursor: pointer; transition: transform .18s var(--ease), background-color .18s, opacity .2s; }
+.sv8 .v7c:hover { background-color: var(--hover); }
+.sv8 .v7c.crit { box-shadow: inset 0 0 0 1.5px var(--crit); }
+.sv8 .v7c:not(.dis):hover { transform: translateY(-3px); }
+.sv8 .v7c:not(.dis):active { transform: translateY(-1px) scale(.98); }
+.sv8 .v7c .gr { position: relative; height: 128px; padding: var(--space-16); border-radius: var(--radius-2); background-color: rgb(7 10 16 / 28%); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.sv8 .v7c .gr svg { width: 100%; height: 100%; max-width: none; display: block; }
+.sv8 .v7c .tx { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-8) var(--space-4) var(--space-4); }
+.sv8 .v7c .tx .tl { display: flex; align-items: center; gap: var(--space-4); min-width: 0; }
+.sv8 .v7c .tx b { min-width: 0; font-size: var(--font-size-16); line-height: var(--font-line-height-24); font-weight: var(--font-weight-bold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sv8 .v7c .tx span { color: var(--t2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sv8 .v7c .tx small { color: var(--t3); font-size: var(--font-size-13); }
+.sv8 .v7c .tx .vc { flex: none; }
+.sv8 .v7c.dis { opacity: .45; cursor: default; }
+.sv8 .v7c.dis:hover { background-color: var(--card); }
+.sv8 .v7c.dis .gr { color: var(--t3); }
+.sv8 .v7a.go .v7c:not(.pick) { opacity: .25; }
+.sv8 .v7a.go .v7c.pick { transform: scale(1.04); box-shadow: 0 0 0 2px var(--t1); }
+
+/* ---------- B안 미션별: 지점 x 감지 진단표 ---------- */
+.sv8 .sx { position: absolute; display: flex; flex-direction: column; padding: var(--space-20); border-radius: var(--radius-4); background-color: var(--card); }
+.sv8 .sx::before { content: ""; position: absolute; z-index: 0; top: 56px; bottom: var(--space-20); left: calc(184px + (100% - 204px) * 7 / 20); width: calc((100% - 204px) / 20); border-radius: var(--radius-4); background-color: rgb(106 167 231 / 16%); }
+.sv8 .sx > * { position: relative; z-index: 1; }
+.sv8 .sx-r { display: grid; grid-template-columns: 164px repeat(20, 1fr); align-items: center; flex: 1; min-height: 0; border-top: var(--border-width-thin) solid rgb(255 255 255 / 14%); background: repeating-linear-gradient(to right, rgb(255 255 255 / 7%) 0 1px, transparent 1px calc(100% / 20)) 164px 0 / calc(100% - 164px) 100% no-repeat; }
+.sv8 .sx-r > * { text-align: center; }
+.sv8 .sx-r.h { flex: none; height: 40px; border-top: 0; border-bottom: var(--border-width-thin) solid rgb(255 255 255 / 14%); color: var(--t2); font-weight: var(--font-weight-bold); }
+.sv8 .sx-r.h + .sx-r { border-top: 0; }
+.sv8 .sx-r:not(.h):hover { background-color: rgb(255 255 255 / 5%); }
+.sv8 .sx-r .now { color: var(--info-t); font-weight: var(--font-weight-extrabold); }
+.sv8 .sx-k { display: inline-flex; align-items: center; gap: var(--space-4); padding: var(--space-0); border: 0; background: none; color: var(--t1); font: inherit; font-weight: var(--font-weight-bold); text-align: left; cursor: pointer; }
+.sv8 .sx-k:hover { text-decoration: underline; }
+.sv8 .sx-v { color: var(--t1); font-weight: var(--font-weight-medium); }
+.sv8 button.sx-v { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; min-height: 26px; padding: var(--space-0) var(--space-8); line-height: var(--font-line-height-18); white-space: nowrap; }
+.sv8 .sx-v.o { justify-self: center; padding: var(--space-2) var(--space-4); border-radius: var(--radius-4); font-weight: var(--font-weight-bold); }
+.sv8 .sx-v.o.crit { color: var(--crit-t); background-color: var(--crit-bg); }
+.sv8 .sx-v.o.warn { color: var(--warn-t); background-color: var(--warn-bg); }
+.sv8 .sx-r .sx-v small { display: block; font-size: var(--font-size-12); line-height: var(--font-line-height-18); font-weight: var(--font-weight-medium); opacity: .8; }
+.sv8 .sx-p { justify-self: center; width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--t3); }
+.sv8 .sx-p.on { border: 0; background-color: var(--info); animation: sv8-pulse 1.2s infinite; }
+@keyframes sv8-pulse { 50% { opacity: .3; } }
+.sv8 .sxc { font: inherit; cursor: pointer; justify-self: center; border-radius: var(--radius-4); }
+.sv8 button.sxc { border: 0; }
+.sv8 button.sxc:not(.o) { background: none; padding: var(--space-4) var(--space-8); }
+.sv8 .sxc:is(.hv, :focus-visible) { box-shadow: inset 0 0 0 1.5px var(--t1); outline: none; }
+.sv8 span.sxc.sx-p { border-radius: 50%; }
+.sv8 span.sxc.sx-p.hv { box-shadow: 0 0 0 3px var(--t1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .sv8 .sx-p.on, .sv8.hk .ds-detect-pin > .ds-detect-mark.hot, .sv8 .mkh .ds-detect-mark { animation: none; }
+  .sv8 .v7c, .sv8 .v7h .i { transition: none; }
+  .sv8 .v7c:not(.dis):is(:hover, :active) { transform: none; }
+}

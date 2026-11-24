@@ -25,15 +25,18 @@
     cards = cards.map(function (c, i) { return { c: c, i: i, d: day(c) }; })
       .sort(function (a, b) { return a.d === b.d ? a.i - b.i : (a.d < b.d ? 1 : -1); })
       .map(function (x) { return x.c; });
-    var latest = row.querySelector(".ver-card.is-latest") || cards[0];
-    var prev = cards.filter(function (c) { return c !== latest; });
+    // [11/24] 같은 판의 시안 여럿(v8-A, v8-B)은 is-latest 를 모두 달아 최신 칸에 나란히 둔다
+    var latests = cards.filter(function (c) { return c.classList.contains("is-latest"); });
+    if (!latests.length) { latests = [cards[0]]; }
+    var latest = latests[0];
+    var prev = cards.filter(function (c) { return latests.indexOf(c) < 0; });
 
     var area = document.createElement("div");
     area.className = "ver-area";
     var label = function (t, n) { var p = document.createElement("p"); p.className = "ver-area-label"; p.textContent = t; if (n) { var c = document.createElement("span"); c.className = "num"; c.textContent = n; p.appendChild(c); } return p; };
     var now = document.createElement("ol");
     now.className = "ver-list ver-now";
-    now.appendChild(latest);
+    latests.forEach(function (c) { now.appendChild(c); });
     area.appendChild(label("최신"));
     if (prev.length) { area.appendChild(label("이전 버전", prev.length)); }
     area.appendChild(now);

@@ -1,9 +1,10 @@
 # aprism-web 작업 규칙
 
-이 저장소에서 Claude Code를 열면 이 파일이 자동으로 읽힌다. v7 화면을 새로 만들거나 고칠 때 지키는 디자인 시스템 규칙을 적는다. 규칙 값의 원본은 `tools/ds-check/ds-rules.json`이고, 지키는지는 `/ds-check`로 검사한다.
+이 저장소에서 Claude Code를 열면 이 파일이 자동으로 읽힌다. v7 이후(v7, v8 …) 화면을 새로 만들거나 고칠 때 지키는 디자인 시스템 규칙을 적는다. 규칙 값의 원본은 `tools/ds-check/ds-rules.json`이고, 지키는지는 `/ds-check`로 검사한다.
 
 ## 공통
 
+- 공통 CSS(`components-v7.css`, `ds-v7.js`)는 v7 이후 모든 버전에 적용한다(11/24 결정). 스위치가 `body.ver-7`이므로 v8 이후 화면도 body에 `ver-7`을 함께 둔다(예: `ver-7 ver-8`). 버전 전용 규칙은 그 버전 클래스(`body.ver-8`)나 화면 CSS에. v6 이하는 그대로
 - v7 배지, 칩, 탭, 버튼의 값은 `assets/css/components-v7.css` 맨 위 "디자인 값" 블록(`--ds-*`) 한 곳에서 고친다. 토큰은 `assets/css/tokens.css`. 이 두 파일 밖에 같은 값을 다시 적지 않는다
 - 화면 코드의 칩과 탭은 공통 CSS 클래스를 쓴다: 칩 `.ds-chip`(묶음 `.ds-chips`, 체크형 `.is-check`), 1단 줄 탭 `.ds-tab-line > .ds-tab`, 2단 칩 탭 `.ds-tab-chip > .ds-tab`, 구간 전환 `.ds-seg > .ds-tab`(세로 `.is-vertical`). 새 칩, 탭도 이 클래스로 만든다(JS는 `assets/js/ds-v7.js`의 ds.chip, ds.tabsLine, ds.tabsChip, ds.seg)
 - 화면 코드의 배지와 태그도 공통 CSS 클래스를 쓴다(11/19 4단계, 예전 클래스 옆에 덧붙임): 배지 `.ds-badge.is-{crit|warn|ok|neutral|info|safe}`, 태그 `.is-plain`을 더함, 아이콘 `.ds-i-{dot|big|play|ok|power|check|clock|delta|none}`(위험, 주의는 삼각형, 판정 정상은 큰 점이 저절로), 운영 상태는 `ds.statusCls('run')`처럼 `assets/js/ds-v7.js` 한 곳의 표를 씀. WP 번호 원 `.ds-wp`(작은 것 `.is-s`), 층 `.ds-floor`. 아이콘은 배지 자신의 `::before`라 JS가 글자를 바꿔도 남음
@@ -44,6 +45,8 @@
 - Delta 면, 빛, 흐림(11/20, 공통 CSS "Delta 면, 빛, 흐림" 절): 관제 v7 M1 값 그대로. 단계 3(보통, 주의 .is-warning, 위험 .is-critical) x 접힘/펼침 x 테마. 층은 바깥 판, 위 테 빛(펼침), 카드 면, 이름 띠, 유리 버튼 둘, 본문 바탕. Delta 전용 변수(--tone-*, --d3-ramp)도 이 절에서 정의. 크기: 접힘 --ds-delta-widget 260 정사각, 펼침 폭 --ds-delta-open-w 295(대화형은 --d3-w), 높이 = 판 높이 - --ds-delta-open-inset(20) x 2. v7 에만 걸림
 - 모션(11/20, 두 층): 1층 값은 공통 CSS 디자인 값 `--ds-motion-fast`(160, 상태 바뀜) `--ds-motion-base`(240, 나타남) `--ds-motion-exit`(300, 떠 있는 판 나가기) `--ds-motion-enter`(420, 들어오기) `--ds-motion-slow`(820, 완료 물결) `--ds-motion-flash`(1200, 새 기록 줄 반짝임), 곡선 `--ds-ease-base/enter/exit`, 올라오는 거리 `--ds-motion-rise`(8). 2층 쓰는 법은 공통 CSS "모션" 절: 들어오기, 나가기, 나타남(`ds-appear`, 토스트 포함), 상태 바뀜, 완료는 파랑, 청록, 보라 세 단 `--ds-motion-done`(-2, -3, 완료 물결과 새 기록 줄 반짝임, 초록은 쓰지 않음), 움직임 줄이기면 0. JS 움직임도 숫자 대신 이 값을 읽음. 컴포넌트별 안무는 그 사례 주석에
 - 처리 단계(11/23, `.mwp-steps`, 공통 컴포넌트): 조치 요청 뒤 단계 줄. 지난 단계(알림 이유 14/22 secondary + 고른 조치 13/20 점 목록) → 지금 단계(14/22 primary). 고리 14 테 2(지난 border/strong 속 비움, 지금 border/brand 도는 고리, 완료 status/safe/icon 채움 + 체크), 세로줄 2. 쓰는 곳: 지도 지점 팝오버, 관제 알림 팝업 요청됨. 사례 "지도 지점 팝오버" = 지도 팝오버(.ds-mappop) + 처리 단계
+- 감지 아이콘 세트(11/24, 공통 CSS 아이콘 절): 감지 6종 `--ic-cone`(장비착용) `--ic-gauge`(계기인식) `--ic-drop`(누출감지) `--ic-thermometer`(온도감지) `--ic-sound`(이상음향) `--ic-bolt`(부분방전)을 한 블록에. 2D 지도 상태는 지도 부품 "감지 표식": 원 `.ds-detect-mark`(28 아이콘 16, 작게 `.is-s` 20/12, 위험 `.is-crit` 주의 `.is-warn` 기본 `.is-done` 예정 `.is-plan`) + 자리 `.ds-detect-at`(고름 `.is-sel`), 세모 꼬리 핀 `.ds-detect-pin`(흰 말풍선, 원 32, 작게 `.is-s` 24)
+- 안전진단 v8 점검표 반영(11/24): 컴포넌트 묶음 `.ds-sec`(제목 줄 `.ds-sec-head` + 내용), 기준 비교 `.ds-limit`(상세 판, 콜아웃이 같이 씀), 측정 이력 `.ds-history`(기간 `.ds-history-range` + 그래프 칸, 그림은 화면 JS), 제목 줄 `.ds-title-row`(이름 `.ds-title-name` 16/24/700 + 건수 `.ds-title-count` 14/20/500, 관제 경로 패널 머리 값, 관제와 v8 이 같이 씀). 사례 감지 상세 판 `.ds-detail` = 지점 줄 `.ds-detail-tabs` + 판정 머리 `.ds-verdict` + 정보 줄 `.ds-meta` + 기준 비교 + 근거 사진 `.ds-photo` + 측정 이력, 측정 전은 빈 상태 `.ds-empty`. 로봇 카드 `.ds-robot-card`(robot-2d.js 그림 `APRISM_ROBOT2D.svg`, 운영 상태 태그, `.ds-battery`, `.ds-progress`), 배지 변형 라이브 `.ds-badge.is-onmap.is-live`와 감지 표식 배지 `.is-mark`, 점 회색 `.ds-dot.is-neutral`, DELTA 제안 문구 `.ds-delta-lead`(14/22/700, 글자 값은 여기 한 곳. 안전진단 v7 .ti, 알림센터 .ac-dl-lead, 관제 알림 팝업 .ma-delta-lead 가 씀, 화면 CSS 에 글자 값 두지 않음). 지도 부품: 2D 지도 판 `.ds-map-panel`(안전진단 v7 .sfx-map 값, 변형 `.is-head`), 지도 위 정보 줄 `.ds-mapbar`
 - 사례: 관제 알림 팝업(11/20, `.ds-alertpop`): 틀(안쪽 4, 모서리 8, 반투명 판 한 겹 `--ds-alertpop-bg` = bg/raised 92% 에 머리는 면 없음(11/23, 예전 판 회색 750 + 머리 띠 두 겹), 그림자), 머리, 사진과 위치 알약, 아래 칸 간격, 버튼 둘. 상태(접힘, 붙음, 요청됨, 대화형)가 바꾸는 높이와 보임은 v7.css
 
 ## 칩과 버튼 나누기
