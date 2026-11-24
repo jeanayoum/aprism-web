@@ -16,7 +16,7 @@ import os
 OUT = os.path.join(os.path.dirname(__file__), '..', 'assets', 'img', 'logo')
 
 COLOR_BLACK = '#111111'   # CI 문서 Dark Gray/Black (이미지 값은 #000000)
-COLOR_BLUE = '#004893'    # CI 문서 Deep Blue (이미지 값은 #2C5790)
+COLOR_BLUE = '#004B93'    # CI 문서 Deep Tech Blue 표 값(11/24 확정 · 그림의 #004893 은 잘못된 값, 이미지 값은 #2C5790)
 COLOR_GRAY = '#7D848C'    # CI 문서 Cool Gray (이미지 값은 #D9D9D9)
 
 # 어두운 배경용(11/11). 문서 색은 어두운 바탕에서 묻혀서(Deep Blue 2.1:1),
