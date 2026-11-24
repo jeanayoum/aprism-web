@@ -1770,6 +1770,12 @@
     // 왼쪽 위는 Delta 가, 오른쪽은 도구 레일이 쓴다 — 여백을 둔다.
     var room = { w: pr.width - 200, h: pr.height - 120 };
     unit = Math.max((maxX - minX) / room.w, (maxY - minY) / room.h);
+    // [11/24 v7] 층 꼬리표 비킴 — placeLabels 가 꼬리표가 도구 레일에 닿은 만큼 tagShift 를 늘린다. 창 크기가 바뀌면 처음부터 다시 잼
+    if (body.classList.contains("ver-7")) {
+      if (vw !== tagShiftW) { tagShift = 0; tagShiftW = vw; }
+      cx -= tagShift;
+      tagChecked = false;
+    }
     camera.left = -cx * unit;
     camera.right = (vw - cx) * unit;
     camera.top = cy * unit;
@@ -1867,6 +1873,36 @@
     node.classList.toggle("is-gone", op <= 0.5);   // 비켜 사라진 층의 표식 — 안의 누를 것(말풍선)도 같이 끈다
   }
 
+  /*
+   * [11/24 v7] 폭 1440~1600 에서 층 꼬리표(B3 지하 3층, 로봇 · 위험 · 주의)가 오른쪽 층 고르기, 도구 레일에 닿았다.
+   *   그림 크기는 그대로 두고, 실제로 그려진 꼬리표 글자가 레일과 가로 · 세로 모두 겹칠 때만 그 만큼(+16) 그림 가운데를 왼쪽으로 옮긴다.
+   *   1920 처럼 닿지 않으면 옮기지 않는다. 글 줄마다 글자 폭(Range)으로 잼 — 줄 상자는 꼬리표 폭만큼 넓어 짧은 첫 줄 옆 빈 칸까지 셈
+   */
+  var tagShift = 0, tagShiftW = -1, tagChecked = true;
+  function fitTags() {
+    tagChecked = true;
+    var rails = [];
+    Array.prototype.forEach.call(panel.querySelectorAll(".map-tools, .bld-floors"), function (r) {
+      var rr = r.getBoundingClientRect();
+      if (rr.width) { rails.push(rr); }
+    });
+    var need = 0;
+    FLOORS.forEach(function (f) {
+      var t = L["tag" + f];
+      if (!t) { return; }
+      if (t.classList.contains("is-gone")) { tagChecked = false; return; }   // 층이 펼쳐지는 중 — 다 나타난 뒤 다시 잰다
+      Array.prototype.forEach.call(t.querySelectorAll(".bld-ftag-name, .bld-ftag-sub"), function (line) {
+        var rg = document.createRange();
+        rg.selectNodeContents(line);
+        var lr = rg.getBoundingClientRect();
+        rails.forEach(function (r) {
+          if (lr.bottom > r.top && lr.top < r.bottom) { need = Math.max(need, lr.right + 16 - r.left); }
+        });
+      });
+    });
+    if (need > 0.5) { tagShift += Math.ceil(need); resize(); }
+  }
+
   function placeLabels() {
     if (!ready) { return; }
     // 표식 층은 지도 칸 안에 있다 — 창(.map-view) 기준 좌표에서 칸의 자리만큼 뺀다.
@@ -1879,6 +1915,7 @@
       put(L["tag" + f], corner, mode === "all" ? s.op : 0);
       L["tag" + f].classList.toggle("is-hot", hot === f);
     });
+    if (!tagChecked && mode === "all" && body.classList.contains("ver-7")) { fitTags(); }
     ALERTS.forEach(function (a) {
       put(a.node, surf(a.floor, a.uv, F[a.floor].size.y + 1), F[a.floor].op);
     });
@@ -2087,6 +2124,8 @@
   }
 
   if (typeof ResizeObserver !== "undefined") { new ResizeObserver(function () { resize(); }).observe(view); }
+  // [11/24 v7] 층 꼬리표 폭은 글꼴을 다 불러온 뒤에야 맞다 — 그때 한 번 더 잰다(resize 의 꼬리표 비킴)
+  if (body.classList.contains("ver-7") && document.fonts && document.fonts.ready) { document.fonts.ready.then(function () { resize(); }); }
   window.addEventListener("resize", resize);
 
   if (!window.APRISM_MAP_GLB || !canvas) {

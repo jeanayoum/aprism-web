@@ -1421,10 +1421,10 @@ body.ver-7 .menu-item[aria-disabled="true"] { opacity: 0.38; pointer-events: non
 /* [11/20 정의서 공통-00 Q3] 서버 연결 끊김 — 칩 앞에 위험 기호, 막대는 꺼진 칸 색(v7.js APRISM_NET) */
 body.ver-7 .signal-chip.is-down { gap: var(--space-4); color: var(--status-critical-icon); }
 body.ver-7 .signal-chip .net-sev { flex: none; color: var(--status-critical-icon); }
-/* [11/20 정의서 공통-00 Q8] 폭 1600 미만은 줄이지 않고 가로 스크롤 */
-@media (max-width: 1599px) {
+/* [11/20 정의서 공통-00 Q8, 11/24 1600 → 1440] 폭 1440 미만은 줄이지 않고 가로 스크롤(14인치 노트북 125% = 1440 까지 스크롤 없이) */
+@media (max-width: 1439px) {
   html:has(body.ver-7) { overflow-x: auto; }
-  body.ver-7 { min-width: 1600px; }
+  body.ver-7 { min-width: 1440px; }
 }
 
 /* [11/20] 알림센터 조치 요청된 알림 상세의 조치 내용은 공통 조치 목록(.ds-acts, 결과 상태)으로 옮김(components-v7.css) */
@@ -1550,6 +1550,8 @@ body.ver-7 .ac-panel-head { padding-left: var(--space-4); padding-right: var(--s
 body.ver-7 .ac-tab { font-size: var(--font-size-14); }
 /* 열 너비 = 알림 칸만 늘고 나머지는 기본 너비에서 줄어들 수 있게(고정 px 이면 좁은 화면에서 알림 칸만 남았다) */
 body.ver-7 .ac-c-place { flex: 0 1 272px; min-width: 180px; }
+/* [11/24] 알림 칸 = 남는 폭을 다 받되 128 아래로는 줄지 않음(1440 에서 "안전모 미착…" 으로 끊기던 것). 기준 0 이라 머리 줄과 목록 줄의 칸 너비가 같아짐 */
+body.ver-7 .ac-c-title { flex: 1 1 0; min-width: 128px; }
 body.ver-7 .ac-c-mission { flex: 0 1 130px; min-width: 96px; }
 body.ver-7 .ac-row .ac-place { min-width: 0; }
 /* 상세 칸 = 판 너비의 40%(560~720) — 1920 에선 예전 700 과 거의 같고, 좁아지면 같이 줄어든다 */

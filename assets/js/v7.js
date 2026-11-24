@@ -90,7 +90,7 @@ document.addEventListener("DOMContentLoaded", function () {
  * [11/20 디자이너 · 정의서 공통-00]
  *   Q3 통신 상태 — window.APRISM_NET("ok" | "slow" | "down"). 시연은 움직임 시뮬레이션의 [통신] 칩(route-sim.js)
  *      ok 막대 4칸 · slow 막대 2칸 · down 막대 없음 + 칩에 위험 기호 + AI Server Offline + 알림 목록에 위험 알림 1건(monitor.js 가 aprism:net 을 받는다)
- *   Q8 화면 크기 — 폭 1920 미만이면 알림 패널을 저절로 접는다(관제사가 직접 펴거나 접으면 그 뒤로는 손대지 않는다). 1600 미만은 가로 스크롤(v7.css)
+ *   Q8 화면 크기 — 폭 1920 미만이면 알림 패널을 저절로 접는다(관제사가 직접 펴거나 접으면 그 뒤로는 손대지 않는다). 1440 미만은 가로 스크롤(v7.css, 11/24 1600 → 1440)
  */
 (function () {
   "use strict";
