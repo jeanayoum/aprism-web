@@ -233,6 +233,27 @@
     var b = document.body;
     if (!b || !b.classList.contains("ver-7")) return;
     b.querySelectorAll(SEL).forEach(wrap);
+    b.querySelectorAll(MARK).forEach(wordmark);
+  }
+  /* [11/24 브랜딩] Delta 판 머리 "DELTA 조치 제안" · "DELTA 인수인계 요약" — 육각 + DELTA 글자를 DELTA 워드마크(이름과 서명)로. 육각은 작은 자리(버튼 · 배지 · 처리 정보)에만
+   * 머리를 만드는 곳이 여럿(ds.deltaHead, alert-center.js, safety.js, safety-v8.js)이라 여기 한 곳에서 바꿈 */
+  var MARK = ".ds-delta-mark, .ac-handover-mark";
+  function wordmark(el) {
+    if (el.querySelector(".ds-delta-wm")) return;
+    var tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), n;
+    while ((n = tw.nextNode())) {
+      if (!/^\s*DELTA\s+\S/.test(n.nodeValue)) continue;
+      n.nodeValue = n.nodeValue.replace(/^\s*DELTA\s+/, "");
+      var host = n.parentElement;
+      if (host && host.id) host.setAttribute("aria-label", "DELTA " + n.nodeValue.trim());   // aria-labelledby 로 읽는 이름엔 DELTA 를 남김
+      var w = document.createElement("span");
+      w.className = "ds-delta-wm";
+      w.setAttribute("role", "img");
+      w.setAttribute("aria-label", "DELTA");
+      var ic = el.querySelector(":scope > .i, :scope > .dlogo, :scope > svg");
+      if (ic) { ic.replaceWith(w); } else { el.insertBefore(w, el.firstChild); }
+      return;
+    }
   }
   function queue() { if (!queued) { queued = true; requestAnimationFrame(scan); } }
   new MutationObserver(queue).observe(document.documentElement, { childList: true, subtree: true });

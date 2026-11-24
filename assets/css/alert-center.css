@@ -709,9 +709,8 @@
 /* [11/24 v7] 처리 정보 "조치" 줄: 고른 조치 이름. AI 추천에서 온 조치는 Delta 아이콘 14 + Delta 글자 색
  *   아이콘 그라디언트 가운데 색 = 글자 색(Delta GUI 시안 https://claude.ai/artifact/EZoFYiHR4kpndDkJFj3c1r). 다크, 라이트 두 벌 */
 body.ver-7 .ac-info-acts { display: flex; flex-wrap: wrap; gap: var(--space-4) var(--space-12); }
-body.ver-7 .ac-info-ai { --ac-ai-text: #7DB6F0; --ac-ai-ramp: #A9D4FF 0%, #7DB6F0 40%, #4DA0EE 75%, #2B7FEA 100%; display: inline-flex; align-items: center; gap: var(--space-4); color: var(--ac-ai-text); }
-:root[data-theme="light"] body.ver-7 .ac-info-ai { --ac-ai-text: #2369C8; --ac-ai-ramp: #4DA0EE 0%, #2369C8 50%, #1B4FA8 100%; }
-body.ver-7 .ac-info-ai-i { flex: none; width: 14px; height: 14px; background: linear-gradient(135deg, var(--ac-ai-ramp)); -webkit-mask: var(--ic-delta) center / contain no-repeat; mask: var(--ic-delta) center / contain no-repeat; }
+body.ver-7 .ac-info-ai { display: inline-flex; align-items: center; gap: var(--space-4); color: var(--ds-delta-fg); }   /* [11/24] Delta 글자 = 공통 --ds-delta-fg(components-v7.css) */
+body.ver-7 .ac-info-ai-i { flex: none; width: 14px; height: 14px; background: linear-gradient(135deg, var(--ds-ai-ramp)); -webkit-mask: var(--ic-delta) center / contain no-repeat; mask: var(--ic-delta) center / contain no-repeat; }
 
 /* ---------- 선택 상세 ---------- */
 .ac-detail {
