@@ -1,6 +1,6 @@
 ---
 name: ds-check
-description: aprism-web의 v7 이후(v7, v8 …) 화면 코드가 디자인 시스템 규칙(여백, 라운딩, 칩과 버튼의 높이, 패딩, 간격)을 지키는지 검사한다. 사용자가 /ds-check를 부르거나, 새 화면이나 칩, 버튼을 만들고 고친 뒤 규칙 검사를 요청할 때 쓴다.
+description: aprism-web의 v7 이후(v7, v8 …) 화면 코드가 디자인 시스템 규칙(여백, 라운딩, 칩과 버튼의 높이, 패딩, 간격)과 브랜딩 · 시각 원칙(파랑 하나, 숫자 글꼴, 분광, 로봇 이름 등)을 지키는지 검사한다. 사용자가 /ds-check를 부르거나, 새 화면이나 칩, 버튼을 만들고 고친 뒤 규칙 검사를 요청할 때 쓴다.
 ---
 
 # ds-check: v7 디자인 시스템 규칙 검사
@@ -14,7 +14,11 @@ description: aprism-web의 v7 이후(v7, v8 …) 화면 코드가 디자인 시�
 1. CSS 검사 (몇 초): `node tools/ds-check/ds-check-css.cjs`
    - v7 이후 화면이 불러오는 CSS에서 토큰 없이 숫자로 적은 여백, 간격, 라운딩, 단계 밖 값, `--space-6`, `--space-10`, `--radius-6`, 칩과 버튼의 단계 밖 높이를 찾음
    - 전체 목록: `tools/ds-check/out/ds-check-css.md`
-2. 화면 검사 (2~4분, 화면은 찍지 않음): `node tools/ds-check/ds-check-screens.cjs`
+2. 브랜딩 검사 (몇 초): `node tools/ds-check/brand-check.cjs`
+   - CLAUDE.md "브랜딩과 시각 원칙" 중 기계로 잡히는 것: 토큰 없는 파랑 hex, 글꼴 이름 직접 적기, 분광 색을 Delta · 오브 · 엣지 밖에서 씀, 화면 글의 대문자 ROBOT
+   - 기계로 못 잡는 원칙(빛 기준, Delta 표식, 공통 부품 등)은 고친 코드를 읽고 CLAUDE.md 원칙과 대 보아 함께 보고함
+   - 전체 목록: `tools/ds-check/out/brand-check.md`
+3. 화면 검사 (2~4분, 화면은 찍지 않음): `node tools/ds-check/ds-check-screens.cjs`
    - 처음이면 `tools/ds-check`에서 `npm install`을 먼저 함
    - 브라우저는 설치된 Edge 또는 Chrome을 씀. 못 찾으면 `BROWSER` 환경 변수에 경로를 넣음
    - v7 이후 화면 17개 상태(v7 11개, v8 시안 A, B 6개)를 띄워 칩과 버튼마다 높이, 패딩, 간격, 라운딩이 규칙 안인지 잼
