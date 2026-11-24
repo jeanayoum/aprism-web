@@ -395,6 +395,8 @@
     forMonitor: forMonitor,
     forCenter: function () { return ALERTS.map(centerObj); },
     forBuilding: function () { return ALERTS.map(buildingObj); },
+    // [11/24] 전체 미션 Delta 펼침 — 미션 탭과 같은 답 렌더러(delta-answer-v6 · delta-chat)가 읽는 관제 알림 꼴 + id · 미션(building.js 가 범위로 거름)
+    forDelta: function () { return ALERTS.map(function (a) { var o = monitorObj(a); o.id = a.id; o.mission = a.mission; return o; }); },
     forSafety: function () { return ALERTS.map(function (a) { return { mission: a.mission, detect: a.detect, label: a.label, value: a.value, cell: safetyCell(a) }; }); }
   };
 })();

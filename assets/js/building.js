@@ -1246,12 +1246,33 @@
       endHandover();
     }, true);
   }
+  /*
+   * [11/24] 전체 미션 Delta 펼침을 미션 탭과 같은 렌더러로(delta-answer-v6.js · delta-chat.js) — 그 둘이 읽는 값을 여기서 낸다.
+   *   알림 = 지금 범위(건물 전체 · 펼친 층)의 알림, 관제 알림 꼴(alert-data-v7 forDelta). 보는 미션이 없어 mine 은 비움 — 모든 알림에 [M번호 미션]이 붙는다.
+   *   처리 순서 = 위험 먼저, 같은 칸은 오래된 것부터(monitor.js handleOrder 와 같은 규칙).
+   *   알림 열기 = 그 미션 탭 + 알림 팝오버(enter, 11/24 디자이너 확인). 층을 펼친 상태면 그 층 알림만(지금과 같게).
+   */
+  var D7 = null;   // 처음 그릴 때(이 줄보다 먼저 불릴 수 있다) 채운다
+  function publishDelta(list) {
+    if (!V7B || !window.APRISM_ALERTS7 || !window.APRISM_ALERTS7.forDelta) { return; }
+    if (!D7) { D7 = window.APRISM_ALERTS7.forDelta(); }
+    var byId = {};
+    list.forEach(function (a) { byId[a.id] = a; });
+    var all = D7.filter(function (o) { return byId[o.id]; });
+    all.forEach(function (o) { o.bld = byId[o.id]; });
+    var t = function (a, b) { return a.time < b.time ? -1 : a.time > b.time ? 1 : 0; };
+    var crit = all.filter(function (a) { return a.sev === "critical"; }).sort(t), warn = all.filter(function (a) { return a.sev !== "critical"; }).sort(t);
+    window.APRISM_DELTA_ALERTS = { all: all, mine: [], mission: null, missionOf: function (a) { return a.mission || null; }, order: crit.concat(warn) };
+    window.APRISM_DELTA_COUNT = { crit: crit.length, warn: warn.length, total: all.length };
+    window.APRISM_OPEN_ALERT = function (o) { var b = o && o.bld; if (b) { enter(b.floor, b.mission, b); } };
+  }
   function deltaSay(top, list) {
     var d = { level: top, glow: top };
     if (!V3) { return d; }
     var l1 = $(".ai-line-1"), l2 = $(".ai-line-2");
     if (deltaFirst === null && l2) { deltaFirst = { line1: l1 ? l1.textContent : "", line2: l2.textContent }; }
     window.APRISM_DELTA_SCOPE = floorView;
+    publishDelta(list);
     window.APRISM_DELTA_SAY = null;   // 두 줄 문형(v3-panel.js)은 쌓인 건물(전체 미션)에서만 — 층 · 미션을 펼치면 예전 한 문장
     if (scopeMission && !floorView) {
       var fl = MISSION_FLOORS[scopeMission];
