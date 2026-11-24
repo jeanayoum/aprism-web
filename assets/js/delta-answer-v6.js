@@ -238,7 +238,10 @@
       top.appendChild(diag(a));
       top.appendChild(el("span", null, needLine(a)));
       d.appendChild(top);
-      d.appendChild(el("p", "dc6-eq", label(a)));
+      var eq = el("p", "dc6-eq", label(a));
+      // [11/24] 보는 미션 밖 알림이면(전체 미션은 늘) 제목 아래 [M번호 미션] — 다음 확인 줄 꼬리와 같은 모양, 어느 미션 일인지 카드에서 바로 읽히게
+      if (!mine(a) && A().missionOf && A().missionOf(a)) { var cm = el("span", "dc6-row-s dc6-card-m"); cm.appendChild(missionNode(a)); eq.appendChild(cm); }
+      d.appendChild(eq);
       if (a.sum) { d.appendChild(el("p", "dc6-desc", a.sum)); }
       var why = el("div", "dc6-why");
       why.appendChild(el("span", "dc6-why-l", "먼저 보는 이유"));

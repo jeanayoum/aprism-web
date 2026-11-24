@@ -1952,6 +1952,7 @@ body.ver-7 .rp-page .p-hd .lg.is-wm svg { display: block; height: 16px; width: a
  * 아래 제안(위험 n건부터 조치 · 주의 n건 묶어서 확인 · 현장 점검 한꺼번에 요청)은 building-v7.html 에서 공통 칩(.ds-chips > .ds-chip)으로 씀 — 따로 규칙 두지 않음.
  * 알약은 답 카드 안 조치 버튼(.dc6-btn)에만(11/24 디자이너 확인). */
 /* [11/24] 문장 속 미션 이름 [M번호 이름] 은 어느 Delta 문장이든(접힘 1 · 2줄, 펼침, 대화) 문장 크기 그대로, 이름은 흰색 굵게 · 번호 · 괄호는 회색(문형표 5).
- * 12 · 회색은 펼친 Delta 다음 확인 줄(.dc6-row) 꼬리에만 */
-body.ver-7 .dl-m:not(.dc6-row .dl-m), body.ver-7 .dl-m:not(.dc6-row .dl-m) :is(.dl-no, .dl-br) { font-size: inherit !important; line-height: inherit !important; }
-body.ver-7 .dl-m:not(.dc6-row .dl-m) { color: var(--text-primary) !important; font-weight: var(--font-weight-bold); }   /* 2줄(회색 문장) 안에서도 흰색 굵게 — 할 일의 대상이 먼저 읽히게 */
+ * 12 · 회색은 펼친 Delta 다음 확인 줄(.dc6-row) 꼬리와 답 카드 미션 줄(.dc6-card-m)에만 */
+body.ver-7 .dc6-card-m { display: block; font-weight: var(--font-weight-regular); }   /* 답 카드 제목(.dc6-eq) 아래 줄 */
+body.ver-7 .dl-m:not(:is(.dc6-row, .dc6-card-m) .dl-m), body.ver-7 .dl-m:not(:is(.dc6-row, .dc6-card-m) .dl-m) :is(.dl-no, .dl-br) { font-size: inherit !important; line-height: inherit !important; }
+body.ver-7 .dl-m:not(:is(.dc6-row, .dc6-card-m) .dl-m) { color: var(--text-primary) !important; font-weight: var(--font-weight-bold); }   /* 2줄(회색 문장) 안에서도 흰색 굵게 — 할 일의 대상이 먼저 읽히게 */
