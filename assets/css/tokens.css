@@ -925,7 +925,8 @@
 
 /* ================= [11/24 브랜딩 2단계] v7 브랜드 톤 B =================
  * 화면 파랑과 회색 바탕을 브랜드 Deep Tech Blue(#004B93)의 색상각 209° 로 맞춘다(사용자 확정, lab-brand-tone-v7.html B안).
- *   - 밝기 · 채도는 그대로, HSL 색상각만 옮김(회색 약 220° → 209°, aqua 206° → 209°). 층 간격 · 대비는 지금과 같다.
+ *   - 회색은 밝기 · 채도 그대로, HSL 색상각만 옮김(약 220° → 209°). 층 간격 · 대비는 지금과 같다.
+ *   - 파랑은 blue 하나로 합침(11/24): 로고의 OKLCH 색상각 254° 에 맞춘 램프, aqua 는 blue 를 가리킴.
  *   - 화면 파랑은 aqua 하나로: GNB 고른 메뉴 · 체크 상자(--comp-gnb-brand)도 aqua-700.
  *   - 위험 · 주의 · 안전 색, 엣지 글로우, 로봇 바닥 빛(halo)은 그대로.
  *   - v7 화면(body.ver-7)에만 건다. 영문판 · v3~v6 기록 화면은 이전 톤 그대로.
@@ -958,13 +959,27 @@ html:has(> body.ver-7) {
   --color-alpha-gray-950-8: rgb(from var(--color-gray-950) r g b / 8%);
   --color-alpha-gray-950-18: rgb(from var(--color-gray-950) r g b / 18%);
   --color-alpha-gray-950-55: rgb(from var(--color-gray-950) r g b / 55%);
-  /* 화면 파랑 aqua(v6.css 에서 정의, 여기서 209° 로 덮음) */
-  --color-aqua-50: #EAF5FF;   /* 이전 #EAF6FF */
-  --color-aqua-200: #9ED0FF;   /* 이전 #9ED5FF */
-  --color-aqua-500: #4DA9FF;   /* 이전 #4DB2FF */
-  --color-aqua-700: #176FC2;   /* 이전 #1778C2 */
-  --color-aqua-800: #0F66B8;   /* 이전 #0F6EB8 */
-  --color-aqua-600: #1383EB;   /* 이전 #138DEB */
+  /* 화면 파랑 = blue 하나(11/24 합침). 로고 Deep Tech Blue 의 OKLCH 색상각 254° 에 맞춤, 단계마다 원래 밝기 유지(대비 역할 그대로).
+   * aqua(v6 에서 따로 만든 쨍한 파랑)가 쓰이던 단계는 aqua 의 밝기 · 선명도를 이어받음. aqua 는 이제 blue 를 가리킴. */
+  --color-blue-50: #ECF4FF;   /* 이전 #EFF6FE */
+  --color-blue-100: #E0ECFB;   /* 이전 #E0ECFB */
+  --color-blue-200: #C7DDF8;   /* 이전 #C7DDF8 */
+  --color-blue-300: #A6CEFF;   /* 이전 #A8CBF3 */
+  --color-blue-400: #8DB8EE;   /* 이전 #89B9ED */
+  --color-blue-500: #5DA6FF;   /* 이전 #6AA7E7 */
+  --color-blue-600: #4C8FE0;   /* 이전 #4990E0 */
+  --color-blue-650: #1F82EC;   /* 이전 #0D8DF9 */
+  --color-blue-700: #2E7BD4;   /* 이전 #3B79D5 */
+  --color-blue-750: #226EC3;   /* 이전 #086FD6 */
+  --color-blue-800: #1865B8;   /* 이전 #3265C3 */
+  --color-blue-900: #17579E;   /* 이전 #2E539F */
+  --color-blue-950: #172F4C;   /* 이전 #1E2D4D */
+  --color-aqua-50: var(--color-blue-50);
+  --color-aqua-200: var(--color-blue-300);
+  --color-aqua-500: var(--color-blue-500);
+  --color-aqua-600: var(--color-blue-650);
+  --color-aqua-700: var(--color-blue-750);
+  --color-aqua-800: var(--color-blue-800);
   /* 3D 지도 바닥 · 벽 · 설비 · 길 */
   --color-map3d-floor: #18232E;   /* 이전 #18202E */
   --color-map3d-wall: #3A4D5F;   /* 이전 #3A475F */
@@ -984,12 +999,12 @@ html:has(> body.ver-7) {
   --color-map3d-l-pick-face: #CFE8FF;   /* 이전 #CFE0FF */
   --color-map3d-l-pick-line: #1D7DD6;   /* 이전 #1D5FD6 */
   --color-map3d-l-hover-line: #5B6977;   /* 이전 #5B6577 */
-  --color-map3d-run-left: #4DA9FF;   /* 이전 #4DB2FF */
+  --color-map3d-run-left: var(--color-blue-500);   /* 갈 길 = 화면 파랑 */
   --color-map3d-idle-done: #889AAA;   /* 이전 #8894AA */
   --color-map3d-idle-left: #5D6975;   /* 이전 #5D6675 */
   --color-map3d-idle-dot: #AEBBC8;   /* 이전 #AEB8C8 */
   --color-map3d-l-run-done: #4B5763;   /* 이전 #4B5563 */
-  --color-map3d-l-run-left: #1383EB;   /* 이전 #138DEB */
+  --color-map3d-l-run-left: var(--color-blue-650);   /* 라이트 갈 길 = 라이트 상태 파랑 */
   --color-map3d-l-run-dot: #2B3136;   /* 이전 #2B2F36 */
 }
 html:has(> body.ver-7) body.ver-7 {
