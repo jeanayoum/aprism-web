@@ -933,7 +933,7 @@
  *   - 원시 토큰은 :root 에서 풀려야 의미 토큰(var())이 따라오므로 html:has(> body.ver-7) 에 둔다.
  *   - 3D 지도 스크립트에 직접 적힌 일부 색은 여기서 안 바뀐다.
  * Figma 디자인 시스템 Primitive 값도 같은 값으로 바꿨다(11/24). */
-html:has(> body.ver-7) {
+html:has(> body:is(.ver-7, .ds-auth)) {   /* [11/24] 로그인 · 비밀번호 변경(body.ds-auth)도 v7 의 들어오는 문이라 같은 회색 · 파랑 */
   /* 회색 램프 */
   --color-gray-50: #F7F9FA;   /* 이전 #F7F8FA */
   --color-gray-100: #F0F3F5;   /* 이전 #F0F1F5 */
@@ -1009,6 +1009,13 @@ html:has(> body.ver-7) {
 }
 html:has(> body.ver-7) body.ver-7 {
   --comp-gnb-brand: var(--color-aqua-700);
+}
+/* [11/24] 로그인 화면 주요 행동(로그인 · 변경하고 시작하기)도 v7 강조 파랑(aqua-700 = blue-750 #226EC3) — v6.css body.ver-6 과 같은 값 */
+html:has(> body.ds-auth) body.ds-auth {
+  --comp-button-accent-bg-default: var(--color-aqua-700);
+  --comp-button-accent-bg-hover: color-mix(in srgb, var(--color-aqua-700) 82%, #ffffff);
+  --comp-button-accent-bg-pressed: var(--color-aqua-800);
+  --border-focus: var(--color-aqua-700);
 }
 /* 파랑 하나로: GNB 고른 메뉴(다크는 --bg-accent = blue-600 이었음)와 체크 상자 켜짐(--ds-check-on = blue-700/600)도 aqua-700 */
 html:has(> body.ver-7):is([data-theme], :not([data-theme])) body.ver-7 .ds-gnb-item[aria-current="page"] .ds-gnb-icon { background-color: var(--comp-gnb-brand) !important; }
