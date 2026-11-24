@@ -637,7 +637,7 @@ body.ver-7 .ds-switch:focus-visible { outline: 2px solid var(--border-focus); ou
  * 화면: 관제, 전체 미션, 미션설정, 사전 점검. 예전 .map-tools-box(층 판 .is-floors 는 빼고) 옆에 .ds-maptools. 안의 버튼은 공통 아이콘 버튼
  * 면은 관제 기준 반투명 유리(흐림 10 + 위 밝은 선 + 아래 옅은 그림자)로 통일(11/20: 예전 미션설정, 사전 점검은 불투명 회색 800 면이었음)
  * 미션설정, 사전 점검은 monitor.css 를 안 불러 유리 값(--map-glass-*)이 없어 여기서 값을 따로 둠 */
-body.ver-7 { --ds-maptools-bg: var(--color-alpha-gray-750-55); --ds-maptools-blur: blur(10px); --ds-maptools-shadow: inset 0 1px 0 var(--effect-glass-edge), 0 14px 30px -18px var(--effect-glass-shadow); }
+body.ver-7 { --ds-maptools-bg: var(--color-alpha-gray-750-55); --ds-maptools-blur: blur(var(--ds-glass-blur)); --ds-maptools-shadow: inset 0 1px 0 var(--effect-glass-edge), 0 14px 30px -18px var(--effect-glass-shadow); }
 :root[data-theme="light"] body.ver-7 { --ds-maptools-bg: color-mix(in srgb, var(--color-gray-100) 80%, transparent); }
 body.ver-7 .ds-maptools { display: flex !important; flex-direction: column !important; gap: var(--ds-maptools-gap) !important; box-sizing: border-box !important; padding: var(--ds-maptools-pad) !important; border: 0 !important; border-radius: var(--ds-maptools-radius) !important; background-color: var(--ds-maptools-bg) !important; -webkit-backdrop-filter: var(--ds-maptools-blur) !important; backdrop-filter: var(--ds-maptools-blur) !important; box-shadow: var(--ds-maptools-shadow) !important; }
 
@@ -1094,10 +1094,10 @@ body.ver-7 .ds-gnb-item[aria-disabled="true"] { opacity: 0.38; pointer-events: n
 /* 보고서 목차 줄(11/23): 리스트 작게(.ds-list-item.is-s, 32). 이름 왼쪽, 쪽 번호 오른쪽(text/tertiary, 고르면 text/secondary). 고름은 .is-selected(예전 .is-on 과 같이 붙음) */
 body.ver-7 .rp-toc .ds-list-item.is-s { justify-content: space-between !important; width: 100%; text-align: left; }
 /* ---------- 표 줄 (11/23, .ds-table-row): 알림센터 알림 목록 줄(.ac-row 옆). 칸 나눔은 화면 CSS, 줄 틀과 색과 상태만 여기 ----------
- * 높이 40, 좌우 20, 아래 구분선 1 border/divider(마지막 줄 없음), 왼쪽 단계 띠 3(.ac-stripe: 위험 status/critical/icon, 주의 status/warning/icon), 단계 아이콘 색도 같음
+ * 높이 40, 좌우 20, 아래 구분선 1 border/divider(마지막 줄 없음), 왼쪽 단계 띠 4(11/24, .ac-stripe: 위험 status/critical/icon, 주의 status/warning/icon), 단계 아이콘 색도 같음
  * 면: 다크는 위험 줄 status/critical/bg, 라이트는 모두 흰색(gray-0). 올림 state/hover, 고름 다크 bg/raised 라이트 bg/selected. 초점 테 2 border/focus 안쪽 2
  * 줄 안 버튼(안전진단)은 올림, 초점, 고름에서만 보임. 예전 alert-center.css, v6.css(라이트), v7.css(좌우 20) 값 그대로 */
-body.ver-7 { --ds-table-row-h: 40px; --ds-table-edge: 3px; }
+body.ver-7 { --ds-table-row-h: 40px; --ds-table-edge: var(--ds-list-edge); }   /* [11/24] 3 → 4, 알림 목록 띠(--ds-list-edge 4)와 하나로 */
 body.ver-7 .ds-table-row { position: relative !important; box-sizing: border-box !important; height: var(--ds-table-row-h) !important; padding-left: var(--space-20) !important; padding-right: var(--space-20) !important; border-bottom: var(--border-width-thin) solid var(--border-divider) !important; color: var(--text-primary) !important; cursor: pointer; }
 body.ver-7 .ds-table-row:last-child { border-bottom: 0 !important; }
 body.ver-7 .ds-table-row:focus-visible { outline: var(--border-width-strong) solid var(--border-focus) !important; outline-offset: calc(var(--space-2) * -1) !important; }
@@ -1715,7 +1715,7 @@ body.ver-7 .delta3:not(.is-open) { border-radius: 0 !important; }
 /* [11/24 브랜딩] 다크 Delta 판에 보라를 살짝: Delta 자리(왼쪽 위)에서 약 30%, 판 가운데쯤 사라짐. 단계색은 그대로(lab-delta-spectrum-v7 '살짝 보라') */
 body.ver-7 .delta3 { --ds-delta-tint: 124 84 190; }
 /* 접힘 카드 면 */
-body.ver-7 .delta3:not(.is-open) .delta3-card { border-radius: var(--radius-container) !important; -webkit-backdrop-filter: blur(10px) !important; backdrop-filter: blur(10px) !important; }
+body.ver-7 .delta3:not(.is-open) .delta3-card { border-radius: var(--radius-container) !important; -webkit-backdrop-filter: blur(var(--ds-glass-blur)) !important; backdrop-filter: blur(var(--ds-glass-blur)) !important; }
 :root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open) .delta3-card { background-color: transparent !important; }
 :root[data-theme="light"] body.ver-7 .delta3:not(.is-open) .delta3-card { background-color: var(--tone-base) !important; }
 :root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open):not(.is-warning):not(.is-critical) .delta3-card { box-shadow: inset 0 2px 3px -1px var(--effect-glass-edge) !important; background-image: linear-gradient(in oklab 150deg, rgb(var(--ds-delta-tint) / 30%) 0%, rgb(var(--ds-delta-tint) / 9%) 36%, transparent 60%), linear-gradient(to bottom, var(--bg-cell), var(--bg-glass)) !important; }
@@ -1757,7 +1757,7 @@ body.ver-7 .delta3.is-open.is-warning::after { background-image: linear-gradient
 body.ver-7 .delta3.is-open.is-critical::after { background-image: linear-gradient(90deg, transparent, rgb(255 110 84 / 90%) 30%, rgb(255 140 110) 50%, rgb(255 110 84 / 90%) 70%, transparent) !important; }
 /* 펼침 카드 면 */
 body.ver-7 .delta3.is-open .delta3-card { border-radius: var(--radius-container) !important; background-image: none !important; }
-:root:not([data-theme="light"]) body.ver-7 .delta3.is-open .delta3-card { box-shadow: inset 0 0 0 1px rgb(255 255 255 / 6%) !important; background-color: #1B1F25 !important; }
+:root:not([data-theme="light"]) body.ver-7 .delta3.is-open .delta3-card { box-shadow: inset 0 0 0 1px rgb(255 255 255 / 6%) !important; background-color: var(--ds-delta-panel-bg) !important; }
 :root[data-theme="light"] body.ver-7 .delta3.is-open .delta3-card { box-shadow: inset 0 0 0 1px rgb(255 255 255 / 70%) !important; background-color: #FAFAFA !important; }
 /* 펼침 본문 바탕 */
 body.ver-7 .delta3.is-open .delta3-body::before { border-radius: var(--radius-4) !important; background-color: transparent !important; }
@@ -1932,3 +1932,18 @@ body.ver-7.is-surge .two-col.is-critical > .edge-light { background-image: radia
 body.ver-7 :is(.utc-clock .num, .ah-time, .sf .kd .tm, .ds-meas, .precheck-row .meta, .rp-item.is-mission .rp-tm, .rp-moslot .rp-tm, .ft .fr.f1 .ev-h b, .ft .fr.gau:not(.hd) > span:is(:nth-child(4), :nth-child(5))) { font-family: var(--font-family-mono) !important; font-variant-numeric: tabular-nums; letter-spacing: 0; }
 body.ver-7 .ds-meas { font-size: .95em; }
 body.ver-7 :is(.ac-tab-count, .ds-pager-n, .ac-nth) { font-family: var(--font-family-sans) !important; font-variant-numeric: tabular-nums; }
+
+/* ===== [11/24 브랜딩 · 인벤토리 어긋남 정리]
+ * 유리 흐림 — 판 · 카드 · 팝오버는 12 하나(예전 10 · 12 · 18), 유리 판 위 작은 알약 버튼만 4(작아서 더 흐리면 뭉개짐)
+ * Delta 펼친 판 면 #1B1F25 에 이름을 붙임(값 그대로)
+ * Delta 묻기 칸 — 상자 모서리 4(--ds-field-radius, 입력 칸과 같게), 바깥 테는 2px 밖이라 4 + 2 */
+body.ver-7 { --ds-glass-blur: 12px; --ds-glass-blur-s: 4px; --ds-delta-panel-bg: #1B1F25; }
+body.ver-7 .right-panel { -webkit-backdrop-filter: blur(var(--ds-glass-blur)) !important; backdrop-filter: blur(var(--ds-glass-blur)) !important; }
+body.ver-7 .ma-v3 .ma-lower::before { -webkit-backdrop-filter: blur(var(--ds-glass-blur)) saturate(1.4) !important; backdrop-filter: blur(var(--ds-glass-blur)) saturate(1.4) !important; }
+body.ver-7 .map-alert.ma-v3 { -webkit-backdrop-filter: blur(var(--ds-glass-blur)) !important; backdrop-filter: blur(var(--ds-glass-blur)) !important; }
+body.ver-7 .delta3.is-open { -webkit-backdrop-filter: blur(var(--ds-glass-blur)) saturate(1.12) !important; backdrop-filter: blur(var(--ds-glass-blur)) saturate(1.12) !important; }
+body.ver-7 .delta3 :is(.delta3-plus, .delta3-talk) { -webkit-backdrop-filter: blur(var(--ds-glass-blur-s)) !important; backdrop-filter: blur(var(--ds-glass-blur-s)) !important; }
+body.ver-7 .delta3 .ai-input { border-radius: var(--ds-field-radius) !important; }
+body.ver-7 .delta3 .ai-input::before { border-radius: calc(var(--ds-field-radius) + 2px) !important; }
+body.ver-7 .rp-page .p-hd .lg.is-wm { flex-direction: row; }
+body.ver-7 .rp-page .p-hd .lg.is-wm svg { display: block; height: 16px; width: auto; }

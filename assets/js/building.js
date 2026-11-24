@@ -582,6 +582,7 @@
    *   아래  상태 · 배터리 · 신호 세 칸(bg/map-chip) — 메인 로봇 카드의 Mission · Battery · Signal 과 같은 값이다.
    */
   var SIG = { 4: "Strong", 3: "Good", 2: "Weak", 1: "Weak", 0: "끊김" };
+  if (V7B) { SIG = { 4: "강함", 3: "보통", 2: "약함", 1: "약함", 0: "끊김" }; }   // [11/24] v7 은 한글 라벨(영문판은 i18n 사전이 다시 옮김)
 
   function chip(cls) { return el("span", "bld-chip" + (cls ? " " + cls : "")); }
 
@@ -683,7 +684,7 @@
     var st = el("span", "bld-rc-badge is-" + ST_TONE[r.st] + (document.body.classList.contains("ver-7") && window.ds ? " " + window.ds.statusCls(r.st) : ""));   // [11/19 v7] 공통 CSS 태그
     st.appendChild(el("i"));
     st.appendChild(el("span", null, b.text));
-    line("Mission", st);
+    line(V7B ? "미션" : "Mission", st);
 
     var bat = el("span", window.ds ? window.ds.batteryCls(r.bat, r.chg) : "battery" + (r.bat <= 20 ? " is-critical" : r.bat <= 40 ? " is-warning" : "") + (r.chg ? " is-charging" : ""));   // [11/20 v7] 단계는 ds-v7.js 한 곳
     var bb = el("span", "battery-body");
@@ -699,7 +700,7 @@
     bat.appendChild(bb);
     bat.appendChild(el("span", "battery-tip"));
     bat.appendChild(el("span", "t-caption num", r.bat + "%"));
-    line("Battery", bat);
+    line(V7B ? "배터리" : "Battery", bat);
 
     var sig = el("span", "battery" + (r.sig === 1 ? " is-critical" : r.sig === 2 ? " is-warning" : ""));
     var bars = el("span", "signal-bars");
@@ -707,7 +708,7 @@
     for (var i = 0; i < 4; i += 1) { bars.appendChild(el("i")); }
     sig.appendChild(bars);
     sig.appendChild(el("span", "t-caption", SIG[r.sig]));
-    line("Signal", sig);
+    line(V7B ? "신호" : "Signal", sig);
     main.appendChild(side);
     node.appendChild(main);
 
