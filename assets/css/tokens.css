@@ -63,15 +63,19 @@
   --color-blue-900: #2E539F;
   --color-blue-950: #1E2D4D;
 
-  /* Brand — 클라이언트가 준 로고(assets/img/logo, 11/11 최신판)의 색 그대로(11/24).
-   * GUI 의 blue/* 와 따로 둔다 — 어디에 쓸지는 2단계 브랜딩에서 정한다. 로고 색을 바꾸지 않는 한 손대지 않는다.
-   *   brand-blue       심볼(삼각형) · 밝은 면용      aprism-blue.svg
-   *   brand-blue-light 심볼 · 어두운 면용            aprism-blue-dark.svg
-   *   brand-gray       글자(PRISM) · 밝은 면용      aprism-blue.svg
-   *   brand-gray-light 글자 · 어두운 면용            aprism-blue-dark.svg */
-  --color-brand-blue: #004893;
-  --color-brand-blue-light: #4DA4FF;
+  /* Brand — CI 문서(assets/source/26.11.10_에이프로즘 로고/APRISM_DELTA_CI_Design_Portfolio.docx) 04 색상 규격 표 값(11/24).
+   * 표와 그림 · SVG 가 다르면 표를 따른다(Deep Tech Blue: 표 #004B93, SVG · 그림 #004893).
+   * 표에 없는 어두운 면용 두 색(-light)은 aprism-blue-dark.svg 에서 옮긴 임시 값이다.
+   * GUI 의 blue/* 와 따로 둔다 — 어디에 쓸지는 2단계 브랜딩에서 정한다.
+   *   brand-blue       Deep Tech Blue · 심볼(Δ) · 밝은 면용     CI 표
+   *   brand-black      Industrial Black · 워드마크 단독       CI 표
+   *   brand-gray       Cool Gray · 함께 쓸 때 PRISM 글자       CI 표
+   *   brand-blue-light 심볼 · 어두운 면용(임시)
+   *   brand-gray-light PRISM 글자 · 어두운 면용(임시) */
+  --color-brand-blue: #004B93;
+  --color-brand-black: #111111;
   --color-brand-gray: #7D848C;
+  --color-brand-blue-light: #4DA4FF;
   --color-brand-gray-light: #A0A5AB;
 
   /* Status */
