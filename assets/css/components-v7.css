@@ -1132,6 +1132,8 @@ body.ver-7 .ds-record .done-title { font-size: var(--font-size-14) !important; l
 body.ver-7 .ds-card { box-sizing: border-box !important; border-radius: var(--ds-card-radius) !important; }
 
 /* 관제 로봇 카드: 그림과 진행 막대가 카드 끝까지 닿아 카드 자신은 안쪽 0, 글 칸(.progress-meta)만 안쪽 12. 글 칸 안 제목 - 종료 예정 4, 글 - 큰 값 12 */
+/* [11/24 디자이너] 관제 로봇 카드는 오른쪽 패널에서 웨이포인트 판과 나란한 판 단위 — 모서리를 웨이포인트 판과 같은 판 모서리(--radius-container 8)로. 감싸는 칸(.robot-list)도 같이(안 그러면 4 로 잘림) */
+body.ver-7 .ds-card.is-robot, body.ver-7 .panel-card > .robot-list { border-radius: var(--radius-container) !important; }
 body.ver-7 .ds-card.is-robot .progress-meta { padding-left: var(--ds-card-pad) !important; padding-right: var(--ds-card-pad) !important; gap: var(--ds-card-gap) !important; }
 body.ver-7 .ds-card.is-robot .progress-titles { gap: var(--ds-card-gap-line) !important; }
 
