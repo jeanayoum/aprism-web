@@ -25,3 +25,6 @@ assets/source/*
 
 # 규칙 검사 결과 (tools/ds-check)
 tools/ds-check/out/
+
+# 로컬 화면 확인용 헤드리스 Chrome 프로필(실수로 올라간 적 있음)
+cm/
