@@ -1176,6 +1176,28 @@
     $("[data-ac-summary]").hidden = state.tab !== "done";
   }
 
+  // [11/25 디자이너 v7] Delta 가 요약을 만드는 동안 — 판 위 끝 빛줄기가 오가고(.is-gen, 본문 자리엔 빈 줄), 다 만든 순간 한 번 지나가고 꺼짐(.is-done).
+  // 길이는 공통 CSS 디자인 값(--ds-delta-gen, --ds-delta-beam-last). 움직임 줄이기면 빛 없이 짧게
+  var genTimers = [];
+  function msVar(name, dflt) { var v = parseFloat(getComputedStyle(document.body).getPropertyValue(name)); return isNaN(v) ? dflt : v; }
+  function genHandover() {
+    var h = $(".ac-handover", slot); if (!h) { return; }
+    genTimers.forEach(clearTimeout); genTimers = [];
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    $(".ac-handover-head", h).insertAdjacentHTML("afterend", '<div class="ac-handover-skel" aria-hidden="true"><i style="width:62%"></i><i style="width:84%"></i><i style="width:71%"></i><i style="width:78%"></i></div>');
+    var when = $(".ac-handover-when", h), old = when ? when.innerHTML : "";
+    if (when) { when.textContent = "오늘 조치 " + HANDOVER_COUNT() + "건을 묶고 있어요"; }
+    h.setAttribute("aria-busy", "true");
+    h.classList.add("is-gen");
+    genTimers.push(setTimeout(function () {
+      if (when) { when.innerHTML = old; }
+      h.removeAttribute("aria-busy");
+      h.classList.remove("is-gen"); h.classList.add("is-done", "is-new");
+      genTimers.push(setTimeout(function () { h.classList.remove("is-done"); }, msVar("--ds-delta-beam-last", 1600) + 100));
+    }, reduce ? 600 : msVar("--ds-delta-gen", 3400)));
+  }
+  function HANDOVER_COUNT() { var m = /(\d+)건/.exec(HANDOVER.items && HANDOVER.items[0] ? String(HANDOVER.items[0][1]) : ""); return m ? m[1] : "5"; }
+
   function renderHandover() {
     slot.innerHTML = '<section class="ac-handover">' +
       '<div class="ac-handover-head">' +
@@ -1264,6 +1286,7 @@
       state.handover = true;
       renderHandover();
       slot.hidden = false;
+      if (V7) { genHandover(); }
     });
 
     selects({

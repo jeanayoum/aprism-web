@@ -259,6 +259,9 @@ body.ver-7, body.ds-auth {   /* body.ds-auth: 로그인 쪽 화면(안내 상자
   --ds-motion-exit: 300ms;                        /* 떠 있는 판 나가기 */
   --ds-motion-enter: 420ms;                       /* 떠 있는 판 들어오기 */
   --ds-motion-slow: 820ms;                        /* 완료 물결(조치 요청 뒤 팝업이 바뀌는 물결) */
+  --ds-delta-gen: 3400ms;                         /* [11/25] Delta 가 글을 만드는 동안(인수인계 요약) — 보여 주는 길이 */
+  --ds-delta-beam-run: 3200ms;                    /* [11/25] 만드는 동안 판 위 끝 빛줄기가 한 번 오가는 길이 */
+  --ds-delta-beam-last: 1600ms;                   /* [11/25] 다 만든 순간 빛줄기가 한 번 지나가고 꺼지는 길이 */
   --ds-motion-flash: 1200ms;                      /* 새 기록 줄 반짝임(조치 요청된 알림 목록에 줄이 들어올 때) */
   --ds-alert-beat: 2s;                            /* 경보 맥박(11/24 브랜딩): 위험 표시 모두 이 한 박자, 같은 위상(ds-v7.js 가 맞춤) */
   --ds-alert-beat-new: 1.2s;                      /* 새로 생긴 위험만 처음 3번 빠르게 → 4s 부터 한 박자로 */
@@ -2033,3 +2036,26 @@ body.ver-7 .map-bot { transform: translate(round(-50%, 1px), round(-50%, 1px)); 
   --tone-e: linear-gradient(in oklab 105deg, #6E6890 0%, #6F7DAE 38%, var(--color-blue-600) 72%, var(--color-blue-700) 100%);
   --tone-in: rgb(from var(--color-blue-400) r g b / 28%); --tone-glow: rgb(from var(--color-blue-700) r g b / 26%); --tone-base: var(--color-blue-600);
 }
+
+/* ===== [11/25 디자이너] Delta 가 만드는 중 빛줄기(인수인계 요약 판 위 끝, 레퍼런스 libraries.dev/beam "line", 실험실 lab-ac-handover-beam-v7)
+ * 빛 기준 그대로: 만드는 동안 = 진행 빛(파랑 · 흰, 약하게, 맥박 없이 --ds-delta-beam-run 에 한 번 오감), 다 만든 순간 = 한 번 지나가고 꺼짐(--ds-delta-beam-last), 그 뒤 빛 없음(요약 · 기록 판)
+ * 선 1px(가운데 흰빛 65%, 양옆 파랑 50%) + 아래 번짐(파랑 50% x 0.6, 흐림 12). 상태 .is-gen(만드는 중) · .is-done(다 만든 순간)은 alert-center.js 가 붙임 */
+body.ver-7 { --ds-delta-beam: var(--color-blue-500); --ds-delta-beam-core: rgb(255 255 255 / 65%); }
+:root[data-theme="light"] body.ver-7 { --ds-delta-beam: var(--color-blue-650); --ds-delta-beam-core: rgb(255 255 255 / 80%); }
+body.ver-7 .ac-handover { position: relative; overflow: hidden; }
+body.ver-7 .ac-handover::before, body.ver-7 .ac-handover::after { content: ""; position: absolute; left: 0; right: 0; top: 0; pointer-events: none; opacity: 0; background-repeat: no-repeat; background-size: 36% 100%; background-position: -60% 0; }
+body.ver-7 .ac-handover::before { height: 1px; z-index: 2; background-image: linear-gradient(90deg, transparent, rgb(from var(--ds-delta-beam) r g b / 50%) 30%, var(--ds-delta-beam-core) 50%, rgb(from var(--ds-delta-beam) r g b / 50%) 70%, transparent); }
+body.ver-7 .ac-handover::after { height: 40px; top: -8px; z-index: 1; filter: blur(12px); background-image: radial-gradient(ellipse 50% 60% at 50% 20%, rgb(from var(--ds-delta-beam) r g b / 50%), transparent 72%); }
+@keyframes ds-delta-beam-run { from { background-position: -60% 0; } to { background-position: 160% 0; } }
+@keyframes ds-delta-beam-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ds-delta-beam-last { 0% { background-position: -60% 0; opacity: 1; } 80% { opacity: 1; } 100% { background-position: 160% 0; opacity: 0; } }
+body.ver-7 .ac-handover.is-gen::before, body.ver-7 .ac-handover.is-gen::after { animation: ds-delta-beam-run var(--ds-delta-beam-run) cubic-bezier(.45, 0, .55, 1) infinite, ds-delta-beam-in 400ms ease-out both; }
+body.ver-7 .ac-handover.is-gen::after { opacity: .6; }
+body.ver-7 .ac-handover.is-done::before, body.ver-7 .ac-handover.is-done::after { animation: ds-delta-beam-last var(--ds-delta-beam-last) cubic-bezier(.3, 0, .2, 1) both; }
+/* 만드는 중엔 본문 자리에 빈 줄(뼈대), 다 만들면 본문이 나타남(ds-appear) */
+body.ver-7 .ac-handover.is-gen :is(.ac-handover-list, .ac-handover-actions) { display: none; }
+body.ver-7 .ac-handover-skel { display: none; }
+body.ver-7 .ac-handover.is-gen .ac-handover-skel { display: grid; gap: var(--space-8); padding: var(--space-4) 0 var(--space-8); }
+body.ver-7 .ac-handover-skel > i { display: block; height: 12px; border-radius: var(--radius-2, 2px); background: color-mix(in srgb, var(--text-primary) 7%, transparent); }
+body.ver-7 .ac-handover.is-new :is(.ac-handover-list, .ac-handover-actions) { animation: ds-appear var(--ds-motion-base) var(--ds-ease-base) both; }
+@media (prefers-reduced-motion: reduce) { body.ver-7 .ac-handover::before, body.ver-7 .ac-handover::after { animation: none !important; opacity: 0 !important; } }
