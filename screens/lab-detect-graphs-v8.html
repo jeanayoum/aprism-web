@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<!-- 실험실(11/25): 안전진단 감지 그래프를 현장에서 쓰는 형식으로 — 누출 · 이상음향 · 부분방전.
+     카드 = 관제 상황판 문법(순회마다 값 추이 + 기준선 + 단계 색), 상세 = 현장 전문 그림(근거 사진 표시 상자 / 주파수 스펙트럼 · 스펙트로그램 / PRPD 산포도 · 방전 추이).
+     값은 시연용으로 만든 것(현장 형식에 맞춤). 메인에 반영하지 않음 -->
+<html lang="ko" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>실험 · 현장형 감지 그래프 — APRISM</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/static/woff2/SUIT.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" />
+  <link rel="stylesheet" href="../assets/css/tokens.css?v=d79c1b24" />
+  <link rel="stylesheet" href="../assets/css/icons-outline.css?v=a43f9b9f" />
+  <link rel="stylesheet" href="../assets/css/components-v7.css?v=d0a87a79" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; padding: 32px; background: var(--bg-page); color: var(--text-primary); font-family: var(--font-family-sans); -webkit-font-smoothing: antialiased; }
+    h1 { font-size: 20px; line-height: 28px; margin: 0 0 4px; }
+    h2 { font-size: 16px; line-height: 24px; margin: 0; }
+    .lead { color: var(--text-secondary); font-size: 13px; line-height: 20px; margin: 0 0 24px; max-width: 980px; }
+    .mono { font-family: var(--font-family-mono); font-variant-numeric: tabular-nums; }
+    .sec { display: grid; grid-template-columns: 405px minmax(0, 1fr); gap: 24px; padding: 24px; margin-bottom: 24px; border-radius: 8px; background: var(--bg-panel); max-width: 1640px; }
+    .sec-h { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 12px; }
+    .sec-h p { margin: 0; font-size: 12px; line-height: 18px; color: var(--text-tertiary); }
+    .lbl { font-size: 12px; line-height: 18px; color: var(--text-tertiary); margin: 0 0 8px; }
+    /* 카드(관제 상황판) */
+    .card { position: relative; width: 405px; height: 242px; padding: 12px 16px; border-radius: 4px; background: var(--bg-cell); display: flex; flex-direction: column; }
+    .card.is-warn { background: color-mix(in srgb, var(--status-warning-icon) 10%, var(--bg-cell)); }
+    .card.is-crit { background: color-mix(in srgb, var(--status-critical-icon) 12%, var(--bg-cell)); }
+    .k-h { display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 24px; font-weight: 700; }
+    .k-h .i { width: 16px; height: 16px; flex: none; background: currentColor; -webkit-mask: var(--m) center / contain no-repeat; mask: var(--m) center / contain no-repeat; }
+    .k-h .n { font-weight: 500; color: var(--text-secondary); }
+    .k-at { font-size: 14px; line-height: 22px; color: var(--text-secondary); margin-top: 2px; }
+    .k-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; margin-top: 6px; }
+    .k-big { font-family: var(--font-family-mono); font-size: 36px; line-height: 44px; font-weight: 500; letter-spacing: -0.5px; }
+    .k-big small { font-size: 18px; margin-left: 4px; color: var(--text-secondary); }
+    .k-lim { text-align: right; font-size: 12px; line-height: 18px; color: var(--text-secondary); }
+    .k-lim b { display: block; font-weight: 700; }
+    .card svg { display: block; margin-top: auto; }
+    .tone-ok { color: var(--status-safe-icon); } .tone-warn { color: var(--status-warning-icon); } .tone-crit { color: var(--status-critical-icon); }
+    /* 상세 */
+    .det { display: grid; gap: 16px; min-width: 0; }
+    .det-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .box { padding: 12px 16px 16px; border-radius: 4px; background: var(--bg-cell); min-width: 0; }
+    .box h3 { margin: 0 0 2px; font-size: 13px; line-height: 20px; }
+    .box .src { margin: 0 0 8px; font-size: 12px; line-height: 18px; color: var(--text-tertiary); }
+    .photo { position: relative; border-radius: 4px; overflow: hidden; }
+    .photo img { display: block; width: 100%; height: auto; }
+    .photo .bb { position: absolute; border: 2px solid var(--status-warning-icon); border-radius: 2px; box-shadow: 0 0 0 1px rgb(0 0 0 / 40%); }
+    .photo .bb span { position: absolute; left: -2px; bottom: 100%; margin-bottom: 4px; white-space: nowrap; padding: 2px 6px; border-radius: 2px; font-size: 12px; line-height: 16px; font-weight: 700; background: var(--status-warning-icon); color: #1B1F25; }
+    .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; font-size: 12px; line-height: 18px; color: var(--text-secondary); }
+    .legend i { display: inline-block; width: 12px; height: 3px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
+    canvas { display: block; width: 100%; }
+    .note { max-width: 1640px; font-size: 13px; line-height: 20px; color: var(--text-secondary); }
+    .note li { margin: 4px 0; }
+    svg text { font-family: var(--font-family-mono); }
+  </style>
+</head>
+<body class="ver-7">
+  <h1>현장형 감지 그래프 — 누출 · 이상음향 · 부분방전</h1>
+  <p class="lead">왼쪽 카드는 관제 상황판 문법: 순회마다 잰 값의 추이 + 주의 · 위험 기준선 + 단계 색(현장 DCS · 예지보전 상황판과 같은 문법). 오른쪽은 상세 화면에 둘 현장 전문 그림. 값은 현장 형식에 맞춘 시연용 값이고 장비 · 단위는 실제로 쓰는 것으로 골랐음.</p>
+
+  <!-- 누출 -->
+  <section class="sec">
+    <div class="sec-h"><h2>누출감지</h2><p>로봇 카메라 영상 판별(의심도 %) — 현장에서는 고정식 가스 감지기 %LEL 추이, OGI · 음향 카메라 영상, 누액 감지선 위치를 씀. 냉각수(액체)라 근거 사진이 주인공</p></div>
+    <div><p class="lbl">카드 · 관제</p><div class="card is-warn" id="cardLeak"></div></div>
+    <div class="det">
+      <div class="det-row">
+        <div class="box"><h3>근거 사진 · 판별 상자</h3><p class="src">WP-03 냉각수 배관 밸브 · 11/02 10:11 · 오른쪽 플랜지 아래 물방울 · 바닥 젖음</p>
+          <div class="photo"><img src="../assets/img/safety/v8-leak.jpg" alt="냉각수 배관 밸브" /><div class="bb" style="left:63%;top:66%;width:9%;height:28%"><span>누출 의심 62%</span></div></div>
+        </div>
+        <div class="box"><h3>젖은 면적 · 의심도 추이</h3><p class="src">순회마다 같은 자리 · 젖은 면적(cm², 영상 추정)과 의심도(%)</p><svg id="leakArea" viewBox="0 0 520 250" width="100%"></svg>
+          <div class="legend"><span><i style="background:var(--color-blue-400)"></i>젖은 면적 cm²</span><span><i style="background:var(--status-warning-icon)"></i>의심도 %(주의 55 · 위험 70)</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 이상음향 -->
+  <section class="sec">
+    <div class="sec-h"><h2>이상음향</h2><p>냉각 펌프 P-2 · 1,780 rpm(회전 29.7 Hz), 날개 6장(날개 통과 178 Hz) — 현장 예지보전: 상황판은 이상 점수 · 전체 세기 추이 + 경보선, 진단은 FFT 스펙트럼(대역 경보) · 스펙트로그램</p></div>
+    <div><p class="lbl">카드 · 관제</p><div class="card" id="cardSound"></div></div>
+    <div class="det">
+      <div class="det-row">
+        <div class="box"><h3>주파수 스펙트럼(FFT)</h3><p class="src">지금 측정 · 정상 기준(지난 7일 평균) · 대역 경보선 — 로그 축 20 Hz ~ 20 kHz, dB</p><svg id="fft" viewBox="0 0 520 260" width="100%"></svg>
+          <div class="legend"><span><i style="background:var(--color-blue-300)"></i>지금</span><span><i style="background:var(--text-tertiary)"></i>정상 기준</span><span><i style="background:var(--status-warning-icon)"></i>대역 경보선</span></div></div>
+        <div class="box"><h3>스펙트로그램</h3><p class="src">지난 10분 · 가로 시간, 세로 주파수(로그), 색 = 세기 — 2~6 kHz 베어링 대역이 간간이 밝아짐</p><canvas id="spec" width="1040" height="520"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 부분방전 -->
+  <section class="sec">
+    <div class="sec-h"><h2>부분방전</h2><p>수배전반 MCC-1 · 6.6 kV — 현장: 상시 감시 상황판은 방전 크기(pC) · 횟수 추이 + 경보선, 진단은 PRPD(위상 분해 부분방전) 산포도. 휴대 측정은 TEV dBmV</p></div>
+    <div><p class="lbl">카드 · 관제</p><div class="card" id="cardPd"></div></div>
+    <div class="det">
+      <div class="det-row">
+        <div class="box"><h3>PRPD 패턴</h3><p class="src">지난 60초 · 3,000주기 · 가로 위상 0~360°, 세로 방전 크기 pC, 색 = 같은 칸의 방전 수 · 회색 선 = 전원 사인파. 1·3사분면 대칭 덩어리 = 내부(공극) 방전 형태</p><canvas id="prpd" width="1040" height="560"></canvas></div>
+        <div class="box"><h3>방전 크기 · 횟수 추이</h3><p class="src">지난 30일 · 하루 최대 크기(pC)와 초당 펄스 수 · 경보선 300 pC(주의) · 600 pC(위험)</p><svg id="pdTrend" viewBox="0 0 520 280" width="100%"></svg>
+          <div class="legend"><span><i style="background:var(--color-blue-300)"></i>최대 크기 pC</span><span><i style="background:var(--color-blue-650)"></i>펄스 수/초</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <ul class="note">
+    <li>카드 세 장은 같은 문법: 큰 값 + 기준 · 판정, 아래에 순회마다 잰 값 6번(점 · 선) + 주의 · 위험 기준선 + 구간 옅은 색. 지금 값은 판정 색 큰 점. "기준에서 얼마나" + "어느 쪽으로"를 한 줄에</li>
+    <li>예전 카드의 주파수 막대 · 위상 선은 상세로 옮기고 현장 형식(FFT 대역 경보 · 스펙트로그램 / PRPD 산포도)으로 다시 그림</li>
+    <li>숫자는 Mono(잰 값). 색: 자료 = 파랑 램프, 기준 · 판정 = 상태색(주의 노랑 · 위험 빨강)</li>
+  </ul>
+
+  <script>
+  (function () {
+    var cs = getComputedStyle(document.body);
+    function v(n) { return cs.getPropertyValue(n).trim(); }
+    var C = { b1: v('--color-blue-100'), b3: v('--color-blue-300'), b4: v('--color-blue-400'), b5: v('--color-blue-500'), b65: v('--color-blue-650'), b8: v('--color-blue-800'), b95: v('--color-blue-950'),
+      warn: v('--status-warning-icon'), crit: v('--status-critical-icon'), ok: v('--status-safe-icon'), t2: v('--text-secondary'), t3: v('--text-tertiary'), grid: v('--border-divider') || '#3A4450', bg: v('--bg-cell') };
+    var NS = 'http://www.w3.org/2000/svg';
+    function el(svg, tag, a) { var e = document.createElementNS(NS, tag); for (var k in a) { e.setAttribute(k, a[k]); } svg.appendChild(e); return e; }
+    function txt(svg, x, y, s, a) { var t = el(svg, 'text', Object.assign({ x: x, y: y, fill: C.t3, 'font-size': 10 }, a || {})); t.textContent = s; return t; }
+    var ICON = { drop: 'var(--ic-drop, var(--ic-warning))', sound: 'var(--ic-sound, var(--ic-warning))', bolt: 'var(--ic-bolt, var(--ic-warning))' };
+
+    // ---------- 카드: 순회 추이 + 기준선 + 구간 ----------
+    function card(id, o) {
+      var host = document.getElementById(id);
+      var tone = o.st === 'crit' ? 'tone-crit' : o.st === 'warn' ? 'tone-warn' : 'tone-ok';
+      host.innerHTML = '<div class="k-h"><span class="i" style="--m:' + o.icon + '"></span>' + o.k + '<span class="n">' + o.n + '</span></div>' +
+        '<div class="k-at">' + o.at + '</div>' +
+        '<div class="k-row"><div class="k-big ' + (o.st === 'ok' ? '' : tone) + '">' + o.big + '<small>' + (o.unit || '') + '</small></div>' +
+        '<div class="k-lim"><b class="' + tone + '">' + o.verdict + '</b>' + o.lim + '</div></div>';
+      var W = 373, H = 92, L = 4, R = 40, T = 8, B = 18, svg = document.createElementNS(NS, 'svg');
+      svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.setAttribute('width', W); svg.setAttribute('height', H); host.appendChild(svg);
+      var lo = o.axis[0], hi = o.axis[1], Y = function (x) { return T + (H - T - B) * (1 - (x - lo) / (hi - lo)); }, X = function (i) { return L + (W - L - R) * i / (o.pts.length - 1); };
+      // 구간(옅은 색): 정상 · 주의 · 위험
+      el(svg, 'rect', { x: L, y: Y(Math.min(hi, o.crit)), width: W - L - R, height: Y(o.warn) - Y(Math.min(hi, o.crit)), fill: C.warn, opacity: .07 });
+      el(svg, 'rect', { x: L, y: T, width: W - L - R, height: Y(Math.min(hi, o.crit)) - T, fill: C.crit, opacity: .08 });
+      [[o.warn, C.warn, '주의 ' + o.warn], [o.crit, C.crit, '위험 ' + o.crit]].forEach(function (t) { if (t[0] > hi) { return; }
+        el(svg, 'line', { x1: L, x2: W - R, y1: Y(t[0]), y2: Y(t[0]), stroke: t[1], 'stroke-width': 1, 'stroke-dasharray': '3 3', opacity: .9 });
+        txt(svg, W - R + 4, Y(t[0]) + (t[0] === o.crit ? -1 : 8), t[2], { fill: t[1] }); });
+      var d = o.pts.map(function (p, i) { return (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(p[1]).toFixed(1); }).join(' ');
+      el(svg, 'path', { d: d, fill: 'none', stroke: C.b4, 'stroke-width': 1.5 });
+      o.pts.forEach(function (p, i) { var last = i === o.pts.length - 1, col = p[1] >= o.crit ? C.crit : p[1] >= o.warn ? C.warn : C.b4;
+        el(svg, 'circle', { cx: X(i), cy: Y(p[1]), r: last ? 4.5 : 2.5, fill: last ? col : C.bg, stroke: col, 'stroke-width': 1.5 });
+        if (i === 0 || last || i === Math.floor(o.pts.length / 2)) { txt(svg, X(i), H - 4, p[0], { 'text-anchor': i === 0 ? 'start' : last ? 'end' : 'middle' }); } });
+    }
+    card('cardLeak', { k: '누출감지', n: '3/6', icon: ICON.drop, at: 'WP-03 냉각수 배관 밸브', big: '62', unit: '%', st: 'warn', verdict: '주의 · +7%p', lim: '기준 55% 미만',
+      axis: [30, 80], warn: 55, crit: 70, pts: [['10/30', 41], ['10/30', 45], ['10/31', 47], ['10/31', 44], ['11/01', 59], ['11/02 10:11', 62]] });
+    card('cardSound', { k: '이상음향', n: '2/6', icon: ICON.sound, at: 'WP-05 냉각 펌프 P-2', big: '14.2', unit: '', st: 'ok', verdict: '정상 · -4.8', lim: '기준 19.0 미만',
+      axis: [8, 26], warn: 19, crit: 22.8, pts: [['10/30', 12.6], ['10/30', 13.9], ['10/31', 15.1], ['10/31', 16.8], ['11/01', 17.9], ['11/02 10:13', 14.2]] });
+    card('cardPd', { k: '부분방전', n: '1/4', icon: ICON.bolt, at: 'WP-06 수배전반 MCC-1', big: '142', unit: 'pC', st: 'ok', verdict: '정상 · 최대 크기', lim: '주의 300 pC 이상',
+      axis: [0, 700], warn: 300, crit: 600, pts: [['10/27', 96], ['10/29', 104], ['10/31', 118], ['11/01', 121], ['11/02', 133], ['11/02 10:15', 142]] });
+
+    // ---------- 누출: 젖은 면적 · 의심도 (두 축) ----------
+    (function () {
+      var s = document.getElementById('leakArea'), W = 520, H = 250, L = 40, R = 40, T = 12, B = 28;
+      var P = [['10/30 09', 0, 41], ['10/30 14', 6, 45], ['10/31 09', 9, 47], ['10/31 14', 8, 44], ['11/01 09', 31, 59], ['11/02 10', 46, 62]];
+      var X = function (i) { return L + (W - L - R) * i / (P.length - 1); }, YA = function (a) { return T + (H - T - B) * (1 - a / 60); }, YP = function (p) { return T + (H - T - B) * (1 - p / 100); };
+      for (var g = 0; g <= 60; g += 20) { el(s, 'line', { x1: L, x2: W - R, y1: YA(g), y2: YA(g), stroke: C.grid, 'stroke-width': 1 }); txt(s, L - 6, YA(g) + 3, g, { 'text-anchor': 'end' }); }
+      [0, 55, 70, 100].forEach(function (p) { txt(s, W - R + 6, YP(p) + (p === 70 ? -1 : p === 55 ? 8 : 3), p + '%', { fill: p === 55 ? C.warn : p === 70 ? C.crit : C.t3 }); });
+      el(s, 'line', { x1: L, x2: W - R, y1: YP(55), y2: YP(55), stroke: C.warn, 'stroke-dasharray': '3 3' });
+      el(s, 'line', { x1: L, x2: W - R, y1: YP(70), y2: YP(70), stroke: C.crit, 'stroke-dasharray': '3 3' });
+      P.forEach(function (p, i) { var bw = 26; el(s, 'rect', { x: X(i) - bw / 2, y: YA(p[1]), width: bw, height: YA(0) - YA(p[1]), rx: 2, fill: C.b4, opacity: .55 }); txt(s, X(i), H - 8, p[0], { 'text-anchor': 'middle' }); });
+      el(s, 'path', { d: P.map(function (p, i) { return (i ? 'L' : 'M') + X(i) + ' ' + YP(p[2]); }).join(' '), fill: 'none', stroke: C.warn, 'stroke-width': 1.5 });
+      P.forEach(function (p, i) { el(s, 'circle', { cx: X(i), cy: YP(p[2]), r: i === P.length - 1 ? 4.5 : 2.5, fill: p[2] >= 55 ? C.warn : C.bg, stroke: C.warn, 'stroke-width': 1.5 }); });
+      txt(s, L - 6, T - 2, 'cm²', { 'text-anchor': 'end' });
+    })();
+
+    // ---------- 이상음향: FFT 스펙트럼 ----------
+    function rnd(seed) { var x = seed; return function () { x = (x * 16807) % 2147483647; return (x - 1) / 2147483646; }; }
+    var r1 = rnd(7);
+    function spectrum(f, now) {   // dB
+      var base = 46 - 9 * Math.log10(f / 20) + (r1() - .5) * 3;   // 바닥 잡음 — 높은 주파수로 갈수록 낮아짐
+      var peak = function (fc, a, w) { return a * Math.exp(-Math.pow(Math.log(f / fc) / w, 2)); };
+      base += peak(29.7, 28, .03) + peak(59.4, 18, .03) + peak(89.1, 9, .03) + peak(178, 22, .025) + peak(356, 10, .025) + peak(1780, 6, .05);
+      if (now) { base += peak(3800, 13, .35) + peak(107, 6, .03); }   // 베어링 대역 상승 · 외륜 결함 주파수(BPFO 107 Hz) 작게
+      return base;
+    }
+    (function () {
+      var s = document.getElementById('fft'), W = 520, H = 260, L = 36, R = 10, T = 10, B = 26, f0 = Math.log10(20), f1 = Math.log10(20000);
+      var X = function (f) { return L + (W - L - R) * (Math.log10(f) - f0) / (f1 - f0); }, Y = function (d) { return T + (H - T - B) * (1 - d / 90); };
+      [0, 20, 40, 60, 80].forEach(function (d) { el(s, 'line', { x1: L, x2: W - R, y1: Y(d), y2: Y(d), stroke: C.grid }); txt(s, L - 6, Y(d) + 3, d, { 'text-anchor': 'end' }); });
+      [20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000].forEach(function (f) { el(s, 'line', { x1: X(f), x2: X(f), y1: T, y2: H - B, stroke: C.grid, opacity: .5 }); txt(s, X(f), H - 8, f >= 1000 ? (f / 1000) + 'k' : f, { 'text-anchor': 'middle' }); });
+      // 베어링 대역
+      el(s, 'rect', { x: X(2000), y: T, width: X(6000) - X(2000), height: H - T - B, fill: C.b4, opacity: .08 }); txt(s, X(3500), T + 12, '베어링 대역', { 'text-anchor': 'middle', fill: C.b3 });
+      // 대역 경보선(계단)
+      var band = [[20, 80, 76], [80, 250, 70], [250, 2000, 52], [2000, 6000, 44], [6000, 20000, 34]];
+      el(s, 'path', { d: band.map(function (b, i) { return (i ? 'L' : 'M') + X(b[0]) + ' ' + Y(b[2]) + ' L' + X(b[1]) + ' ' + Y(b[2]); }).join(' '), fill: 'none', stroke: C.warn, 'stroke-width': 1.2, 'stroke-dasharray': '4 3' });
+      var N = 360, base = [], now = [];
+      for (var i = 0; i <= N; i++) { var f = Math.pow(10, f0 + (f1 - f0) * i / N); base.push([f, spectrum(f, false) - 2]); now.push([f, spectrum(f, true)]); }
+      var path = function (a) { return a.map(function (p, i) { return (i ? 'L' : 'M') + X(p[0]).toFixed(1) + ' ' + Y(Math.max(0, p[1])).toFixed(1); }).join(' '); };
+      el(s, 'path', { d: path(base), fill: 'none', stroke: C.t3, 'stroke-width': 1, opacity: .8 });
+      el(s, 'path', { d: path(now), fill: 'none', stroke: C.b3, 'stroke-width': 1.4 });
+      [[29.7, '1X 29.7'], [178, '날개 178'], [107, 'BPFO 107']].forEach(function (p) { txt(s, X(p[0]) + 3, Y(spectrum(p[0], true)) - 4, p[1], { fill: C.t2 }); });
+      txt(s, 4, T + 4, 'dB', {}); txt(s, W - R, H - 8 - 12, 'Hz', { 'text-anchor': 'end' });
+    })();
+
+    // ---------- 이상음향: 스펙트로그램 ----------
+    function ramp(t) {   // 0~1 → 짙은 남색 → 파랑 → 흰 파랑
+      var st = [[0, C.b95], [.35, C.b8], [.6, C.b65], [.8, C.b3], [1, C.b1]];
+      for (var i = 1; i < st.length; i++) { if (t <= st[i][0]) { var a = st[i - 1], b = st[i], k = (t - a[0]) / (b[0] - a[0]); return mix(a[1], b[1], k); } }
+      return st[st.length - 1][1];
+    }
+    function hex(c) { var t = document.createElement('i'); t.style.color = c; document.body.appendChild(t); var m = getComputedStyle(t).color.match(/[\d.]+/g).map(Number); t.remove(); return m; }
+    var HC = {}; function mix(a, b, k) { var A = HC[a] || (HC[a] = hex(a)), Bv = HC[b] || (HC[b] = hex(b)); return 'rgb(' + [0, 1, 2].map(function (i) { return Math.round(A[i] + (Bv[i] - A[i]) * k); }).join(',') + ')'; }
+    (function () {
+      var cv = document.getElementById('spec'), x = cv.getContext('2d'), W = cv.width, H = cv.height, L = 70, B = 44, T = 10, R = 10, cols = 200, rows = 120, f0 = Math.log10(20), f1 = Math.log10(20000), r = rnd(11);
+      x.fillStyle = C.bg; x.fillRect(0, 0, W, H);
+      var cw = (W - L - R) / cols, rh = (H - T - B) / rows;
+      for (var c = 0; c < cols; c++) {
+        var burst = (c % 37 < 6) ? 1 : 0;   // 베어링 대역이 간간이 밝아짐
+        for (var j = 0; j < rows; j++) {
+          var f = Math.pow(10, f0 + (f1 - f0) * j / rows), d = spectrum(f, burst) + (r() - .5) * 6;
+          x.fillStyle = ramp(Math.pow(Math.max(0, Math.min(1, (d - 24) / 48)), 1.4));
+          x.fillRect(L + c * cw, H - B - (j + 1) * rh, cw + .6, rh + .6);
+        }
+      }
+      x.fillStyle = C.t3; x.font = '20px JetBrains Mono, monospace'; x.textAlign = 'right';
+      [20, 100, 1000, 10000].forEach(function (f) { var y = H - B - (H - T - B) * (Math.log10(f) - f0) / (f1 - f0); x.fillText(f >= 1000 ? f / 1000 + 'k' : f, L - 8, y + 6); });
+      x.textAlign = 'center'; ['-10분', '-5분', '지금'].forEach(function (s, i) { x.fillText(s, L + (W - L - R) * i / 2, H - 12); });
+    })();
+
+    // ---------- 부분방전: PRPD ----------
+    (function () {
+      var cv = document.getElementById('prpd'), x = cv.getContext('2d'), W = cv.width, H = cv.height, L = 80, B = 48, T = 14, R = 14, r = rnd(23);
+      var nx = 144, ny = 60, grid = []; for (var i = 0; i < nx * ny; i++) { grid.push(0); }
+      var pmax = 300;
+      function add(ph, pc) { var gx = Math.floor((ph % 360) / 360 * nx), gy = Math.floor(Math.min(pc, pmax - 1) / pmax * ny); grid[gy * nx + gx]++; }
+      function gauss() { var u = r() || 1e-6, v2 = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v2); }
+      // 내부(공극) 방전: 전압이 오르는 1사분면 · 3사분면에 대칭 덩어리, 크기는 넓게 퍼짐
+      for (var n = 0; n < 9000; n++) {
+        var pos = r() < .5, ph = (pos ? 45 : 225) + gauss() * 22, mag = Math.abs(gauss()) * 48 + 18 + Math.max(0, gauss()) * 25;
+        add((ph + 360) % 360, mag * (pos ? 1 : .92));
+      }
+      for (var m = 0; m < 1500; m++) { add(r() * 360, Math.abs(gauss()) * 10 + 3); }   // 바닥 잡음
+      var mx = Math.max.apply(null, grid);
+      x.fillStyle = C.bg; x.fillRect(0, 0, W, H);
+      var cw = (W - L - R) / nx, rh = (H - T - B) / ny;
+      // 격자
+      x.strokeStyle = C.grid; x.lineWidth = 1;
+      for (var q = 0; q <= 4; q++) { var gxp = L + (W - L - R) * q / 4; x.beginPath(); x.moveTo(gxp, T); x.lineTo(gxp, H - B); x.stroke(); }
+      for (var p2 = 0; p2 <= 3; p2++) { var gyp = H - B - (H - T - B) * p2 / 3; x.beginPath(); x.moveTo(L, gyp); x.lineTo(W - R, gyp); x.stroke(); }
+      for (var gy = 0; gy < ny; gy++) { for (var gx = 0; gx < nx; gx++) { var c2 = grid[gy * nx + gx]; if (!c2) { continue; }
+        x.fillStyle = ramp(.25 + .75 * Math.min(1, Math.log(1 + c2) / Math.log(1 + mx))); x.fillRect(L + gx * cw, H - B - (gy + 1) * rh, cw + .5, rh + .5); } }
+      // 사인파(전원)
+      x.strokeStyle = C.t3; x.lineWidth = 2; x.beginPath();
+      for (var a = 0; a <= 360; a += 2) { var px = L + (W - L - R) * a / 360, py = T + (H - T - B) / 2 - Math.sin(a * Math.PI / 180) * (H - T - B) * .42; a ? x.lineTo(px, py) : x.moveTo(px, py); }
+      x.stroke();
+      // 경보선 300 pC 은 축 끝
+      x.fillStyle = C.t3; x.font = '20px JetBrains Mono, monospace'; x.textAlign = 'right';
+      [0, 100, 200, 300].forEach(function (v2, i) { x.fillText(v2, L - 10, H - B - (H - T - B) * i / 3 + 6); });
+      x.textAlign = 'center'; [0, 90, 180, 270, 360].forEach(function (d, i) { x.fillText(d + '°', L + (W - L - R) * i / 4, H - 16); });
+      x.save(); x.translate(22, (H - B + T) / 2); x.rotate(-Math.PI / 2); x.fillText('pC', 0, 0); x.restore();
+    })();
+
+    // ---------- 부분방전: 30일 추이 ----------
+    (function () {
+      var s = document.getElementById('pdTrend'), W = 520, H = 280, L = 44, R = 44, T = 12, B = 28, r = rnd(5), D = 30;
+      var Y = function (pc) { return T + (H - T - B) * (1 - pc / 700); }, YN = function (n) { return T + (H - T - B) * (1 - n / 60); }, X = function (i) { return L + (W - L - R) * i / (D - 1); };
+      [0, 200, 400, 600].forEach(function (g) { el(s, 'line', { x1: L, x2: W - R, y1: Y(g), y2: Y(g), stroke: C.grid }); txt(s, L - 6, Y(g) + 3, g, { 'text-anchor': 'end' }); });
+      [0, 20, 40, 60].forEach(function (g) { txt(s, W - R + 6, YN(g) + 3, g, {}); });
+      el(s, 'line', { x1: L, x2: W - R, y1: Y(300), y2: Y(300), stroke: C.warn, 'stroke-dasharray': '3 3' }); txt(s, W - R - 2, Y(300) - 4, '주의 300', { 'text-anchor': 'end', fill: C.warn });
+      el(s, 'line', { x1: L, x2: W - R, y1: Y(600), y2: Y(600), stroke: C.crit, 'stroke-dasharray': '3 3' }); txt(s, W - R - 2, Y(600) - 4, '위험 600', { 'text-anchor': 'end', fill: C.crit });
+      var pc = [], cnt = [];
+      for (var i = 0; i < D; i++) { var t = i / (D - 1); pc.push(70 + 72 * t * t + (r() - .5) * 18); cnt.push(8 + 26 * t * t + (r() - .5) * 5); }
+      pc[D - 1] = 142;
+      cnt.forEach(function (n, i) { el(s, 'rect', { x: X(i) - 4, y: YN(n), width: 8, height: YN(0) - YN(n), fill: C.b65, opacity: .35, rx: 1 }); });
+      el(s, 'path', { d: pc.map(function (p, i) { return (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(p).toFixed(1); }).join(' '), fill: 'none', stroke: C.b3, 'stroke-width': 1.6 });
+      el(s, 'circle', { cx: X(D - 1), cy: Y(142), r: 4.5, fill: C.b3 });
+      txt(s, X(D - 1) - 6, Y(142) - 8, '142 pC', { 'text-anchor': 'end', fill: C.t2 });
+      ['10/04', '10/19', '11/02'].forEach(function (d, i) { txt(s, X([0, 15, D - 1][i]), H - 8, d, { 'text-anchor': i === 0 ? 'start' : i === 2 ? 'end' : 'middle' }); });
+      txt(s, L, T - 2, 'pC', {}); txt(s, W - R + 6, T - 2, '펄스/초', {});
+    })();
+  })();
+  </script>
+</body>
+</html>
