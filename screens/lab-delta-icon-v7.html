@@ -79,7 +79,7 @@
 
 
   <h2 style="font-size:16px;line-height:24px;margin:40px 0 4px">홀로그램 — 지금 Delta 아이콘(J)</h2>
-  <p class="lead">J(삼각 면 여섯 파랑 명암 + 빈 삼각 둘)에 홀로그램 박. 박 조각 = 아이콘의 삼각 면 하나. "강하게"는 면마다 파랑 명도가 빛을 따라 크게 바뀜(가장 밝은 blue-100 ~ 가장 짙은 blue-900, 박 색으로 덮음, 가만히 있어도 깨어 있음, 흔들림 폭 두 배). "지난 값"은 앞서 본 약한 것. 큰 그림은 마우스를 올리면 기울고, 작은 것은 가만히 있어도 빛이 돎.</p>
+  <p class="lead">J(삼각 면 여섯 파랑 명암 + 빈 삼각 둘)에 홀로그램 박. 박 조각 = 아이콘의 삼각 면 하나. "강하게"는 면마다 파랑 명도가 빛을 따라 크게 바뀜(가장 밝은 blue-100 ~ 선명한 blue-650, 박 색으로 덮음, 반짝임도 옅은 파랑, 가만히 있어도 깨어 있음, 흔들림 폭 두 배). "지난 값"은 앞서 본 약한 것. 큰 그림은 마우스를 올리면 기울고, 작은 것은 가만히 있어도 빛이 돎.</p>
   <div class="holo-hero">
     <div class="hh dark"><canvas data-holo="j" data-hue="blue" data-foil="6" data-strong="1" data-tilt="1" style="width:160px;height:160px"></canvas><span>J · 강하게</span></div>
     <div class="hh light"><canvas data-holo="j" data-hue="blue" data-foil="6" data-strong="1" data-tilt="1" style="width:160px;height:160px"></canvas><span>J · 강하게 · 흰 판</span></div>
@@ -406,7 +406,7 @@ void main() {
   if (uPreset == 7) tint = mix(tint, metal, 0.65);
   float glint = pow(max(dot(normalize(vec3(f.facet, 1.0)), halfway), 0.0), 24.0) * step(0.001, length(f.facet));
   bool layered = (uPreset == 8 && uStrong == 0) || uPreset == 2 || uPreset == 4 || uPreset == 5 || uPreset == 7;
-  vec3 foil = (layered ? tint : mix(tint, vec3(1.0), 0.12)) * (1.15 + 0.3 * sheen) + metal * glint * 1.2;
+  vec3 foil = (layered || uStrong == 1 ? tint : mix(tint, vec3(1.0), 0.12)) * (1.15 + 0.3 * sheen) + metal * glint * 1.2;
   float tilted = smoothstep(0.02, 0.21, length(sin(uTilt)));
   float awake = mix(uStrong == 1 ? 0.75 : 0.2, 1.0, tilted);
   float strength = uIntensity * f.mask * (1.0 - frame) * awake;
@@ -485,7 +485,7 @@ void main() {
       var items = [].slice.call(document.querySelectorAll("canvas[data-holo]")).map(function (cv, i) {
         var tone = cv.closest(".dark, .light");
         var key = cv.dataset.holo + (tone.classList.contains("light") ? "L" : "D");
-        if (!texCache[key]) { texCache[key] = { tex: art(cv.dataset.holo, tone), ramp: rampOf(tone), wide: rampOf(tone, tone.classList.contains("light") ? ["--color-blue-300", "--color-blue-600", "--color-blue-750", "--color-blue-950"] : ["--color-blue-100", "--color-blue-400", "--color-blue-650", "--color-blue-900"]) }; }
+        if (!texCache[key]) { texCache[key] = { tex: art(cv.dataset.holo, tone), ramp: rampOf(tone), wide: rampOf(tone, tone.classList.contains("light") ? ["--color-blue-300", "--color-blue-500", "--color-blue-650", "--color-blue-750"] : ["--color-blue-100", "--color-blue-300", "--color-blue-500", "--color-blue-650"]) }; }
         var dpr = Math.min(window.devicePixelRatio || 1, 2);
         var w = Math.round(parseFloat(cv.style.width) * dpr); cv.width = w; cv.height = w;
         var it = { cv: cv, ctx: cv.getContext("2d"), t: texCache[key], blue: cv.dataset.hue === "blue" ? 1 : 0, strong: cv.dataset.strong === "1" ? 1 : 0, side: (cv.dataset.foil === "24" ? 0.5 : 1) * 9.69 / 24, tilt: !!cv.dataset.tilt,
@@ -520,7 +520,7 @@ void main() {
           gl.uniform1f(U.uDistance, PERSPECTIVE / Math.max(1, parseFloat(it.cv.style.width)));
           gl.uniform1i(U.uPreset, 8); gl.uniform1f(U.uSide, it.side); gl.uniform2f(U.uCenter, 12.11 / 24, 11.59 / 24); gl.uniform1f(U.uIntensity, 0.85); gl.uniform1f(U.uScale, scale);
           gl.uniform1f(U.uEdge, 0); gl.uniform1f(U.uFrame, 0); gl.uniform1f(U.uRadius, 0); gl.uniform1f(U.uGlare, 0.5);
-          gl.uniform3f(U.uFoil, 0.76, 0.79, 0.84); gl.uniform1f(U.uReady, 1);
+          if (it.strong) { gl.uniform3fv(U.uFoil, it.t.wide[0]); } else { gl.uniform3f(U.uFoil, 0.76, 0.79, 0.84); } gl.uniform1f(U.uReady, 1);
           gl.uniform1i(U.uBlue, it.blue); gl.uniform1i(U.uStrong, it.strong); gl.uniform3fv(U.uRamp, [].concat.apply([], it.strong ? it.t.wide : it.t.ramp));
           gl.drawArrays(gl.TRIANGLES, 0, 3);
           it.ctx.clearRect(0, 0, w, w); it.ctx.drawImage(gc, 0, 0);
