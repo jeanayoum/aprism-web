@@ -25,6 +25,11 @@ description: aprism-web의 v7 이후(v7, v8 …) 화면 코드가 디자인 시�
    - 일부만: `ONLY="관제|알림센터" node tools/ds-check/ds-check-screens.cjs`
    - 다른 폴더(다른 worktree)를 검사할 때는 그 경로를 인자로 넘김
    - 전체 목록: `tools/ds-check/out/ds-check-screens.md`
+4. 브랜딩 화면 검사 (2~3분, 화면은 찍지 않음): `node tools/ds-check/brand-check-screens.cjs`
+   - 2번이 못 잡는 것: v7 전용이 아닌 예전 판 규칙(v6.css · v3.css · monitor.css 등)이 v7 화면(body 에 ver-6 도 붙음)의 실제 요소에서 이겨 토큰 밖 파랑을 칠하는 곳. 11/24 라이트 Delta 톤 사례
+   - v7 화면 14개 상태(관제 Delta 보통 · 주의 단계 포함) × 다크 · 라이트를 띄워, 그 규칙이 실제로 이기는 요소가 있을 때만 보고
+   - 준비는 3번과 같음(npm install, 브라우저). 일부만: `ONLY="관제" node tools/ds-check/brand-check-screens.cjs`
+   - 전체 목록: `tools/ds-check/out/brand-check-screens.md`
 
 ## 보고
 

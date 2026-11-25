@@ -158,5 +158,6 @@ GUI(v7 이후 화면의 CSS, JS, HTML)를 고치거나 새로 만들면, 일을 
   - CSS 검사 (몇 초): `node tools/ds-check/ds-check-css.cjs`
   - 화면 검사 (2~4분, 화면은 찍지 않음): 처음 한 번 `tools/ds-check`에서 `npm install`, 그 뒤 `node tools/ds-check/ds-check-screens.cjs`
   - 브랜딩 검사 (몇 초): `node tools/ds-check/brand-check.cjs` — 위 "브랜딩과 시각 원칙" 중 기계로 잡히는 것(토큰 없는 파랑, 글꼴 이름 직접 적기, 분광을 Delta 밖에서 씀, 대문자 ROBOT)
+  - 브랜딩 화면 검사 (2~3분): `node tools/ds-check/brand-check-screens.cjs` — 예전 판 공용 규칙(v6.css 등)이 v7 화면에서 이겨 토큰 밖 파랑을 칠하는 곳(브랜딩 검사가 못 잡는 것)
   - 결과는 `tools/ds-check/out/`에 표로 남는다(저장소에는 올리지 않음)
 - 규칙을 바꾸기로 정하면 `ds-rules.json`과 이 파일의 표를 같이 고친다

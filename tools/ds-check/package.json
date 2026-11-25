@@ -4,7 +4,9 @@
   "description": "v7 디자인 시스템 규칙 검사",
   "scripts": {
     "css": "node ds-check-css.cjs",
-    "screens": "node ds-check-screens.cjs"
+    "screens": "node ds-check-screens.cjs",
+    "brand": "node brand-check.cjs",
+    "brand-screens": "node brand-check-screens.cjs"
   },
   "dependencies": {
     "puppeteer-core": "^25.17.0"
