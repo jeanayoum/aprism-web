@@ -1183,17 +1183,21 @@
   function genHandover() {
     var h = $(".ac-handover", slot); if (!h) { return; }
     genTimers.forEach(clearTimeout); genTimers = [];
+    if (genHandover.stop) { genHandover.stop(); }
     var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     $(".ac-handover-head", h).insertAdjacentHTML("afterend", '<div class="ac-handover-skel" aria-hidden="true"><i style="width:62%"></i><i style="width:84%"></i><i style="width:71%"></i><i style="width:78%"></i></div>');
     var when = $(".ac-handover-when", h), old = when ? when.innerHTML : "";
     if (when) { when.textContent = "오늘 조치 " + HANDOVER_COUNT() + "건을 묶고 있어요"; }
     h.setAttribute("aria-busy", "true");
     h.classList.add("is-gen");
+    // [11/25 디자이너] 만드는 동안 요약 버튼의 Delta 육각에 홀로그램(delta-holo-v7.js, "J 강하게") — 다 만든 빛줄기가 지나가면 꺼짐
+    var holoStop = window.APRISM_DELTA_HOLO ? window.APRISM_DELTA_HOLO.start($("[data-ac-summary] > .i")) : function () {};
+    genHandover.stop = holoStop;
     genTimers.push(setTimeout(function () {
       if (when) { when.innerHTML = old; }
       h.removeAttribute("aria-busy");
       h.classList.remove("is-gen"); h.classList.add("is-done", "is-new");
-      genTimers.push(setTimeout(function () { h.classList.remove("is-done"); }, msVar("--ds-delta-beam-last", 1600) + 100));
+      genTimers.push(setTimeout(function () { h.classList.remove("is-done"); holoStop(); }, msVar("--ds-delta-beam-last", 1600) + 100));
     }, reduce ? 600 : msVar("--ds-delta-gen", 3400)));
   }
   function HANDOVER_COUNT() { var m = /(\d+)건/.exec(HANDOVER.items && HANDOVER.items[0] ? String(HANDOVER.items[0][1]) : ""); return m ? m[1] : "5"; }
