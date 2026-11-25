@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<!-- 실험실(11/25): 알림 센터 v7 복제 — DELTA 인수인계 요약 판 위 끝 빛줄기(레퍼런스 libraries.dev/beam "line"). 추천안만: [오늘 조치 요약 만들기]를 누르면 만드는 동안 파랑 · 흰 빛줄기가 위 끝을 오가고(진행 빛, 맥박 없이 약하게), 다 만든 순간 한 번 지나가고 꺼짐(끝나는 순간 한 번). 그 뒤 빛 없음. 메인에 반영하지 않음 -->
+<!-- v6 — v5(*-v5.html)를 10/30 에 복제해 시작했다. 이후 작업은 v6 에서만. 공용 동작은 body.ver-3 · ver-5 를 물려받고, v6 만 바꿀 것은 v6.css · body.ver-6 으로 가른다. -->
+<!-- v5 — v4(*-v3.html)를 10/29 에 복제해 시작했다. 이후 작업은 v5 에서만. Delta 는 위젯형만 쓴다. -->
+<!-- v3 — alert-center.html 을 10/21 에 복제해 시작했다. 이후 작업은 v3 에서만. -->
+<html lang="ko" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <!-- v7(11/06~) — v6 화면 복제. 화면 사이 *-v6.html 주소를 v7 로 잇는다(v7.js). 영문판은 이 줄을 빼고 만든다 -->
+  <script src="../assets/js/v7.js?v=2a751119"></script>
+  <!-- [11/10] 알림 데이터 한 곳 — 관제 · 안전진단 · 알림 센터 · 전체 미션이 같은 알림 12건을 읽는다(alert-data-v7.js) -->
+  <script src="../assets/js/alert-data-v7.js?v=b7564d22"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>실험 · 인수인계 요약 빛줄기 — APRISM</title>
+  <meta name="description" content="SD-08 알림 센터 — 끝난 미션의 알림이 모인다. v2.2 통합 관제 메인의 [전체보기] 가 여는 화면이다." />
+  <!-- 알림 센터(SD-08) — Figma 1177:15915 "SD-08 알림 센터 · B안 · 미확인 선택 상세".
+       v2.2 통합 관제 메인의 [전체보기] 가 이 화면을 연다. 듀얼 모니터면 다른 모니터에 뜬다(monitor.js).
+
+       Figma 에서 위계가 안 맞던 자리를 고쳤다 — 무엇을 왜 고쳤는지는
+       assets/css/alert-center.css 맨 위 주석에 열세 가지로 적어 뒀다. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/static/woff2/SUIT.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" />
+  <link rel="stylesheet" href="../assets/css/tokens.css?v=d79c1b24" />
+  <link rel="stylesheet" href="../assets/css/app-shell.css?v=06d1cd0f" />
+  <link rel="stylesheet" href="../assets/css/icons-outline.css?v=a43f9b9f" />
+  <link rel="stylesheet" href="../assets/css/text-parts.css?v=01ead563" />
+  <link rel="stylesheet" href="../assets/css/alert-center.css?v=b5f6f01c" />
+  <!-- v3 전용 규칙 — v2.2 는 10/21 부로 멈췄다. v3 에서 바꾸는 것은 여기(body.ver-3)에. -->
+  <link rel="stylesheet" href="../assets/css/v3.css?v=842e8b00" />
+  <!-- v5 전용 규칙 — v4 는 10/29 부로 멈췄다. v5 에서 바꾸는 것은 여기(body.ver-5)에. -->
+  <link rel="stylesheet" href="../assets/css/v5.css?v=9f626280" />
+  <!-- v6 전용 규칙 — v5 는 10/30 부로 멈췄다. v6 에서 바꾸는 것은 여기(body.ver-6)에. -->
+  <link rel="stylesheet" href="../assets/css/v6.css?v=c384b14c" />
+  <link rel="stylesheet" href="../assets/css/v7.css?v=24889db1" />
+  <link rel="stylesheet" href="../assets/css/components-v7.css?v=c2b8fdb7" />
+  <script src="../assets/js/ds-v7.js?v=26fe1c8f"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+
+    body {
+      background-color: var(--bg-page);
+      color: var(--text-primary);
+      font-family: var(--font-family-sans);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+  </style>
+  <!-- [11/02 v6] [진단 상세] 모핑 — 관제 팝오버처럼 상세의 머리 · 사진 · DELTA 판이 안전진단 상세로 이어 움직이고, 고른 조치 · 메모를 넘긴다(morph-v6.js) -->
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="../assets/js/morph-v6.js?v=5a01ec7d"></script>
+  <style>
+    /* ===== 실험: 인수인계 요약 빛줄기 (이 화면에만) ===== */
+    body.ver-7 { --lab-beam: var(--color-blue-500); --lab-beam-core: rgb(255 255 255 / 85%); }
+    :root[data-theme="light"] body.ver-7 { --lab-beam: var(--color-blue-650); --lab-beam-core: rgb(255 255 255 / 95%); }
+    body.ver-7 .ac-handover { position: relative; overflow: hidden; }
+    /* 선: 위 끝 1px, 빛 덩이(폭 36%)가 왼쪽에서 오른쪽으로 */
+    body.ver-7 .ac-handover::before, body.ver-7 .ac-handover::after { content: ""; position: absolute; left: 0; right: 0; top: 0; pointer-events: none; opacity: 0;
+      background-repeat: no-repeat; background-size: 36% 100%; background-position: -60% 0; }
+    body.ver-7 .ac-handover::before { height: 2px; z-index: 2;
+      background-image: linear-gradient(90deg, transparent, rgb(from var(--lab-beam) r g b / 70%) 30%, var(--lab-beam-core) 50%, rgb(from var(--lab-beam) r g b / 70%) 70%, transparent); }
+    /* 번짐: 선 아래로 약하게 퍼지는 빛(높이 28, 흐림) */
+    body.ver-7 .ac-handover::after { height: 40px; top: -8px; z-index: 1; filter: blur(12px);
+      background-image: radial-gradient(ellipse 50% 60% at 50% 20%, rgb(from var(--lab-beam) r g b / 70%), transparent 72%); }
+    @keyframes lab-beam-run { from { background-position: -60% 0; } to { background-position: 160% 0; } }
+    @keyframes lab-beam-in { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes lab-beam-last { 0% { background-position: -60% 0; opacity: 1; } 80% { opacity: 1; } 100% { background-position: 160% 0; opacity: 0; } }
+    /* 만드는 중: 2초에 한 번 오감(맥박 없이), 약하게 */
+    body.ver-7 .ac-handover.is-gen::before, body.ver-7 .ac-handover.is-gen::after { animation: lab-beam-run 2s cubic-bezier(.45,0,.55,1) infinite, lab-beam-in 400ms ease-out both; }
+    body.ver-7 .ac-handover.is-gen::after { opacity: .8; }
+    /* 다 만든 순간: 한 번 지나가고 꺼짐 */
+    body.ver-7 .ac-handover.is-done::before, body.ver-7 .ac-handover.is-done::after { animation: lab-beam-last 1100ms cubic-bezier(.3,0,.2,1) both; }
+    /* 만드는 중엔 본문 자리에 빈 줄(뼈대) */
+    body.ver-7 .ac-handover.is-gen :is(.ac-handover-list, .ac-handover-actions) { display: none; }
+    body.ver-7 .ac-handover .lab-skel { display: none; }
+    body.ver-7 .ac-handover.is-gen .lab-skel { display: grid; gap: var(--space-8); padding: var(--space-4) 0 var(--space-8); }
+    body.ver-7 .lab-skel i { display: block; height: 12px; border-radius: 2px; background: color-mix(in srgb, var(--text-primary) 7%, transparent); }
+    body.ver-7 .ac-handover.is-new :is(.ac-handover-list, .ac-handover-actions) { animation: ds-appear var(--ds-motion-base) var(--ds-ease-base) both; }
+    @media (prefers-reduced-motion: reduce) { body.ver-7 .ac-handover::before, body.ver-7 .ac-handover::after { animation: none !important; opacity: 0 !important; } }
+    .lab-bar { position: fixed; right: 16px; bottom: 16px; z-index: 50; display: flex; gap: 8px; align-items: center; padding: 8px 8px 8px 12px; border-radius: 8px; background: var(--bg-raised); box-shadow: 0 6px 16px rgb(0 0 0 / 35%); font-size: 12px; color: var(--text-secondary); }
+  </style>
+</head>
+<!-- .v2-2 — v2.2 와 같은 아웃라인 아이콘 세트를 쓴다(icons-outline.css).
+     .ac-page — 이 화면에만 있는 Icon / download 를 받는다(alert-center.css 맨 아래). -->
+<body class="v2-2 ac-page ver-3 ver-5 ver-6 ver-7">
+
+<div class="app">
+
+  <!-- ---------- Status Bar · 전체 폭 ---------- -->
+  <!--
+    v2.2 와 같은 상태바인데 미션 고르기(scope-menu)는 두지 않았다 —
+    알림 센터는 미션 하나를 보는 화면이 아니고, 아래 필터 바에 [미션] 이 따로 있다.
+    고르는 자리가 두 군데면 어느 쪽이 기준인지 알 수 없다.
+    층 이름도 뺐다 — 여러 층 · 여러 미션의 알림이 함께 모이는 화면이다.
+  -->
+  <header class="status-bar">
+    <a class="status-bar-logo" href="../index.html" aria-label="APRISM 홈">
+      <span class="i" style="--i:var(--ic-brand-wordmark)" aria-hidden="true"></span>
+    </a>
+
+    <div class="status-bar-right">
+      <div class="status-menu" data-status-menu>
+        <button type="button" class="account-chip" data-menu-trigger
+                aria-haspopup="true" aria-expanded="false">
+          <span class="i i-16" style="--i:var(--ic-user)" aria-hidden="true"></span>
+          <span class="t-label-2">홍길동</span>
+          <span class="t-label-2 account-sep" aria-hidden="true">|</span>
+          <span class="t-label-2">관제운영</span>
+        </button>
+        <div class="dropdown-menu account-menu" role="menu" aria-label="계정" hidden>
+          <a class="menu-item" role="menuitem" href="#">
+            <span class="i i-16" style="--i:var(--ic-user)" aria-hidden="true"></span>
+            <span class="t-label-2">내 계정 정보</span>
+          </a>
+          <a class="menu-item" role="menuitem" href="#">
+            <span class="i i-16" style="--i:var(--ic-lock)" aria-hidden="true"></span>
+            <span class="t-label-2">비밀번호 변경</span>
+          </a>
+          <a class="menu-item" role="menuitem" href="#">
+            <span class="i i-16" style="--i:var(--ic-power)" aria-hidden="true"></span>
+            <span class="t-label-2">로그아웃</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- 라이트 / 다크 — 홍길동(계정) 오른쪽(10/19). 지금과 반대 모드의 아이콘을 보인다(Figma Icon / lightMode 1267:21859 · darkMode 1267:21858, 10/19).
+           누르면 바꾸고 브라우저에 기억한다(theme.js). -->
+      <button type="button" class="theme-chip" data-theme-toggle aria-label="라이트 모드로 바꾸기">
+        <span class="i i-16" aria-hidden="true"></span>
+      </button>
+
+      <div class="status-menu" data-status-menu>
+        <button type="button" class="signal-chip" data-menu-trigger
+                aria-haspopup="true" aria-expanded="false" aria-label="통신 상태">
+          <span class="signal-bars"><i></i><i></i><i></i><i></i></span>
+        </button>
+        <div class="dropdown-menu signal-menu" role="menu" aria-label="통신 상태" hidden>
+          <div class="menu-item" role="menuitem">
+            <span class="t-label-2">AI Server</span>
+            <span class="badge badge-normal t-caption ds-badge is-plain is-safe ds-i-dot"><span class="badge-dot"></span>Online</span>
+          </div>
+          <div class="menu-item" role="menuitem">
+            <span class="t-label-2">DB server</span>
+            <span class="badge badge-normal t-caption ds-badge is-plain is-safe ds-i-dot"><span class="badge-dot"></span>Online</span>
+          </div>
+          <div class="menu-item" role="menuitem">
+            <span class="t-label-2">Network</span>
+            <span class="signal-bars menu-signal"><i></i><i></i><i></i><i></i></span>
+          </div>
+        </div>
+      </div>
+
+      <span class="utc-clock">
+        <span class="i i-16" style="--i:var(--ic-clock)" aria-hidden="true"></span>
+        <span class="t-caption num">2026-11-02 10:20:00 KST</span>
+      </span>
+    </div>
+  </header>
+
+  <div class="app-content">
+
+    <!-- ---------- GNB Rail ---------- -->
+    <!-- 알림 센터는 관제 아래에 있는 자리다 — [관제] 가 켜져 있다. -->
+    <nav class="gnb-rail ds-gnb" aria-label="전역 내비게이션">
+      <div class="gnb-items">
+        <a class="gnb-item ds-gnb-item" href="./control-v6.html" aria-current="page">
+          <span class="gnb-icon ds-gnb-icon"><span class="i i-20" style="--i:var(--ic-home)"></span></span><span>관제</span>
+        </a>
+        <a class="gnb-item ds-gnb-item" href="./safety-v6.html"><span class="gnb-icon ds-gnb-icon"><span class="i i-20" style="--i:var(--ic-shield)"></span></span><span>안전진단</span></a>
+        <a class="gnb-item ds-gnb-item" href="#"><span class="gnb-icon ds-gnb-icon"><span class="i i-20" style="--i:var(--ic-bot)"></span></span><span>로봇</span></a>
+        <a class="gnb-item ds-gnb-item" href="#"><span class="gnb-icon ds-gnb-icon"><span class="i i-20" style="--i:var(--ic-cpu)"></span></span><span>AI</span></a>
+        <a class="gnb-item ds-gnb-item" href="#"><span class="gnb-icon ds-gnb-icon"><span class="i i-20" style="--i:var(--ic-calendar)"></span></span><span>스케줄러</span></a>
+        <a class="gnb-item ds-gnb-item" href="#"><span class="gnb-icon ds-gnb-icon"><span class="i i-20" style="--i:var(--ic-delta)"></span></span><span>Delta</span></a>
+        <a class="gnb-item ds-gnb-item" href="./report-v6.html"><span class="gnb-icon ds-gnb-icon"><span class="i i-20" style="--i:var(--ic-document)"></span></span><span>보고서</span></a>
+        <a class="gnb-item ds-gnb-item" href="#"><span class="gnb-icon ds-gnb-icon"><span class="i i-20" style="--i:var(--ic-users)"></span></span><span>계정관리</span></a>
+      </div>
+      <a class="gnb-item ds-gnb-item" href="#"><span class="gnb-icon ds-gnb-icon"><span class="i i-20" style="--i:var(--ic-settings)"></span></span><span>환경설정</span></a>
+    </nav>
+
+    <!-- ---------- Body ---------- -->
+    <main class="ac-body">
+
+      <!-- Breadcrumb — Figma 는 "알림 이력" 이었다. 제목(h1)이 "알림 센터" 라
+           한 화면에 이름이 둘이 된다. 제목 쪽으로 맞췄다. -->
+      <nav class="ac-crumb ds-crumb t-body-4" aria-label="현재 위치">
+        <a href="./main-v6.html">메인</a>
+        <span class="i i-14" style="--i:var(--ic-chevron-right)" aria-hidden="true"></span>
+        <span class="t-label-2" aria-current="page">알림 센터</span>
+      </nav>
+
+      <!-- 제목 줄 -->
+      <div class="ac-title-row">
+        <div class="ac-title-left">
+          <h1 class="t-heading-2">알림 센터</h1>
+        </div>
+        <div class="ac-title-controls">
+          <!-- Figma 는 Size=Medium(36) 이다. 아래 [조치 완료] 도 36 으로 맞췄다 —
+               Figma 에서는 주 동작이 32 로 보조보다 작았다. -->
+          <!-- [11/23 디자이너] [보고서 내보내기] 뺌(정의서 알림센터-01 Q5) -->
+        </div>
+      </div>
+
+
+      <!-- Board — 왼쪽 목록 / 오른쪽 선택 상세 -->
+      <div class="ac-board">
+
+        <!-- ===== 미확인 · 조치 완료 ===== -->
+        <section class="ac-open" aria-label="알림 목록">
+          <div class="ac-panel-head">
+            <div class="ac-tabs ds-tab-line" role="tablist" aria-label="알림 상태">
+              <button type="button" class="ac-tab ds-tab" role="tab" aria-selected="true" data-ac-tab="open">
+                <span class="t-label-1">조치 필요 알림</span>
+                <span class="ac-tab-count ac-mono" data-ac-count-open>11건</span>
+              </button>
+              <button type="button" class="ac-tab ds-tab" role="tab" aria-selected="false" data-ac-tab="done">
+                <!-- [11/02 v6] "조치 완료" → "조치 요청됨" — 상세 버튼이 [조치 요청](관제 팝오버와 같다)이라 누른 뒤 가는 곳의 이름도 같은 말로. 안전진단의 상태 이름(요청됨)과도 같다 -->
+                <!-- [11/06 디자이너 v7] 탭 이름을 관제 왼쪽 목록과 같게 — 조치 필요 알림 / 조치 요청된 알림(버튼 [조치 요청]과 같은 "조치", "완료"는 현장 결과가 돌아오는 다음 단계 몫). 줄마다의 상태 글(조치 요청됨)은 그대로 -->
+                <span class="t-label-1">조치 요청된 알림</span>
+                <span class="ac-tab-count ac-mono" data-ac-count-done>11건</span>
+              </button>
+            </div>
+            <span class="ac-head-spacer"></span>
+            <!-- [11/23 디자이너] 탭 줄엔 탭만 — 단계 건수는 위 등급 칩(지금 탭 기준)이, 정렬은 열 머리 오른쪽 끝이 맡는다 -->
+            <!-- Figma 1202:16190 — 끝난 조치를 묶어 인수인계 초안을 만든다. 조치 완료 탭에만 선다.
+                 [11/02 v6] 오늘 조치 5건(관제 "오늘 확인 완료"와 같다)이 들어와 "오늘" 을 다시 붙였다. -->
+          </div>
+
+          <!-- Filter Bar — [11/23 디자이너] 탭 아래 · 목록 위(탭 → 거르기 → 목록 위계, 관제와 같다). 거르기는 목록에만 걸린다 -->
+          <div class="ac-filter">
+            <!-- [11/23 디자이너] 순서 = 표 열 순서(등급 → 발생 → … → 미션). 정렬은 거르기가 아니라 맨 끝에 떨어뜨림(관제 조치 필요 알림과 같다) -->
+            <!-- [11/23 디자이너] 등급 라벨 뺌 — 관제 조치 필요 알림처럼 칩 이름(위험 · 주의)이 스스로 말한다 -->
+            <!-- [11/23 디자이너] 등급 = 관제 조치 필요 알림과 같은 붙은 칩(ds-chips, 하나만 고름). 예전 체크 칩(전체가 부모)은 결과가 같아 바꿨다 -->
+            <div class="ac-sev-chips ds-chips" role="group" aria-label="등급 필터">
+              <button type="button" class="ds-chip" aria-pressed="true" data-ac-sev="all"><span data-ac-f-all>전체 22</span></button>
+              <button type="button" class="ds-chip" aria-pressed="false" data-ac-sev="critical"><span data-ac-f-crit>위험 8</span></button>
+              <button type="button" class="ds-chip" aria-pressed="false" data-ac-sev="warning"><span data-ac-f-warn>주의 14</span></button>
+            </div>
+
+            <span class="ac-filter-divider" aria-hidden="true"></span>
+
+            <div class="field-select is-chip ac-f-period" data-select>
+              <button type="button" class="ds-chip is-menu" data-select-trigger aria-haspopup="listbox" aria-expanded="false" aria-label="기간">
+                <span class="ds-chip-k">기간</span><span data-select-value>전체</span>
+                <span class="i i-16" style="--i:var(--ic-chevron-down)" aria-hidden="true"></span>
+              </button>
+              <ul class="field-menu" role="listbox" aria-label="기간" hidden>
+                <li class="field-option" role="option" aria-selected="true" data-chip="전체">전체 기간</li>
+                <li class="field-option" role="option">오늘</li>
+              </ul>
+            </div>
+            <div class="field-select is-chip ac-f-mission" data-select>
+              <button type="button" class="ds-chip is-menu" data-select-trigger aria-haspopup="listbox" aria-expanded="false" aria-label="미션">
+                <span class="ds-chip-k">미션</span><span data-select-value>전체</span>
+                <span class="i i-16" style="--i:var(--ic-chevron-down)" aria-hidden="true"></span>
+              </button>
+              <ul class="field-menu" role="listbox" aria-label="미션" hidden>
+                <li class="field-option" role="option" aria-selected="true" data-chip="전체">전체 미션</li>
+                <!-- [11/02 v6] 관제 상단 탭과 같은 여섯 미션 · 같은 차례 -->
+                <li class="field-option" role="option">정기 순회 점검</li>
+                <li class="field-option" role="option">발전기실 설비 점검</li>
+                <li class="field-option" role="option">전기실 열화상 점검</li>
+                <li class="field-option" role="option">야간 순회 점검</li>
+                <li class="field-option" role="option">공조 설비 순회</li>
+                <li class="field-option" role="option">유틸리티 순회</li>
+              </ul>
+            </div>
+
+
+            <span class="ac-filter-divider" aria-hidden="true"></span>
+            <!-- [11/23 디자이너] 정렬 = 관제 조치 필요 알림의 [⇅ 오래된 순] 과 같은 글 단추. 거르기 줄 미션 칩 다음, 나눔선 뒤(7차 — 거르기 줄이 목록 상자 안이라 목록에만 걸린다는 게 보인다) -->
+            <div class="field-select ac-f-sort ac-sort" data-select>
+              <button type="button" class="ah-sort-btn t-caption" data-select-trigger aria-haspopup="listbox" aria-expanded="false" aria-label="정렬">
+                <span class="i i-16" style="--i:var(--ic-sort)" aria-hidden="true"></span><span data-select-value>위험 우선</span>
+              </button>
+              <ul class="field-menu" role="listbox" aria-label="정렬" hidden>
+                <li class="field-option" role="option" aria-selected="true">위험 우선</li>
+                <li class="field-option" role="option">최신순</li>
+                <li class="field-option" role="option">오래된순</li>
+              </ul>
+            </div>
+            <span class="ac-filter-spacer"></span>
+            <!-- [11/23 디자이너] [오늘 조치 요약 만들기] = 거르기 줄 오른쪽 끝(조치 요청된 탭만). 만든 요약이 바로 아래에 선다 -->
+                <button type="button" class="btn btn-secondary is-xs ac-summary-btn" data-ac-summary hidden>
+                  <span class="i i-16" style="--i:var(--ic-delta)" aria-hidden="true"></span>
+                  오늘 조치 요약 만들기
+                </button>
+          </div>
+
+          <!--
+            줄마다 [안전진단](예전 [보고서]) 버튼이 들어가므로 줄을 button 으로 둘 수 없다(button 중첩).
+            grid 짜임으로 두고 줄에 tabindex 를 준다 — 위/아래 화살표로 옮기고 Enter 로 고른다.
+          -->
+          <!-- DELTA 인수인계 요약(Figma 1202:16191 Handover Slot) — 조치 완료 탭 목록 위에 선다. -->
+          <div class="ac-handover-slot" data-ac-handover hidden></div>
+
+          <div class="ac-list-wrap" role="grid" aria-label="알림 목록">
+            <!-- 열이 탭마다 다르다(미확인은 발생 · 위치 · 미션, 조치 완료는 조치 · 원 등급 · 담당).
+                 alert-center.js 의 renderColHead() 가 채운다. -->
+            <div role="rowgroup">
+              <div class="ac-col-head t-caption" role="row" data-ac-colhead></div>
+            </div>
+            <div class="ac-list" role="rowgroup" data-ac-list></div>
+          </div>
+        </section>
+
+        <!-- ===== 선택 상세 ===== -->
+        <section class="ac-detail" aria-label="선택한 알림">
+          <!-- Figma 는 "1/4" 숫자만 있었다 — 앞뒤로 갈 길이 없는 숫자다. 이전·다음을 붙였다. -->
+          <div class="ac-detail-head">
+            <span class="ac-head-spacer"></span>
+            <div class="ds-pager"><button type="button" class="ac-nav" data-ac-prev aria-label="이전 알림">
+              <span class="i i-16" style="--i:var(--ic-chevron-left)" aria-hidden="true"></span>
+            </button>
+            <span class="ac-nth ac-mono ds-pager-n" data-ac-nth>1 / 11</span>
+            <button type="button" class="ac-nav" data-ac-next aria-label="다음 알림">
+              <span class="i i-16" style="--i:var(--ic-chevron-right)" aria-hidden="true"></span>
+            </button></div>
+          </div>
+          <div class="ac-detail-body" data-ac-detail></div>
+        </section>
+
+      </div>
+    </main>
+
+  </div>
+</div>
+
+<script src="../assets/js/theme.js?v=c86093d9"></script>
+<!-- [11/02 v6] 알림 제목 표(관제와 같다) · v6 알림 데이터 — alert-center.js 보다 먼저 -->
+<script src="../assets/js/alert-text-v6.js?v=a6a79f62"></script>
+<script src="../assets/js/verdict-v6.js?v=ee80312a"></script>
+<script src="../assets/js/alert-center-data-v6.js?v=0f403e33"></script>
+<script src="../assets/js/alert-center.js?v=3290b443"></script>
+<script>
+  /* 실험: [오늘 조치 요약 만들기] → 만드는 중(빛줄기 오감, 2.6초) → 다 만듦(한 번 지나가고 꺼짐) → 빛 없음 */
+  (function () {
+    var GEN_MS = 2600, timers = [];
+    function run() {
+      var h = document.querySelector(".ac-handover"); if (!h) { return; }
+      timers.forEach(clearTimeout); timers = [];
+      h.classList.remove("is-done", "is-new");
+      if (!h.querySelector(".lab-skel")) { h.querySelector(".ac-handover-head").insertAdjacentHTML("afterend", '<div class="lab-skel" aria-hidden="true"><i style="width:62%"></i><i style="width:84%"></i><i style="width:71%"></i><i style="width:78%"></i></div>'); }
+      var when = h.querySelector(".ac-handover-when"), old = when ? when.innerHTML : "";
+      if (when) { when.textContent = "오늘 조치 5건을 묶고 있어요"; }
+      h.setAttribute("aria-busy", "true");
+      h.classList.add("is-gen");
+      timers.push(setTimeout(function () {
+        if (when) { when.innerHTML = old; }
+        h.removeAttribute("aria-busy");
+        h.classList.remove("is-gen"); h.classList.add("is-done", "is-new");
+        timers.push(setTimeout(function () { h.classList.remove("is-done"); }, 1200));
+      }, GEN_MS));
+    }
+    document.addEventListener("click", function (e) { if (e.target.closest("[data-ac-summary]")) { setTimeout(run, 0); } });
+    // 실험 막대: 조치 완료 탭으로 가서 다시 보기
+    document.body.insertAdjacentHTML("beforeend", '<div class="lab-bar">실험 · 인수인계 요약 빛줄기 <button type="button" class="btn btn-secondary is-xs" data-lab-replay>요약 다시 만들기</button></div>');
+    document.querySelector("[data-lab-replay]").addEventListener("click", function () {
+      var done = document.querySelector('[data-ac-tab="done"]'); if (done && done.getAttribute("aria-selected") !== "true") { done.click(); }
+      setTimeout(function () { var b = document.querySelector("[data-ac-summary]"); if (b) { b.click(); } }, 50);
+    });
+  })();
+</script>
+</body>
+</html>
