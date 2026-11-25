@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 실험실(11/25): 알림 센터 v7 복제 — DELTA 인수인계 요약 판 위 끝 빛줄기(레퍼런스 libraries.dev/beam "line"). 추천안만: [오늘 조치 요약 만들기]를 누르면 만드는 동안 파랑 · 흰 빛줄기가 위 끝을 오가고(진행 빛, 맥박 없이 약하게), 다 만든 순간 한 번 지나가고 꺼짐(끝나는 순간 한 번). 그 뒤 빛 없음. 메인에 반영하지 않음 -->
+<!-- 실험실(11/25): 알림 센터 v7 복제 — DELTA 인수인계 요약 판 위 끝 빛줄기(레퍼런스 libraries.dev/beam "line"). 추천안만: [오늘 조치 요약 만들기]를 누르면 만드는 동안 파랑 · 흰 빛줄기(1px, 3.2초에 한 번)가 위 끝을 오가고(진행 빛, 맥박 없이 약하게), 다 만든 순간 한 번 지나가고 꺼짐(끝나는 순간 한 번). 그 뒤 빛 없음. 메인에 반영하지 않음 -->
 <!-- v6 — v5(*-v5.html)를 10/30 에 복제해 시작했다. 이후 작업은 v6 에서만. 공용 동작은 body.ver-3 · ver-5 를 물려받고, v6 만 바꿀 것은 v6.css · body.ver-6 으로 가른다. -->
 <!-- v5 — v4(*-v3.html)를 10/29 에 복제해 시작했다. 이후 작업은 v5 에서만. Delta 는 위젯형만 쓴다. -->
 <!-- v3 — alert-center.html 을 10/21 에 복제해 시작했다. 이후 작업은 v3 에서만. -->
@@ -54,25 +54,25 @@
   <script src="../assets/js/morph-v6.js?v=5a01ec7d"></script>
   <style>
     /* ===== 실험: 인수인계 요약 빛줄기 (이 화면에만) ===== */
-    body.ver-7 { --lab-beam: var(--color-blue-500); --lab-beam-core: rgb(255 255 255 / 85%); }
-    :root[data-theme="light"] body.ver-7 { --lab-beam: var(--color-blue-650); --lab-beam-core: rgb(255 255 255 / 95%); }
+    body.ver-7 { --lab-beam: var(--color-blue-500); --lab-beam-core: rgb(255 255 255 / 65%); }
+    :root[data-theme="light"] body.ver-7 { --lab-beam: var(--color-blue-650); --lab-beam-core: rgb(255 255 255 / 80%); }
     body.ver-7 .ac-handover { position: relative; overflow: hidden; }
     /* 선: 위 끝 1px, 빛 덩이(폭 36%)가 왼쪽에서 오른쪽으로 */
     body.ver-7 .ac-handover::before, body.ver-7 .ac-handover::after { content: ""; position: absolute; left: 0; right: 0; top: 0; pointer-events: none; opacity: 0;
       background-repeat: no-repeat; background-size: 36% 100%; background-position: -60% 0; }
-    body.ver-7 .ac-handover::before { height: 2px; z-index: 2;
-      background-image: linear-gradient(90deg, transparent, rgb(from var(--lab-beam) r g b / 70%) 30%, var(--lab-beam-core) 50%, rgb(from var(--lab-beam) r g b / 70%) 70%, transparent); }
+    body.ver-7 .ac-handover::before { height: 1px; z-index: 2;
+      background-image: linear-gradient(90deg, transparent, rgb(from var(--lab-beam) r g b / 50%) 30%, var(--lab-beam-core) 50%, rgb(from var(--lab-beam) r g b / 50%) 70%, transparent); }
     /* 번짐: 선 아래로 약하게 퍼지는 빛(높이 28, 흐림) */
     body.ver-7 .ac-handover::after { height: 40px; top: -8px; z-index: 1; filter: blur(12px);
-      background-image: radial-gradient(ellipse 50% 60% at 50% 20%, rgb(from var(--lab-beam) r g b / 70%), transparent 72%); }
+      background-image: radial-gradient(ellipse 50% 60% at 50% 20%, rgb(from var(--lab-beam) r g b / 50%), transparent 72%); }
     @keyframes lab-beam-run { from { background-position: -60% 0; } to { background-position: 160% 0; } }
     @keyframes lab-beam-in { from { opacity: 0; } to { opacity: 1; } }
     @keyframes lab-beam-last { 0% { background-position: -60% 0; opacity: 1; } 80% { opacity: 1; } 100% { background-position: 160% 0; opacity: 0; } }
-    /* 만드는 중: 2초에 한 번 오감(맥박 없이), 약하게 */
-    body.ver-7 .ac-handover.is-gen::before, body.ver-7 .ac-handover.is-gen::after { animation: lab-beam-run 2s cubic-bezier(.45,0,.55,1) infinite, lab-beam-in 400ms ease-out both; }
-    body.ver-7 .ac-handover.is-gen::after { opacity: .8; }
+    /* 만드는 중: 3.2초에 한 번 오감(맥박 없이), 약하게 */
+    body.ver-7 .ac-handover.is-gen::before, body.ver-7 .ac-handover.is-gen::after { animation: lab-beam-run 3.2s cubic-bezier(.45,0,.55,1) infinite, lab-beam-in 400ms ease-out both; }
+    body.ver-7 .ac-handover.is-gen::after { opacity: .6; }
     /* 다 만든 순간: 한 번 지나가고 꺼짐 */
-    body.ver-7 .ac-handover.is-done::before, body.ver-7 .ac-handover.is-done::after { animation: lab-beam-last 1100ms cubic-bezier(.3,0,.2,1) both; }
+    body.ver-7 .ac-handover.is-done::before, body.ver-7 .ac-handover.is-done::after { animation: lab-beam-last 1600ms cubic-bezier(.3,0,.2,1) both; }
     /* 만드는 중엔 본문 자리에 빈 줄(뼈대) */
     body.ver-7 .ac-handover.is-gen :is(.ac-handover-list, .ac-handover-actions) { display: none; }
     body.ver-7 .ac-handover .lab-skel { display: none; }
@@ -337,7 +337,7 @@
 <script>
   /* 실험: [오늘 조치 요약 만들기] → 만드는 중(빛줄기 오감, 2.6초) → 다 만듦(한 번 지나가고 꺼짐) → 빛 없음 */
   (function () {
-    var GEN_MS = 2600, timers = [];
+    var GEN_MS = 3400, timers = [];
     function run() {
       var h = document.querySelector(".ac-handover"); if (!h) { return; }
       timers.forEach(clearTimeout); timers = [];
@@ -351,7 +351,7 @@
         if (when) { when.innerHTML = old; }
         h.removeAttribute("aria-busy");
         h.classList.remove("is-gen"); h.classList.add("is-done", "is-new");
-        timers.push(setTimeout(function () { h.classList.remove("is-done"); }, 1200));
+        timers.push(setTimeout(function () { h.classList.remove("is-done"); }, 1700));
       }, GEN_MS));
     }
     document.addEventListener("click", function (e) { if (e.target.closest("[data-ac-summary]")) { setTimeout(run, 0); } });
