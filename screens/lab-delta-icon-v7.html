@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<!-- 실험실(11/25): Delta 작은 자리 아이콘 모양 비교 — 지금 육각형 / Δ 를 품은 육각형 / 오각형. 메인에 반영하지 않음.
+     색은 --ds-ai-ramp(파랑 계열) 그대로. 크기 12 · 16 · 24 · 48, 다크 · 라이트 판, 실제 자리(AI 추천 배지 옆에 주의 ▲ 배지). -->
+<html lang="ko" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>실험 · Delta 아이콘 모양 — APRISM</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/static/woff2/SUIT.css" />
+  <link rel="stylesheet" href="../assets/css/tokens.css?v=d79c1b24" />
+  <link rel="stylesheet" href="../assets/css/icons-outline.css?v=a43f9b9f" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; padding: 32px; background: var(--bg-page); color: var(--text-primary); font-family: var(--font-family-sans); }
+    h1 { font-size: 20px; line-height: 28px; margin: 0 0 4px; }
+    .lead { color: var(--text-secondary); font-size: 13px; line-height: 20px; margin: 0 0 24px; max-width: 760px; }
+
+    /* 아이콘 모양 셋 (24 격자). B, C 는 Δ 자리를 비움(evenodd) */
+    :root {
+      --shape-a: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M21.8037 11.5879L16.959 19.9805H7.26758L2.42285 11.5889L7.26758 3.19629H16.959L21.8037 11.5879ZM5.16541 10.838C4.97296 11.1713 5.21347 11.588 5.59835 11.588L12.5 11.5889L15.4282 17.0997C15.6125 17.4465 16.1063 17.4552 16.3027 17.1151L19.061 12.338C19.2535 12.0047 19.0129 11.588 18.6279 11.588L12.5 11.5889L8.86566 5.89057C8.66393 5.57428 8.19868 5.58454 8.0111 5.90942L5.16541 10.838Z'/%3E%3C/svg%3E");
+      --shape-b: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' d='M12 2L20.66 7V17L12 22L3.34 17V7Z M12 6.2L17.02 14.9H6.98Z'/%3E%3C/svg%3E");
+      --shape-c: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' d='M12 2.1L21.99 9.36L18.17 21.09H5.83L2.01 9.36Z M12 7.6L16.76 15.85H7.24Z'/%3E%3C/svg%3E");
+      --shape-w: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' d='M10.27 3.5a2 2 0 0 1 3.46 0l8.2 14.5A2 2 0 0 1 20.2 21H3.8a2 2 0 0 1-1.73-3l8.2-14.5Z M11 9h2v5.5h-2Z M11 16.3h2v2h-2Z'/%3E%3C/svg%3E");
+      --ramp-d: var(--color-blue-300) 0%, var(--color-blue-400) 40%, var(--color-blue-500) 75%, var(--color-blue-650) 100%;
+      --ramp-l: var(--color-blue-500) 0%, var(--color-blue-750) 55%, var(--color-blue-900) 100%;
+    }
+    .ic { display: inline-block; flex: none; background: linear-gradient(135deg, var(--ramp)); -webkit-mask: var(--m) center / contain no-repeat; mask: var(--m) center / contain no-repeat; }
+    .ic.a { --m: var(--shape-a); } .ic.b { --m: var(--shape-b); } .ic.c { --m: var(--shape-c); }
+    .warn { display: inline-block; flex: none; background: var(--status-warning-icon, #F2B134); -webkit-mask: var(--shape-w) center / contain no-repeat; mask: var(--shape-w) center / contain no-repeat; }
+
+    .grid { display: grid; grid-template-columns: 200px 1fr 1fr; gap: 0; border: 1px solid var(--border-divider); border-radius: 8px; overflow: hidden; max-width: 1080px; }
+    .grid > div { padding: 20px; border-top: 1px solid var(--border-divider); }
+    .grid > .h { border-top: 0; font-size: 12px; color: var(--text-tertiary); padding-top: 12px; padding-bottom: 12px; }
+    .name b { display: block; font-size: 15px; line-height: 22px; }
+    .name span { display: block; font-size: 12px; line-height: 18px; color: var(--text-secondary); margin-top: 4px; }
+    .dark { background: #15181D; --ramp: var(--ramp-d); color: #E6E9ED; }
+    .light { background: #FFFFFF; --ramp: var(--ramp-l); color: #1B1F25; }
+    .sizes { display: flex; align-items: flex-end; gap: 20px; }
+    .sizes figure { margin: 0; display: grid; justify-items: center; gap: 6px; }
+    .sizes figcaption { font-size: 10px; color: #7D848C; font-variant-numeric: tabular-nums; }
+    .ctx { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .chip { display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 8px 0 6px; border-radius: 4px; font-size: 12px; font-weight: 700; }
+    .dark .chip.ai { background: rgb(13 141 249 / 18%); color: #DCEBFF; }
+    .light .chip.ai { background: rgb(13 141 249 / 12%); color: #1F4F9A; }
+    .dark .chip.wn { background: rgb(242 177 52 / 16%); color: #F5C766; }
+    .light .chip.wn { background: rgb(200 143 26 / 12%); color: #8A5F00; }
+    .note { max-width: 1080px; margin-top: 20px; font-size: 13px; line-height: 20px; color: var(--text-secondary); }
+    .note li { margin: 4px 0; }
+  </style>
+</head>
+<body class="ver-7">
+  <h1>Delta 아이콘 모양 비교</h1>
+  <p class="lead">작은 자리(12~16)의 Delta 표시. 색은 지금 쓰는 파랑 램프 그대로. 아래 "실제 자리"는 AI 추천 배지와 주의 ▲ 배지를 나란히 둔 것 — 작은 크기에서 ▲ 와 헷갈리는지 본다.</p>
+
+  <div class="grid" id="grid">
+    <div class="h">안</div><div class="h">다크 판</div><div class="h">흰 판</div>
+  </div>
+
+  <ul class="note">
+    <li><b>A 지금 육각형</b> — 납작한 육각(좌우 꼭짓점) 안에 흐름 모양. Δ 와의 관계는 각도(60°)로만 이어짐</li>
+    <li><b>B Δ 를 품은 육각형</b> — 선 육각(위아래 꼭짓점)에서 꼭짓점을 하나 건너 이은 Δ 를 비움. 정삼각형 여섯 개로 된 육각형이 Δ 를 품은 꼴</li>
+    <li><b>C 오각형</b> — 삼각 프리즘을 비스듬히 본 외곽선. 같은 Δ 를 비움. 108° 라 Δ 와 각도가 이어지지 않음</li>
+  </ul>
+
+  <script>
+    var OPTS = [
+      ["a", "A 지금 육각형", "지금 화면에 쓰는 모양"],
+      ["b", "B Δ 를 품은 육각형", "60° 정삼각형 여섯 개 · 가운데 Δ"],
+      ["c", "C 오각형", "프리즘 외곽선 · 가운데 Δ"]
+    ];
+    var SIZES = [12, 16, 24, 48];
+    function cell(k, tone) {
+      var s = '<div class="' + tone + '"><div class="sizes">' + SIZES.map(function (n) {
+        return '<figure><i class="ic ' + k + '" style="width:' + n + 'px;height:' + n + 'px"></i><figcaption>' + n + '</figcaption></figure>';
+      }).join("") + '</div><div class="ctx">' +
+        '<span class="chip ai"><i class="ic ' + k + '" style="width:12px;height:12px"></i>AI 추천</span>' +
+        '<span class="chip wn"><i class="warn" style="width:12px;height:12px"></i>주의</span>' +
+        '<span class="chip ai"><i class="ic ' + k + '" style="width:16px;height:16px"></i>AI 추천</span>' +
+        '<span class="chip wn"><i class="warn" style="width:16px;height:16px"></i>주의</span>' +
+        '</div></div>';
+      return s;
+    }
+    var g = document.getElementById("grid");
+    OPTS.forEach(function (o) {
+      g.insertAdjacentHTML("beforeend", '<div class="name"><b>' + o[1] + '</b><span>' + o[2] + '</span></div>' + cell(o[0], "dark") + cell(o[0], "light"));
+    });
+  </script>
+</body>
+</html>
