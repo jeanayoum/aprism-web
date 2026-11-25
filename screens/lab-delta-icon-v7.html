@@ -75,18 +75,17 @@
   </div>
 
 
-  <h2 style="font-size:16px;line-height:24px;margin:40px 0 4px">홀로그램 (shards)</h2>
-  <p class="lead">React Bits HoloCard 의 shards 셰이더(빛 · 기울기에 따라 조각마다 색이 바뀜)를 아이콘 모양 그대로 씌움. 설정은 받은 값(tiltMax 28 · 가장자리 반짝임 0 · 테 0 · 그림자 없음). 큰 그림은 마우스를 올리면 기울고, 작은 것들은 가만히 있어도 빛이 천천히 돎(idle). 색은 원본 무지개와 파랑 램프만 두 가지.</p>
+  <h2 style="font-size:16px;line-height:24px;margin:40px 0 4px">홀로그램 — 박 모양 = 육각 안 삼각</h2>
+  <p class="lead">React Bits HoloCard 셰이더의 빛 · 기울기 반응은 그대로 두고, 박 조각을 무작위 조각(shards) 대신 육각형을 나누는 정삼각 격자로 바꿈. 면 6 = 아이콘의 삼각 면 하나가 박 한 조각, 면 24 = 삼각 면 하나를 넷으로. 조각마다 바깥으로 기운 면처럼 빛을 받아 프리즘처럼 돎. 큰 그림은 마우스를 올리면 기울고, 작은 것은 가만히 있어도 빛이 천천히 돎.</p>
   <div class="holo-hero">
-    <div class="hh dark"><canvas data-holo="a" data-hue="rainbow" data-tilt="1" style="width:160px;height:160px"></canvas><span>A · 무지개</span></div>
-    <div class="hh dark"><canvas data-holo="a" data-hue="blue" data-tilt="1" style="width:160px;height:160px"></canvas><span>A · 파랑</span></div>
-    <div class="hh dark"><canvas data-holo="f" data-hue="rainbow" data-tilt="1" style="width:160px;height:160px"></canvas><span>F · 무지개</span></div>
-    <div class="hh dark"><canvas data-holo="f" data-hue="blue" data-tilt="1" style="width:160px;height:160px"></canvas><span>F · 파랑</span></div>
+    <div class="hh dark"><canvas data-holo="f" data-hue="blue" data-foil="6" data-tilt="1" style="width:160px;height:160px"></canvas><span>F · 파랑 · 면 6</span></div>
+    <div class="hh dark"><canvas data-holo="f" data-hue="blue" data-foil="24" data-tilt="1" style="width:160px;height:160px"></canvas><span>F · 파랑 · 면 24</span></div>
+    <div class="hh dark"><canvas data-holo="f" data-hue="rainbow" data-foil="6" data-tilt="1" style="width:160px;height:160px"></canvas><span>F · 무지개 · 면 6</span></div>
+    <div class="hh dark"><canvas data-holo="a" data-hue="blue" data-foil="6" data-tilt="1" style="width:160px;height:160px"></canvas><span>A · 파랑 · 면 6</span></div>
   </div>
   <div class="grid" id="hgrid" style="margin-top:16px">
     <div class="h">안</div><div class="h">다크 판</div><div class="h">흰 판</div>
   </div>
-  <label class="cfg">조각 크기 <input type="range" id="hscale" min="0.15" max="1" step="0.05" value="0.35"> <output id="hscaleo">0.35</output></label>
 
   <ul class="note">
     <li><b>A 지금 육각형</b> — 납작한 육각(좌우 꼭짓점) 안에 흐름 모양. Δ 와의 관계는 각도(60°)로만 이어짐</li>
@@ -125,7 +124,7 @@
     });
   </script>
   <script>
-    /* 홀로그램: React Bits HoloCard(JS-CSS) 의 조각(shards) 셰이더를 그대로 옮김(색 고르기 uBlue 만 더함).
+    /* 홀로그램: React Bits HoloCard(JS-CSS) 셰이더를 옮김. 박 조각만 육각 안 정삼각 격자(facets, uPreset 8)로 바꾸고 색 고르기(uBlue)를 더함.
      * WebGL 판 하나로 그리고 아이콘 캔버스마다 옮겨 찍음(브라우저 WebGL 개수 제한 피함). 아이콘 모양 = 그림의 투명도 */
     (function () {
       var FRAG = `#version 300 es
@@ -147,6 +146,8 @@ uniform float uGlare;
 uniform vec3 uFoil;
 uniform float uReady;
 uniform int uBlue;
+uniform float uSide;
+uniform vec2 uCenter;
 uniform vec3 uRamp[4];
 
 out vec4 outColor;
@@ -249,6 +250,24 @@ Foil shards(vec2 p) {
   float crack = smoothstep(0.015, 0.07, second - best);
   float shine = 0.25 + 0.75 * pow(hash(id + 7.7), 2.0);
   return Foil((0.2 + 0.8 * crack) * shine, hash(id + 3.17) * TAU, hash(id + 11.73), (hash2(id + 5.0) - 0.5) * 0.5);
+}
+
+
+// [APRISM] 면 박: 육각형을 가운데에서 꼭짓점으로 나눈 정삼각 격자(0 60 120도) 그대로를 박 조각으로. uSide = 삼각 한 변(그림 폭 기준)
+Foil facets(vec2 p) {
+  vec2 d = (p - uCenter) / uSide;
+  float u = d.x + d.y / 1.7320508;
+  float v = -2.0 * d.y / 1.7320508;
+  vec2 cell = floor(vec2(u, v));
+  vec2 f = fract(vec2(u, v));
+  float up = step(1.0, f.x + f.y);
+  vec2 id = cell * 2.0 + vec2(up, 0.0);
+  float edge = min(min(f.x, f.y), abs(1.0 - f.x - f.y));
+  float seam = smoothstep(0.0, 0.06, edge);
+  vec2 mid = (cell + (up > 0.5 ? vec2(2.0 / 3.0) : vec2(1.0 / 3.0)));
+  vec2 cxy = vec2(mid.x + 0.5 * mid.y, -mid.y * 0.8660254);
+  vec2 nrm = normalize(cxy + 0.0001) * 0.42;
+  return Foil(0.35 + 0.65 * seam, atan(cxy.y, cxy.x), hash(id + 3.1) * 0.35, nrm);
 }
 
 Foil cosmos(vec2 p) {
@@ -356,6 +375,7 @@ void main() {
   else if (uPreset == 4) f = rainbow(p);
   else if (uPreset == 5) f = swirl(p);
   else if (uPreset == 6) f = glitter(p);
+  else if (uPreset == 8) f = facets(p);
   else f = gold(p);
 
   vec3 metal = uPreset == 7 ? vec3(1.0, 0.74, 0.38) * dot(uFoil, vec3(0.3333)) * 1.15 : uFoil;
@@ -366,6 +386,7 @@ void main() {
     : uPreset == 4 ? vec4(0.0, 2.2, 0.0, 0.45)
     : uPreset == 5 ? vec4(1.6, 0.3, 0.0, 0.4)
     : uPreset == 6 ? vec4(0.9, 1.0, 0.6, 1.0)
+    : uPreset == 8 ? vec4(0.9, 0.9, 0.6, 0.55)
     : vec4(0.3, 1.0, 0.2, 0.95);
   vec2 dir = vec2(cos(f.angle), sin(f.angle));
   float phase = dot(sweep, dir) * look.x + dot(sweep, vec2(0.8, 0.6)) * look.y + f.jitter * look.z;
@@ -378,7 +399,7 @@ void main() {
   vec3 tint = hue(phase);
   if (uPreset == 7) tint = mix(tint, metal, 0.65);
   float glint = pow(max(dot(normalize(vec3(f.facet, 1.0)), halfway), 0.0), 24.0) * step(0.001, length(f.facet));
-  bool layered = uPreset == 2 || uPreset == 4 || uPreset == 5 || uPreset == 7;
+  bool layered = uPreset == 8 || uPreset == 2 || uPreset == 4 || uPreset == 5 || uPreset == 7;
   vec3 foil = (layered ? tint : mix(tint, vec3(1.0), 0.12)) * (1.15 + 0.3 * sheen) + metal * glint * 1.2;
   float tilted = smoothstep(0.02, 0.21, length(sin(uTilt)));
   float awake = mix(0.2, 1.0, tilted);
@@ -408,7 +429,7 @@ void main() {
       gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
       gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
       var U = {};
-      ["uArt", "uSize", "uAspect", "uTilt", "uLight", "uDistance", "uPreset", "uIntensity", "uScale", "uEdge", "uFrame", "uRadius", "uGlare", "uFoil", "uReady", "uBlue", "uRamp"].forEach(function (n) { U[n] = gl.getUniformLocation(pr, n); });
+      ["uArt", "uSize", "uAspect", "uTilt", "uLight", "uDistance", "uPreset", "uIntensity", "uScale", "uEdge", "uFrame", "uRadius", "uGlare", "uFoil", "uReady", "uBlue", "uRamp", "uSide", "uCenter"].forEach(function (n) { U[n] = gl.getUniformLocation(pr, n); });
 
       // 그림(아이콘) 만들기: 2D 캔버스에 A 또는 F 를 512 로 그림 → 텍스처
       var SA = "M21.8037 11.5879L16.959 19.9805H7.26758L2.42285 11.5889L7.26758 3.19629H16.959L21.8037 11.5879ZM5.16541 10.838C4.97296 11.1713 5.21347 11.588 5.59835 11.588L12.5 11.5889L15.4282 17.0997C15.6125 17.4465 16.1063 17.4552 16.3027 17.1151L19.061 12.338C19.2535 12.0047 19.0129 11.588 18.6279 11.588L12.5 11.5889L8.86566 5.89057C8.66393 5.57428 8.19868 5.58454 8.0111 5.90942L5.16541 10.838Z";
@@ -445,13 +466,13 @@ void main() {
 
       // 홀로 행: A, F × 무지개, 파랑 (작은 크기 + 실제 자리)
       var hg = document.getElementById("hgrid");
-      [["a", "rainbow", "A + 홀로 무지개"], ["a", "blue", "A + 홀로 파랑"], ["f", "rainbow", "F + 홀로 무지개"], ["f", "blue", "F + 홀로 파랑"]].forEach(function (o) {
+      [["f", "blue", "F + 홀로 파랑 · 면 6", "6"], ["f", "blue", "F + 홀로 파랑 · 면 24", "24"], ["f", "rainbow", "F + 홀로 무지개 · 면 6", "6"], ["a", "blue", "A + 홀로 파랑 · 면 6", "6"]].forEach(function (o) {
         function cellH(tone) {
           return '<div class="' + tone + '"><div class="sizes">' + [12, 16, 24, 48].map(function (n) {
-            return '<figure><canvas data-holo="' + o[0] + '" data-hue="' + o[1] + '" style="width:' + n + 'px;height:' + n + 'px"></canvas><figcaption>' + n + '</figcaption></figure>';
-          }).join("") + '</div><div class="ctx"><span class="chip ai"><canvas data-holo="' + o[0] + '" data-hue="' + o[1] + '" style="width:16px;height:16px"></canvas>AI 추천</span><span class="chip wn"><i class="warn" style="width:16px;height:16px"></i>주의</span></div></div>';
+            return '<figure><canvas data-holo="' + o[0] + '" data-hue="' + o[1] + '" data-foil="' + o[3] + '" style="width:' + n + 'px;height:' + n + 'px"></canvas><figcaption>' + n + '</figcaption></figure>';
+          }).join("") + '</div><div class="ctx"><span class="chip ai"><canvas data-holo="' + o[0] + '" data-hue="' + o[1] + '" data-foil="' + o[3] + '" style="width:16px;height:16px"></canvas>AI 추천</span><span class="chip wn"><i class="warn" style="width:16px;height:16px"></i>주의</span></div></div>';
         }
-        hg.insertAdjacentHTML("beforeend", '<div class="name"><b>' + o[2] + '</b><span>' + (o[1] === "blue" ? "조각 색 = 파랑 램프" : "조각 색 = 원본 무지개") + '</span></div>' + cellH("dark") + cellH("light"));
+        hg.insertAdjacentHTML("beforeend", '<div class="name"><b>' + o[2] + '</b><span>' + (o[1] === "blue" ? "박 색 = 파랑 램프" : "박 색 = 원본 무지개") + (o[3] === "24" ? " · 삼각 면 하나를 넷으로" : " · 삼각 면 하나 = 박 한 조각") + '</span></div>' + cellH("dark") + cellH("light"));
       });
 
       var texCache = {};
@@ -461,7 +482,7 @@ void main() {
         if (!texCache[key]) { texCache[key] = { tex: art(cv.dataset.holo, tone), ramp: rampOf(tone) }; }
         var dpr = Math.min(window.devicePixelRatio || 1, 2);
         var w = Math.round(parseFloat(cv.style.width) * dpr); cv.width = w; cv.height = w;
-        var it = { cv: cv, ctx: cv.getContext("2d"), t: texCache[key], blue: cv.dataset.hue === "blue" ? 1 : 0, tilt: !!cv.dataset.tilt,
+        var it = { cv: cv, ctx: cv.getContext("2d"), t: texCache[key], blue: cv.dataset.hue === "blue" ? 1 : 0, side: (cv.dataset.foil === "24" ? 0.5 : 1) * 9.69 / 24, tilt: !!cv.dataset.tilt,
           s: { tx: 0, ty: 0, vx: 0, vy: 0, lx: 0.36, ly: 0.26, lvx: 0, lvy: 0, clock: i * 1.7 }, p: { inside: false, x: 0.5, y: 0.5 } };
         if (it.tilt) {
           cv.parentNode.addEventListener("pointermove", function (e) { var r = cv.getBoundingClientRect(); it.p = { inside: true, x: Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)), y: Math.min(1, Math.max(0, (e.clientY - r.top) / r.height)) }; });
@@ -469,8 +490,7 @@ void main() {
         }
         return it;
       });
-      var scale = 0.35, so = document.getElementById("hscale");
-      so.addEventListener("input", function () { scale = parseFloat(so.value); document.getElementById("hscaleo").textContent = so.value; });
+      var scale = 1;
       var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
       function spring(v, vel, tg, k, d, dt) { var n = vel + ((tg - v) * k - vel * d) * dt; return [v + n * dt, n]; }
       var last = performance.now();
@@ -492,7 +512,7 @@ void main() {
           gl.uniform2f(U.uSize, w, w); gl.uniform1f(U.uAspect, 1);
           gl.uniform2f(U.uTilt, s.tx * Math.PI / 180, s.ty * Math.PI / 180); gl.uniform2f(U.uLight, s.lx, s.ly);
           gl.uniform1f(U.uDistance, PERSPECTIVE / Math.max(1, parseFloat(it.cv.style.width)));
-          gl.uniform1i(U.uPreset, 2); gl.uniform1f(U.uIntensity, 0.85); gl.uniform1f(U.uScale, scale);
+          gl.uniform1i(U.uPreset, 8); gl.uniform1f(U.uSide, it.side); gl.uniform2f(U.uCenter, 12.11 / 24, 11.59 / 24); gl.uniform1f(U.uIntensity, 0.85); gl.uniform1f(U.uScale, scale);
           gl.uniform1f(U.uEdge, 0); gl.uniform1f(U.uFrame, 0); gl.uniform1f(U.uRadius, 0); gl.uniform1f(U.uGlare, 0.5);
           gl.uniform3f(U.uFoil, 0.76, 0.79, 0.84); gl.uniform1f(U.uReady, 1);
           gl.uniform1i(U.uBlue, it.blue); gl.uniform3fv(U.uRamp, [].concat.apply([], it.t.ramp));
