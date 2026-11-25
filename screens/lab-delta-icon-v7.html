@@ -58,6 +58,26 @@
     .hh span { font-size: 12px; color: #A0A5AB; }
     .hh canvas { transform-style: preserve-3d; will-change: transform; }
     canvas[data-holo] { display: block; flex: none; }
+
+    /* ===== 우리 구현(CSS, 11/25): Delta 홀로그램 — 라이선스 코드 없음
+     * 빛의 방향(--holo-a) 하나가 3.2초에 한 바퀴 돌고, 삼각 면마다 빛과 마주 보는 만큼(cos) 밝은 파랑 ↔ 짙은 파랑을 섞음.
+     * 면 나눔 = 아이콘 칠(--ds-ai-face)과 같은 conic. 켜고 끌 때 0.4초 */
+    @property --holo-a { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+    @keyframes holo-spin { to { --holo-a: 360deg; } }
+    .ic.jc { --m: var(--shape-a); position: relative; background: conic-gradient(from -30deg at 50.46% 48.29%, var(--f-t) 0deg 60deg, var(--f-ur) 60deg 120deg, var(--f-lr) 120deg 180deg, var(--f-b) 180deg 240deg, var(--f-ll) 240deg 300deg, var(--f-ul) 300deg 360deg); }
+    .ic.jc::after { content: ""; position: absolute; inset: 0; opacity: 0; transition: opacity 400ms ease-out;
+      --hl: var(--color-blue-100); --hd: var(--color-blue-650);
+      --k0: clamp(0%, calc((0.5 + 0.62 * cos(var(--holo-a) - 0deg)) * 100%), 100%);
+      --k1: clamp(0%, calc((0.5 + 0.62 * cos(var(--holo-a) - 60deg)) * 100%), 100%);
+      --k2: clamp(0%, calc((0.5 + 0.62 * cos(var(--holo-a) - 120deg)) * 100%), 100%);
+      --k3: clamp(0%, calc((0.5 + 0.62 * cos(var(--holo-a) - 180deg)) * 100%), 100%);
+      --k4: clamp(0%, calc((0.5 + 0.62 * cos(var(--holo-a) - 240deg)) * 100%), 100%);
+      --k5: clamp(0%, calc((0.5 + 0.62 * cos(var(--holo-a) - 300deg)) * 100%), 100%);
+      background: conic-gradient(from -30deg at 50.46% 48.29%, color-mix(in oklab, var(--hl) var(--k0), var(--hd)) 0deg 60deg, color-mix(in oklab, var(--hl) var(--k1), var(--hd)) 60deg 120deg, color-mix(in oklab, var(--hl) var(--k2), var(--hd)) 120deg 180deg, color-mix(in oklab, var(--hl) var(--k3), var(--hd)) 180deg 240deg, color-mix(in oklab, var(--hl) var(--k4), var(--hd)) 240deg 300deg, color-mix(in oklab, var(--hl) var(--k5), var(--hd)) 300deg 360deg);
+      animation: holo-spin 3.2s linear infinite; }
+    .light .ic.jc::after { --hl: var(--color-blue-300); --hd: var(--color-blue-750); }
+    .ic.jc.is-holo::after { opacity: 1; }
+    @media (prefers-reduced-motion: reduce) { .ic.jc::after { animation: none; opacity: 0 !important; } }
   </style>
 </head>
 <body class="ver-7">
@@ -77,6 +97,29 @@
   </div>
 
 
+
+  <h2 style="font-size:16px;line-height:24px;margin:40px 0 4px">홀로그램 — 우리 구현(CSS)</h2>
+  <p class="lead">라이선스 코드 없이 CSS 로만. 빛의 방향 하나가 3.2초에 한 바퀴 돌고, 삼각 면마다 빛과 마주 보는 만큼 밝은 파랑(blue-100, 흰 판 300) ↔ 짙은 파랑(blue-650, 흰 판 750)을 섞음. 면 나눔은 지금 아이콘 칠과 같음. 오른쪽 큰 그림은 비교용 "J 강하게"(React Bits 셰이더 — 채택하면 지움). 버튼으로 켜고 끔.</p>
+  <div class="holo-hero">
+    <div class="hh dark"><i class="ic jc is-holo" style="width:160px;height:160px"></i><span>우리 구현 · 다크</span></div>
+    <div class="hh light"><i class="ic jc is-holo" style="width:160px;height:160px"></i><span>우리 구현 · 흰 판</span></div>
+    <div class="hh dark"><canvas data-holo="j" data-hue="blue" data-foil="6" data-strong="1" data-tilt="1" style="width:160px;height:160px"></canvas><span>비교 · J 강하게(셰이더)</span></div>
+  </div>
+  <div class="grid" id="cgrid" style="margin-top:16px">
+    <div class="h">안</div><div class="h">다크 판</div><div class="h">흰 판</div>
+  </div>
+  <label class="cfg" style="display:inline-flex;gap:8px;margin-top:12px;font-size:12px;color:var(--text-secondary)"><input type="checkbox" id="holoOn" checked> 홀로그램 켜기(끄면 0.4초에 걸쳐 정지 그림으로)</label>
+  <script>
+    (function () {
+      var g = document.getElementById("cgrid");
+      function cell(tone) {
+        return '<div class="' + tone + '"><div class="sizes">' + [12, 16, 24, 48].map(function (n) { return '<figure><i class="ic jc is-holo" style="width:' + n + 'px;height:' + n + 'px"></i><figcaption>' + n + '</figcaption></figure>'; }).join("") +
+          '</div><div class="ctx"><span class="chip ai"><i class="ic jc is-holo" style="width:16px;height:16px"></i>AI 추천</span><span class="chip wn"><i class="warn" style="width:16px;height:16px"></i>주의</span></div></div>';
+      }
+      g.insertAdjacentHTML("beforeend", '<div class="name"><b>우리 구현(CSS)</b><span>빛 방향 3.2초 한 바퀴 · 면마다 cos 로 밝기</span></div>' + cell("dark") + cell("light"));
+      document.getElementById("holoOn").addEventListener("change", function (e) { document.querySelectorAll(".ic.jc").forEach(function (el) { el.classList.toggle("is-holo", e.target.checked); }); });
+    })();
+  </script>
 
   <h2 style="font-size:16px;line-height:24px;margin:40px 0 4px">홀로그램 — 지금 Delta 아이콘(J)</h2>
   <p class="lead">J(삼각 면 여섯 파랑 명암 + 빈 삼각 둘)에 홀로그램 박. 박 조각 = 아이콘의 삼각 면 하나. "강하게"는 면마다 파랑 명도가 빛을 따라 크게 바뀜(가장 밝은 blue-100 ~ 선명한 blue-650, 박 색으로 덮음, 반짝임도 옅은 파랑, 가만히 있어도 깨어 있음, 흔들림 폭 두 배). "지난 값"은 앞서 본 약한 것. 큰 그림은 마우스를 올리면 기울고, 작은 것은 가만히 있어도 빛이 돎.</p>
