@@ -57,6 +57,8 @@
   <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
     <mask id="mA" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24"><path fill="#fff" d="M21.8037 11.5879L16.959 19.9805H7.26758L2.42285 11.5889L7.26758 3.19629H16.959L21.8037 11.5879ZM5.16541 10.838C4.97296 11.1713 5.21347 11.588 5.59835 11.588L12.5 11.5889L15.4282 17.0997C15.6125 17.4465 16.1063 17.4552 16.3027 17.1151L19.061 12.338C19.2535 12.0047 19.0129 11.588 18.6279 11.588L12.5 11.5889L8.86566 5.89057C8.66393 5.57428 8.19868 5.58454 8.0111 5.90942L5.16541 10.838Z"/></mask>
     <mask id="mH" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24"><path fill="#fff" d="M21.8037 11.5879L16.959 19.9805H7.26758L2.42285 11.5889L7.26758 3.19629H16.959Z"/></mask>
+    <mask id="mF" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24"><path fill="#fff" fill-rule="evenodd" d="M21.8037 11.5879L16.959 19.9805H7.26758L2.42285 11.5889L7.26758 3.19629H16.959Z M5.16541 10.838C4.97296 11.1713 5.21347 11.588 5.59835 11.588L12.5 11.5889L8.86566 5.89057C8.66393 5.57428 8.19868 5.58454 8.0111 5.90942Z"/></mask>
+    <mask id="mG" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24"><path fill="#fff" fill-rule="evenodd" d="M21.8037 11.5879L16.959 19.9805H7.26758L2.42285 11.5889L7.26758 3.19629H16.959Z M12.5 11.5889L15.4282 17.0997C15.6125 17.4465 16.1063 17.4552 16.3027 17.1151L19.061 12.338C19.2535 12.0047 19.0129 11.588 18.6279 11.588Z"/></mask>
   </defs></svg>
   <h1>Delta 아이콘 모양 비교</h1>
   <p class="lead">작은 자리(12~16)의 Delta 표시. 색은 지금 쓰는 파랑 램프 그대로. 아래 "실제 자리"는 AI 추천 배지와 주의 ▲ 배지를 나란히 둔 것 — 작은 크기에서 ▲ 와 헷갈리는지 본다.</p>
@@ -70,6 +72,7 @@
     <li><b>B Δ 를 품은 육각형</b> — 선 육각(위아래 꼭짓점)에서 꼭짓점을 하나 건너 이은 Δ 를 비움. 정삼각형 여섯 개로 된 육각형이 Δ 를 품은 꼴</li>
     <li><b>C 오각형</b> — 삼각 프리즘을 비스듬히 본 외곽선. 같은 Δ 를 비움. 108° 라 Δ 와 각도가 이어지지 않음</li>
     <li><b>D, E 면 명암</b> — A 모양 그대로, 가운데에서 꼭짓점으로 나눈 삼각 면 여섯에 파랑 램프 명암(빛은 왼쪽 위). 프리즘 단면(Δ)이 여섯 모인 입체로 읽힘. E 는 흐름 자리까지 짙은 파랑으로 채워 작은 크기에서 덩어리가 단단함</li>
+    <li><b>F, G 하나만 비움</b> — D 에서 비운 삼각 둘 중 하나만 남김. F 는 빛 쪽(왼쪽 위), G 는 그늘 쪽(오른쪽 아래)</li>
   </ul>
 
   <script>
@@ -78,7 +81,9 @@
       ["b", "B Δ 를 품은 육각형", "60° 정삼각형 여섯 개 · 가운데 Δ"],
       ["c", "C 오각형", "프리즘 외곽선 · 가운데 Δ"],
       ["d", "D 지금 육각형 + 면 명암", "삼각 면 여섯에 파랑 명암 · 흐름 자리 비움"],
-      ["e", "E 지금 육각형 + 면 명암 + 속 채움", "D 에서 흐름 자리를 가장 짙은 파랑으로"]
+      ["e", "E 지금 육각형 + 면 명암 + 속 채움", "D 에서 흐름 자리를 가장 짙은 파랑으로"],
+      ["f", "F 면 명암 + 왼쪽 위 삼각만 비움", "빛이 들어오는 쪽 하나만 빈 자리"],
+      ["g", "G 면 명암 + 오른쪽 아래 삼각만 비움", "그늘 쪽 하나만 빈 자리"]
     ];
     var SIZES = [12, 16, 24, 48];
     var C = 12.11, M = 11.59, V = [[16.959,3.196],[21.804,11.588],[16.959,19.98],[7.268,19.98],[2.423,11.589],[7.268,3.196]];
@@ -86,9 +91,10 @@
     function facets(k, n) {
       var g = V.map(function (p, i) { var q = V[(i + 1) % 6]; return '<polygon points="' + C + ',' + M + ' ' + p.join(",") + ' ' + q.join(",") + '" style="fill:var(' + F[i] + ')"/>'; }).join("");
       var inner = k === "e" ? '<g mask="url(#mH)"><path d="' + document.querySelector("#mA path").getAttribute("d").split("ZM")[1].replace(/^/, "M") + '" style="fill:var(--f-in)"/></g>' : "";
-      return '<svg class="fx" viewBox="0 0 24 24" width="' + n + '" height="' + n + '"><g mask="url(#mA)">' + g + '</g>' + inner + '</svg>';
+      var mk = k === "f" ? "mF" : k === "g" ? "mG" : "mA";
+      return '<svg class="fx" viewBox="0 0 24 24" width="' + n + '" height="' + n + '"><g mask="url(#' + mk + ')">' + g + '</g>' + inner + '</svg>';
     }
-    function icon(k, n) { return (k === "d" || k === "e") ? facets(k, n) : '<i class="ic ' + k + '" style="width:' + n + 'px;height:' + n + 'px"></i>'; }
+    function icon(k, n) { return "defg".indexOf(k) >= 0 ? facets(k, n) : '<i class="ic ' + k + '" style="width:' + n + 'px;height:' + n + 'px"></i>'; }
     function cell(k, tone) {
       var s = '<div class="' + tone + '"><div class="sizes">' + SIZES.map(function (n) {
         return '<figure>' + icon(k, n) + '<figcaption>' + n + '</figcaption></figure>';
