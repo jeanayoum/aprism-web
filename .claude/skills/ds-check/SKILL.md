@@ -16,7 +16,7 @@ description: aprism-web의 v7 이후(v7, v8 …) 화면 코드가 디자인 시�
    - 전체 목록: `tools/ds-check/out/ds-check-css.md`
 2. 브랜딩 검사 (몇 초): `node tools/ds-check/brand-check.cjs`
    - CLAUDE.md "브랜딩과 시각 원칙" 중 기계로 잡히는 것: 토큰 없는 파랑 hex, 글꼴 이름 직접 적기, 분광 색을 Delta · 오브 · 엣지 밖에서 씀, 화면 글의 대문자 ROBOT
-   - 기계로 못 잡는 원칙(빛 기준, Delta 표식, 공통 부품 등)은 고친 코드를 읽고 CLAUDE.md 원칙과 대 보아 함께 보고함
+   - 기계로 못 잡는 원칙(빛 기준, Delta 표식, 공통 부품 등)은 고친 코드를 읽고 CLAUDE.md 원칙과 대 보아 함께 보고함. 규칙에 없는 새 경우는 CLAUDE.md "시각 언어"(투과, 발광, 분광) 셋으로 판단
    - 전체 목록: `tools/ds-check/out/brand-check.md`
 3. 화면 검사 (2~4분, 화면은 찍지 않음): `node tools/ds-check/ds-check-screens.cjs`
    - 처음이면 `tools/ds-check`에서 `npm install`을 먼저 함
