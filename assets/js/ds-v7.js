@@ -20,6 +20,16 @@
  * ========================================================================== */
 /* [11/24 디자이너] 로봇 이름 표기 = "Robot 01" 하나(대문자 ROBOT 쓰지 않음). 모든 v7 화면이 읽는 이 파일 한 곳에 둔다.
  * 순번(0부터) 또는 이름 글("ROBOT 5", "robot 05")을 받아 "Robot 05" 로. 지도(map-v6.js) · 알림 자료(alert-data-v7.js)가 이것을 쓴다 */
+/* [11/25 디자이너] Delta 홀로그램 켜기 · 끄기(우리 구현, CSS 는 components-v7.css .ds-holo). Delta 가 만드는 동안에만 쓴다.
+ * var stop = window.APRISM_DELTA_HOLO.start(iconEl); … stop();  — 켤 때 · 끌 때 0.4초, 움직임 줄이기면 아무것도 안 함 */
+window.APRISM_DELTA_HOLO = {
+  start: function (el) {
+    if (!el || (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)) { return function () {}; }
+    el.classList.add("ds-holo");
+    requestAnimationFrame(function () { requestAnimationFrame(function () { el.classList.add("is-holo"); }); });
+    return function stop() { el.classList.remove("is-holo"); setTimeout(function () { if (!el.classList.contains("is-holo")) { el.classList.remove("ds-holo"); } }, 450); };
+  }
+};
 window.APRISM_ROBOT_LABEL = function (x) {
   function n2(k) { return "Robot " + (k < 10 ? "0" : "") + k; }
   if (typeof x === "number") { return n2(x + 1); }

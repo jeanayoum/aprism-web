@@ -1190,7 +1190,7 @@
     if (when) { when.textContent = "오늘 조치 " + HANDOVER_COUNT() + "건을 묶고 있어요"; }
     h.setAttribute("aria-busy", "true");
     h.classList.add("is-gen");
-    // [11/25 디자이너] 만드는 동안 요약 버튼의 Delta 육각에 홀로그램(delta-holo-v7.js, "J 강하게") — 다 만든 빛줄기가 지나가면 꺼짐
+    // [11/25 디자이너] 만드는 동안 요약 버튼의 Delta 육각에 홀로그램(ds-v7.js APRISM_DELTA_HOLO, CSS .ds-holo) — 다 만든 빛줄기가 지나가면 꺼짐
     var holoStop = window.APRISM_DELTA_HOLO ? window.APRISM_DELTA_HOLO.start($("[data-ac-summary] > .i")) : function () {};
     genHandover.stop = holoStop;
     genTimers.push(setTimeout(function () {
