@@ -138,7 +138,7 @@ GUI(v7 이후 화면의 CSS, JS, HTML)를 고치거나 새로 만들면, 일을 
 - 엣지 글로우: 기본은 빨강(1초 안에 "위험"으로 읽혀야 함). 새 위험 순간에만 Delta 자리(왼쪽 위)에서 분광 파동이 테두리를 타고 한 번(2.6초)
 - Δ 와 ▲: Δ 는 브랜드(속 빈 삼각형), ▲ 는 경고(속 찬 삼각형 + !, 배지 아이콘 error, warning). 섞지 않는다
 - 분광은 DELTA 의 빛: `--color-spectrum-*` 는 오브, Delta 판, 엣지 파동에만. Delta 판(다크)은 지금 판 위에 Delta 자리에서 보라를 약 30%(`--ds-delta-tint`), 단계색이 주인공
-- Delta 표식: 얼굴 = 오브, 이름과 서명 = DELTA 워드마크(판 머리, ds-v7.js 가 `.ds-delta-mark`, `.ac-handover-mark` 를 워드마크로 바꿈), 작은 자리(12~16: Delta 버튼, AI 추천 배지, 처리 정보 출처) = 육각 아이콘, 칠은 `--ds-ai-face`(삼각 면 여섯에 파랑 명암, 빛은 왼쪽 위, 11/25 — 파랑 계열만, 아이콘 상자는 정사각형)
+- Delta 표식: 얼굴 = 오브, 이름과 서명 = DELTA 워드마크(판 머리, ds-v7.js 가 `.ds-delta-mark`, `.ac-handover-mark` 를 워드마크로 바꿈), 작은 자리(12~16: Delta 버튼, AI 추천 배지, 처리 정보 출처) = 육각 아이콘, 칠은 `--ds-ai-face`(삼각 면 여섯에 파랑 명암, 빛은 위(위 면이 가장 밝음), 11/25 — 파랑 계열만, 아이콘 상자는 정사각형)
 - Delta 가 만든 것: 떠 있는 Delta 면(조치 제안 카드 `.ds-delta-card`, Delta 버튼)은 유리 테 `--ds-delta-edge`(다크 면 흰 빛 테, 흰 면 blue-650). AI 추천 배지는 테 없이 옅은 파랑 면 + Delta 글자(`--ds-delta-face`, `--ds-delta-fg`). 화면에 붙은 Delta 영역(인수인계 요약)은 테 없이 워드마크 머리로. Delta 가 글을 만드는 동안만 판 위 끝에 파랑 · 흰 빛줄기(1px, `--ds-delta-beam-run` 에 한 번 오감), 다 만든 순간 한 번 지나가고 꺼짐(11/25, alert-center.js `genHandover`). 같은 동안 그 버튼의 Delta 육각에 홀로그램(`window.APRISM_DELTA_HOLO`(ds-v7.js) + `.ds-holo`(components-v7.css), 빛 방향 한 바퀴에 면마다 파랑 명도가 바뀜, 우리 구현) — 평소에는 켜지 않음 Delta 버튼 면은 옅은 파랑 기운(20% 이하)까지 — 꽉 찬 파랑은 주요 행동 몫
 - 숫자 글꼴: 잰 값(센서 값, 시각, 좌표)은 Mono(`--font-family-mono`), 건수, % 진행률, 순번 같은 UI 숫자는 SUIT 고정폭(tabular-nums). 글 안의 값은 ds-v7.js 가 `.ds-meas` 로 감싼다(새 단위가 생기면 ds-v7.js 의 단위 목록 RE 에 더함)
 - 로봇 이름: "Robot 01"(대문자 ROBOT 쓰지 않음). 화면에 낼 때는 `window.APRISM_ROBOT_LABEL`(ds-v7.js)을 거친다
