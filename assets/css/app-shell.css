@@ -2377,37 +2377,16 @@ body.v2-2 .context-panel.is-collapsed .panel-head::after { opacity: 0; }
  * (Critical·Safe 도 같은 방식으로 .is-critical / .is-safe 만 추가하면 된다.)
  */
 /*
- * 테두리에서 안쪽으로 번지는 선 — React Bits 의 BorderGlow 에서 갈라져 나온 것.
- *   https://reactbits.dev/components/border-glow
- *   Copyright (c) 2026 David Haz — MIT + Commons Clause License Condition v1.0
- *   라이선스 정리는 저장소 루트 THIRD-PARTY.md 를 볼 것.
+ * 엣지 글로우 — 테두리에서 안쪽으로 뛰는 선(11/25 우리 구현으로 다시 씀, 외부 코드 없음)
  *
- * 원본은 커서 쪽 한 점이 켜지는 컴포넌트고, 전에는 그 점을 6초에 한 바퀴 돌렸다.
- * 도는 빛은 "돌아가는 중"으로 읽힌다 — 스피너도 레이더도 다 그 문법이다.
- * 게다가 ±25° 원뿔이라 나머지 세 변은 늘 꺼져 있었다.
- * 지금은 네 변에서 한꺼번에, 흐린 번짐이 아니라 또렷한 선이 안으로 밀려 들어온다.
- *
- * 제자리에 있는 건 맨 바깥 1px 하나뿐이다 — 오브 팔레트가 도는 색 테두리(.two-col::after).
- * 나머지는 다 움직인다. 그 안쪽에서 선 한 쌍이 태어나 안으로 미끄러지며 사라진다.
- *
- *   2~6px   4px 선, 60%  ┐ 태어나는 자리. 한 요소에 inset 그림자 둘이면 끝난다.
- *   6~8px   2px 선, 20%  ┘ 안으로 갈수록 얇아지고 옅어진다.
- *
- * 두 번 내보내고 쉰다 — 두근, 근, 쉼. 방향이 없어서 "주의"로 읽히고,
- * 지도를 보고 있어도 곁눈에 걸린다.
- *
- * 전에는 이 자리가 1·3·6·15·26·50px 짜리 흐린 그림자 여섯 겹이었다(도달 82px).
- * 흐린 번짐은 "빛"이지 "선"이 아니라서 두 겹을 겹쳐도 단차가 안 보였다 —
- * 그래서 번짐을 버리고 또렷한 선으로 바꿨다. 도달 거리도 82 에서 20 으로 줄였다 —
- * 테두리에 붙은 띠지 지도를 가로지르는 선이 아니다.
- *
- * 원본과 다르게 둔 것:
- *   1) 팔레트 — 원본 기본값은 보라·분홍·하늘이다. Delta 오브(prism-orb.js)의
- *      PALETTES.warning 한 바퀴로 바꿨다 — 오브 · Spectrum · 엣지 글로우가 같은 색에서 나온다.
- *   2) 커서 원뿔 마스크와 --cursor-angle · --edge-proximity 계산식은 뺐다. 네 변이 다 켜진다.
- *   3) 흐린 그림자 스택은 뺐다(위 참고).
- *   4) 안쪽 면을 물들이는 층(원본 ::after) 은 뺐다 — 지도 위에 색 도는 얼룩이 항상 뜬다.
- *      관제 화면에서는 지도가 먼저다.
+ * 두 겹이다.
+ *   1) 맨 바깥 1px 색 테두리(.two-col::after) — 제자리에 있고 뛰지 않는다. 색은 --edge-ring 한 장:
+ *      Delta 오브 팔레트(prism-orb.js PALETTES)의 밝은 자리에서 시작해 대각선 아래로 짙어진다.
+ *      안쪽에 지도가 있어 덮을 수 없으므로 content-box 를 XOR 로 도려내 링만 남긴다.
+ *   2) 그 안쪽 2px 에서 태어나 3px → 8px 로 두꺼워지며 사라지는 선 한 쌍(.edge-light::before / ::after, 256ms 시차).
+ *      두 번 뛰고 쉰다 — 방향이 없어 "주의"로 읽히고, 지도를 보고 있어도 곁눈에 걸린다.
+ * 흐린 번짐 대신 또렷한 선이고, 도달 거리는 10px 안쪽 — 테두리에 붙은 띠지 지도를 가로지르는 선이 아니다.
+ * 안쪽 면을 물들이는 층은 두지 않는다(관제 화면에서는 지도가 먼저).
  */
 
 /*
@@ -2454,21 +2433,8 @@ body.v2-2 .context-panel.is-collapsed .panel-head::after { opacity: 0; }
   --glow-color-40: hsl(41deg 89% 54% / 40%);
   --glow-color-20: hsl(41deg 89% 54% / 20%);
 
-  /*
-   * 테두리에 깔리는 색 얼룩(원본 buildGradientVars). 전에는 warning 램프
-   * (200 · 300 · 500)의 옅은 노랑 셋이었다. 지금은 Delta 오브 팔레트
-   * (PALETTES.warning) 한 바퀴의 여덟 stop 을 여덟 층에 그대로 나눠 얹는다 —
-   * 오브 · Spectrum · 엣지 글로우가 같은 색에서 나온다.
-   * 밝은 금빛을 넓은 자리에, 탄 주황·자두를 구석에 둬서 선이 탁해지지 않게 했다.
-   */
-  --gradient-one: radial-gradient(at 80% 55%, #eec242 0px, transparent 50%);
-  --gradient-two: radial-gradient(at 69% 34%, #cbad61 0px, transparent 50%);
-  --gradient-three: radial-gradient(at 8% 6%, #d38210 0px, transparent 50%);
-  --gradient-four: radial-gradient(at 41% 38%, #f2b020 0px, transparent 50%);
-  --gradient-five: radial-gradient(at 86% 85%, #9c7d6b 0px, transparent 50%);
-  --gradient-six: radial-gradient(at 82% 18%, #a5521a 0px, transparent 50%);
-  --gradient-seven: radial-gradient(at 51% 4%, #7d4f5a 0px, transparent 50%);
-  --gradient-base: linear-gradient(#f2b020 0 100%);
+  /* 테두리 색(1px 링) — 왼쪽 위 밝은 금빛에서 오른쪽 아래 탄 주황 · 자두로. 오브 PALETTES.warning 의 자리들 */
+  --edge-ring: linear-gradient(125deg, #f2b020 0%, #eec242 30%, #d38210 58%, #a5521a 80%, #7d4f5a 100%);
 
   /* 화면 바깥으로 아주 조금 새는 빛. 창 가장자리에 붙어 있어도 테두리가 뜬 것처럼 보이라고. */
   box-shadow:
@@ -2477,10 +2443,7 @@ body.v2-2 .context-panel.is-collapsed .panel-head::after { opacity: 0; }
 }
 
 /*
- * 색이 도는 1px 테두리(원본 .border-glow-card::before).
- * 원본은 안쪽을 카드 배경색으로 덮어 테두리만 남기는데, 여기는 안쪽에 지도가 있어서
- * 덮을 수 없다. 그래서 content-box 를 XOR 로 도려내 링만 남긴다.
- * 원뿔 마스크는 뺐다 — 이제 네 변에 오브 색이 다 돈다. 이 선은 안 뛴다.
+ * 색 테두리 1px(--edge-ring). 안쪽에 지도가 있어 content-box 를 XOR 로 도려내 링만 남긴다. 이 선은 안 뛴다.
  * 뛰는 건 안으로 달려가는 선이고 테두리는 자리를 지킨다. 둘 다 움직이면 테두리가 흔들려 보인다.
  */
 /*
@@ -2500,14 +2463,8 @@ body.v2-2 .context-panel.is-collapsed .panel-head::after { opacity: 0; }
   --glow-color-40: hsl(11deg 86% 58% / 40%);
   --glow-color-20: hsl(11deg 86% 58% / 20%);
 
-  --gradient-one: radial-gradient(at 80% 55%, #d96f5e 0px, transparent 50%);
-  --gradient-two: radial-gradient(at 69% 34%, #a3687b 0px, transparent 50%);
-  --gradient-three: radial-gradient(at 8% 6%, #d9321d 0px, transparent 50%);
-  --gradient-four: radial-gradient(at 41% 38%, #f05937 0px, transparent 50%);
-  --gradient-five: radial-gradient(at 86% 85%, #6d487c 0px, transparent 50%);
-  --gradient-six: radial-gradient(at 82% 18%, #a3121e 0px, transparent 50%);
-  --gradient-seven: radial-gradient(at 51% 4%, #572262 0px, transparent 50%);
-  --gradient-base: linear-gradient(#f05937 0 100%);
+  /* 테두리 색(1px 링) — 왼쪽 위 기준 자리(#F05937)에서 오른쪽 아래 짙은 진홍 · 자두로. 오브 PALETTES.critical 의 자리들 */
+  --edge-ring: linear-gradient(115deg, #f05937 0%, #dc3f28 28%, #c33a40 52%, #bd5d62 74%, #95527a 100%);
 
   box-shadow:
     0 0 0 1px rgb(217 111 94 / 60%),
@@ -2523,15 +2480,7 @@ body.v2-2 .context-panel.is-collapsed .panel-head::after { opacity: 0; }
   pointer-events: none;
   border-radius: inherit;
   padding: 1px;
-  background:
-    var(--gradient-one),
-    var(--gradient-two),
-    var(--gradient-three),
-    var(--gradient-four),
-    var(--gradient-five),
-    var(--gradient-six),
-    var(--gradient-seven),
-    var(--gradient-base);
+  background: var(--edge-ring);
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);

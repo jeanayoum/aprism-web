@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<!-- 실험실(11/25): 엣지 글로우를 우리 코드로 다시 쓴 것 비교 — 외부(React Bits BorderGlow) 갈래 코드를 빼고 같은 모양이 나오는지.
+     사진 = 관제 v7 위험 상태, 맥박을 같은 순간(0.25초)에 멈춰 찍은 것. 왼쪽 예전, 오른쪽 지금. 움직이는 실제 화면은 아래 링크 -->
+<html lang="ko" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>실험 · 엣지 글로우 다시 쓰기 — APRISM</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/static/woff2/SUIT.css" />
+  <link rel="stylesheet" href="../assets/css/tokens.css?v=d79c1b24" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; padding: 32px; background: var(--bg-page); color: var(--text-primary); font-family: var(--font-family-sans); }
+    h1 { font-size: 20px; line-height: 28px; margin: 0 0 4px; }
+    h2 { font-size: 15px; line-height: 22px; margin: 28px 0 8px; }
+    .lead { color: var(--text-secondary); font-size: 13px; line-height: 20px; margin: 0 0 16px; max-width: 860px; }
+    .pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; max-width: 1200px; }
+    figure { margin: 0; display: grid; gap: 6px; }
+    figure img { width: 100%; height: auto; border-radius: 4px; border: 1px solid var(--border-divider); image-rendering: auto; }
+    figcaption { font-size: 12px; color: var(--text-tertiary); }
+    ul { font-size: 13px; line-height: 20px; color: var(--text-secondary); max-width: 860px; }
+    a { color: var(--text-link, #5DA6FF); }
+  </style>
+</head>
+<body class="ver-7">
+  <h1>엣지 글로우 다시 쓰기</h1>
+  <p class="lead">관제 위험 상태 테두리. 외부 컴포넌트에서 갈라져 나온 코드(테두리 색 얼룩 여덟 겹)를 빼고, 우리 코드(대각선 한 장 --edge-ring)로 다시 그림. 안으로 뛰는 선 한 쌍 · 모서리(Delta 자리) 빛 · 박자는 원래 우리 것이라 그대로. 맥박을 같은 순간에 멈춰 찍었음 — 왼쪽 예전, 오른쪽 지금.
+    움직이는 실제 화면: <a href="main-v7.html">관제 v7</a></p>
+
+  <h2>전체</h2>
+  <div class="pair">
+    <figure><img src="../assets/lab/edge-before-full.png" alt="예전 전체" /><figcaption>예전</figcaption></figure>
+    <figure><img src="../assets/lab/edge-after-full.png" alt="지금 전체" /><figcaption>지금</figcaption></figure>
+  </div>
+  <h2>왼쪽 위 (Delta 자리 — 가장 밝음)</h2>
+  <div class="pair">
+    <figure><img src="../assets/lab/edge-before-tl.png" alt="" /><figcaption>예전</figcaption></figure>
+    <figure><img src="../assets/lab/edge-after-tl.png" alt="" /><figcaption>지금</figcaption></figure>
+  </div>
+  <h2>오른쪽 위</h2>
+  <div class="pair">
+    <figure><img src="../assets/lab/edge-before-tr.png" alt="" /><figcaption>예전</figcaption></figure>
+    <figure><img src="../assets/lab/edge-after-tr.png" alt="" /><figcaption>지금</figcaption></figure>
+  </div>
+  <h2>오른쪽 아래</h2>
+  <div class="pair">
+    <figure><img src="../assets/lab/edge-before-br.png" alt="" /><figcaption>예전</figcaption></figure>
+    <figure><img src="../assets/lab/edge-after-br.png" alt="" /><figcaption>지금</figcaption></figure>
+  </div>
+  <h2>왼쪽 아래</h2>
+  <div class="pair">
+    <figure><img src="../assets/lab/edge-before-bl.png" alt="" /><figcaption>예전</figcaption></figure>
+    <figure><img src="../assets/lab/edge-after-bl.png" alt="" /><figcaption>지금</figcaption></figure>
+  </div>
+  <ul>
+    <li>테두리 1px 색: 예전은 여덟 개의 방사 얼룩이 겹쳐 변마다 색이 들쭉날쭉, 지금은 왼쪽 위 기준 자리(#F05937)에서 오른쪽 아래 자두색으로 고르게 짙어짐. 변 위 색 차이 RGB 10~25 안팎</li>
+    <li>주의 상태 테두리도 같은 방식(금빛 → 탄 주황 · 자두)으로 바꿈. v6 · v7 주의 상태는 지금 테두리를 쓰지 않아 화면 변화 없음</li>
+    <li>안으로 뛰는 선(3 → 8px, 256ms 시차) · 모서리 빛 · 2초 박자 · 새 위험 3박 · 분광 파동은 그대로</li>
+  </ul>
+</body>
+</html>
