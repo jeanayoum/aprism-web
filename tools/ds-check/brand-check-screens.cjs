@@ -5,7 +5,7 @@
 // 쓰기: node tools/ds-check/brand-check-screens.cjs [aprism-web 폴더]   (2~3분, 화면은 찍지 않음)
 //       ONLY="관제|알림" node tools/ds-check/brand-check-screens.cjs   (일부 화면만)
 // 준비: tools/ds-check 에서 npm install 한 번(ds-check-screens 와 같음). 브라우저는 BROWSER 환경 변수, 없으면 설치된 Edge 또는 Chrome
-// 결과: 화면에 요약, out/brand-check-screens.md 에 전체 목록. 고치지 않고 보고만 한다
+// 결과: 화면에 요약, out/brand-check-screens.md 에 전체 목록. 고치지 않고 보고만 한다. 화면에 보이는 요소에서 이길 때만 셈
 const fs = require('fs'); const path = require('path'); const http = require('http');
 const puppeteer = require('puppeteer-core');
 const ROOT = path.resolve(process.argv[2] || path.join(__dirname, '..', '..'));
@@ -68,6 +68,7 @@ function inPage() {
           const pseudo = (p0.match(/::?(before|after)$/) || [])[0] || null; const base = p0.replace(/::?(before|after)$/, '');
           let els = []; try { els = [...document.querySelectorAll(base)].slice(0, 20); } catch (e) { continue; }
           for (const el of els) {
+            if (!el.getClientRects().length) continue;   // 화면에 안 보이는 요소(숨은 단계 등)는 뺀다
             const got = getComputedStyle(el, pseudo).getPropertyValue(prop).trim();
             const want = prop.startsWith('--') ? val.trim() : null;
             const wins = want !== null ? got.replace(/\s+/g, ' ') === want.replace(/\s+/g, ' ') : bad.some(b => got.includes(b.replace(/^rgb\((.*)\)$/, '$1')));

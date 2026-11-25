@@ -826,7 +826,7 @@ body.ver-7 {
   --ds-map-rr-bot-estop-bot-dot-line-1: var(--color-red-500);   /* route-rules .map-bot[data-rr="estop"] .map-bot-dot border-color */
   --ds-map-rr-bot-estop-bot-dot-line-2: var(--color-gray-0);   /* route-rules .map-bot[data-rr="estop"] .map-bot-dot border-color */
   --ds-map-rr-bot-return-bot-dot-line: var(--color-gray-0);   /* route-rules .map-bot[data-rr="return"] .map-bot-dot border-color */
-  --ds-map-rr-pin-is-next-pin-head-shadow: var(--color-map-31);   /* route-rules .rr-pin.is-next .rr-pin-head box-shadow */
+  --ds-map-rr-pin-is-next-pin-head-shadow: rgb(from var(--color-blue-400) r g b / 35%);   /* [11/25] 예전 blue-400 날 값(--color-map-31) 대신 v7 파랑 램프 */   /* route-rules .rr-pin.is-next .rr-pin-head box-shadow */
 }
 /* ---------- 지도 부품: 층 꼬리표 .ds-floor-tag, 층 미션 카드 .ds-floor-mission (11/23, 전체 미션 건물 그림). 예전 building.css, v6.css 값 그대로(안쪽 6 → 4 만 토큰으로) ----------
  * 층 꼬리표: 지시선 32(테 1 text/tertiary, 올린 층 text/primary) + 글 묶음(줄 사이 2), 사이 8, 층 번호 20/28 고정폭. 초점 테 2 border/focus 바깥 4
@@ -2090,4 +2090,7 @@ body.ver-7.ver-6 .delta3 {
   --dc6-why: var(--color-gray-0); --dc6-btn-edge: rgb(from var(--color-gray-950) r g b / 14%); --dc6-btn: var(--color-gray-0); --dc6-btn-hover: var(--color-gray-100);
   --dc6-pri: var(--color-gray-750); --dc6-pri-fg: var(--color-gray-0); --dc6-pri-hover: var(--color-gray-700); --dc6-q-edge: rgb(from var(--color-gray-950) r g b / 12%);
 }
+
+/* [11/25 브랜딩 화면 검사] 미션 설정 · 사전 점검 Delta 판(sian.css .dl) 보통 단계 바닥색 — 하늘색 #36B2DF · 예전 파랑 #7598E8 · #89B9ED 날 값을 v7 파랑 램프로. 주의 · 위험 단계 색은 그대로 */
+body.ver-7 .dl:not(.is-warning):not(.is-critical) { --dl-a: var(--color-blue-500); --dl-b: var(--color-blue-600); --dl-c: var(--color-blue-400); }
 
