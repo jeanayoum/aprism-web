@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 실험실(11/25): Delta 작은 자리 아이콘 — 지금 육각형(A) / 면 명암 + 빈 Δ 하나(F) / F + 빈 삼각 둘(J A 자리, K 위 두 Δ). 파란 면 둘(H, I)은 0f6ce5d 에 남김. 홀로그램 실험은 커밋 5731891 에 남김. 메인에 반영하지 않음.
+<!-- 실험실(11/25): Delta 작은 자리 아이콘 — 지금 육각형(A) / 면 명암 + 빈 Δ 하나(F) / F + 빈 삼각 둘(J A 자리, K 위 두 Δ). 파란 면 둘(H, I)은 0f6ce5d 에 남김. 아래 홀로그램 = J(채택안, 11/25)에 박 조각 면 6. 홀로그램 실험은 커밋 5731891 에 남김. 메인에 반영하지 않음.
      색은 --ds-ai-ramp(파랑 계열) 그대로. 크기 12 · 16 · 24 · 48, 다크 · 라이트 판, 실제 자리(AI 추천 배지 옆에 주의 ▲ 배지). -->
 <html lang="ko" data-theme="dark">
 <head>
@@ -52,6 +52,12 @@
     .light { --f-ul: var(--color-blue-400); --f-t: var(--color-blue-500); --f-ll: var(--color-blue-600); --f-ur: var(--color-blue-650); --f-b: var(--color-blue-750); --f-lr: var(--color-blue-900); --f-in: var(--color-blue-950); }
     svg.fx { flex: none; display: block; }
 
+
+    .holo-hero { display: flex; flex-wrap: wrap; gap: 16px; max-width: 1080px; }
+    .hh { display: grid; justify-items: center; gap: 8px; padding: 24px 28px 16px; border-radius: 8px; }
+    .hh span { font-size: 12px; color: #A0A5AB; }
+    .hh canvas { transform-style: preserve-3d; will-change: transform; }
+    canvas[data-holo] { display: block; flex: none; }
   </style>
 </head>
 <body class="ver-7">
@@ -70,6 +76,18 @@
     <div class="h">안</div><div class="h">다크 판</div><div class="h">흰 판</div>
   </div>
 
+
+
+  <h2 style="font-size:16px;line-height:24px;margin:40px 0 4px">홀로그램 — 지금 Delta 아이콘(J)</h2>
+  <p class="lead">J(삼각 면 여섯 파랑 명암 + 빈 삼각 둘)에 홀로그램 박을 씌움. 박 조각은 아이콘의 삼각 면 하나 = 한 조각(React Bits HoloCard 셰이더의 빛 · 기울기 반응 그대로). 큰 그림은 마우스를 올리면 기울고, 작은 것은 가만히 있어도 빛이 천천히 돎. 색은 파랑 램프와 원본 무지개.</p>
+  <div class="holo-hero">
+    <div class="hh dark"><canvas data-holo="j" data-hue="blue" data-foil="6" data-tilt="1" style="width:160px;height:160px"></canvas><span>J · 홀로 파랑</span></div>
+    <div class="hh dark"><canvas data-holo="j" data-hue="rainbow" data-foil="6" data-tilt="1" style="width:160px;height:160px"></canvas><span>J · 홀로 무지개</span></div>
+    <div class="hh light"><canvas data-holo="j" data-hue="blue" data-foil="6" data-tilt="1" style="width:160px;height:160px"></canvas><span>J · 홀로 파랑 · 흰 판</span></div>
+  </div>
+  <div class="grid" id="hgrid" style="margin-top:16px">
+    <div class="h">안</div><div class="h">다크 판</div><div class="h">흰 판</div>
+  </div>
 
   <ul class="note">
     <li><b>A 지금 육각형</b> — 납작한 육각(좌우 꼭짓점) 안에 흐름 모양. Δ 와의 관계는 각도(60°)로만 이어짐</li>
@@ -109,6 +127,408 @@
     OPTS.forEach(function (o) {
       g.insertAdjacentHTML("beforeend", '<div class="name"><b>' + o[1] + '</b><span>' + o[2] + '</span></div>' + cell(o[0], "dark") + cell(o[0], "light"));
     });
+  </script>
+  <script>
+    /* 홀로그램: React Bits HoloCard(JS-CSS) 셰이더를 옮김. 박 조각만 육각 안 정삼각 격자(facets, uPreset 8)로 바꾸고 색 고르기(uBlue)를 더함.
+     * WebGL 판 하나로 그리고 아이콘 캔버스마다 옮겨 찍음(브라우저 WebGL 개수 제한 피함). 아이콘 모양 = 그림의 투명도 */
+    (function () {
+      var FRAG = `#version 300 es
+precision highp float;
+
+uniform sampler2D uArt;
+uniform vec2 uSize;
+uniform float uAspect;
+uniform vec2 uTilt;
+uniform vec2 uLight;
+uniform float uDistance;
+uniform int uPreset;
+uniform float uIntensity;
+uniform float uScale;
+uniform float uEdge;
+uniform float uFrame;
+uniform float uRadius;
+uniform float uGlare;
+uniform vec3 uFoil;
+uniform float uReady;
+uniform int uBlue;
+uniform float uSide;
+uniform vec2 uCenter;
+uniform vec3 uRamp[4];
+
+out vec4 outColor;
+
+const float TAU = 6.28318530718;
+
+struct Foil {
+  float mask;
+  float angle;
+  float jitter;
+  vec2 facet;
+};
+
+float hash(vec2 p) {
+  p = fract(p * vec2(234.34, 435.345));
+  p += dot(p, p + 34.23);
+  return fract(p.x * p.y);
+}
+
+vec2 hash2(vec2 p) {
+  return vec2(hash(p), hash(p + 17.31));
+}
+
+vec3 hue(float t) {
+  t = abs(fract(t * 0.5) * 2.0 - 1.0);
+  if (uBlue == 1) { vec3 b = mix(uRamp[0], uRamp[1], smoothstep(0.0, 0.33, t)); b = mix(b, uRamp[2], smoothstep(0.33, 0.66, t)); return mix(b, uRamp[3], smoothstep(0.66, 1.0, t)); }
+  vec3 c = mix(vec3(0.1, 0.25, 1.0), vec3(0.0, 0.85, 1.0), smoothstep(0.0, 0.25, t));
+  c = mix(c, vec3(0.25, 1.0, 0.2), smoothstep(0.25, 0.45, t));
+  c = mix(c, vec3(1.0, 0.92, 0.05), smoothstep(0.45, 0.65, t));
+  c = mix(c, vec3(1.0, 0.45, 0.05), smoothstep(0.65, 0.85, t));
+  return mix(c, vec3(0.95, 0.12, 0.3), smoothstep(0.85, 1.0, t));
+}
+
+Foil bursts(vec2 p) {
+  vec2 q = mat2(0.7071068, 0.7071068, -0.7071068, 0.7071068) * (p - vec2(0.5, 0.5 * uAspect)) / (0.283 / uScale);
+  vec2 d = fract(q) - 0.5;
+  float u = length(d) / 0.49;
+  float angle = atan(d.y, d.x);
+  if (u < 0.12) {
+    float ring = min(floor(u / 0.045 + 0.5), 2.0);
+    float count = max(1.0, ring * 6.0);
+    float spot = (floor(angle / TAU * count) + 0.5) / count * TAU;
+    vec2 dot = vec2(cos(spot), sin(spot)) * ring * 0.045;
+    float m = smoothstep(0.024, 0.012, length(d / 0.49 - dot));
+    return Foil(m, angle, 0.5, vec2(0.0));
+  }
+  bool inner = u < 0.66;
+  float slot = angle / TAU * (inner ? 56.0 : 72.0);
+  bool shifted = mod(floor(slot), 2.0) > 0.5;
+  vec2 band = inner ? (shifted ? vec2(0.45, 0.61) : vec2(0.33, 0.49)) : (shifted ? vec2(0.84, 0.99) : vec2(0.7, 0.85));
+  float across = abs(u - (band.x + band.y) * 0.5) / ((band.y - band.x) * 0.5);
+  float along = abs(fract(slot) - 0.5) * 2.0;
+  float width = inner ? 0.72 : 0.6;
+  float m = smoothstep(1.0, 0.78, across) * smoothstep(width, width - 0.2, along);
+  return Foil(m, angle, 0.5, vec2(0.0));
+}
+
+Foil stars(vec2 p) {
+  Foil best = Foil(0.0, 0.0, 0.0, vec2(0.0));
+  vec2 g = p / (0.08 / uScale);
+  vec2 base = floor(g);
+  for (int j = -1; j <= 1; j++) {
+    for (int i = -1; i <= 1; i++) {
+      vec2 id = base + vec2(float(i), float(j));
+      float pick = hash(id + 1.3);
+      vec2 d = g - (id + 0.5 + (hash2(id) - 0.5) * 0.55);
+      float m = smoothstep(0.07, 0.035, length(d));
+      if (pick < 0.62) {
+        float size = mix(0.16, 0.5, pow(hash(id + 9.0), 1.8));
+        float sector = TAU / (pick < 0.3 ? 4.0 : 5.0);
+        float k = abs(fract((atan(d.y, d.x) + hash(id + 4.0) * TAU) / sector) - 0.5) * 2.0;
+        float edge = size * mix(1.0, 0.36, pow(k, 0.6));
+        m = smoothstep(edge, edge * 0.8, length(d));
+      }
+      if (m > best.mask) best = Foil(m, hash(id + 6.0) * TAU, hash(id + 8.0), (hash2(id + 2.0) - 0.5) * 0.6);
+    }
+  }
+  return best;
+}
+
+Foil shards(vec2 p) {
+  vec2 g = p * 19.0 * uScale;
+  vec2 base = floor(g);
+  float best = 9.0;
+  float second = 9.0;
+  vec2 id = base;
+  for (int j = -1; j <= 1; j++) {
+    for (int i = -1; i <= 1; i++) {
+      vec2 cell = base + vec2(float(i), float(j));
+      float d = length(cell + 0.08 + hash2(cell) * 0.84 - g);
+      if (d < best) {
+        second = best;
+        best = d;
+        id = cell;
+      } else if (d < second) {
+        second = d;
+      }
+    }
+  }
+  float crack = smoothstep(0.015, 0.07, second - best);
+  float shine = 0.25 + 0.75 * pow(hash(id + 7.7), 2.0);
+  return Foil((0.2 + 0.8 * crack) * shine, hash(id + 3.17) * TAU, hash(id + 11.73), (hash2(id + 5.0) - 0.5) * 0.5);
+}
+
+
+// [APRISM] 면 박: 육각형을 가운데에서 꼭짓점으로 나눈 정삼각 격자(0 60 120도) 그대로를 박 조각으로. uSide = 삼각 한 변(그림 폭 기준)
+Foil facets(vec2 p) {
+  vec2 d = (p - uCenter) / uSide;
+  float u = d.x + d.y / 1.7320508;
+  float v = -2.0 * d.y / 1.7320508;
+  vec2 cell = floor(vec2(u, v));
+  vec2 f = fract(vec2(u, v));
+  float up = step(1.0, f.x + f.y);
+  vec2 id = cell * 2.0 + vec2(up, 0.0);
+  float edge = min(min(f.x, f.y), abs(1.0 - f.x - f.y));
+  float seam = smoothstep(0.0, 0.06, edge);
+  vec2 mid = (cell + (up > 0.5 ? vec2(2.0 / 3.0) : vec2(1.0 / 3.0)));
+  vec2 cxy = vec2(mid.x + 0.5 * mid.y, -mid.y * 0.8660254);
+  vec2 nrm = normalize(cxy + 0.0001) * 0.42;
+  return Foil(0.35 + 0.65 * seam, atan(cxy.y, cxy.x), hash(id + 3.1) * 0.35, nrm);
+}
+
+Foil cosmos(vec2 p) {
+  Foil best = Foil(0.0, 0.0, 0.0, vec2(0.0));
+  vec2 g = p / (0.16 / uScale);
+  vec2 base = floor(g);
+  for (int j = -1; j <= 1; j++) {
+    for (int i = -1; i <= 1; i++) {
+      vec2 id = base + vec2(float(i), float(j));
+      vec2 d = g - (id + 0.5 + (hash2(id) - 0.5) * 0.7);
+      float size = mix(0.16, 0.52, hash(id + 2.0));
+      float r = length(d);
+      float m = max(smoothstep(0.05, 0.0, abs(r - size)), smoothstep(size, size - 0.04, r) * 0.22);
+      if (m > best.mask) best = Foil(m, hash(id + 6.0) * TAU + atan(d.y, d.x) * 0.5, hash(id + 1.0), (hash2(id + 4.0) - 0.5) * 0.5);
+    }
+  }
+  vec2 fine = p / (0.035 / uScale);
+  vec2 cell = floor(fine);
+  float dots = smoothstep(0.2, 0.1, length(fine - cell - 0.5 - (hash2(cell + 9.0) - 0.5) * 0.6)) * step(0.55, hash(cell + 2.0));
+  if (dots > best.mask) best = Foil(dots, hash(cell) * TAU, hash(cell + 3.0), (hash2(cell + 7.0) - 0.5) * 0.6);
+  return best;
+}
+
+Foil rainbow(vec2 p) {
+  return Foil(0.86 + 0.14 * hash(floor(p * 700.0 * uScale)), 0.2, 0.5, vec2(0.0));
+}
+
+Foil swirl(vec2 p) {
+  vec2 d = p - vec2(0.5, 0.42 * uAspect);
+  float angle = atan(d.y, d.x);
+  float rays = 0.55 + 0.45 * smoothstep(0.3, 0.7, abs(fract(angle / TAU * 60.0 * uScale) - 0.5) * 2.0);
+  return Foil(rays, angle, length(d), vec2(0.0));
+}
+
+Foil glitter(vec2 p) {
+  vec2 g = p * 72.0 * uScale;
+  vec2 cell = floor(g);
+  float size = mix(0.18, 0.4, hash(cell + 3.0));
+  float m = smoothstep(size, size * 0.55, length(fract(g) - 0.5 - (hash2(cell) - 0.5) * 0.5)) * step(0.25, hash(cell + 5.0));
+  return Foil(m, hash(cell + 7.0) * TAU, hash(cell + 9.0), (hash2(cell + 11.0) - 0.5) * 0.9);
+}
+
+Foil gold(vec2 p) {
+  Foil flake = glitter(p * 0.8);
+  if (flake.mask > 0.5) return flake;
+  float etch = 0.55 + 0.45 * smoothstep(0.2, 0.8, abs(fract((p.x * 0.6 + p.y) * 140.0 * uScale) - 0.5) * 2.0);
+  return Foil(etch, 0.9, 0.4, vec2(0.0));
+}
+
+vec3 sparkles(vec2 p, vec3 halfway, vec2 sweep, float awake) {
+  vec2 g = p * 62.0;
+  vec2 cell = floor(g);
+  vec2 d = fract(g) - 0.5 - (hash2(cell) - 0.5) * 0.36;
+  float spin = hash(cell + 3.0) * TAU;
+  d = mat2(cos(spin), -sin(spin), sin(spin), cos(spin)) * d;
+  vec2 a = abs(d);
+  float hexagon = max(a.x * 0.866 + a.y * 0.5, a.y);
+  float size = mix(0.22, 0.38, hash(cell + 2.0));
+  float piece = smoothstep(size, size - 0.07, hexagon) * step(0.42, hash(cell + 4.0));
+  vec3 facet = normalize(vec3((hash2(cell + 6.0) - 0.5) * 0.9, 1.0));
+  float flash = pow(max(dot(facet, halfway), 0.0), 6.0);
+  vec3 tint = hue(dot(sweep, vec2(cos(spin), sin(spin))) * 1.2 + dot(sweep, vec2(0.8, 0.6)) * 0.8 + hash(cell + 8.0) * 0.5);
+  vec3 color = piece * tint * (0.3 + 1.6 * flash) * awake;
+  vec2 fine = p * 210.0;
+  vec2 speckCell = floor(fine);
+  float speck = smoothstep(0.24, 0.0, length(fract(fine) - 0.5 - (hash2(speckCell) - 0.5) * 0.5)) * step(0.72, hash(speckCell + 1.0));
+  float speckFlash = pow(max(dot(normalize(vec3((hash2(speckCell + 2.0) - 0.5) * 0.9, 1.0)), halfway), 0.0), 10.0);
+  return color + vec3(1.2) * speck * speckFlash * (1.0 - piece);
+}
+
+void main() {
+  vec2 uv = vec2(gl_FragCoord.x / uSize.x, 1.0 - gl_FragCoord.y / uSize.y);
+  vec2 p = vec2(uv.x, uv.y * uAspect);
+  vec2 center = vec2(0.5, 0.5 * uAspect);
+  vec2 q = abs(p - center) - center + uRadius;
+  float outside = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - uRadius;
+  float pixel = 1.0 / uSize.x;
+  float alpha = clamp(0.5 - outside / pixel, 0.0, 1.0);
+  vec4 sampled = texture(uArt, uv);
+  if (uReady > 0.5) alpha *= sampled.a;
+  if (alpha <= 0.0) {
+    outColor = vec4(0.0);
+    return;
+  }
+  vec3 art = uReady > 0.5 ? pow(sampled.rgb, vec3(2.2)) : vec3(0.12);
+
+  mat3 rx = mat3(1.0, 0.0, 0.0, 0.0, cos(uTilt.x), sin(uTilt.x), 0.0, -sin(uTilt.x), cos(uTilt.x));
+  mat3 ry = mat3(cos(uTilt.y), 0.0, -sin(uTilt.y), 0.0, 1.0, 0.0, sin(uTilt.y), 0.0, cos(uTilt.y));
+  mat3 turn = rx * ry;
+  vec3 world = turn * vec3(p - center, 0.0);
+  vec3 view = normalize(transpose(turn) * (vec3(0.0, 0.0, uDistance) - world));
+  vec3 lamp = vec3((uLight - 0.5) * vec2(1.1, 1.1 * uAspect), 0.9);
+  vec3 light = normalize(transpose(turn) * (lamp - world));
+  vec3 halfway = normalize(light + view);
+  vec2 sweep = light.xy + view.xy;
+  float sheen = pow(max(halfway.z, 0.0), 10.0);
+  float shine = pow(max(halfway.z, 0.0), 80.0);
+  float frame = 1.0 - smoothstep(uFrame - pixel, uFrame + pixel, -outside);
+
+  Foil f;
+  if (uPreset == 0) f = bursts(p);
+  else if (uPreset == 1) f = stars(p);
+  else if (uPreset == 2) f = shards(p);
+  else if (uPreset == 3) f = cosmos(p);
+  else if (uPreset == 4) f = rainbow(p);
+  else if (uPreset == 5) f = swirl(p);
+  else if (uPreset == 6) f = glitter(p);
+  else if (uPreset == 8) f = facets(p);
+  else f = gold(p);
+
+  vec3 metal = uPreset == 7 ? vec3(1.0, 0.74, 0.38) * dot(uFoil, vec3(0.3333)) * 1.15 : uFoil;
+  vec4 look = uPreset == 0 ? vec4(0.25, 1.9, 0.12, 1.0)
+    : uPreset == 1 ? vec4(0.6, 1.4, 0.3, 1.0)
+    : uPreset == 2 ? vec4(0.9, 0.9, 0.6, 0.5)
+    : uPreset == 3 ? vec4(0.7, 1.2, 0.35, 0.85)
+    : uPreset == 4 ? vec4(0.0, 2.2, 0.0, 0.45)
+    : uPreset == 5 ? vec4(1.6, 0.3, 0.0, 0.4)
+    : uPreset == 6 ? vec4(0.9, 1.0, 0.6, 1.0)
+    : uPreset == 8 ? vec4(0.9, 0.9, 0.6, 0.55)
+    : vec4(0.3, 1.0, 0.2, 0.95);
+  vec2 dir = vec2(cos(f.angle), sin(f.angle));
+  float phase = dot(sweep, dir) * look.x + dot(sweep, vec2(0.8, 0.6)) * look.y + f.jitter * look.z;
+  float spoke = 1.0;
+  if (uPreset == 5) {
+    float facing = dot(normalize(sweep + 0.0001), dir);
+    phase = f.jitter * 2.4 + facing * 0.6 + length(sweep) * 0.8;
+    spoke = 0.3 + 0.7 * smoothstep(0.25, 0.95, abs(facing));
+  }
+  vec3 tint = hue(phase);
+  if (uPreset == 7) tint = mix(tint, metal, 0.65);
+  float glint = pow(max(dot(normalize(vec3(f.facet, 1.0)), halfway), 0.0), 24.0) * step(0.001, length(f.facet));
+  bool layered = uPreset == 8 || uPreset == 2 || uPreset == 4 || uPreset == 5 || uPreset == 7;
+  vec3 foil = (layered ? tint : mix(tint, vec3(1.0), 0.12)) * (1.15 + 0.3 * sheen) + metal * glint * 1.2;
+  float tilted = smoothstep(0.02, 0.21, length(sin(uTilt)));
+  float awake = mix(0.2, 1.0, tilted);
+  float strength = uIntensity * f.mask * (1.0 - frame) * awake;
+  float band = uPreset == 5 ? spoke : layered ? 0.25 + 0.75 * smoothstep(0.3, 0.95, 0.5 + 0.5 * cos(phase * TAU * 0.5 + 1.3)) : 1.0;
+  vec3 color = layered
+    ? 1.0 - (1.0 - art) * (1.0 - clamp(foil * look.w * band * strength, 0.0, 1.0))
+    : mix(art, foil, clamp(strength * look.w, 0.0, 1.0));
+  color += sparkles(p, halfway, sweep, mix(0.55, 1.0, tilted)) * uEdge * frame;
+  color += uFoil * sheen * 0.12 * frame;
+  color += vec3(sheen * 0.07 + shine * 0.3) * uGlare;
+  color = pow(clamp(color, 0.0, 1.0), vec3(1.0 / 2.2));
+  outColor = vec4(color * alpha, alpha);
+}`;
+      var VERT = "#version 300 es\nin vec2 position;\nvoid main(){gl_Position=vec4(position,0.0,1.0);}";
+      var PERSPECTIVE = 1100, TILT_MAX = 28;
+      var gc = document.createElement("canvas");
+      var gl = gc.getContext("webgl2", { alpha: true, premultipliedAlpha: true, antialias: false, preserveDrawingBuffer: true });
+      if (!gl) { return; }
+      function sh(t, s) { var o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) { console.error(gl.getShaderInfoLog(o)); } return o; }
+      var pr = gl.createProgram();
+      gl.attachShader(pr, sh(gl.VERTEX_SHADER, VERT)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FRAG));
+      gl.bindAttribLocation(pr, 0, "position"); gl.linkProgram(pr);
+      if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) { console.error(gl.getProgramInfoLog(pr)); return; }
+      gl.useProgram(pr);
+      var buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+      var U = {};
+      ["uArt", "uSize", "uAspect", "uTilt", "uLight", "uDistance", "uPreset", "uIntensity", "uScale", "uEdge", "uFrame", "uRadius", "uGlare", "uFoil", "uReady", "uBlue", "uRamp", "uSide", "uCenter"].forEach(function (n) { U[n] = gl.getUniformLocation(pr, n); });
+
+      // 그림(아이콘) 만들기: 2D 캔버스에 A 또는 F 를 512 로 그림 → 텍스처
+      var SA = "M21.8037 11.5879L16.959 19.9805H7.26758L2.42285 11.5889L7.26758 3.19629H16.959L21.8037 11.5879ZM5.16541 10.838C4.97296 11.1713 5.21347 11.588 5.59835 11.588L12.5 11.5889L15.4282 17.0997C15.6125 17.4465 16.1063 17.4552 16.3027 17.1151L19.061 12.338C19.2535 12.0047 19.0129 11.588 18.6279 11.588L12.5 11.5889L8.86566 5.89057C8.66393 5.57428 8.19868 5.58454 8.0111 5.90942L5.16541 10.838Z";
+      var SF = "M21.8037 11.5879L16.959 19.9805H7.26758L2.42285 11.5889L7.26758 3.19629H16.959Z M5.16541 10.838C4.97296 11.1713 5.21347 11.588 5.59835 11.588L12.5 11.5889L8.86566 5.89057C8.66393 5.57428 8.19868 5.58454 8.0111 5.90942Z";
+      var V = [[16.959, 3.196], [21.804, 11.588], [16.959, 19.98], [7.268, 19.98], [2.423, 11.589], [7.268, 3.196]];
+      var FV = ["--f-t", "--f-ur", "--f-lr", "--f-b", "--f-ll", "--f-ul"];
+      function art(kind, toneEl) {
+        var cs = getComputedStyle(toneEl), N = 512, c = document.createElement("canvas"); c.width = c.height = N;
+        var x = c.getContext("2d"); x.scale(N / 24, N / 24);
+        if (kind === "a") {
+          var g = x.createLinearGradient(2, 3, 22, 20);
+          var r = cs.getPropertyValue("--ramp").split(/,(?![^(]*\))/);
+          r.forEach(function (st) { var m = st.trim().match(/^(.*)\s+([\d.]+)%$/); if (m) { var tmp = document.createElement("i"); tmp.style.color = m[1]; toneEl.appendChild(tmp); g.addColorStop(parseFloat(m[2]) / 100, getComputedStyle(tmp).color); tmp.remove(); } });
+          x.fillStyle = g; x.fill(new Path2D(SA));
+        } else {
+          x.save(); x.clip(new Path2D(kind === "j" ? SA : SF), "evenodd");
+          V.forEach(function (p, i) { var q = V[(i + 1) % 6]; x.beginPath(); x.moveTo(12.11, 11.59); x.lineTo(p[0], p[1]); x.lineTo(q[0], q[1]); x.closePath(); x.fillStyle = cs.getPropertyValue(FV[i]).trim(); x.fill(); x.strokeStyle = x.fillStyle; x.lineWidth = 0.05; x.stroke(); });
+          x.restore();
+        }
+        var t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c); gl.generateMipmap(gl.TEXTURE_2D);
+        return t;
+      }
+      function rampOf(toneEl) {
+        var cs = getComputedStyle(toneEl);
+        return ["--f-ul", "--f-ur", "--f-b", "--f-lr"].map(function (n) {
+          var tmp = document.createElement("i"); tmp.style.color = cs.getPropertyValue(n).trim(); toneEl.appendChild(tmp);
+          var m = getComputedStyle(tmp).color.match(/[\d.]+/g); tmp.remove();
+          return m.slice(0, 3).map(function (v) { return Math.pow(v / 255, 2.2); });
+        });
+      }
+
+      // 홀로 행: A, F × 무지개, 파랑 (작은 크기 + 실제 자리)
+      var hg = document.getElementById("hgrid");
+      [["j", "blue", "J + 홀로 파랑", "6"], ["j", "rainbow", "J + 홀로 무지개", "6"]].forEach(function (o) {
+        function cellH(tone) {
+          return '<div class="' + tone + '"><div class="sizes">' + [12, 16, 24, 48].map(function (n) {
+            return '<figure><canvas data-holo="' + o[0] + '" data-hue="' + o[1] + '" data-foil="' + o[3] + '" style="width:' + n + 'px;height:' + n + 'px"></canvas><figcaption>' + n + '</figcaption></figure>';
+          }).join("") + '</div><div class="ctx"><span class="chip ai"><canvas data-holo="' + o[0] + '" data-hue="' + o[1] + '" data-foil="' + o[3] + '" style="width:16px;height:16px"></canvas>AI 추천</span><span class="chip wn"><i class="warn" style="width:16px;height:16px"></i>주의</span></div></div>';
+        }
+        hg.insertAdjacentHTML("beforeend", '<div class="name"><b>' + o[2] + '</b><span>' + (o[1] === "blue" ? "박 색 = 파랑 램프" : "박 색 = 원본 무지개") + (o[3] === "24" ? " · 삼각 면 하나를 넷으로" : " · 삼각 면 하나 = 박 한 조각") + '</span></div>' + cellH("dark") + cellH("light"));
+      });
+
+      var texCache = {};
+      var items = [].slice.call(document.querySelectorAll("canvas[data-holo]")).map(function (cv, i) {
+        var tone = cv.closest(".dark, .light");
+        var key = cv.dataset.holo + (tone.classList.contains("light") ? "L" : "D");
+        if (!texCache[key]) { texCache[key] = { tex: art(cv.dataset.holo, tone), ramp: rampOf(tone) }; }
+        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+        var w = Math.round(parseFloat(cv.style.width) * dpr); cv.width = w; cv.height = w;
+        var it = { cv: cv, ctx: cv.getContext("2d"), t: texCache[key], blue: cv.dataset.hue === "blue" ? 1 : 0, side: (cv.dataset.foil === "24" ? 0.5 : 1) * 9.69 / 24, tilt: !!cv.dataset.tilt,
+          s: { tx: 0, ty: 0, vx: 0, vy: 0, lx: 0.36, ly: 0.26, lvx: 0, lvy: 0, clock: i * 1.7 }, p: { inside: false, x: 0.5, y: 0.5 } };
+        if (it.tilt) {
+          cv.parentNode.addEventListener("pointermove", function (e) { var r = cv.getBoundingClientRect(); it.p = { inside: true, x: Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)), y: Math.min(1, Math.max(0, (e.clientY - r.top) / r.height)) }; });
+          cv.parentNode.addEventListener("pointerleave", function () { it.p.inside = false; });
+        }
+        return it;
+      });
+      var scale = 1;
+      var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      function spring(v, vel, tg, k, d, dt) { var n = vel + ((tg - v) * k - vel * d) * dt; return [v + n * dt, n]; }
+      var last = performance.now();
+      function frame(now) {
+        var dt = Math.min(1 / 30, Math.max(1 / 240, (now - last) / 1000)); last = now;
+        items.forEach(function (it) {
+          var s = it.s, tx = 0, ty = 0, lx = 0.36, ly = 0.26;
+          if (it.p.inside && !reduce) { tx = (0.5 - it.p.y) * 2 * TILT_MAX; ty = (it.p.x - 0.5) * 2 * TILT_MAX; lx = it.p.x; ly = it.p.y; }
+          else if (!reduce) { s.clock += dt; var t = s.clock; tx = Math.sin(t * 0.7) * TILT_MAX * 0.28; ty = Math.sin(t * 0.53 + 1.2) * TILT_MAX * 0.4; lx = 0.5 + Math.sin(t * 0.41) * 0.42; ly = 0.38 + Math.sin(t * 0.33 + 0.6) * 0.3; }
+          var r;
+          r = spring(s.tx, s.vx, tx, 150, 16, dt); s.tx = r[0]; s.vx = r[1];
+          r = spring(s.ty, s.vy, ty, 150, 16, dt); s.ty = r[0]; s.vy = r[1];
+          r = spring(s.lx, s.lvx, lx, 220, 30, dt); s.lx = r[0]; s.lvx = r[1];
+          r = spring(s.ly, s.lvy, ly, 220, 30, dt); s.ly = r[0]; s.lvy = r[1];
+          if (it.tilt) { it.cv.style.transform = "perspective(" + PERSPECTIVE + "px) rotateX(" + s.tx + "deg) rotateY(" + s.ty + "deg)"; }
+          var w = it.cv.width; if (gc.width !== w) { gc.width = w; gc.height = w; }
+          gl.viewport(0, 0, w, w); gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+          gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, it.t.tex); gl.uniform1i(U.uArt, 0);
+          gl.uniform2f(U.uSize, w, w); gl.uniform1f(U.uAspect, 1);
+          gl.uniform2f(U.uTilt, s.tx * Math.PI / 180, s.ty * Math.PI / 180); gl.uniform2f(U.uLight, s.lx, s.ly);
+          gl.uniform1f(U.uDistance, PERSPECTIVE / Math.max(1, parseFloat(it.cv.style.width)));
+          gl.uniform1i(U.uPreset, 8); gl.uniform1f(U.uSide, it.side); gl.uniform2f(U.uCenter, 12.11 / 24, 11.59 / 24); gl.uniform1f(U.uIntensity, 0.85); gl.uniform1f(U.uScale, scale);
+          gl.uniform1f(U.uEdge, 0); gl.uniform1f(U.uFrame, 0); gl.uniform1f(U.uRadius, 0); gl.uniform1f(U.uGlare, 0.5);
+          gl.uniform3f(U.uFoil, 0.76, 0.79, 0.84); gl.uniform1f(U.uReady, 1);
+          gl.uniform1i(U.uBlue, it.blue); gl.uniform3fv(U.uRamp, [].concat.apply([], it.t.ramp));
+          gl.drawArrays(gl.TRIANGLES, 0, 3);
+          it.ctx.clearRect(0, 0, w, w); it.ctx.drawImage(gc, 0, 0);
+        });
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    })();
+
   </script>
 </body>
 </html>
