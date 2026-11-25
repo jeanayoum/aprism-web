@@ -2074,3 +2074,20 @@ body.ver-7 .ds-holo::after { content: ""; position: absolute; inset: 0; pointer-
   animation: ds-holo-spin var(--ds-holo-run) linear infinite; }
 body.ver-7 .ds-holo.is-holo::after { opacity: 1; }
 @media (prefers-reduced-motion: reduce) { body.ver-7 .ds-holo::after { animation: none; opacity: 0 !important; } }
+
+/* [11/25 브랜딩 · 시각 요소 목록 "어긋남" 정리]
+ * 1) 판 면 토큰: 관제 · 화면 판 면(.content-surface)은 --bg-frame(다크 gray-750, 라이트 gray-100). 예전엔 v2 규칙의 --bg-cell 을 빌려 썼고(다크는 같은 값),
+ *    --bg-panel(다크 gray-800)은 판 안쪽 상자(인수인계 요약 등) 몫. 보이는 값은 그대로 */
+body.ver-7 .content-surface { background-color: var(--bg-frame); }
+/* 2) Delta 답 카드(delta-answer-v6.js) 겹침 값 — v6.css 의 날 값(흰 알파 · #F6F8FB 등)을 토큰에서 끌어 씀. 다크 = 흰(gray-0) 겹침, 라이트 = gray-950 겹침 + 회색 단 */
+body.ver-7.ver-6 .delta3 {
+  --dc6-face: rgb(from var(--color-gray-0) r g b / 7%); --dc6-edge: rgb(from var(--color-gray-0) r g b / 8%); --dc6-hover: rgb(from var(--color-gray-0) r g b / 5%); --dc6-next: rgb(from var(--color-gray-0) r g b / 6%);
+  --dc6-why: rgb(from var(--color-gray-0) r g b / 5%); --dc6-btn-edge: rgb(from var(--color-gray-0) r g b / 22%); --dc6-btn: rgb(from var(--color-gray-0) r g b / 6%); --dc6-btn-hover: rgb(from var(--color-gray-0) r g b / 14%);
+  --dc6-pri: var(--color-gray-50); --dc6-pri-fg: var(--color-gray-950); --dc6-pri-hover: var(--color-gray-0); --dc6-q-edge: rgb(from var(--color-gray-0) r g b / 18%);
+}
+:root[data-theme="light"] body.ver-7.ver-6 .delta3 {
+  --dc6-face: var(--color-gray-100); --dc6-edge: rgb(from var(--color-gray-950) r g b / 6%); --dc6-hover: rgb(from var(--color-gray-950) r g b / 4%); --dc6-next: rgb(from var(--color-gray-950) r g b / 5%);
+  --dc6-why: var(--color-gray-0); --dc6-btn-edge: rgb(from var(--color-gray-950) r g b / 14%); --dc6-btn: var(--color-gray-0); --dc6-btn-hover: var(--color-gray-100);
+  --dc6-pri: var(--color-gray-750); --dc6-pri-fg: var(--color-gray-0); --dc6-pri-hover: var(--color-gray-700); --dc6-q-edge: rgb(from var(--color-gray-950) r g b / 12%);
+}
+
