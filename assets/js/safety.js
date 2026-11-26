@@ -176,7 +176,7 @@
   const key7 = id => { const a = S7 && S7.list.find(x => x.id === id); if(!a) return null; const mi = M.findIndex(m => m.mis === a.mission); return mi >= 0 && M[mi].r[a.detect] ? mi + '|' + a.detect + '|' + a.wp : null; };
   function hPut(key){ if(!V7) return; const R = REQ[key], [mi, k, w] = key.split('|');
     if(S7){ const id = S7.req.find(M[+mi].mis, k, w); if(!id) return;
-      if(R) S7.req.set(id, {t:R.t, how:R.acts, memo:R.memo, who:'홍길동', to:R.who, st:R.st, t2:R.t2, t3:R.t3, src:R.src || 'sf'}); else S7.req.clear(id);
+      if(R) S7.req.set(id, {t:R.t, how:R.acts, memo:R.memo, who:(window.APRISM_NAME ? APRISM_NAME('op1') : '홍길동'), to:R.who, st:R.st, t2:R.t2, t3:R.t3, src:R.src || 'sf'}); else S7.req.clear(id);
       return; }
     const l = hRead().filter(e => !hSame(e, key));
     if(R) l.push({mis:M[+mi].mis, k, wp:w, t:R.t, t2:R.t2, t3:R.t3, acts:R.acts, memo:R.memo, who:R.who, st:R.st, src:R.src || 'sf'}); hWrite(l); }

@@ -118,7 +118,7 @@ window.APRISM_TEXT = (function () {
     // 바꾼다. 심각도마다 다르게 굴 이유가 없다 — 어느 쪽이든 "봤다" 는 한 가지 뜻이다.
     var ack = panel.querySelector("[data-ai-ack]");
     if (ack) {
-      var NORMAL_LINE_1 = "안녕하세요, 홍길동 님.";
+      var NORMAL_LINE_1 = ("안녕하세요, " + (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동") + " 님.");
       var NORMAL_LINE_2 = "인계된 알림 3건과 진행 예정인 미션 1건이 있어요. 먼저 살펴볼까요?";
       // 태그도 같이 바꾼다 — 주의 상태 문구가 그대로 남으면 새 멘트와 안 맞는다.
       var NORMAL_TAG = "인계 알림 3건 · 예정 미션 1건";
@@ -177,7 +177,7 @@ window.APRISM_TEXT = (function () {
 
   function handOver(scrim) {
     var id = scrim.querySelector("[data-shift-id]");
-    var name = (id && id.value.trim()) || "김현대";
+    var name = (id && id.value.trim()) || (window.APRISM_NAME ? APRISM_NAME("op2") : "김현대");
 
     // 상태바 — 누가 앉아 있는지가 여기서 바뀐다.
     var chip = document.querySelector(".account-chip");

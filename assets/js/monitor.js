@@ -259,12 +259,12 @@
   var COPY = {
     sentence: function (j) {
       if (!j.total) {
-        return { tag: "정기 순회 진행 중", line1: "안녕하세요. 홍길동 님",
+        return { tag: "정기 순회 진행 중", line1: ("안녕하세요. " + (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동") + " 님"),
           line2: "Robot 01 이 정기 순회를 진행하고 있어요. 지금은 특이사항이 없습니다." };
       }
       var mix = "위험 " + j.crit + " · 주의 " + j.warn;
       if (j.level === "normal") {
-        return { tag: "알림 " + j.total + "건 관찰 중", line1: "안녕하세요. 홍길동 님",
+        return { tag: "알림 " + j.total + "건 관찰 중", line1: ("안녕하세요. " + (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동") + " 님"),
           line2: "확인할 알림이 " + j.total + "건 있어요(" + mix + "). 왼쪽 목록에서 하나씩 살펴봐 주세요." };
       }
       if (j.level === "warning") {
@@ -297,7 +297,7 @@
     chat: function (j) {
       var copy = COPY.keyword(j);
       if (!j.total) {
-        copy.line2 = "홍길동 님, Robot 01 과 정기 순회를 함께 보고 있어요. 지금까지는 특이사항이 없어요. 궁금한 게 있으면 편하게 물어보세요.";
+        copy.line2 = ((window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동") + " 님, Robot 01 과 정기 순회를 함께 보고 있어요. 지금까지는 특이사항이 없어요. 궁금한 게 있으면 편하게 물어보세요.");
       } else if (j.level === "normal") {
         copy.line2 = "알림이 " + j.total + "건 들어와 있어요. 아직 묶어서 볼 만큼은 아니라서, 왼쪽 목록에서 하나씩 확인해 보시면 돼요. 어떤 알림인지 같이 볼까요?";
       } else if (j.level === "warning") {
@@ -459,11 +459,11 @@
   }
 
   var DONE_BASE = [
-    { time: "10:29:10", title: "온도감지 · WP-03 펌프 하우징", how: "추이 관찰 · 다음 순회 재측정", who: "김현대" },
-    { time: "10:18:52", title: "소음 이상 · 변압기 TR-1", how: "현장 점검 요청 · 이상 없음", who: "김현대" },
-    { time: "10:02:31", title: "진동감지 · WP-02 터빈1 베어링", how: "추이 관찰 · 다음 순회 재측정", who: "홍길동" },
-    { time: "09:47:15", title: "온도감지 · WP-03 펌프 하우징", how: "현장 점검 요청 · 이상 없음", who: "홍길동" },
-    { time: "09:30:08", title: "누유 흔적 · 유압 유닛 HU-2", how: "청소 후 재측정 · 정상", who: "김현대" }
+    { time: "10:29:10", title: "온도감지 · WP-03 펌프 하우징", how: "추이 관찰 · 다음 순회 재측정", who: (window.APRISM_NAME ? APRISM_NAME("op2") : "김현대") },
+    { time: "10:18:52", title: "소음 이상 · 변압기 TR-1", how: "현장 점검 요청 · 이상 없음", who: (window.APRISM_NAME ? APRISM_NAME("op2") : "김현대") },
+    { time: "10:02:31", title: "진동감지 · WP-02 터빈1 베어링", how: "추이 관찰 · 다음 순회 재측정", who: (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동") },
+    { time: "09:47:15", title: "온도감지 · WP-03 펌프 하우징", how: "현장 점검 요청 · 이상 없음", who: (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동") },
+    { time: "09:30:08", title: "누유 흔적 · 유압 유닛 HU-2", how: "청소 후 재측정 · 정상", who: (window.APRISM_NAME ? APRISM_NAME("op2") : "김현대") }
   ];
   /*
    * [11/02 v6] 오늘 확인 완료 기본 기록도 감지 6종 · "감지 · 측정 항목 + 값"(alert-text-v6.js 규칙). 위치 줄은 아직 넣지 않는다(디자이너 — 정보가 많다).
@@ -483,8 +483,8 @@
   var DONE_ST = { wait: "현장 응답 대기", work: "현장 조치 중", done: "조치 완료" };
   if (V7Q) {
     DONE_BASE = [
-      { time: "10:08:30", title: "이상음향 점수 19.6", wp: "WP-02", how: "현장 점검 요청", who: "홍길동", st: "work", to: "설비팀 박지훈" },
-      { time: "10:05:12", title: "최고 온도 44.2 ℃", wp: "WP-01", how: "다음 순회 재측정", who: "홍길동", st: "done", to: "설비팀 박지훈", res: "정상" }
+      { time: "10:08:30", title: "이상음향 점수 19.6", wp: "WP-02", how: "현장 점검 요청", who: (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동"), st: "work", to: ("설비팀 " + (window.APRISM_NAME ? APRISM_NAME("fe2") : "박지훈")) },
+      { time: "10:05:12", title: "최고 온도 44.2 ℃", wp: "WP-01", how: "다음 순회 재측정", who: (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동"), st: "done", to: ("설비팀 " + (window.APRISM_NAME ? APRISM_NAME("fe2") : "박지훈")), res: "정상" }
     ];
   }
   var DONE = DONE_BASE.slice();
@@ -595,7 +595,7 @@
         if (!hSame(e, a) || resolved.indexOf(a) >= 0) { return; }
         resolved.push(a); cleared.push(a);
         DONE.unshift({ wp: a.wp || "", time: e.t + ":00", title: window.APRISM_ALERT6 ? window.APRISM_ALERT6.title(a.title) : a.title,
-                       how: (e.acts || []).join(" · ") || "현장 조치 요청", who: "홍길동", memo: e.memo || "" });
+                       how: (e.acts || []).join(" · ") || "현장 조치 요청", who: (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동"), memo: e.memo || "" });
       });
     });
   }
@@ -845,7 +845,7 @@
         if (cleared.indexOf(a) < 0) { cleared.push(a); }
         if (di < 0) {
           DONE.push({ wp: a.wp || "", time: r.t, title: window.APRISM_ALERT6 ? window.APRISM_ALERT6.title(a.title) : a.title,
-                      how: (r.how || []).join(" · "), who: r.who || "홍길동", memo: r.memo || "", reqId: id });
+                      how: (r.how || []).join(" · "), who: r.who || (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동"), memo: r.memo || "", reqId: id });
           moved = true;
         }
       } else if (di >= 0) {   // 다른 화면에서 되돌린 요청
@@ -1820,7 +1820,7 @@
       busy = true;
       hideToast();
 
-      var rec = { wp: a.wp || "", time: clock(), title: window.APRISM_ALERT6 ? window.APRISM_ALERT6.title(a.title) : a.title, how: picks.join(" · "), who: "홍길동", fresh: true,
+      var rec = { wp: a.wp || "", time: clock(), title: window.APRISM_ALERT6 ? window.APRISM_ALERT6.title(a.title) : a.title, how: picks.join(" · "), who: (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동"), fresh: true,
                   memo: memoField ? memoField.value.trim() : "" };
       if (V7) { sent7(a, rec, picks); return; }
       var from = box.getBoundingClientRect();

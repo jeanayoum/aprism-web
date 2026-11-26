@@ -8,9 +8,10 @@
 <head>
   <meta charset="UTF-8" />
   <!-- v7(11/06~) — v6 화면 복제. 화면 사이 *-v6.html 주소를 v7 로 잇는다(v7.js). 영문판은 이 줄을 빼고 만든다 -->
-  <script src="../assets/js/v7.js?v=47c74fc4"></script>
+  <script src="../assets/js/demo-base-v7.js?v=3087c915"></script>
+  <script src="../assets/js/v7.js?v=546bac0b"></script>
   <!-- [11/10] 알림 데이터 한 곳 — 관제 · 안전진단 · 알림 센터 · 전체 미션이 같은 알림 12건을 읽는다(alert-data-v7.js) -->
-  <script src="../assets/js/alert-data-v7.js?v=b7564d22"></script>
+  <script src="../assets/js/alert-data-v7.js?v=868e515b"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>v7 전체 층 현황 — APRISM</title>
   <meta name="description" content="v2.2 — 건물 전체를 층으로 쌓아 본다. 층에 올리면 요약, 누르면 그 층 미션 모니터링으로 들어간다" />
@@ -94,7 +95,7 @@
         <button type="button" class="account-chip" data-menu-trigger
                 aria-haspopup="true" aria-expanded="false">
           <span class="i i-16" style="--i:var(--ic-user)" aria-hidden="true"></span>
-          <span class="t-label-2">홍길동</span>
+          <span class="t-label-2" data-base="me">홍길동</span>
           <span class="t-label-2 account-sep" aria-hidden="true">|</span>
           <span class="t-label-2">관제운영</span>
         </button>
@@ -410,7 +411,7 @@
 <script src="../assets/js/delta-form.js?v=1fc8867d"></script>
 <script src="../assets/js/theme.js?v=c86093d9"></script>
 <script src="../assets/js/prism-orb.js?v=f56758de"></script>
-<script src="../assets/js/screen.js?v=6a5569c7"></script>
+<script src="../assets/js/screen.js?v=8a1e3f20"></script>
 <script src="../assets/js/map-model.js?v=b9ca613f"></script>
 <!-- [11/02] 통합 순회 연출(셰이더 윤곽선 · 스캔 · AO · 블룸 · 비네트 · 하늘 · 안개) — 실험(lab-bld-render-v6)에서 고른 값. building.js 앞에(APRISM_BLD_FX 고리) -->
 <script src="../assets/js/bld-fx-v6.js?v=aca7fa33"></script>
@@ -419,7 +420,7 @@
 <script src="../assets/js/mini-plan.js?v=12b3a704"></script>
 <script src="../assets/js/ah-sort.js?v=743a2d82"></script>
 <script src="../assets/js/alert-text-v6.js?v=a6a79f62"></script>
-<script src="../assets/js/building.js?v=3225357e"></script>
+<script src="../assets/js/building.js?v=6c74be2b"></script>
 <!-- [10/30 v6] 상단 미션 탭(윈도우 탐색기 꼴) — 미션 메뉴를 읽어 탭으로 늘어놓는다. 메뉴를 만드는 스크립트 다음에 -->
 <script src="../assets/js/mission-tabs-v6.js?v=f01a8890"></script>
 <script src="../assets/js/delta-pulse.js?v=f1533ad0"></script>

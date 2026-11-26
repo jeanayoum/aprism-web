@@ -180,21 +180,21 @@
     { id: "B-1", sev: "critical", day: "today", time: "09:48:12", stamp: "2026-10-13 09:48:12",
       title: "안전모 미착용 작업자 감지", wp: "WP-10", place: "지하발전소 B3 작업구역",
       mission: "터빈 정기점검", detect: "안전감지", robot: "R-07 · CAM-13", live: "ppe",
-      done: { day: "today", at: "09:54", by: "김현대", took: "발생 후 6분",
+      done: { day: "today", at: "09:54", by: (window.APRISM_NAME ? APRISM_NAME("op2") : "김현대"), took: "발생 후 6분",
               picked: ["전화 안내", "안전모 착용 확인"], memo: "작업반장 통화 · 즉시 착용 확인",
               delta: "AI 추천 그대로 사용 (전화 안내 · 안전모 착용 확인)" } },
 
     { id: "B-2", sev: "critical", day: "today", time: "09:36:40", stamp: "2026-10-13 09:36:40",
       title: "위험 구역 내 작업자 체류", wp: "WP-11", place: "지하발전소 B3 방호문 안쪽",
       mission: "설비 순회", detect: "안전감지", robot: "R-05 · CAM-04", live: "ppe",
-      done: { day: "today", at: "09:41", by: "홍길동", took: "발생 후 5분",
+      done: { day: "today", at: "09:41", by: (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동"), took: "발생 후 5분",
               picked: ["작업 중지 요청", "현장 확인"], memo: "설비 2팀 자재 반입 중 · 통제선 재설치",
               delta: "AI 추천 그대로 사용 (작업 중지 요청 · 현장 확인)" } },
 
     { id: "B-3", sev: "critical", day: "yesterday", time: "어제 23:51", stamp: "2026-10-12 23:51:07",
       title: "작업자 쓰러짐 의심", wp: "WP-15", place: "지하발전소 B4 펌프실",
       mission: "설비 순회", detect: "안전감지", robot: "R-05 · CAM-09", live: "deid",
-      done: { day: "today", at: "08:33", by: "김현대", took: "발생 후 8시간 42분",
+      done: { day: "today", at: "08:33", by: (window.APRISM_NAME ? APRISM_NAME("op2") : "김현대"), took: "발생 후 8시간 42분",
               picked: ["현장 확인", "전화 안내"],
               memo: "야간 무인 구간 · 교대 인수 뒤 현장 확인. 쪼그려 작업으로 확인됨",
               delta: "AI 추천 가운데 일부만 사용 (현장 확인)" } },
@@ -216,14 +216,14 @@
     { id: "B-6", sev: "warning", day: "today", time: "08:52:49", stamp: "2026-10-13 08:52:49",
       title: "배관 결로 과다", wp: "WP-03", place: "지하발전소 B3 냉각수 배관",
       mission: "터빈 정기점검", detect: "누출감지", robot: "R-07 · CAM-06", live: "discharge",
-      done: { day: "today", at: "09:02", by: "홍길동", took: "발생 후 10분",
+      done: { day: "today", at: "09:02", by: (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동"), took: "발생 후 10분",
               picked: ["오탐 처리"], memo: "누출 아님 · 결로로 확인",
               delta: "AI 추천을 쓰지 않음 (추천: 현장 점검 요청)" } },
 
     { id: "B-7", sev: "critical", day: "yesterday", time: "어제 16:05", stamp: "2026-10-12 16:05:22",
       title: "출입 제한구역 무단 진입 감지", wp: "WP-17", place: "지하발전소 B4 고압반실",
       mission: "전기실 순회", detect: "안전감지", robot: "R-02 · CAM-11", live: "ppe",
-      done: { day: "yesterday", at: "16:07", by: "홍길동", took: "발생 후 2분",
+      done: { day: "yesterday", at: "16:07", by: (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동"), took: "발생 후 2분",
               picked: ["작업 중지 요청"], memo: "협력사 인원 · 출입 교육 재안내",
               delta: "AI 추천 그대로 사용 (작업 중지 요청)" } },
 
@@ -237,14 +237,14 @@
     { id: "B-9", sev: "warning", day: "yesterday", time: "어제 14:27", stamp: "2026-10-12 14:27:58",
       title: "바닥 물고임 감지", wp: "WP-15", place: "지하발전소 B4 펌프실",
       mission: "설비 순회", detect: "외관검사", robot: "R-05 · CAM-09", live: "discharge",
-      done: { day: "yesterday", at: "14:40", by: "김현대", took: "발생 후 13분",
+      done: { day: "yesterday", at: "14:40", by: (window.APRISM_NAME ? APRISM_NAME("op2") : "김현대"), took: "발생 후 13분",
               picked: ["현장 확인"], memo: "배수구 막힘 · 청소 요청",
               delta: "AI 추천 가운데 일부만 사용 (현장 확인)" } },
 
     { id: "B-10", sev: "critical", day: "d-1011", time: "09:02:31", stamp: "2026-10-11 09:02:31",
       title: "가스 농도 경보 연동", wp: "WP-09", place: "옥외 저장탱크 T-3 밸브실",
       mission: "옥외 저장탱크 순찰", detect: "가스감지", robot: "R-03 · CAM-01", live: "discharge",
-      done: { day: "d-1011", at: "09:05", by: "홍길동", took: "발생 후 3분",
+      done: { day: "d-1011", at: "09:05", by: (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동"), took: "발생 후 3분",
               picked: ["현장 확인", "작업 중지 요청"], memo: "고정식 감지기 경보와 동시 · 환기 뒤 정상",
               delta: "AI 추천 그대로 사용 (현장 확인 · 작업 중지 요청)" } },
 
@@ -729,7 +729,7 @@
     ALERTS.forEach(function (a) {
       var r = R[a.id];
       if (r && !a.done) {
-        a.done = { day: "today", at: r.t.slice(0, 5), by: r.who || "홍길동", took: took7(a.time, r.t), picked: (r.how || []).slice(),
+        a.done = { day: "today", at: r.t.slice(0, 5), by: r.who || (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동"), took: took7(a.time, r.t), picked: (r.how || []).slice(),
                    memo: r.memo || "", delta: deltaUse(a, r.how || []), reqId: a.id };
       } else if (!r && a.done && a.done.reqId) {
         delete a.done;
@@ -1117,7 +1117,7 @@
     if (btn) {
       btn.addEventListener("click", function () {
         var acts = chosenOf(a).slice();
-        a.done = { day: "today", at: nowHM(), by: "홍길동", took: "방금",
+        a.done = { day: "today", at: nowHM(), by: (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동"), took: "방금",
                    picked: acts, memo: state.memo[a.id] || "", delta: deltaUse(a, acts) };
         // [11/10 v7] 조치 요청 기록 한 곳에 남긴다 — 관제 · 안전진단도 요청됨으로 본다
         var S7r = window.APRISM_ALERTS7;

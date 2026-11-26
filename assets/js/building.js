@@ -144,11 +144,11 @@
   if (body.classList.contains("ver-6")) { ALERTS.forEach(function (al) { if (al.title === "진동 상승 · 냉각 펌프 P-2") { al.title = "이상음향 · 이상 점수 21.6"; } var T = { "이상음향 · 이상 점수 21.6": "09:56:05", "부분방전 · 이상 점수 9.41": "09:36:42", "과열 · 발전기 베어링 68.4℃": "09:20:14" }; if (T[al.title]) { al.time = T[al.title]; } }); }   // 시각도 경로 차례로(monitor.js 와 같다)
 
   var DONE = [
-    { time: "10:29:10", title: "온도감지 · WP-03 펌프 하우징", how: "추이 관찰 · 다음 순회 재측정", who: "김현대" },
-    { time: "10:18:52", title: "소음 이상 · 변압기 TR-1", how: "현장 점검 요청 · 이상 없음", who: "김현대" },
-    { time: "10:02:31", title: "진동감지 · WP-02 터빈1 베어링", how: "추이 관찰 · 다음 순회 재측정", who: "홍길동" },
-    { time: "09:47:15", title: "온도감지 · WP-03 펌프 하우징", how: "현장 점검 요청 · 이상 없음", who: "홍길동" },
-    { time: "09:30:08", title: "누유 흔적 · 유압 유닛 HU-2", how: "청소 후 재측정 · 정상", who: "김현대" }
+    { time: "10:29:10", title: "온도감지 · WP-03 펌프 하우징", how: "추이 관찰 · 다음 순회 재측정", who: (window.APRISM_NAME ? APRISM_NAME("op2") : "김현대") },
+    { time: "10:18:52", title: "소음 이상 · 변압기 TR-1", how: "현장 점검 요청 · 이상 없음", who: (window.APRISM_NAME ? APRISM_NAME("op2") : "김현대") },
+    { time: "10:02:31", title: "진동감지 · WP-02 터빈1 베어링", how: "추이 관찰 · 다음 순회 재측정", who: (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동") },
+    { time: "09:47:15", title: "온도감지 · WP-03 펌프 하우징", how: "현장 점검 요청 · 이상 없음", who: (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동") },
+    { time: "09:30:08", title: "누유 흔적 · 유압 유닛 HU-2", how: "청소 후 재측정 · 정상", who: (window.APRISM_NAME ? APRISM_NAME("op2") : "김현대") }
   ];
   // [11/03 v6] 오늘 확인 완료도 관제 미션(monitor.js DONE6)과 같은 기록 — 감지 6종 · "감지 · 측정 항목 + 값", 처리 줄 끝에 지점 번호, 첫 기록 10:19(시계 10:20 앞)
   if (V6) {
@@ -160,8 +160,8 @@
   var DONE_ST = { wait: "현장 응답 대기", work: "현장 조치 중", done: "조치 완료" };
   if (V7B) {
     DONE = [
-      { time: "10:08:30", title: "이상음향 점수 19.6", wp: "WP-02", how: "현장 점검 요청", st: "work", to: "설비팀 박지훈", mission: "정기 순회 점검" },
-      { time: "10:05:12", title: "최고 온도 44.2 ℃", wp: "WP-01", how: "다음 순회 재측정", st: "done", to: "설비팀 박지훈", mission: "정기 순회 점검", res: "정상" }
+      { time: "10:08:30", title: "이상음향 점수 19.6", wp: "WP-02", how: "현장 점검 요청", st: "work", to: ("설비팀 " + (window.APRISM_NAME ? APRISM_NAME("fe2") : "박지훈")), mission: "정기 순회 점검" },
+      { time: "10:05:12", title: "최고 온도 44.2 ℃", wp: "WP-01", how: "다음 순회 재측정", st: "done", to: ("설비팀 " + (window.APRISM_NAME ? APRISM_NAME("fe2") : "박지훈")), mission: "정기 순회 점검", res: "정상" }
     ];
   }
   /*
@@ -174,7 +174,7 @@
       var r = a.id && R7[a.id];
       if (!r) { return true; }
       DONE.push({ time: r.t, title: window.APRISM_ALERT6 ? window.APRISM_ALERT6.title(a.title) : a.title, how: (r.how || []).join(" · "),
-                  who: r.who || "홍길동", wp: (/WP-\d+/.exec(a.where) || [""])[0], reqId: a.id, mission: a.mission });
+                  who: r.who || (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동"), wp: (/WP-\d+/.exec(a.where) || [""])[0], reqId: a.id, mission: a.mission });
       return false;
     });
     DONE.sort(function (x, y) { return x.time < y.time ? 1 : x.time > y.time ? -1 : 0; });

@@ -5,9 +5,10 @@
 <head>
   <meta charset="UTF-8" />
   <!-- v7(11/06~) — v6 화면 복제. 화면 사이 *-v6.html 주소를 v7 로 잇는다(v7.js). 영문판은 이 줄을 빼고 만든다 -->
-  <script src="../assets/js/v7.js?v=47c74fc4"></script>
+  <script src="../assets/js/demo-base-v7.js?v=3087c915"></script>
+  <script src="../assets/js/v7.js?v=546bac0b"></script>
   <!-- [11/10] 알림 데이터 한 곳 — 관제 · 안전진단 · 알림 센터 · 전체 미션이 같은 알림 12건을 읽는다(alert-data-v7.js) -->
-  <script src="../assets/js/alert-data-v7.js?v=b7564d22"></script>
+  <script src="../assets/js/alert-data-v7.js?v=868e515b"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>v7 안전진단 — APRISM</title>
   <meta name="description" content="안전진단 — 순회 미션마다 감지 6종(안전 · 누출 · 온도 · 계기 · 이상음향 · 부분방전)의 판정을 카드 · 표로 보고, 자세히 보기에서 근거를 확인해 현장 조치를 요청한다." />
@@ -65,7 +66,7 @@
         <button type="button" class="account-chip" data-menu-trigger
                 aria-haspopup="true" aria-expanded="false">
           <span class="i i-16" style="--i:var(--ic-user)" aria-hidden="true"></span>
-          <span class="t-label-2">홍길동</span>
+          <span class="t-label-2" data-base="me">홍길동</span>
           <span class="t-label-2 account-sep" aria-hidden="true">|</span>
           <span class="t-label-2">관제운영</span>
         </button>
@@ -165,7 +166,7 @@
 <script src="../assets/js/mini-routes.js?v=6dc0477d"></script>
 <script src="../assets/js/mini-plan.js?v=12b3a704"></script>
 <script src="../assets/js/verdict-v6.js?v=ee80312a"></script>
-<script src="../assets/js/safety.js?v=e8578c9a"></script>
+<script src="../assets/js/safety.js?v=765485e3"></script>
 <!-- [10/30 v6] 상단 미션 탭(관제 · 통합 순회 현황과 같다) — safety.js 가 그린 미션 메뉴를 읽는다 -->
 <script src="../assets/js/mission-tabs-v6.js?v=f01a8890"></script>
 </body>

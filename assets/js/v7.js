@@ -180,7 +180,7 @@ document.addEventListener("DOMContentLoaded", function () {
   var labels = chip ? chip.querySelectorAll(".t-label-2") : [];
   var who = ss.get("aprism.who");
   if (who && labels[0]) { labels[0].textContent = who; }
-  function me() { return labels[0] ? labels[0].textContent.trim() : "홍길동"; }
+  function me() { return labels[0] ? labels[0].textContent.trim() : (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동"); }
   function role() { return labels[2] ? labels[2].textContent.trim() : "관제운영"; }
 
   // ---------- 메뉴 항목 ----------
