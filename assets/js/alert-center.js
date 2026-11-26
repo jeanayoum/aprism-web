@@ -530,6 +530,12 @@
    * HH:MM:SS 꼴일 때만 떼고, "어제 23:51" 처럼 이미 짧은 것은 그대로 둔다.
    */
   function shortTime(t) { return t.replace(/^(\d{1,2}:\d{2}):\d{2}$/, "$1"); }
+  // v7 조치 요청된 알림 발생 칸: 날짜 줄과 같은 날이면 시:분:초만(초는 stamp 에서), 다른 날이면 time 그대로("어제 23:51")
+  function occTime(a) {
+    if (!a.done || a.day !== a.done.day) { return a.time; }
+    var s = /(\d{1,2}:\d{2}:\d{2})$/.exec(a.stamp || "");
+    return s ? s[1] : a.time.replace(/^.*\s(?=\d{1,2}:\d{2})/, "");
+  }
 
   function doneRow(a, sel) {
     var d = a.done;
@@ -538,12 +544,13 @@
           ' tabindex="' + (sel ? "0" : "-1") + '" aria-selected="' + (sel ? "true" : "false") + '">' +
           '<span class="ac-dc-check" aria-hidden="true"></span>' +   // 체크 자리 빈칸(열 머리와 같음)
           // [11/26 디자이너] 발생, 조치 시각 = 조치 필요 탭 발생과 같은 글자(.ac-mono)
-          '<span class="ac-dc-occ ac-mono" role="gridcell">' + esc(a.time) + '</span>' +
+          // [11/26 디자이너] 날짜는 날짜 줄이 맡으니 발생 칸은 시각만. 조치한 날과 발생한 날이 다를 때만 "어제" 같은 날짜를 남긴다
+          '<span class="ac-dc-occ ac-mono" role="gridcell">' + esc(occTime(a)) + '</span>' +
           '<span class="ac-dc-time ac-mono" role="gridcell">' + esc(d.at) + '</span>' +
           '<span class="ac-dc-sev t-caption" role="gridcell">' + window.ds.badge(a.sev === "critical" ? "crit" : "warn", SEV_LABEL[a.sev], { plain: true, icon: null }) + '</span>' +   // [11/26 디자이너] 목록 원 등급은 글자만(삼각형 뺌)
           '<span class="ac-dc-body" role="gridcell"><span class="ac-dc-title t-label-2">' + esc(titleOf(a)) + '</span></span>' +
-          // [11/26 디자이너] 조치가 둘 이상이면 첫 조치 + "외 n건"(목록에서 잘리지 않게). 전체는 상세 처리 정보 "조치" 줄
-          '<span class="ac-dc-acts t-caption" role="gridcell">' + esc(d.picked[0] || "") + (d.picked.length > 1 ? ' <span class="ac-dc-more">외 ' + (d.picked.length - 1) + '건</span>' : "") + '</span>' +
+          // [11/26 디자이너] 목록은 첫 조치 하나만("외 n건" 없음). 전체는 상세 처리 정보 "조치" 줄
+          '<span class="ac-dc-acts t-caption" role="gridcell">' + esc(d.picked[0] || "") + '</span>' +
           '<span class="ac-dc-stage t-caption" role="gridcell">' + stageHtml(a, false) + '</span>' +
           '<span class="ac-dc-who t-caption" role="gridcell">' + esc(d.by) + '</span>' +
         '</div>';
