@@ -260,13 +260,11 @@
     function wpLab(svg, x, w) { txt(svg, x, 84, w.wp.replace('WP-', ''), { 'text-anchor': 'middle', 'font-size': 12, 'font-weight': w.cur ? 700 : 500, fill: w.plan ? C.t3 : w.cur ? C.t2 : C.t3, opacity: w.plan ? .5 : 1 }); }
     // 기준이 하나인 값(누출 · 이상음향 · 부분방전) — 지점마다 세그먼트 기둥 8칸: 0 ~ 주의 5칸(파랑 명도), 주의 ~ 위험 2칸(노랑), 위험 1칸(빨강). 값까지 켜고 나머지는 어둡게
     function cardB(id, o) {
-      var svg = shell(id, o), SEG = 8, sh = 6.5, gap = 1.5, bot = 64, X = slots(), bw = 30;
+      var svg = shell(id, o), SEG = 8, sh = 5.85, gap = 1.5, bot = 64, X = slots(), bw = 30;
       var segY = function (k) { return bot - (k + 1) * sh - k * gap; };
       var segCol = function (k) { return k < 5 ? BLUE[k] : k < 7 ? C.warn : C.crit; };
       var lit = function (x) { return x >= o.crit ? 8 : x >= o.warn ? 5 + Math.min(2, Math.ceil(2 * (x - o.warn) / (o.crit - o.warn)) || 1) : Math.max(1, Math.ceil(5 * x / o.warn)); };
       // 기준 이름표: 주의 = 5번째 칸 위, 위험 = 8번째 칸 아래 경계
-      txt(svg, 0, segY(4) - gap / 2 + 4.5, o.warn, { fill: v('--status-warning-text'), 'font-size': 13 });
-      txt(svg, 0, segY(6) - gap / 2 + 4.5, o.crit, { fill: v('--status-critical-text'), 'font-size': 13 });
       var gf = glow(svg, id + 'gl');
       o.wps.forEach(function (w, i) {
         var x = X(i), n = w.plan ? 0 : lit(w.v), bad = !w.plan && w.v >= o.warn;
@@ -278,6 +276,13 @@
         }
         wpLab(svg, x, w);
       });
+      warnLine(svg, o.warn);
+    }
+    // 공통 기준선(11/26): 주의 = 노란 점선 한 줄, 세 카드(누출 · 이상음향 · 부분방전) 모두 y 28 — 위험은 칸 · 점 색(빨강)으로
+    var WARN_Y = 28;
+    function warnLine(svg, val) {
+      el(svg, 'line', { x1: 24, x2: 381, y1: WARN_Y, y2: WARN_Y, stroke: C.warn, 'stroke-width': 1.2, 'stroke-dasharray': '4 3', opacity: .85 });
+      txt(svg, 0, WARN_Y + 4.5, val, { fill: v('--status-warning-text'), 'font-size': 13 });
     }
     // 0 ~ 주의 = 0 ~ .6, 주의 ~ 위험 = .6 ~ .9, 위험 넘음 = 1 (지점마다 기준이 달라도 같은 자리)
     function ratio(x, wv, cv) { return x <= wv ? .6 * x / wv : x < cv ? .6 + .3 * (x - wv) / (cv - wv) : 1; }
@@ -288,11 +293,9 @@
     }
     // 누출 — 물방울이 아래부터 차오름. 문제 지점은 바닥에 물결
     function dropB(id, o) {
-      var svg = shell(id, o), X = slots(), gf = glow(svg, id + 'gl'), top = 8, bot = 62, H = bot - top;
+      var svg = shell(id, o), X = slots(), gf = glow(svg, id + 'gl'), top = 4, bot = 64, H = bot - top;
       var dp = function (x) { return 'M' + x + ' ' + top + ' C' + (x + 3) + ' ' + (top + 11) + ' ' + (x + 15) + ' ' + (top + 23) + ' ' + (x + 15) + ' ' + (bot - 15) +
         ' A15 15 0 0 1 ' + (x - 15) + ' ' + (bot - 15) + ' C' + (x - 15) + ' ' + (top + 23) + ' ' + (x - 3) + ' ' + (top + 11) + ' ' + x + ' ' + top + 'Z'; };
-      txt(svg, 0, bot - .6 * H + 4.5, o.warn, { fill: v('--status-warning-text'), 'font-size': 13 });
-      txt(svg, 0, bot - .9 * H + 4.5, o.crit, { fill: v('--status-critical-text'), 'font-size': 13 });
       o.wps.forEach(function (w, i) {
         var x = X(i), cid = id + 'c' + i;
         if (w.plan) { el(svg, 'path', { d: dp(x), fill: DARK, opacity: .45 }); wpLab(svg, x, w); return; }
@@ -309,6 +312,7 @@
         el(g, 'ellipse', { cx: x - 6, cy: bot - 16, rx: 2.2, ry: 6, fill: '#FFFFFF', opacity: .22 });   // 윤기
         wpLab(svg, x, w);
       });
+      warnLine(svg, o.warn);
     }
     // 온도 — 지점마다 열 덩어리: 기준에 가까울수록 크고 진함, 점선 고리 = 주의 크기(지점마다 자기 기준)
     function heatB(id, o) {
@@ -330,9 +334,6 @@
     function dotB(id, o) {
       var svg = shell(id, o), X = slots(), top = 4, bot = 64, R0 = rnd(7);
       var Y = function (x) { return bot - (bot - top) * ratio(x, o.warn, o.crit); };
-      [[o.warn, v('--status-warning-text')], [o.crit, v('--status-critical-text')]].forEach(function (t) {
-        el(svg, 'line', { x1: 24, x2: 381, y1: Y(t[0]), y2: Y(t[0]), stroke: GRID, 'stroke-width': 1, 'stroke-dasharray': '2 4', opacity: .8 });
-        txt(svg, 0, Y(t[0]) + 4.5, t[0], { fill: t[1], 'font-size': 13 }); });
       o.wps.forEach(function (w, i) {
         var x = X(i);
         if (w.plan) { for (var k = 0; k < 6; k++) { el(svg, 'circle', { cx: x - 10 + (k % 3) * 10, cy: bot - 3 - Math.floor(k / 3) * 7, r: 1.6, fill: DARK }); } wpLab(svg, x, w); return; }
@@ -345,6 +346,7 @@
         el(svg, 'line', { x1: x - 14, x2: x + 14, y1: yv, y2: yv, stroke: C.t2, 'stroke-width': 1.5, 'stroke-linecap': 'round', opacity: .8 });   // 최대 크기
         wpLab(svg, x, w);
       });
+      warnLine(svg, o.warn);
     }
 
     // ---------- 장비착용 · 계기인식(디자이너 안) ----------
@@ -393,23 +395,23 @@
       el(svg, 'circle', { cx: pv[0], cy: pv[1], r: 4.5, fill: '#FFFFFF', stroke: o.st === 'crit' ? C.crit : o.st === 'warn' ? C.warn : C.b3, 'stroke-width': 2 });
       txt(svg, 8, 76, o.lo + ' ' + o.ax, { 'font-size': 11 }); txt(svg, 373, 76, o.hi + ' ' + o.ax, { 'font-size': 11, 'text-anchor': 'end' });
     }
-    // 계기인식 B — 지점마다 작은 반원 계기판: 정상 구간 호(파랑) · 위험 구간 호(빨강) · 바늘(판정 색)
+    // 계기인식 B — 정상 범위 가운데를 기준선으로, 벗어난 만큼 위(높음) · 아래(낮음)로 갈라지는 막대. 정상 범위 = 옅은 파랑 띠, 위험 넘으면 빨강
     function gaugeB(id, o) {
-      var svg = shell(id, o), X = slots(), cy = 44, r = 19, gf = glow(svg, id + 'gl');
-      var T = function (val) { return Math.PI * Math.max(0, Math.min(1, (val - o.lo) / (o.hi - o.lo))); };
-      var P = function (x, t, rr) { return [x - rr * Math.cos(t), cy - rr * Math.sin(t)]; };
-      function arc(x, v1, v2, col, sw, op) { var a = P(x, T(v1), r), b = P(x, T(v2), r);
-        el(svg, 'path', { d: 'M' + a[0].toFixed(1) + ' ' + a[1].toFixed(1) + ' A' + r + ' ' + r + ' 0 0 1 ' + b[0].toFixed(1) + ' ' + b[1].toFixed(1), fill: 'none', stroke: col, 'stroke-width': sw, 'stroke-linecap': 'butt', opacity: op }); }
+      var svg = shell(id, o), X = slots(), mid = (o.ok[0] + o.ok[1]) / 2, cy = 40, k = 28 / (o.crit - mid), bw = 24, gf = glow(svg, id + 'gl');
+      var Y = function (val) { return Math.max(4, Math.min(64, cy - (val - mid) * k)); };   // 정상 범위 · 위험 근처를 크게(끝은 자름)
+      el(svg, 'rect', { x: 24, y: Y(o.ok[1]), width: 357, height: Y(o.ok[0]) - Y(o.ok[1]), fill: BLUE[3], opacity: .12 });
+      el(svg, 'line', { x1: 24, x2: 381, y1: Y(o.crit), y2: Y(o.crit), stroke: C.crit, 'stroke-width': 1, 'stroke-dasharray': '2 3', opacity: .6 });
+      el(svg, 'line', { x1: 24, x2: 381, y1: cy, y2: cy, stroke: C.t3, 'stroke-width': 1.2, 'stroke-dasharray': '4 3', opacity: .8 });
+      txt(svg, 0, Y(o.ok[1]) + 4, o.ok[1].toFixed(1), { fill: C.b3, 'font-size': 12 }); txt(svg, 0, Y(o.ok[0]) + 4, o.ok[0].toFixed(1), { fill: C.b3, 'font-size': 12 });
       o.wps.forEach(function (w, i) {
         var x = X(i);
-        arc(x, o.lo, o.hi, DARK, 7, w.plan ? .45 : .9);
-        if (w.plan) { wpLab(svg, x, w); return; }
-        arc(x, o.ok[0], o.ok[1], BLUE[3], 7, .85); arc(x, o.crit, o.hi, C.crit, 7, .6);
-        var s2 = w.v >= o.crit ? 'crit' : (w.v < o.ok[0] || w.v > o.ok[1]) ? 'warn' : 'ok', col = s2 === 'ok' ? C.t2 : stCol(s2), q = P(x, T(w.v), r + 3);
-        if (w.cur && s2 !== 'ok') { el(svg, 'line', { x1: x, y1: cy, x2: q[0], y2: q[1], stroke: col, 'stroke-width': 5, opacity: .7, filter: gf }); }
-        el(svg, 'line', { x1: x, y1: cy, x2: q[0], y2: q[1], stroke: col, 'stroke-width': 2, 'stroke-linecap': 'round' });
-        el(svg, 'circle', { cx: x, cy: cy, r: 3, fill: col });
-        txt(svg, x, cy + 17, w.v.toFixed(2), { 'text-anchor': 'middle', 'font-size': 11, fill: s2 === 'ok' ? C.t3 : col });
+        if (w.plan) { el(svg, 'rect', { x: x - bw / 2, y: cy - 1.5, width: bw, height: 3, rx: 1.5, fill: DARK, opacity: .6 }); wpLab(svg, x, w); return; }
+        var s2 = w.v >= o.crit ? 'crit' : (w.v < o.ok[0] || w.v > o.ok[1]) ? 'warn' : 'ok', col = s2 === 'ok' ? BLUE[4] : stCol(s2);
+        var y = Y(w.v), y0 = Math.min(cy, y), h = Math.max(3, Math.abs(cy - y)); if (Math.abs(cy - y) < 3) { y0 = cy - 1.5; }
+        if (w.cur && s2 !== 'ok') { el(svg, 'rect', { x: x - bw / 2, y: y0, width: bw, height: h, rx: 3, fill: col, opacity: .7, filter: gf }); }
+        el(svg, 'rect', { x: x - bw / 2, y: y0, width: bw, height: h, rx: 3, fill: col, opacity: w.cur || s2 !== 'ok' ? 1 : .75 });
+        var up = w.v >= mid, side = up && y0 < 16;   // 위 끝에 닿으면 값은 막대 오른쪽
+        txt(svg, side ? x + bw / 2 + 3 : x, side ? y0 + 10 : up ? y0 - 4 : y0 + h + 11, w.v.toFixed(2), { 'text-anchor': side ? 'start' : 'middle', 'font-size': 11, fill: s2 === 'ok' ? C.t3 : v(s2 === 'crit' ? '--status-critical-text' : '--status-warning-text') });
         wpLab(svg, x, w);
       });
     }
