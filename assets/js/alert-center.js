@@ -536,7 +536,8 @@
           ' tabindex="' + (sel ? "0" : "-1") + '" aria-selected="' + (sel ? "true" : "false") + '">' +
           '<span class="ac-dc-sev t-caption" role="gridcell">' + window.ds.badge(a.sev === "critical" ? "crit" : "warn", SEV_LABEL[a.sev], { plain: true, icon: null }) + '</span>' +   // [11/26 디자이너] 목록 원 등급은 글자만(삼각형 뺌)
           '<span class="ac-dc-body" role="gridcell"><span class="ac-dc-title t-label-2">' + esc(titleOf(a)) + '</span></span>' +
-          '<span class="ac-dc-acts t-caption" role="gridcell">' + cells(d.picked) + '</span>' +
+          // [11/26 디자이너] 조치가 둘 이상이면 첫 조치 + "외 n건"(목록에서 잘리지 않게). 전체는 상세 처리 정보 "조치" 줄
+          '<span class="ac-dc-acts t-caption" role="gridcell">' + esc(d.picked[0] || "") + (d.picked.length > 1 ? ' <span class="ac-dc-more">외 ' + (d.picked.length - 1) + '건</span>' : "") + '</span>' +
           '<span class="ac-dc-stage t-caption" role="gridcell">' + stageHtml(a, false) + '</span>' +
           '<span class="ac-dc-occ t-caption" role="gridcell">' + esc(shortTime(a.time)) + '</span>' +
           '<span class="ac-dc-time t-caption" role="gridcell">' + esc(d.at) + '</span>' +
