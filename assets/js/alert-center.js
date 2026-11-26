@@ -458,7 +458,8 @@
     if (sortBox && sortBox.parentNode) { sortBox.parentNode.removeChild(sortBox); }
     colHead.innerHTML = state.tab === "done" && V7
       // [11/26 디자이너] v7 조치 요청된 알림 열: 원 등급 | 알림 | 조치 내용 | 진행상황 | 발생 | 조치 | 담당. 체크 칸 뺌, 조치 시각은 발생 옆 같은 글자
-      ? '<span class="ac-dc-sev" role="columnheader">원 등급</span>' +
+      ? '<span class="ac-dc-check" aria-hidden="true"></span>' +   // [11/26 디자이너] 체크는 뺐지만 자리(16)는 빈칸으로 남김 — 왼쪽으로 밀리지 않게
+        '<span class="ac-dc-sev" role="columnheader">원 등급</span>' +
         '<span class="ac-dc-body" role="columnheader">알림</span>' +
         '<span class="ac-dc-acts" role="columnheader">조치 내용</span>' +
         '<span class="ac-dc-stage" role="columnheader">진행상황</span>' +
@@ -534,6 +535,7 @@
     if (V7 && window.ds) {   // [11/26 디자이너] 열 머리와 같은 순서: 원 등급 | 알림 | 조치 내용 | 진행상황 | 발생 | 조치 | 담당
       return '<div class="ac-done-row is-v7cols" role="row" data-id="' + a.id + '" data-sev="' + a.sev + '"' +
           ' tabindex="' + (sel ? "0" : "-1") + '" aria-selected="' + (sel ? "true" : "false") + '">' +
+          '<span class="ac-dc-check" aria-hidden="true"></span>' +   // 체크 자리 빈칸(열 머리와 같음)
           '<span class="ac-dc-sev t-caption" role="gridcell">' + window.ds.badge(a.sev === "critical" ? "crit" : "warn", SEV_LABEL[a.sev], { plain: true, icon: null }) + '</span>' +   // [11/26 디자이너] 목록 원 등급은 글자만(삼각형 뺌)
           '<span class="ac-dc-body" role="gridcell"><span class="ac-dc-title t-label-2">' + esc(titleOf(a)) + '</span></span>' +
           // [11/26 디자이너] 조치가 둘 이상이면 첫 조치 + "외 n건"(목록에서 잘리지 않게). 전체는 상세 처리 정보 "조치" 줄
@@ -1242,10 +1244,11 @@
             '<dd class="t-body-4">' + ndHtml(it[1]) + '</dd></div>';
         }).join("") +
       '</dl>' +
-      '<div class="ac-handover-actions">' +
+      // [11/26 디자이너] v7 은 [초안 수정] [보고서에 넣기] 뺌
+      (V7 ? "" : '<div class="ac-handover-actions">' +
         '<button type="button" class="btn btn-secondary is-xs">초안 수정</button>' +
         '<button type="button" class="btn btn-primary is-xs">보고서에 넣기</button>' +
-      '</div>' +
+      '</div>') +
     '</section>';
 
     $("[data-ac-handover-close]", slot).addEventListener("click", function () {
