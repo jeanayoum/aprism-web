@@ -128,7 +128,8 @@
       return r;
     }
     function open(a) { return c.openA(a); }
-    function detailBtn(a) { return btn(a.sev === "critical" ? "위험 상세 확인" : "상세 확인", "is-pri", open(a)); }
+    // [11/26] 이름은 위험 단계와 상관없이 "상세 확인" 하나(디자이너)
+    function detailBtn(a) { return btn("상세 확인", "is-pri", open(a)); }
     // [11/26] [위치 보기]는 뺐다 — [상세 확인]과 같은 동작(알림 열기 = 지도 지점 + 팝오버)이라 하나로 줄임(디자이너)
 
     // 답 틀 — 제목(왼쪽)과 범위나 대상(오른쪽). 시각은 머리에 한 번만 둔다
