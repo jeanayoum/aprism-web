@@ -1048,11 +1048,7 @@
         '</div>' +
       '</section>') +
 
-      '<section class="ac-record-section">' +
-        '<h3 class="t-caption">메모</h3>' +
-        '<p class="ac-memo-box t-body-4' + (d.memo ? "" : " ac-memo-empty") + '">' +
-          (d.memo ? esc(d.memo) : (V7 ? "남긴 메모가 없어요" : "남긴 메모가 없습니다.")) + '</p>' +
-      '</section>' +
+      (V7 ? "" : memoSec) +   // [11/26 디자이너] v7 은 메모를 처리 정보 아래로
 
       '<section class="ac-record-section">' +
         '<h3 class="t-caption">처리 정보</h3>' +
@@ -1233,8 +1229,8 @@
         // [11/02 v6] Delta 표식은 DELTA 조치 제안 판과 같은 Delta 로고(예전 판은 cpu)
         '<span class="ac-handover-mark">' + icon(V6 ? "--ic-delta" : "--ic-cpu", 16) +
           '<span class="t-label-2">DELTA 인수인계 요약</span></span>' +
-        // [11/26 디자이너] v7 은 "조치 n건 기준" 뺌, 시간 범위만
-        '<span class="ac-handover-when t-caption">' + ndHtml(V7 ? String(HANDOVER.when).replace(/\s*·\s*조치\s*\d+건\s*기준/, "") : HANDOVER.when) + '</span>' +
+        // [11/26 디자이너] v7 은 시간 범위와 "조치 n건 기준" 둘 다 뺌(판 머리는 DELTA 인수인계 요약만)
+        (V7 ? "" : '<span class="ac-handover-when t-caption">' + ndHtml(HANDOVER.when) + '</span>') +
         '<span class="ac-head-spacer"></span>' +
         '<button type="button" class="btn btn-ghost is-xs" data-ac-handover-close>닫기</button>' +
       '</div>' +
