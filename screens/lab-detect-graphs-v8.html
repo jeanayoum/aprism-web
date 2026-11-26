@@ -59,6 +59,26 @@
     .eqt .tile span { font-size: 13px; line-height: 18px; font-weight: 500; }
     .eqt .tile.is-on { color: var(--text-primary); background: linear-gradient(180deg, #FF6B72, #B92B18);
       box-shadow: inset 0 3px 3px -2px rgb(255 255 255 / 14%), 0 0 18px rgb(255 90 82 / 25%), 0 8px 24px rgb(0 0 0 / 40%); }
+    /* 장비착용 B — 왼쪽 = 최근 지점 타일, 오른쪽 = 지나온 지점 목록(최근 순) */
+    .eqb { flex: 1; display: flex; gap: 8px; padding: 0 12px 12px; min-height: 0; }
+    .eqb .now { flex: none; width: 148px; display: flex; flex-direction: column; padding: 10px 12px; border-radius: 8px; color: var(--text-secondary);
+      background: linear-gradient(180deg, rgb(from var(--color-gray-750) r g b / 55%), var(--color-gray-600)); box-shadow: inset 0 1px 0 rgb(255 255 255 / 8%); }
+    .eqb .now.is-on { color: var(--text-primary); background: linear-gradient(180deg, #FF6B72, #B92B18);
+      box-shadow: inset 0 3px 3px -2px rgb(255 255 255 / 14%), 0 0 18px rgb(255 90 82 / 25%), 0 8px 24px rgb(0 0 0 / 40%); }
+    .eqb .now .t { font-size: 12px; line-height: 16px; font-weight: 600; opacity: .85; }
+    .eqb .now .m { flex: 1; display: flex; align-items: center; gap: 6px; }
+    .eqb .now .m b { font-size: 40px; line-height: 44px; font-weight: 600; letter-spacing: -0.02em; }
+    .eqb .now .m small { font-size: 16px; font-weight: 600; margin-left: 1px; }
+    .eqb .now .m svg { width: 34px; height: 34px; margin-left: auto; opacity: .9; }
+    .eqb .now .s { font-size: 13px; line-height: 18px; font-weight: 700; }
+    .eqb .list { flex: 1; min-width: 0; display: flex; flex-direction: column; border-radius: 8px; padding: 4px 10px; background: rgb(from var(--color-gray-950) r g b / 35%); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 6%); }
+    .eqb .row { display: flex; align-items: center; gap: 6px; height: 30px; font-size: 13px; line-height: 18px; color: var(--text-secondary); }
+    .eqb .row + .row { border-top: 1px solid rgb(255 255 255 / 6%); }
+    .eqb .row .w { flex: none; font-family: var(--font-family-mono); font-size: 12px; font-weight: 600; color: var(--text-tertiary); width: 18px; }
+    .eqb .row .l { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .eqb .row .r { flex: none; font-weight: 600; color: var(--text-tertiary); }
+    .eqb .row.is-bad .w, .eqb .row.is-bad .r { color: var(--status-critical-text); } .eqb .row.is-bad .l { color: var(--text-primary); }
+    .eqb .more { margin-top: auto; padding-top: 2px; font-size: 12px; color: var(--text-tertiary); }
     .gv { display: flex; justify-content: center; align-items: flex-end; gap: 2px; }
     .gv .num { font-size: 48px; line-height: 56px; font-weight: 600; letter-spacing: -0.02em; }
     .gv .u { font-family: var(--font-family-mono); font-size: 20px; line-height: 28px; font-weight: 500; margin-bottom: 7px; }
@@ -345,20 +365,18 @@
         var on = t[1] > 0; return '<div class="tile' + (on ? ' is-on' : '') + '"><b>' + t[1] + '명</b>' + EQ_ICON[t[2]].replace('fill="currentColor"', on && t[2] === 'helmet' ? 'fill="url(#hg)"' : 'fill="currentColor"') + '<span>' + t[0] + '</span></div>';
       }).join('') + '</div>');
     }
-    // 장비착용 B — 지점마다 동그라미(안에 지점 번호): 미착용 있으면 빨강으로 채움, 다 착용은 파랑 테두리, 안 잰 지점은 어둡게. 아래 = 인원
+    // 장비착용 B — 날씨 위젯 꼴: 왼쪽 = 최근 지점 타일(미착용 있으면 빨강), 오른쪽 = 지나온 지점 목록(최근 순 4줄, 미착용 줄은 빨강 글자, 넘치면 +N)
     function equipB(id, o) {
-      var svg = shell(id, o), X = slots(), cy = 36, r = 19, gf = glow(svg, id + 'gl');
-      o.wps.forEach(function (w, i) {
-        var x = X(i);
-        if (w.plan) { el(svg, 'circle', { cx: x, cy: cy, r: r, fill: DARK, opacity: .45 });
-          txt(svg, x, cy + 4.5, w.wp.replace('WP-', ''), { 'text-anchor': 'middle', 'font-size': 13, 'font-weight': 600, opacity: .5 }); return; }
-        var bad = w.bad > 0;
-        if (bad && w.cur) { el(svg, 'circle', { cx: x, cy: cy, r: r, fill: C.crit, opacity: .7, filter: gf }); }
-        if (bad) { el(svg, 'circle', { cx: x, cy: cy, r: r, fill: C.crit }); }
-        else { el(svg, 'circle', { cx: x, cy: cy, r: r - 1.5, fill: DARK, stroke: BLUE[3], 'stroke-width': 3 }); }
-        txt(svg, x, cy + 4.5, w.wp.replace('WP-', ''), { 'text-anchor': 'middle', 'font-size': 13, 'font-weight': 700, fill: bad ? '#FFFFFF' : C.t2 });
-        txt(svg, x, 84, bad ? '미착용 ' + w.bad : w.total + '명', { 'text-anchor': 'middle', 'font-size': 12, 'font-weight': bad ? 700 : 500, fill: bad ? v('--status-critical-text') : C.t3 });
-      });
+      var done = o.wps.filter(function (w) { return !w.plan; }), now = done[done.length - 1], past = done.slice(0, -1).reverse();
+      var bad = now.miss.length > 0, ROWS = 4;
+      var tile = '<div class="now' + (bad ? ' is-on' : '') + '"><span class="t">최근 · WP-' + now.wp.replace('WP-', '') + '</span>' +
+        '<div class="m"><b>' + (bad ? now.miss[0][1] : 0) + '<small>명</small></b>' + (bad ? EQ_ICON[now.miss[0][2]] : '') + '</div>' +
+        '<span class="s">' + (bad ? now.miss[0][0] + ' 미착용' : '모두 착용 · ' + now.total + '명') + '</span></div>';
+      var rows = past.slice(0, ROWS).map(function (w) { var b = w.miss.length > 0;
+        return '<div class="row' + (b ? ' is-bad' : '') + '"><span class="w">' + w.wp.replace('WP-', '') + '</span><span class="l">' + w.at + '</span><span class="r">' +
+          (b ? w.miss.map(function (m) { return m[0] + ' ' + m[1]; }).join(' · ') : '착용 ' + w.total + '명') + '</span></div>'; }).join('');
+      var more = past.length > ROWS ? '<div class="more">+' + (past.length - ROWS) + ' 지점</div>' : '';
+      frame(id, o, '<div class="eqb">' + tile + '<div class="list">' + (rows || '<div class="more">지나온 지점 없음</div>') + more + '</div></div>');
     }
     // 계기인식 A — 디자이너 안: 위 넓은 다이얼(구간 색 · 눈금 · 경계 흰 표 · 값 점과 바늘), 아래 큰 값
     function gaugeA(id, o) {
@@ -396,19 +414,20 @@
       });
     }
 
-    cardB = fitB(cardB); dropB = fitB(dropB); heatB = fitB(heatB); dotB = fitB(dotB); equipB = fitB(equipB); gaugeB = fitB(gaugeB);
+    cardB = fitB(cardB); dropB = fitB(dropB); heatB = fitB(heatB); dotB = fitB(dotB); gaugeB = fitB(gaugeB);
 
     // ---------- 버전별 모음 자료(v8 코드 safety-v8.js 의 이번 미션 값) ----------
     var GZ = { lo: 0.4, hi: 1.0, ax: 'MPa', zones: [[0.4, 0.6, C.warn], [0.6, 0.8, C.b4], [0.8, 0.85, C.warn], [0.85, 1.0, C.crit]], marks: [0.6, 0.8, 0.85] };
-    equipA('gA-eq', { k: '장비착용', icon: 'var(--ic-cone)', std: '미착용 0명', st: 'crit', wp: 7, eq: '고소 작업 발판', n: '3/6', items: [['안전모', 0, 'helmet'], ['안전벨트', 1, 'vest'], ['안전화', 0, 'boot']] });
+    equipA('gA-eq', { k: '장비착용', icon: 'var(--ic-cone)', std: '미착용 0명', st: 'crit', wp: 7, eq: '고소 작업 발판', n: '5/8', items: [['안전모', 0, 'helmet'], ['안전벨트', 1, 'vest'], ['안전화', 0, 'boot']] });
     cardA('gA-leak', { k: '누출감지', icon: ICON.drop, std: '55% 미만', big: '21', unit: '%', gap: '-34%p', st: 'ok', wp: 5, eq: '냉각 펌프 P-2', n: '3/6', when: '최근 측정 · 10:13', v: 21, warn: 55, crit: 70, max: 100, ax: '%' });
     cardA('gA-sound', { k: '이상음향', icon: ICON.sound, std: '19.0 미만', big: '14.2', gap: '-4.8', st: 'ok', wp: 5, eq: '냉각 펌프 P-2', n: '2/6', when: '최근 측정 · 10:13', v: 14.2, warn: 19, crit: 22.8, max: 30 });
     cardA('gA-temp', { k: '온도감지', icon: ICON.temp, std: '45 ℃ 미만', big: '35.1', unit: '℃', gap: '-9.9', st: 'ok', wp: 6, eq: '수배전반 MCC-1', n: '3/7', when: '최근 측정 · 10:15', v: 35.1, warn: 45, crit: 60, max: 80, ax: ' ℃' });
     gaugeA('gA-gauge', Object.assign({ k: '계기인식', icon: 'var(--ic-gauge)', std: '0.60 ~ 0.80 MPa', big: '0.86', unit: 'MPa', st: 'crit', wp: 4, eq: 'N₂ 배관 압력계', n: '2/5', v: 0.86 }, GZ));
     cardA('gA-pd', { k: '부분방전', icon: ICON.bolt, std: '300 pC 미만', big: '142', unit: 'pC', gap: '-158', st: 'ok', wp: 6, eq: '수배전반 MCC-1', n: '1/4', when: '최근 측정 · 10:15', v: 142, warn: 300, crit: 600, max: 800, ax: ' pC' });
 
-    equipB('gB-eq', { k: '장비착용', icon: 'var(--ic-cone)', std: '미착용 0명', big: '1', unit: '명', gap: '안전벨트', st: 'crit', wp: 7, eq: '고소 작업 발판', n: '3/6',
-      wps: [{ wp: 'WP-01', bad: 0, total: 2 }, { wp: 'WP-03', bad: 0, total: 1 }, { wp: 'WP-07', bad: 1, total: 2, cur: 1 }, { wp: 'WP-12', plan: 1 }, { wp: 'WP-15', plan: 1 }, { wp: 'WP-18', plan: 1 }] });
+    equipB('gB-eq', { k: '장비착용', icon: 'var(--ic-cone)', std: '미착용 0명', st: 'crit', wp: 7, eq: '고소 작업 발판', n: '5/8',
+      wps: [{ wp: 'WP-01', at: '자재 하역장', total: 2, miss: [] }, { wp: 'WP-02', at: '배관 랙 하부', total: 1, miss: [] }, { wp: 'WP-04', at: '펌프실 입구', total: 3, miss: [['안전모', 1, 'helmet']] },
+        { wp: 'WP-05', at: '냉각탑 계단', total: 1, miss: [] }, { wp: 'WP-07', at: '고소 작업 발판', total: 2, miss: [['안전벨트', 1, 'vest']] }, { wp: 'WP-09', plan: 1 }, { wp: 'WP-12', plan: 1 }, { wp: 'WP-15', plan: 1 }] });
     dropB('gB-leak', { k: '누출감지', icon: ICON.drop, std: '55% 미만', big: '62', unit: '%', gap: '+7%p', st: 'warn', wp: 3, eq: '냉각수 배관 밸브', n: '3/10',
       warn: 55, crit: 70, max: 80, wps: [{ wp: 'WP-01', v: 8 }, { wp: 'WP-03', v: 62, cur: 1 }, { wp: 'WP-05', v: 21 }, { wp: 'WP-07', plan: 1 }, { wp: 'WP-10', plan: 1 }, { wp: 'WP-12', plan: 1 }, { wp: 'WP-14', plan: 1 }, { wp: 'WP-16', plan: 1 }, { wp: 'WP-17', plan: 1 }, { wp: 'WP-19', plan: 1 }] });
     cardB('gB-sound', { k: '이상음향', icon: ICON.sound, std: '19.0 미만', big: '14.2', gap: '-4.8', st: 'ok', wp: 5, eq: '냉각 펌프 P-2', n: '2/6',
