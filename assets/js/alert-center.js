@@ -202,14 +202,14 @@
     { id: "B-4", sev: "warning", day: "today", time: "09:20:11", stamp: "2026-10-13 09:20:11",
       title: "안전화 미착용 감지", wp: "WP-10", place: "지하발전소 B3 작업구역",
       mission: "터빈 정기점검", detect: "안전감지", robot: "R-07 · CAM-13", live: "ppe",
-      done: { day: "today", at: "09:26", by: "이수진", took: "발생 후 6분",
+      done: { day: "today", at: "09:26", by: (window.APRISM_NAME ? APRISM_NAME("op3") : "이수진"), took: "발생 후 6분",
               picked: ["전화 안내", "보호구 착용 확인"], memo: "",
               delta: "AI 추천 그대로 사용 (전화 안내 · 보호구 착용 확인)" } },
 
     { id: "B-5", sev: "warning", day: "today", time: "09:19:35", stamp: "2026-10-13 09:19:35",
       title: "소화기 지정 위치 이탈", wp: "WP-13", place: "지하발전소 B3 계단참",
       mission: "설비 순회", detect: "외관검사", robot: "R-05 · CAM-02", live: "discharge",
-      done: { day: "today", at: "09:26", by: "이수진", took: "발생 후 7분",
+      done: { day: "today", at: "09:26", by: (window.APRISM_NAME ? APRISM_NAME("op3") : "이수진"), took: "발생 후 7분",
               picked: ["현장 확인", "설비 담당 전달"], memo: "청소 중 이동 · 원위치 완료",
               delta: "AI 추천 그대로 사용 (현장 확인 · 설비 담당 전달)" } },
 
@@ -230,7 +230,7 @@
     { id: "B-8", sev: "warning", day: "yesterday", time: "어제 18:40", stamp: "2026-10-12 18:40:16",
       title: "진동 센서 값 상승", wp: "WP-12", place: "지하발전소 B3 냉각 펌프",
       mission: "터빈 정기점검", detect: "진동측정", robot: "R-07 · CAM-08", live: "discharge",
-      done: { day: "yesterday", at: "18:52", by: "이수진", took: "발생 후 12분",
+      done: { day: "yesterday", at: "18:52", by: (window.APRISM_NAME ? APRISM_NAME("op3") : "이수진"), took: "발생 후 12분",
               picked: ["설비 담당 전달"], memo: "",
               delta: "AI 추천 그대로 사용 (설비 담당 전달)" } },
 
@@ -251,7 +251,7 @@
     { id: "B-11", sev: "warning", day: "d-1011", time: "11:13:04", stamp: "2026-10-11 11:13:04",
       title: "안전모 미착용 작업자 감지", wp: "WP-04", place: "옥외 저장탱크 T-3 계단",
       mission: "옥외 저장탱크 순찰", detect: "안전감지", robot: "R-03 · CAM-05", live: "ppe",
-      done: { day: "d-1011", at: "11:15", by: "이수진", took: "발생 후 2분",
+      done: { day: "d-1011", at: "11:15", by: (window.APRISM_NAME ? APRISM_NAME("op3") : "이수진"), took: "발생 후 2분",
               picked: ["전화 안내", "보호구 착용 확인"], memo: "",
               delta: "AI 추천 그대로 사용 (전화 안내 · 보호구 착용 확인)" } }
   ];
@@ -530,6 +530,39 @@
    * HH:MM:SS 꼴일 때만 떼고, "어제 23:51" 처럼 이미 짧은 것은 그대로 둔다.
    */
   function shortTime(t) { return t.replace(/^(\d{1,2}:\d{2}):\d{2}$/, "$1"); }
+  // 감지 6종 아이콘(장비착용 고깔, 계기, 물방울, 온도계, 소리, 번개). 예전 데이터의 비슷한 감지 이름도 같은 아이콘으로
+  var DET_IC = { "안전감지": "cone", "계기인식": "gauge", "계기판독": "gauge", "압력측정": "gauge", "누출감지": "drop", "가스감지": "drop",
+    "온도감지": "thermometer", "열화상": "thermometer", "이상음향": "sound", "진동측정": "sound", "부분방전": "bolt" };
+  function detIcon(a) {
+    var k = DET_IC[a.detect];
+    return k ? '<span class="i i-16 ac-dc-ic" style="--i:var(--ic-' + k + ')" role="img" aria-label="' + esc(a.detect) + '"></span>' : "";
+  }
+  // [11/26 디자이너 "메모는 가운데점 없이, 진짜 사람이 남긴 것처럼"] v7 메모 문구. 데이터 파일은 v6 와 같이 쓰므로 v7 에서만 제목으로 바꿔 끼움
+  var MEMO7 = {
+    "부분방전 · 이상 점수 8.92": ("전기팀 " + (window.APRISM_NAME ? APRISM_NAME("el1") : "이도윤") + " 님께 전화로 요청함. 점심 뒤에 가 본다고 함"),
+    "온도감지 · 최고 온도 41.5 ℃": "설비팀이 가 봤는데 이상 없음. 오후에 햇볕 드는 쪽이라 조금 오르는 듯",
+    "누출감지 · 누출 의심도 58%": "바닥에 기름 자국 있어서 닦아 냄. 다시 쟀더니 정상",
+    "안전감지 · 안전모 미착용 1명": "협력사 야간 작업자였음. 반장님 통해 바로 쓰게 함",
+    "누출감지 · 누출 의심도 57%": "가 보니 결로였음. 누출 아님",
+    "계기인식 · 차압 298 Pa": "필터 갈고 나서 180 Pa까지 내려옴",
+    "온도감지 · 최고 온도 46.2 ℃": "오후 부하 나눠서 돌리기로 함. 다음 순회 때 다시 볼 것",
+    "온도감지 · 최고 온도 71.2 ℃": "냉각팬이 멈춰 있었음. 다시 돌리고 나서 정상으로 돌아옴",
+    "온도감지 · 최고 온도 66.1 ℃": "운전실에 부하 줄여 달라고 말해 둠. 다음 순회 값 꼭 확인",
+    "계기인식 · 압력 0.41 MPa": "계기 유리에 빛이 반사돼서 잘못 읽은 것. 직접 보니 정상"
+  };
+  // 조치 시각 전체(날짜 + 시:분). 발생 stamp 날짜에서 조치한 날까지 하루 단위로 더함(오늘 3, 어제 2 순위 차)
+  function doneStamp(a) {
+    var d = a.done || {}, m = /^(\d{4})-(\d{2})-(\d{2})/.exec(a.stamp || "");
+    if (!m) { return DAYS[d.day].label + " " + d.at; }
+    var diff = (DAYS[d.day] && DAYS[a.day]) ? DAYS[d.day].rank - DAYS[a.day].rank : 0;
+    var dt = new Date(+m[1], +m[2] - 1, +m[3] + Math.max(0, diff));
+    var p = function (n) { return (n < 10 ? "0" : "") + n; };
+    return dt.getFullYear() + "-" + p(dt.getMonth() + 1) + "-" + p(dt.getDate()) + " " + d.at;
+  }
+  function memoOf(a) {
+    var d = a.done || {};
+    return V7 && MEMO7[a.title] !== undefined ? MEMO7[a.title] : (d.memo || "");
+  }
   // v7 조치 요청된 알림 발생 칸: 날짜 줄과 같은 날이면 시:분:초만(초는 stamp 에서), 다른 날이면 time 그대로("어제 23:51")
   function occTime(a) {
     if (!a.done || a.day !== a.done.day) { return a.time; }
@@ -548,7 +581,8 @@
           '<span class="ac-dc-occ ac-mono" role="gridcell">' + esc(occTime(a)) + '</span>' +
           '<span class="ac-dc-time ac-mono" role="gridcell">' + esc(d.at) + '</span>' +
           '<span class="ac-dc-sev t-caption" role="gridcell">' + window.ds.badge(a.sev === "critical" ? "crit" : "warn", SEV_LABEL[a.sev], { plain: true, icon: null }) + '</span>' +   // [11/26 디자이너] 목록 원 등급은 글자만(삼각형 뺌)
-          '<span class="ac-dc-body" role="gridcell"><span class="ac-dc-title t-label-2">' + esc(titleOf(a)) + '</span></span>' +
+          // [11/26 디자이너] 알림 앞 감지 아이콘(감지 6종 세트, components-v7.css). 목록 색 규칙대로 회색
+          '<span class="ac-dc-body" role="gridcell">' + detIcon(a) + '<span class="ac-dc-title t-label-2">' + esc(titleOf(a)) + '</span></span>' +
           // [11/26 디자이너] 목록은 첫 조치 하나만("외 n건" 없음). 전체는 상세 처리 정보 "조치" 줄
           '<span class="ac-dc-acts t-caption" role="gridcell">' + esc(d.picked[0] || "") + '</span>' +
           '<span class="ac-dc-stage t-caption" role="gridcell">' + stageHtml(a, false) + '</span>' +
@@ -927,8 +961,8 @@
 
       '<section class="ac-record-section">' +
         '<h3 class="t-caption">메모</h3>' +
-        '<p class="ac-memo-box t-body-4' + (d.memo ? "" : " ac-memo-empty") + '">' +
-          (d.memo ? esc(d.memo) : (V7 ? "남긴 메모가 없어요" : "남긴 메모가 없습니다.")) + '</p>' +
+        '<p class="ac-memo-box t-body-4' + (memoOf(a) ? "" : " ac-memo-empty") + '">' +
+          (memoOf(a) ? esc(memoOf(a)) : (V7 ? "남긴 메모가 없어요" : "남긴 메모가 없습니다.")) + '</p>' +
       '</section>' +
 
       '<section class="ac-record-section">' +
@@ -951,8 +985,8 @@
   function head6(a, prefix, under) {
     var r = resOf(a);
     return '<div class="ac-d-title-block ac-d6-head' + (a.sev === "critical" ? " is-critical" : "") + '">' +
-      '<div class="ac-d6-top">' + sevBadge(a, prefix) +
-        '<span class="ac-d6-kind t-label-2">' + esc(a.detect) + '</span></div>' +
+      '<div class="ac-d6-top">' + (prefix === null ? "" : sevBadge(a, prefix)) +   // prefix null = 배지 없음
+        '<span class="ac-d6-kind t-label-2">' + (V7 ? detIcon(a) : "") + esc(a.detect) + '</span></div>' +   // [11/26 디자이너] v7 감지 이름 앞 감지 아이콘(목록과 같음)
       // [11/06 디자이너] 값 뒤 판정 — 관제 알림 팝오버 · 안전진단 상세와 같은 글(verdict-v6.js)
       '<h2 class="t-title-1 ac-d6-title">' + esc(r[0]) + (r[1] ? ' <b class="ac-d6-val">' + esc(r[1]) + '</b>' : "") +
         (function () { var vd = r[1] && window.APRISM_VERDICT && window.APRISM_VERDICT(a.detect, r[1]); return vd ? ' <span class="ac-d6-vd">' + esc(vd) + "</span>" : ""; })() + '</h2>' +
@@ -1037,17 +1071,20 @@
     var d = a.done;
     var memoSec = '<section class="ac-record-section">' +
         '<h3 class="t-caption">메모</h3>' +
-        '<p class="ac-memo-box t-body-4' + (d.memo ? "" : " ac-memo-empty") + '">' +
-          (d.memo ? esc(d.memo) : (V7 ? "남긴 메모가 없어요" : "남긴 메모가 없습니다.")) + '</p>' +
+        '<p class="ac-memo-box t-body-4' + (memoOf(a) ? "" : " ac-memo-empty") + '">' +
+          (memoOf(a) ? esc(memoOf(a)) : (V7 ? "남긴 메모가 없어요" : "남긴 메모가 없습니다.")) + '</p>' +
       '</section>';
     return '<div class="ac-record">' +
-      head6(a, V7 ? "" : "원 등급 ",   // [11/26 디자이너] v7 배지는 "주의"만(원 등급 뺌)
-        '<p class="ac-record-age">' +
+      head6(a, V7 ? null : "원 등급 ",   // [11/26 디자이너] v7 조치 요청된 알림은 위험, 주의 배지 없음(감지 이름만)
+        // [11/26 디자이너 "정보 위계"] v7 은 머리 아래 조치 줄을 뺌: 조치 시각은 발생 아래 같은 위계, 담당은 처리 정보 진행 옆
+        V7 ? "" : '<p class="ac-record-age">' +
           '<span class="ac-record-at t-label-1">' + esc(DAYS[d.day].label) + ' ' + esc(d.at) + '</span>' +
-          '<span class="ac-record-by t-caption">' + (V7 ? cells(['조치 ' + d.by, d.took]) : '조치 · ' + esc(d.by) + ' · ' + esc(d.took)) + '</span>' +
+          '<span class="ac-record-by t-caption">' + '조치 · ' + esc(d.by) + ' · ' + esc(d.took) + '</span>' +
         '</p>') +
       snap6(a,
         metaRow("발생", '<span class="ac-mono">' + esc(a.stamp) + '</span>') +
+        (V7 ? metaRow("조치", '<span class="ac-mono">' + esc(doneStamp(a)) + '</span>' +
+          '<span class="ac-d-took t-caption">' + esc(d.took) + '</span>') : "") +   // 걸린 시간은 조치 시각 옆
         meta6(a, false)) +
 
       // [11/26 디자이너] v7 은 조치 내용 칸을 뺌 — 아래 처리 정보 "조치" 줄과 겹침
@@ -1065,9 +1102,14 @@
       '<section class="ac-record-section">' +
         '<h3 class="t-caption">처리 정보</h3>' +
         '<dl class="ac-info">' +
-          (V7 ? infoRow("진행", '<span class="t-body-4">' + stageHtml(a, true) + '</span>') : "") +   // [11/23 Q2] 진행 단계 · 받는 사람
-          infoRow("담당", '<span class="t-body-4">' + esc(d.by) + '</span>') +
-          infoRow("소요", '<span class="t-body-4">' + esc(d.took) + '</span>') +
+          // [11/26 디자이너] v7: 진행 = 단계 | 조치한 사람, 받는 사람은 한 줄 아래. 담당, 소요 줄은 뺌(소요는 위 조치 시각 옆)
+          // [11/26 디자이너 "현장도 진행처럼 무엇을 했는지 | 누가"] 관제 = 조치 요청 | 요청한 사람, 현장 = 진행 단계 | 받은 사람(같은 꼴)
+          (V7 ? infoRow("관제", '<span class="t-body-4"><span class="done-stage is-req"><span class="done-st">조치 요청</span>' +
+                  '<span class="ac-stage-to">' + esc(d.by) + '</span></span></span>') +
+                infoRow("현장", '<span class="t-body-4"><span class="done-stage is-' + stageOf(a).st + '"><span class="done-st">' + stageOf(a).word.replace(/^현장\s*/, "") + '</span>' +
+                  '<span class="ac-stage-to">' + esc(stageOf(a).to) + '</span></span></span>')
+              : infoRow("담당", '<span class="t-body-4">' + esc(d.by) + '</span>') +
+                infoRow("소요", '<span class="t-body-4">' + esc(d.took) + '</span>')) +
           (V7 && d.picked && d.picked.length
             ? infoRow("조치", infoActs(a, d))   // [11/24 디자이너] "AI 추천 그대로 사용" 대신 실제 조치 내용, AI 추천에서 온 조치만 Delta 글자
             : infoRow("DELTA", '<span class="ac-info-delta t-body-4">' + esc(deltaLine(d.delta)) + '</span>')) +

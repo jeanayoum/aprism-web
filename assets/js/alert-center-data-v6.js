@@ -176,7 +176,7 @@
     { id: "B-5", sev: "warning", day: "yesterday", time: "어제 11:42", stamp: Y + "11:42:26",
       title: "온도감지 · 최고 온도 46.2 ℃", res: ["최고 온도", "46.2 ℃"], floor: "B4", wp: "WP-06", place: "변압기 TR-2",
       mission: (window.APRISM_MISSION ? APRISM_MISSION("m8") : "유틸리티 순회"), detect: "온도감지", robot: (window.APRISM_ROBOT ? APRISM_ROBOT("r09") : "Robot 09"), img: "safety/temp_warn.jpg",
-      done: { day: "yesterday", at: "11:50", by: "이수진", took: "발생 후 8분",
+      done: { day: "yesterday", at: "11:50", by: (window.APRISM_NAME ? APRISM_NAME("op3") : "이수진"), took: "발생 후 8분",
               picked: ["부하 감소 요청", "설비 점검 요청"], memo: (window.APRISM_COPY || String)("오후 부하 분산 · 다음 순회 재측정"),
               delta: "AI 추천 그대로 사용 (부하 감소 요청 · 설비 점검 요청)" } },
 
@@ -190,7 +190,7 @@
     { id: "B-7", sev: "critical", day: "d-1031", time: "14:07:22", stamp: D31 + "14:07:22",
       title: "온도감지 · 최고 온도 71.2 ℃", res: ["최고 온도", "71.2 ℃"], floor: "B3", wp: "WP-09", place: "변압기 TR-1",
       mission: (window.APRISM_MISSION ? APRISM_MISSION("m3") : "전기실 열화상 점검"), detect: "온도감지", robot: (window.APRISM_ROBOT ? APRISM_ROBOT("r11") : "Robot 11"), img: "safety/temp_crit.jpg",
-      done: { day: "d-1031", at: "14:10", by: "이수진", took: "발생 후 3분",
+      done: { day: "d-1031", at: "14:10", by: (window.APRISM_NAME ? APRISM_NAME("op3") : "이수진"), took: "발생 후 3분",
               picked: ["부하 감소 요청", "설비 점검 요청", "현장 확인"], memo: (window.APRISM_COPY || String)("냉각팬 정지 확인 · 재기동 뒤 정상"),
               delta: "AI 추천 그대로 사용 (부하 감소 요청 · 설비 점검 요청)" } },
 

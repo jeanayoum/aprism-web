@@ -18,6 +18,7 @@
     people: {
       op1: { name: "홍길동", team: "관제" },
       op2: { name: "김현대", team: "관제" },
+      op3: { name: "이수진", team: "관제" },
       fe1: { name: "김현우", team: "설비팀" },
       fe2: { name: "박지훈", team: "설비팀" },
       el1: { name: "이도윤", team: "전기팀" },
