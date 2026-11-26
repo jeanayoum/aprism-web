@@ -67,7 +67,7 @@
   <!-- 누출 -->
   <section class="sec">
     <div class="sec-h"><h2>누출감지</h2><p>로봇 카메라 영상 판별(의심도 %) — 현장에서는 고정식 가스 감지기 %LEL 추이, OGI · 음향 카메라 영상, 누액 감지선 위치를 씀. 냉각수(액체)라 근거 사진이 주인공</p></div>
-    <div><p class="lbl">카드 A · v8(디자이너 안) · 같은 지점 시간 추이</p><div class="card is-warn" id="cardLeak"></div><p class="lbl" style="margin-top:16px">카드 B · 같은 디자인 · 이번 순회 지점별</p><div class="card is-warn" id="cardLeakB"></div></div>
+    <div><p class="lbl">카드 A · v8 · 최근 측정 지점 1건</p><div class="card is-warn" id="cardLeak"></div><p class="lbl" style="margin-top:16px">카드 B · 같은 디자인 · 이번 순회 지점별</p><div class="card is-warn" id="cardLeakB"></div></div>
     <div class="det">
       <div class="det-row">
         <div class="box"><h3>근거 사진 · 판별 상자</h3><p class="src">WP-03 냉각수 배관 밸브 · 11/02 10:11 · 오른쪽 플랜지 아래 물방울 · 바닥 젖음</p>
@@ -82,7 +82,7 @@
   <!-- 이상음향 -->
   <section class="sec">
     <div class="sec-h"><h2>이상음향</h2><p>냉각 펌프 P-2 · 1,780 rpm(회전 29.7 Hz), 날개 6장(날개 통과 178 Hz) — 현장 예지보전: 상황판은 이상 점수 · 전체 세기 추이 + 경보선, 진단은 FFT 스펙트럼(대역 경보) · 스펙트로그램</p></div>
-    <div><p class="lbl">카드 A · v8(디자이너 안) · 같은 지점 시간 추이</p><div class="card" id="cardSound"></div><p class="lbl" style="margin-top:16px">카드 B · 같은 디자인 · 이번 순회 지점별</p><div class="card" id="cardSoundB"></div></div>
+    <div><p class="lbl">카드 A · v8 · 최근 측정 지점 1건</p><div class="card" id="cardSound"></div><p class="lbl" style="margin-top:16px">카드 B · 같은 디자인 · 이번 순회 지점별</p><div class="card" id="cardSoundB"></div></div>
     <div class="det">
       <div class="det-row">
         <div class="box"><h3>주파수 스펙트럼(FFT)</h3><p class="src">지금 측정 · 정상 기준(지난 7일 평균) · 대역 경보선 — 로그 축 20 Hz ~ 20 kHz, dB</p><svg id="fft" viewBox="0 0 520 260" width="100%"></svg>
@@ -95,7 +95,7 @@
   <!-- 부분방전 -->
   <section class="sec">
     <div class="sec-h"><h2>부분방전</h2><p>수배전반 MCC-1 · 6.6 kV — 현장: 상시 감시 상황판은 방전 크기(pC) · 횟수 추이 + 경보선, 진단은 PRPD(위상 분해 부분방전) 산포도. 휴대 측정은 TEV dBmV</p></div>
-    <div><p class="lbl">카드 A · v8(디자이너 안) · 같은 지점 시간 추이</p><div class="card" id="cardPd"></div><p class="lbl" style="margin-top:16px">카드 B · 같은 디자인 · 이번 순회 지점별</p><div class="card" id="cardPdB"></div></div>
+    <div><p class="lbl">카드 A · v8 · 최근 측정 지점 1건</p><div class="card" id="cardPd"></div><p class="lbl" style="margin-top:16px">카드 B · 같은 디자인 · 이번 순회 지점별</p><div class="card" id="cardPdB"></div></div>
     <div class="det">
       <div class="det-row">
         <div class="box"><h3>PRPD 패턴</h3><p class="src">지난 60초 · 3,000주기 · 가로 위상 0~360°, 세로 방전 크기 pC, 색 = 같은 칸의 방전 수 · 회색 선 = 전원 사인파. 1·3사분면 대칭 덩어리 = 내부(공극) 방전 형태</p><canvas id="prpd" width="1040" height="560"></canvas></div>
@@ -108,7 +108,7 @@
   <!-- 온도: 지점마다 기준이 다른 값 -->
   <section class="sec">
     <div class="sec-h"><h2>온도감지</h2><p>지점마다 설비가 달라 기준도 다름(배관 · 펌프 40 / 70 ℃, 수배전반 45 / 60 ℃) — 지점별 막대는 막대마다 자기 기준 눈금을 그림</p></div>
-    <div><p class="lbl">카드 A · v8(디자이너 안) · 같은 지점 시간 추이</p><div class="card is-warn" id="cardTemp"></div></div>
+    <div><p class="lbl">카드 A · v8 · 최근 측정 지점 1건</p><div class="card is-warn" id="cardTemp"></div></div>
     <div><p class="lbl">카드 B · 같은 디자인 · 이번 순회 지점별</p><div class="card is-warn" id="cardTempB"></div></div>
   </section>
 
@@ -157,20 +157,29 @@
         var y = Y(t[0]); el(svg, 'line', { x1: 24, x2: 381, y1: y, y2: y, stroke: GRID, 'stroke-width': 2 });
         txt(svg, 0, y + 4.5, t[0], { fill: t[1], 'font-size': 13 }); });
     }
-    // 카드 A — 같은 지점 시간 추이(점 3개, 끝으로 갈수록 판정 색인 4px 선, 마지막 점 빛)
+    // 카드 A — 최근 측정 지점의 값 1건(v8 방식): 가로 기준 막대. 0 ~ 끝 눈금 위에 정상 · 주의 · 위험 구간, 기준 눈금(이름표 Mono 13), 값까지 4px 막대(회색 → 판정 색) + 끝 점 빛
     function cardA(id, o) {
-      var svg = shell(id, o), top = 4, bot = 64;
-      // 눈금: 위험선 y=12, 주의선 y=32 (디자이너 안 자리) — 같은 비율로 값을 놓음
-      var k = 20 / (o.crit - o.warn), Y = function (x) { return Math.max(top, Math.min(bot, 32 - (x - o.warn) * k)); };
-      rules(svg, Y, o);
-      var n = o.pts.length, X = function (i) { return 24 + 3.5 + (334 - 7) * i / (n - 1); };
+      var svg = shell(id, o), y = 50, x0 = 4, x1 = 377;
+      var X = function (val) { return x0 + (x1 - x0) * Math.max(0, Math.min(1, val / o.max)); };
+      // 구간(옅게) — 주의 ~ 위험, 위험 ~ 끝
+      el(svg, 'rect', { x: x0, y: y - 3, width: x1 - x0, height: 6, rx: 3, fill: GRID, opacity: .55 });
+      el(svg, 'rect', { x: X(o.warn), y: y - 3, width: X(Math.min(o.crit, o.max)) - X(o.warn), height: 6, fill: C.warn, opacity: .22 });
+      if (o.crit < o.max) { el(svg, 'rect', { x: X(o.crit), y: y - 3, width: x1 - X(o.crit), height: 6, rx: 3, fill: C.crit, opacity: .22 }); }
+      // 기준 눈금 + 이름표
+      [[o.warn, v('--status-warning-text')], [o.crit, v('--status-critical-text')]].forEach(function (t) { if (t[0] > o.max) { return; }
+        el(svg, 'line', { x1: X(t[0]), x2: X(t[0]), y1: y - 11, y2: y + 11, stroke: t[1], 'stroke-width': 2, 'stroke-linecap': 'round' });
+        txt(svg, X(t[0]), y - 18, t[0], { 'text-anchor': 'middle', fill: t[1], 'font-size': 13 }); });
+      // 값까지 막대 + 끝 점 빛
       var g = grad(svg, id + 'ln', ['#667685', 1], [stCol(o.st), 1]);
-      el(svg, 'path', { d: o.pts.map(function (p, i) { return (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(p[1]).toFixed(1); }).join(' '), fill: 'none', stroke: g, 'stroke-width': 4, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: .55 });
+      el(svg, 'line', { x1: x0 + 2, x2: X(o.v), y1: y, y2: y, stroke: g, 'stroke-width': 4, 'stroke-linecap': 'round' });
       var rg = grad(svg, id + 'rg', [stCol(o.st), 0], [stCol(o.st), .5], true);
-      o.pts.forEach(function (p, i) { var last = i === n - 1;
-        if (last) { el(svg, 'circle', { cx: X(i), cy: Y(p[1]), r: 15.5, fill: rg }); el(svg, 'circle', { cx: X(i), cy: Y(p[1]), r: 9.5, fill: 'none', stroke: stCol(o.st), 'stroke-opacity': .35, 'stroke-width': 4 }); }
-        el(svg, 'circle', { cx: X(i), cy: Y(p[1]), r: 3.5, fill: last ? stCol(o.st) : C.t3 });
-        txt(svg, i === 0 ? 8 : i === n - 1 ? 373 : 190.5, 84, p[0], { 'text-anchor': i === 0 ? 'start' : i === n - 1 ? 'end' : 'middle', 'font-size': 12, 'font-weight': 500 }); });
+      el(svg, 'circle', { cx: X(o.v), cy: y, r: 15.5, fill: rg });
+      el(svg, 'circle', { cx: X(o.v), cy: y, r: 9.5, fill: 'none', stroke: stCol(o.st), 'stroke-opacity': .35, 'stroke-width': 4 });
+      el(svg, 'circle', { cx: X(o.v), cy: y, r: 3.5, fill: stCol(o.st) });
+      // 축 끝
+      txt(svg, x0, 84, '0', { 'font-size': 12, 'font-weight': 500 });
+      txt(svg, x1, 84, o.max + (o.ax || ''), { 'text-anchor': 'end', 'font-size': 12, 'font-weight': 500 });
+      txt(svg, (x0 + x1) / 2, 84, o.when, { 'text-anchor': 'middle', 'font-size': 12, 'font-weight': 500 });
     }
     // 카드 B — 이번 순회 지점별 막대(같은 디자인). 안 잰 지점 = 점선 빈 칸, 지금 알림 지점 = 판정 색 + 빛
     function cardB(id, o) {
@@ -197,20 +206,20 @@
       });
     }
     // 자료 — 값은 v8 코드(safety-v8.js) 이번 미션 지점 값 · 이력, 부분방전은 현장 단위 pC
-    cardA('cardLeak', { k: '누출감지', icon: ICON.drop, std: '55% 미만', big: '62', unit: '%', gap: '+7%p', st: 'warn', wp: 3, eq: '냉각수 배관 밸브', n: '3/6',
-      warn: 55, crit: 70, pts: [['10/31', 47], ['11/01', 44], ['11/02', 62]] });
+    cardA('cardLeak', { k: '누출감지', icon: ICON.drop, std: '55% 미만', big: '21', unit: '%', gap: '-34%p', st: 'ok', wp: 5, eq: '냉각 펌프 P-2', n: '3/6', when: '최근 측정 · 10:13',
+      v: 21, warn: 55, crit: 70, max: 100, ax: '%' });
     cardB('cardLeakB', { k: '누출감지', icon: ICON.drop, std: '55% 미만', big: '62', unit: '%', gap: '+7%p', st: 'warn', wp: 3, eq: '냉각수 배관 밸브', n: '3/6',
       warn: 55, crit: 70, max: 80, wps: [{ wp: 'WP-01', v: 8 }, { wp: 'WP-03', v: 62, cur: 1 }, { wp: 'WP-05', v: 21 }, { wp: 'WP-10', plan: 1 }, { wp: 'WP-14', plan: 1 }, { wp: 'WP-17', plan: 1 }] });
-    cardA('cardSound', { k: '이상음향', icon: ICON.sound, std: '19.0 미만', big: '14.2', gap: '-4.8', st: 'ok', wp: 5, eq: '냉각 펌프 P-2', n: '2/6',
-      warn: 19, crit: 22.8, pts: [['10/31', 16.8], ['11/01', 17.9], ['11/02', 14.2]] });
+    cardA('cardSound', { k: '이상음향', icon: ICON.sound, std: '19.0 미만', big: '14.2', gap: '-4.8', st: 'ok', wp: 5, eq: '냉각 펌프 P-2', n: '2/6', when: '최근 측정 · 10:13',
+      v: 14.2, warn: 19, crit: 22.8, max: 30 });
     cardB('cardSoundB', { k: '이상음향', icon: ICON.sound, std: '19.0 미만', big: '14.2', gap: '-4.8', st: 'ok', wp: 5, eq: '냉각 펌프 P-2', n: '2/6',
       warn: 19, crit: 22.8, max: 26, wps: [{ wp: 'WP-02', v: 9.8 }, { wp: 'WP-05', v: 14.2, cur: 1 }, { wp: 'WP-08', plan: 1 }, { wp: 'WP-12', plan: 1 }, { wp: 'WP-16', plan: 1 }, { wp: 'WP-19', plan: 1 }] });
-    cardA('cardPd', { k: '부분방전', icon: ICON.bolt, std: '300 pC 미만', big: '142', unit: 'pC', gap: '-158', st: 'ok', wp: 6, eq: '수배전반 MCC-1', n: '1/4',
-      warn: 300, crit: 600, pts: [['10/31', 118], ['11/01', 121], ['11/02', 142]] });
+    cardA('cardPd', { k: '부분방전', icon: ICON.bolt, std: '300 pC 미만', big: '142', unit: 'pC', gap: '-158', st: 'ok', wp: 6, eq: '수배전반 MCC-1', n: '1/4', when: '최근 측정 · 10:15',
+      v: 142, warn: 300, crit: 600, max: 800, ax: ' pC' });
     cardB('cardPdB', { k: '부분방전', icon: ICON.bolt, std: '300 pC 미만', big: '142', unit: 'pC', gap: '-158', st: 'ok', wp: 6, eq: '수배전반 MCC-1', n: '1/4',
       warn: 300, crit: 600, max: 700, wps: [{ wp: 'WP-06', v: 142, cur: 1 }, { wp: 'WP-11', plan: 1 }, { wp: 'WP-15', plan: 1 }, { wp: 'WP-18', plan: 1 }] });
-    cardA('cardTemp', { k: '온도감지', icon: ICON.temp, std: '40 ℃ 미만', big: '48.6', unit: '℃', gap: '+8.6', st: 'warn', wp: 5, eq: '냉각 펌프 P-2', n: '3/7',
-      warn: 40, crit: 70, pts: [['10/31', 39.5], ['11/01', 42.1], ['11/02', 48.6]] });
+    cardA('cardTemp', { k: '온도감지', icon: ICON.temp, std: '45 ℃ 미만', big: '35.1', unit: '℃', gap: '-9.9', st: 'ok', wp: 6, eq: '수배전반 MCC-1', n: '3/7', when: '최근 측정 · 10:15',
+      v: 35.1, warn: 45, crit: 60, max: 80, ax: ' ℃' });
     cardB('cardTempB', { k: '온도감지', icon: ICON.temp, std: '지점마다 기준', big: '48.6', unit: '℃', gap: '+8.6', st: 'warn', wp: 5, eq: '냉각 펌프 P-2', n: '3/7',
       max: 75, wps: [{ wp: 'WP-02', v: 27.4, warn: 40, crit: 70 }, { wp: 'WP-05', v: 48.6, warn: 40, crit: 70, cur: 1 }, { wp: 'WP-06', v: 35.1, warn: 45, crit: 60 }, { wp: 'WP-08', plan: 1 }, { wp: 'WP-13', plan: 1 }, { wp: 'WP-16', plan: 1 }, { wp: 'WP-20', plan: 1 }] });
 
