@@ -459,7 +459,7 @@
     colHead.innerHTML = state.tab === "done" && V7
       // [11/26 디자이너] v7 조치 요청된 알림 열: 원 등급 | 알림 | 조치 내용 | 진행상황 | 발생 | 조치 | 담당. 체크 칸 뺌, 조치 시각은 발생 옆 같은 글자
       ? '<span class="ac-dc-check" aria-hidden="true"></span>' +   // [11/26 디자이너] 체크는 뺐지만 자리(16)는 빈칸으로 남김 — 왼쪽으로 밀리지 않게
-        '<span class="ac-dc-sev" role="columnheader">원 등급</span>' +
+        '<span class="ac-dc-sev" role="columnheader">위험도</span>' +   // [11/26 디자이너] 원 등급 → 위험도
         '<span class="ac-dc-body" role="columnheader">알림</span>' +
         '<span class="ac-dc-acts" role="columnheader">조치 내용</span>' +
         '<span class="ac-dc-stage" role="columnheader">진행상황</span>' +
