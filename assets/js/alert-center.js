@@ -458,13 +458,14 @@
     if (sortBox && sortBox.parentNode) { sortBox.parentNode.removeChild(sortBox); }
     colHead.innerHTML = state.tab === "done" && V7
       // [11/26 디자이너] v7 조치 요청된 알림 열: 원 등급 | 알림 | 조치 내용 | 진행상황 | 발생 | 조치 | 담당. 체크 칸 뺌, 조치 시각은 발생 옆 같은 글자
-      ? '<span class="ac-dc-check" aria-hidden="true"></span>' +   // [11/26 디자이너] 체크는 뺐지만 자리(16)는 빈칸으로 남김 — 왼쪽으로 밀리지 않게
-        '<span class="ac-dc-sev" role="columnheader">위험도</span>' +   // [11/26 디자이너] 원 등급 → 위험도
+      // [11/26 디자이너] 조치 필요 탭과 같은 자리에서 시작: (아이콘 자리 빈칸 16) 발생 | 조치 | 위험도 | 알림 | 조치 내용 | 진행상황 … 담당
+      ? '<span class="ac-dc-check" aria-hidden="true"></span>' +   // 체크는 뺐지만 자리(16)는 빈칸 — 조치 필요 탭 단계 아이콘 자리와 같음
+        '<span class="ac-dc-occ" role="columnheader">발생</span>' +
+        '<span class="ac-dc-time" role="columnheader">조치</span>' +
+        '<span class="ac-dc-sev" role="columnheader">위험도</span>' +   // [11/26 디자이너] 원 등급 → 위험도, 조치와 알림 사이
         '<span class="ac-dc-body" role="columnheader">알림</span>' +
         '<span class="ac-dc-acts" role="columnheader">조치 내용</span>' +
         '<span class="ac-dc-stage" role="columnheader">진행상황</span>' +
-        '<span class="ac-dc-occ" role="columnheader">발생</span>' +
-        '<span class="ac-dc-time" role="columnheader">조치</span>' +
         '<span class="ac-dc-who" role="columnheader">담당</span>'
       : state.tab === "done"
       ? '<span class="ac-dc-check" role="columnheader"><span class="ac-sr">상태</span></span>' +
@@ -536,13 +537,14 @@
       return '<div class="ac-done-row is-v7cols" role="row" data-id="' + a.id + '" data-sev="' + a.sev + '"' +
           ' tabindex="' + (sel ? "0" : "-1") + '" aria-selected="' + (sel ? "true" : "false") + '">' +
           '<span class="ac-dc-check" aria-hidden="true"></span>' +   // 체크 자리 빈칸(열 머리와 같음)
+          // [11/26 디자이너] 발생, 조치 시각 = 조치 필요 탭 발생과 같은 글자(.ac-mono)
+          '<span class="ac-dc-occ ac-mono" role="gridcell">' + esc(a.time) + '</span>' +
+          '<span class="ac-dc-time ac-mono" role="gridcell">' + esc(d.at) + '</span>' +
           '<span class="ac-dc-sev t-caption" role="gridcell">' + window.ds.badge(a.sev === "critical" ? "crit" : "warn", SEV_LABEL[a.sev], { plain: true, icon: null }) + '</span>' +   // [11/26 디자이너] 목록 원 등급은 글자만(삼각형 뺌)
           '<span class="ac-dc-body" role="gridcell"><span class="ac-dc-title t-label-2">' + esc(titleOf(a)) + '</span></span>' +
           // [11/26 디자이너] 조치가 둘 이상이면 첫 조치 + "외 n건"(목록에서 잘리지 않게). 전체는 상세 처리 정보 "조치" 줄
           '<span class="ac-dc-acts t-caption" role="gridcell">' + esc(d.picked[0] || "") + (d.picked.length > 1 ? ' <span class="ac-dc-more">외 ' + (d.picked.length - 1) + '건</span>' : "") + '</span>' +
           '<span class="ac-dc-stage t-caption" role="gridcell">' + stageHtml(a, false) + '</span>' +
-          '<span class="ac-dc-occ t-caption" role="gridcell">' + esc(shortTime(a.time)) + '</span>' +
-          '<span class="ac-dc-time t-caption" role="gridcell">' + esc(d.at) + '</span>' +
           '<span class="ac-dc-who t-caption" role="gridcell">' + esc(d.by) + '</span>' +
         '</div>';
     }
