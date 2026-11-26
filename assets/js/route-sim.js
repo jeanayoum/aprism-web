@@ -633,13 +633,16 @@
     // 우측 카드 상태 줄
     var card = mode === "return" ? null : placeNote(mode);
     if (mode === "return") { placeNote(""); }
+    // [11/26 v7] 측정 진행 고리는 공통 CSS WP 번호 원 상태(.ds-wp.is-measuring, --ds-wp-progress). 측정 중인 카드 번호 원에만 붙이고 나머지는 뗌
+    var no7 = mode === "inspect" && card ? card.closest(".timeline-item") : null; no7 = no7 && no7.querySelector(".step-no.ds-wp");
+    Array.prototype.forEach.call(document.querySelectorAll(".step-no.ds-wp.is-measuring"), function (n) { if (n !== no7) { n.classList.remove("is-measuring"); n.style.removeProperty("--ds-wp-progress"); } });
     if (card) {
       if (mode === "inspect") {
         var fr = Math.min(1, (e % 4500) / 3000), v = card.querySelector(".rr-note .val, .rr-st .val"), pe = card.querySelector('[data-rr="pct"]');
         var circ = document.body.classList.contains("ver-7") ? +CIRC7 : CIRC;
         if (v) { v.setAttribute("stroke-dashoffset", (circ * (1 - fr)).toFixed(2)); }
         if (pe) { pe.textContent = Math.round(fr * 100) + "%"; }
-        var it7 = card.closest(".timeline-item"); if (it7) { it7.style.setProperty("--rr-pct", (fr * 100).toFixed(1)); }   // [11/12 v7] 번호 원 둘레 고리
+        if (no7) { no7.classList.add("is-measuring"); no7.style.setProperty("--ds-wp-progress", (fr * 100).toFixed(1)); }
       } else if (mode === "run" || mode === "alert") {
         var s = api.get(), next = api.stops().filter(function (x) { return x > s + 1e-6; })[0], eta = card.querySelector('[data-rr="eta"]');
         var etaSec = next === undefined ? 0 : Math.max(1, Math.round((next - s) / (api.total() / SPEED_SEC)));

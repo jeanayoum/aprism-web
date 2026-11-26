@@ -37,6 +37,9 @@ body.ver-7, body.ds-auth {   /* body.ds-auth: 로그인 쪽 화면(안내 상자
   --ds-wp-size-s: 16px;                           /* 글자 줄 안: 알림 목록, 지도 팝오버, 점검 줄 */
   --ds-wp-font-size: var(--font-size-12);
   --ds-wp-ring: var(--border-width-strong);       /* 위험, 주의, 지도 위 테 굵기 */
+  --ds-wp-progress-line: var(--border-width-strong);   /* 측정 진행 고리 두께 (11/26, 예전 v7.css 2.5) */
+  --ds-wp-progress-gap: var(--space-4);                /* 번호 원과 고리 사이 */
+  --ds-wp-progress-color: var(--status-info-icon);     /* 고리 색, 남은 쪽은 같은 색 22% (예전 #1E7BE6 직접 적음) */
 
   /* 층 (지금 층 꼬리표 값) */
   --ds-floor-h: 18px;
@@ -1142,6 +1145,15 @@ body.ver-7 .ds-wp::after { font-variant-numeric: normal !important; font-family:
 :where(body.ver-7 .ds-wp.is-done) { border: var(--border-width-thin) solid var(--ds-map-route, var(--status-info-icon)); }
 /* 이번엔 안 가는 곳: 점선, 속 빔 */
 :where(body.ver-7 .ds-wp.is-skip) { border: var(--border-width-thin) dashed var(--border-strong); background-color: transparent; color: var(--text-tertiary); }
+/* 측정 진행(11/26, 예전 v7.css .step-no::after 를 옮김): 경로 단계 카드 지금 지점이 측정 중일 때 번호 원 둘레 고리.
+ *   진행률 --ds-wp-progress(0~100)는 화면 JS(route-sim.js)가 넣음. ::after 는 번호 글자에 쓰는 자리라 ::before 로 그림 */
+:where(body.ver-7 .ds-wp.is-measuring) { position: relative; }
+body.ver-7 .ds-wp.is-measuring::before {
+  content: ""; position: absolute; inset: calc(var(--ds-wp-progress-gap) * -1); border-radius: var(--radius-pill); pointer-events: none;
+  background: conic-gradient(var(--ds-wp-progress-color) calc(var(--ds-wp-progress, 0) * 1%), color-mix(in srgb, var(--ds-wp-progress-color) 22%, transparent) 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - var(--ds-wp-progress-line) - 0.5px), #000 calc(100% - var(--ds-wp-progress-line)));
+          mask: radial-gradient(farthest-side, transparent calc(100% - var(--ds-wp-progress-line) - 0.5px), #000 calc(100% - var(--ds-wp-progress-line)));
+}
 /* 지도 위: 바탕이 무엇이든 떠 보이게 테 */
 /* 미션설정 점검 줄: 줄 바탕과 원 면이 같은 색(다크 둘 다 bg-cell)이라 원이 안 보이고 여백만 커 보임 → 지도 팝오버 기본 지점 원처럼 테 1 (11/20) */
 body.ver-7 .check-row .check-ord.ds-wp { border: var(--border-width-thin) solid var(--border-strong) !important; background-color: var(--bg-page) !important; }
