@@ -78,6 +78,8 @@
     .note { max-width: 1640px; font-size: 13px; line-height: 20px; color: var(--text-secondary); }
     .note li { margin: 4px 0; }
     svg text { font-family: var(--font-family-mono); }
+    .det-fold { margin: 8px 0 32px; } .det-fold > summary { cursor: pointer; color: var(--text-secondary); }
+    .det-fold[open] > summary { margin-bottom: 16px; }
   </style>
 </head>
 <body class="ver-7">
@@ -94,7 +96,8 @@
       <div class="card" id="gB-eq"></div><div class="card" id="gB-leak"></div><div class="card" id="gB-sound"></div>
       <div class="card" id="gB-temp"></div><div class="card" id="gB-gauge"></div><div class="card" id="gB-pd"></div></div></div>
   </section>
-  <h2 class="gal-h" style="margin-top:8px">상세 화면 그림(현장 형식)</h2>
+  <details class="det-fold">
+  <summary class="gal-h">상세 화면 그림(현장 형식) — 누출 사진 · FFT · 스펙트로그램 · PRPD · 방전 추이</summary>
 
 
   <!-- 누출 -->
@@ -136,9 +139,11 @@
   </section>
 
 
+  </details>
+
   <ul class="note">
-    <li>카드 A(같은 지점 시간 추이) = "이 지점이 나빠지고 있나", 카드 B(이번 순회 지점별) = "이번 미션에서 어디가 문제인가". B 는 지점끼리 이어진 값이 아니라 선 대신 막대, 아직 안 잰 지점은 빈 칸(순회 진행), 지금 알림 지점은 테두리. 지점마다 기준이 다른 온도 · 압력은 막대마다 자기 기준 눈금. 추천: 카드 = B, 시간 추이 = 상세(지점을 누르면)</li>
-    <li>카드 A 는 같은 문법: 큰 값 + 기준 · 판정, 아래에 순회마다 잰 값 6번(점 · 선) + 주의 · 위험 기준선 + 구간 옅은 색. 지금 값은 판정 색 큰 점. "기준에서 얼마나" + "어느 쪽으로"를 한 줄에</li>
+    <li>카드 A(최근 측정 지점 1건) = "방금 잰 곳이 괜찮나", 카드 B(이번 순회 지점별) = "이번 미션에서 어디가 문제인가". 추천: 안전진단 카드 = B, 머리 값 = 가장 나쁜 지점</li>
+    <li>카드 B 위젯형: 한 카드 8칸 고정(칸 폭 같음, 왼쪽부터). 8곳이 넘으면 주의 · 위험 지점과 지금 지점을 먼저 남기고 순회 순서로 7칸, 마지막 칸 "+N"</li>
     <li>예전 카드의 주파수 막대 · 위상 선은 상세로 옮기고 현장 형식(FFT 대역 경보 · 스펙트로그램 / PRPD 산포도)으로 다시 그림</li>
     <li>숫자는 Mono(잰 값). 색: 자료 = 파랑 램프, 기준 · 판정 = 상태색(주의 노랑 · 위험 빨강)</li>
   </ul>
@@ -208,7 +213,25 @@
     // ---------- 카드 B 공통(위젯형, 11/26): 지점마다 한 칸 · 안 잰 지점 = 어두운 칸 · 빛은 지금 문제 지점 하나에만 ----------
     var BLUE = ['--color-blue-800', '--color-blue-700', '--color-blue-600', '--color-blue-500', '--color-blue-400'].map(v);   // 정상 칸: 아래 어둡게 → 위 밝게(파랑 명도만)
     var DARK = '#3A4654';
-    function slots(n) { var slot = 357 / n; return function (i) { return 24 + slot * (i + .5); }; }
+    var MAXW = 8;   // 한 카드 지점 칸 수(고정)
+    function slots() { var slot = 357 / MAXW; return function (i) { return 24 + slot * (i + .5); }; }
+    // 8곳 넘으면: 문제 지점(주의 · 위험) · 지금 지점 먼저, 나머지 순회 순서로 7칸까지, 마지막 칸 = +N
+    function isBad(w) { if (w.plan) { return false; } if (w.bad !== undefined) { return w.bad > 0; } if (w.ok) { return w.v < w.ok[0] || w.v > w.ok[1]; } return w.v >= (w.warn !== undefined ? w.warn : w.ow); }
+    function fitB(fn) {
+      return function (id, o) {
+        var all = o.wps, more = 0;
+        all.forEach(function (w) { w.ow = o.warn; if (o.ok) { w.ok = o.ok; } });
+        if (all.length > MAXW) {
+          var keep = all.filter(function (w) { return isBad(w) || w.cur; });
+          all.forEach(function (w) { if (keep.length < MAXW - 1 && keep.indexOf(w) < 0) { keep.push(w); } });
+          o.wps = all.filter(function (w) { return keep.indexOf(w) >= 0; }); more = all.length - o.wps.length;
+        }
+        fn(id, o);
+        if (more) { var svg = document.getElementById(id).querySelector('.v8r svg'), x = slots()(MAXW - 1);
+          txt(svg, x, 40, '+' + more, { 'text-anchor': 'middle', 'font-size': 14, 'font-weight': 600, fill: C.t3 });
+          txt(svg, x, 84, '지점', { 'text-anchor': 'middle', 'font-size': 12, fill: C.t3, opacity: .7 }); }
+      };
+    }
     function glow(svg, id) {   // 문제 지점 칸 뒤 번짐
       var defs = svg.querySelector('defs') || el(svg, 'defs', {});
       var f = document.createElementNS(NS, 'filter'); f.setAttribute('id', id); f.setAttribute('x', '-100%'); f.setAttribute('y', '-100%'); f.setAttribute('width', '300%'); f.setAttribute('height', '300%');
@@ -217,7 +240,7 @@
     function wpLab(svg, x, w) { txt(svg, x, 84, w.wp.replace('WP-', ''), { 'text-anchor': 'middle', 'font-size': 12, 'font-weight': w.cur ? 700 : 500, fill: w.plan ? C.t3 : w.cur ? C.t2 : C.t3, opacity: w.plan ? .5 : 1 }); }
     // 기준이 하나인 값(누출 · 이상음향 · 부분방전) — 지점마다 세그먼트 기둥 8칸: 0 ~ 주의 5칸(파랑 명도), 주의 ~ 위험 2칸(노랑), 위험 1칸(빨강). 값까지 켜고 나머지는 어둡게
     function cardB(id, o) {
-      var svg = shell(id, o), SEG = 8, sh = 6.5, gap = 1.5, bot = 64, X = slots(o.wps.length), bw = 30;
+      var svg = shell(id, o), SEG = 8, sh = 6.5, gap = 1.5, bot = 64, X = slots(), bw = 30;
       var segY = function (k) { return bot - (k + 1) * sh - k * gap; };
       var segCol = function (k) { return k < 5 ? BLUE[k] : k < 7 ? C.warn : C.crit; };
       var lit = function (x) { return x >= o.crit ? 8 : x >= o.warn ? 5 + Math.min(2, Math.ceil(2 * (x - o.warn) / (o.crit - o.warn)) || 1) : Math.max(1, Math.ceil(5 * x / o.warn)); };
@@ -238,7 +261,7 @@
     }
     // 지점마다 기준이 다른 값(온도) — 물방울 알약: 자기 기준으로 맞춘 눈금(0 ~ 주의 = 아래 60%, 주의 ~ 위험 = 위 40%)이라 주의 · 위험 선이 모든 알약에서 같은 높이
     function pillB(id, o) {
-      var svg = shell(id, o), top = 4, bot = 64, H = bot - top, X = slots(o.wps.length), bw = 26;
+      var svg = shell(id, o), top = 4, bot = 64, H = bot - top, X = slots(), bw = 26;
       var R = function (w) { var x = w.v; return x <= w.warn ? .6 * x / w.warn : Math.min(1, .6 + .4 * (x - w.warn) / (w.crit - w.warn)); };
       var yW = bot - .6 * H;
       txt(svg, 0, yW + 4, '주의', { fill: v('--status-warning-text'), 'font-size': 11 });
@@ -282,7 +305,7 @@
     }
     // 장비착용 B — 지점마다 동그라미(안에 지점 번호): 미착용 있으면 빨강으로 채움, 다 착용은 파랑 테두리, 안 잰 지점은 어둡게. 아래 = 인원
     function equipB(id, o) {
-      var svg = shell(id, o), X = slots(o.wps.length), cy = 36, r = 19, gf = glow(svg, id + 'gl');
+      var svg = shell(id, o), X = slots(), cy = 36, r = 19, gf = glow(svg, id + 'gl');
       o.wps.forEach(function (w, i) {
         var x = X(i);
         if (w.plan) { el(svg, 'circle', { cx: x, cy: cy, r: r, fill: DARK, opacity: .45 });
@@ -312,7 +335,7 @@
     }
     // 계기인식 B — 지점마다 세로 슬라이더 알약: 정상 범위 = 밝은 파랑 띠, 위험 구간 = 위쪽 빨강, 값 = 흰 손잡이(테두리 판정 색)
     function gaugeB(id, o) {
-      var svg = shell(id, o), top = 4, bot = 64, X = slots(o.wps.length), bw = 18, gf = glow(svg, id + 'gl');
+      var svg = shell(id, o), top = 4, bot = 64, X = slots(), bw = 18, gf = glow(svg, id + 'gl');
       var Y = function (val) { return bot - (bot - top) * (val - o.lo) / (o.hi - o.lo); };
       txt(svg, 0, Y(o.ok[1]) + 4, o.ok[1], { fill: C.b3, 'font-size': 12 }); txt(svg, 0, Y(o.ok[0]) + 4, o.ok[0], { fill: C.b3, 'font-size': 12 });
       o.wps.forEach(function (w, i) {
@@ -330,6 +353,8 @@
       });
     }
 
+    cardB = fitB(cardB); pillB = fitB(pillB); equipB = fitB(equipB); gaugeB = fitB(gaugeB);
+
     // ---------- 버전별 모음 자료(v8 코드 safety-v8.js 의 이번 미션 값) ----------
     var GZ = { lo: 0.4, hi: 1.0, ax: 'MPa', zones: [[0.4, 0.6, C.warn], [0.6, 0.8, C.b4], [0.8, 0.85, C.warn], [0.85, 1.0, C.crit]], marks: [0.6, 0.8, 0.85] };
     equipA('gA-eq', { k: '장비착용', icon: 'var(--ic-cone)', std: '미착용 0명', st: 'crit', wp: 7, eq: '고소 작업 발판', n: '3/6', items: [['안전모', 0, 'helmet'], ['안전벨트', 1, 'vest'], ['안전화', 0, 'boot']] });
@@ -341,8 +366,8 @@
 
     equipB('gB-eq', { k: '장비착용', icon: 'var(--ic-cone)', std: '미착용 0명', big: '1', unit: '명', gap: '안전벨트', st: 'crit', wp: 7, eq: '고소 작업 발판', n: '3/6',
       wps: [{ wp: 'WP-01', bad: 0, total: 2 }, { wp: 'WP-03', bad: 0, total: 1 }, { wp: 'WP-07', bad: 1, total: 2, cur: 1 }, { wp: 'WP-12', plan: 1 }, { wp: 'WP-15', plan: 1 }, { wp: 'WP-18', plan: 1 }] });
-    cardB('gB-leak', { k: '누출감지', icon: ICON.drop, std: '55% 미만', big: '62', unit: '%', gap: '+7%p', st: 'warn', wp: 3, eq: '냉각수 배관 밸브', n: '3/6',
-      warn: 55, crit: 70, max: 80, wps: [{ wp: 'WP-01', v: 8 }, { wp: 'WP-03', v: 62, cur: 1 }, { wp: 'WP-05', v: 21 }, { wp: 'WP-10', plan: 1 }, { wp: 'WP-14', plan: 1 }, { wp: 'WP-17', plan: 1 }] });
+    cardB('gB-leak', { k: '누출감지', icon: ICON.drop, std: '55% 미만', big: '62', unit: '%', gap: '+7%p', st: 'warn', wp: 3, eq: '냉각수 배관 밸브', n: '3/10',
+      warn: 55, crit: 70, max: 80, wps: [{ wp: 'WP-01', v: 8 }, { wp: 'WP-03', v: 62, cur: 1 }, { wp: 'WP-05', v: 21 }, { wp: 'WP-07', plan: 1 }, { wp: 'WP-10', plan: 1 }, { wp: 'WP-12', plan: 1 }, { wp: 'WP-14', plan: 1 }, { wp: 'WP-16', plan: 1 }, { wp: 'WP-17', plan: 1 }, { wp: 'WP-19', plan: 1 }] });
     cardB('gB-sound', { k: '이상음향', icon: ICON.sound, std: '19.0 미만', big: '14.2', gap: '-4.8', st: 'ok', wp: 5, eq: '냉각 펌프 P-2', n: '2/6',
       warn: 19, crit: 22.8, max: 26, wps: [{ wp: 'WP-02', v: 9.8 }, { wp: 'WP-05', v: 14.2, cur: 1 }, { wp: 'WP-08', plan: 1 }, { wp: 'WP-12', plan: 1 }, { wp: 'WP-16', plan: 1 }, { wp: 'WP-19', plan: 1 }] });
     pillB('gB-temp', { k: '온도감지', icon: ICON.temp, std: '지점마다 기준', big: '48.6', unit: '℃', gap: '+8.6', st: 'warn', wp: 5, eq: '냉각 펌프 P-2', n: '3/7',
