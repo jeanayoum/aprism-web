@@ -534,7 +534,7 @@
     if (V7 && window.ds) {   // [11/26 디자이너] 열 머리와 같은 순서: 원 등급 | 알림 | 조치 내용 | 진행상황 | 발생 | 조치 | 담당
       return '<div class="ac-done-row is-v7cols" role="row" data-id="' + a.id + '" data-sev="' + a.sev + '"' +
           ' tabindex="' + (sel ? "0" : "-1") + '" aria-selected="' + (sel ? "true" : "false") + '">' +
-          '<span class="ac-dc-sev t-caption" role="gridcell">' + window.ds.badge(a.sev === "critical" ? "crit" : "warn", SEV_LABEL[a.sev], { plain: true }) + '</span>' +
+          '<span class="ac-dc-sev t-caption" role="gridcell">' + window.ds.badge(a.sev === "critical" ? "crit" : "warn", SEV_LABEL[a.sev], { plain: true, icon: null }) + '</span>' +   // [11/26 디자이너] 목록 원 등급은 글자만(삼각형 뺌)
           '<span class="ac-dc-body" role="gridcell"><span class="ac-dc-title t-label-2">' + esc(titleOf(a)) + '</span></span>' +
           '<span class="ac-dc-acts t-caption" role="gridcell">' + cells(d.picked) + '</span>' +
           '<span class="ac-dc-stage t-caption" role="gridcell">' + stageHtml(a, false) + '</span>' +
