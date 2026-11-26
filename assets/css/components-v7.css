@@ -2056,9 +2056,8 @@ body.ver-7 .ac-handover.is-done::before, body.ver-7 .ac-handover.is-done::after 
 body.ver-7 .ac-handover:not(.is-gen)::before { opacity: 1; background-size: 100% 100%; background-position: 0 0; animation: none; }
 /* [11/26 디자이너] 판 머리 "인수인계 요약" 글자 = DELTA 워드마크와 같은 색(--ds-delta-fg). 예전 링크 파랑(--fg-link) */
 body.ver-7 .ac-handover-mark { color: var(--ds-delta-fg) !important; }
-/* [11/26 디자이너] 인수인계 요약 글을 다른 표와 다르게: 줄 이름(조치, 반복, 남은 위험, 다음 근무)은 Delta 글자 색, 문장은 회색 + 핵심(수치, n번 지점)만 흰색 굵게(alert-center.js hoKey) */
+/* [11/26 디자이너] 인수인계 요약 글을 다른 표와 다르게: 줄 이름(조치, 반복, 남은 위험, 다음 근무)은 Delta 글자 색. 문장 속 수치 굵게는 "더 어지러워 보임"으로 뺌 */
 body.ver-7 .ac-handover-row > dt { color: var(--ds-delta-fg) !important; }
-body.ver-7 .ac-handover-row .ac-ho-key { color: var(--text-primary); font-weight: var(--font-weight-bold); }
 /* 만드는 중엔 본문 자리에 빈 줄(뼈대), 다 만들면 본문이 나타남(ds-appear) */
 body.ver-7 .ac-handover.is-gen :is(.ac-handover-list, .ac-handover-actions) { display: none; }
 body.ver-7 .ac-handover-skel { display: none; }

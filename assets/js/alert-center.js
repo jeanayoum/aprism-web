@@ -436,10 +436,7 @@
   // 짧은 나열(문장이 아닌 것)은 쉼표 대신 칸으로 나눔 — 칸 사이는 CSS(.ac-cells, 사이 12). 문장 안 나열은 쉼표 그대로(11/20)
   function isSentence(t) { return /[.요다]\s*$|[.!?]\s/.test(String(t).trim()); }
   function cells(parts) { return '<span class="ac-cells">' + parts.map(function (x) { return '<span>' + esc(x) + '</span>'; }).join("") + '</span>'; }
-  function ndHtml(t) { return V7 && !isSentence(t) && /·/.test(t) ? cells(String(t).split(/\s*·\s*/)) : esc(nd(t)); }
-  // [11/26 디자이너] v7 인수인계 요약 = Delta 가 쓴 문장 — 다른 표와 다르게 핵심(수치 + 단위, "n번 지점")만 흰색 굵게(Delta 대화 글 규칙과 같음). 나머지는 회색
-  function hoKey(html) { return V7 && document.documentElement.lang !== "en" ? String(html).replace(/\d+(?:\.\d+)?\s?(?:℃|건|분|회|%)|\d+번 지점/g, '<b class="ac-ho-key">$&</b>') : html; }
-  // [11/20 v7] 처리 정보 DELTA 줄: 고른 조치는 위 조치 내용이 말하므로 괄호 목록을 되풀이하지 않음(쓰지 않은 경우의 추천 목록만 남김)
+  function ndHtml(t) { return V7 && !isSentence(t) && /·/.test(t) ? cells(String(t).split(/\s*·\s*/)) : esc(nd(t)); }  // [11/20 v7] 처리 정보 DELTA 줄: 고른 조치는 위 조치 내용이 말하므로 괄호 목록을 되풀이하지 않음(쓰지 않은 경우의 추천 목록만 남김)
   function deltaLine(t) { return V7 && !/쓰지 않음/.test(t) ? String(t).replace(/\s*\([^)]*\)\s*$/, "") : nd(t); }
 
   function icon(name, size) {
@@ -1218,7 +1215,7 @@
         HANDOVER.items.map(function (it) {
           return '<div class="ac-handover-row">' +
             '<dt class="t-label-2">' + esc(it[0]) + '</dt>' +
-            '<dd class="t-body-4">' + hoKey(ndHtml(it[1])) + '</dd></div>';
+            '<dd class="t-body-4">' + ndHtml(it[1]) + '</dd></div>';
         }).join("") +
       '</dl>' +
       '<div class="ac-handover-actions">' +
