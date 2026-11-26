@@ -122,7 +122,7 @@
     }
     if (/주의|묶|추세/.test(q)) {
       return {
-        text: "주의 " + n.warn + "건이 쌓여 있어요. 냉각수 밸브 누출 · 수배전반 부분방전 · 냉각 펌프 진동 · 공기 압축기 압력 편차가 Robot 05 순회 구간에 몰려 있어, 한 번에 점검 계획을 세우면 이동이 줄어요.",
+        text: "주의 " + n.warn + ("건이 쌓여 있어요. 냉각수 밸브 누출 · 수배전반 부분방전 · 냉각 펌프 진동 · 공기 압축기 압력 편차가 " + (window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + " 순회 구간에 몰려 있어, 한 번에 점검 계획을 세우면 이동이 줄어요."),
         chips: [
           { label: "주의만 목록에서 보기", go: true, act: function () { filterTo("warning"); } },
           { label: "점검 계획 초안 만들어 줘" }
@@ -131,8 +131,8 @@
     }
     if (/로봇|robot|배터리|위치/i.test(q)) {
       return {
-        text: "이 미션에는 Robot 01 한 대가 배정돼 있어요. 지금 WP-04 를 점검 중이고 배터리는 78% 입니다.",
-        chips: [{ label: "Robot 01 다음 지점은?" }]
+        text: ("이 미션에는 " + (window.APRISM_ROBOT ? APRISM_ROBOT("r01") : "Robot 01") + " 한 대가 배정돼 있어요. 지금 WP-04 를 점검 중이고 배터리는 78% 입니다."),
+        chips: [{ label: ((window.APRISM_ROBOT ? APRISM_ROBOT("r01") : "Robot 01") + " 다음 지점은?") }]
       };
     }
     if (/요청|계획|초안|연락|재측정/.test(q)) {
@@ -163,7 +163,7 @@
   var CALM = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   function alerts() { return window.APRISM_DELTA_ALERTS || { all: [], mine: [], mission: null, missionOf: function () { return null; } }; }
   function hhmm(t) { return (t || "").slice(0, 5); }
-  function robotName(a) { var n = (a.robot || 0) + 1; return "Robot " + (n < 10 ? "0" : "") + n; }
+  function robotName(a) { var n = (a.robot || 0) + 1; return window.APRISM_ROBOT_AT ? APRISM_ROBOT_AT(n) : "Robot " + (n < 10 ? "0" : "") + n; }   // [11/26] 이름은 기준 목록
   function label(a) { return a.eq ? a.eq + " " + a.phen : a.title; }
   // 받침 — 숫자 · 단위 끝까지 읽어 고른다(0.86으로 · 250 Pa를)
   function batchim(w) {

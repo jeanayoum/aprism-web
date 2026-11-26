@@ -4201,7 +4201,7 @@
    * [11/11 v7 디자이너 · Figma UI_00 1736:14747] 지점 상자 머리 = "웨이포인트 7/20" + 접기 꺾쇠, 아래 [지도] [목록] 전환.
    *   목록 = 지금 지점 카드 목록, 지도 = 이 층 평면 미니맵(mini-plan.js — 안전진단 · 전체 미션과 같은 그림, 위험 · 주의는 단계 색 점)
    */
-  var WP_MIS = { "0": "정기 순회 점검", "3": "야간 순회 점검", "4": "발전기실 설비 점검", "6": "공조 설비 순회", "8": "유틸리티 순회", "10": "전기실 열화상 점검" };
+  var WP_MIS = { "0": (window.APRISM_MISSION ? APRISM_MISSION("m1") : "정기 순회 점검"), "3": (window.APRISM_MISSION ? APRISM_MISSION("m6") : "야간 순회 점검"), "4": (window.APRISM_MISSION ? APRISM_MISSION("m2") : "발전기실 설비 점검"), "6": (window.APRISM_MISSION ? APRISM_MISSION("m7") : "공조 설비 순회"), "8": (window.APRISM_MISSION ? APRISM_MISSION("m8") : "유틸리티 순회"), "10": (window.APRISM_MISSION ? APRISM_MISSION("m3") : "전기실 열화상 점검") };
   function wpMiniDraw() {
     if (!wpMini || wpView !== "map" || !window.APRISM_MINI) { return; }
     var rail = document.querySelector(".right-panel [data-timeline]");

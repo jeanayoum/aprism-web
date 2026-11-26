@@ -63,7 +63,7 @@
       import("three/addons/postprocessing/OutputPass.js"),
       import("three/addons/postprocessing/ShaderPass.js"),
       LAB ? import("https://cdn.jsdelivr.net/npm/lil-gui@0.19.2/dist/lil-gui.esm.min.js") : null
-    ]).then(build).catch(function (e) { console.warn("[통합 순회 연출 v6] 효과를 못 불러와 원래대로 그린다", e); });
+    ]).then(build).catch(function (e) { console.warn(("[" + (window.APRISM_MISSION ? APRISM_MISSION("m9") : "통합 순회") + " 연출 v6] 효과를 못 불러와 원래대로 그린다"), e); });
   }
 
   /* ---------- 그림 재료 ---------- */
@@ -351,7 +351,7 @@
     tag.classList.toggle("is-off", !S.on);
   }
   function panel(GUI) {
-    var gui = new GUI({ title: "통합 순회 연출 v6" });
+    var gui = new GUI({ title: ((window.APRISM_MISSION ? APRISM_MISSION("m9") : "통합 순회") + " 연출 v6") });
     gui.domElement.classList.add("lab-fx-gui");
     gui.add(S, "on").name("연출 켜기 (B)").onChange(badge).listen();
     var f = gui.addFolder("1 셰이더 윤곽선");

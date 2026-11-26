@@ -46,8 +46,8 @@
       .sort(function (a, b) { return a[0] - b[0]; })
       .forEach(function (e) { bar.appendChild(e[1]); });
   }
-  var mine = tabOf(current) || tabOf("정기 순회 점검");
-  current = mine ? mine.getAttribute("data-mission") : "정기 순회 점검";
+  var mine = tabOf(current) || tabOf((window.APRISM_MISSION ? APRISM_MISSION("m1") : "정기 순회 점검"));
+  current = mine ? mine.getAttribute("data-mission") : (window.APRISM_MISSION ? APRISM_MISSION("m1") : "정기 순회 점검");
   if (mine) { mine.classList.add("is-on"); mine.setAttribute("aria-current", "page"); }
   // 설정 중인 미션은 아직 돌기 전이다 — 수행중 탭(정기 순회 점검)을 열어도 알림 기호는 뺀다
   if (mine) { Array.prototype.forEach.call(mine.querySelectorAll(".sb-tab-sev"), function (s) { s.remove(); }); }
@@ -123,7 +123,7 @@
     if (stage === "precheck") { toast(V7KO ? BUSY : "사전점검 진행중입니다."); return; }
     if (stage !== "setup") { return; }
     var mission = tab.getAttribute("data-mission");
-    if (!mission) { go("통합 순회 현황", "./building-v6.html"); return; }
+    if (!mission) { go(((window.APRISM_MISSION ? APRISM_MISSION("m9") : "통합 순회") + " 현황"), "./building-v6.html"); return; }
     var q = "?mission=" + encodeURIComponent(mission);
     if (tab.getAttribute("data-run") === "idle") { go(mission + " 미션 설정", "./mission-setup-v6.html" + q); }
     else { go(mission + " 관제", "./main-v6.html" + q); }

@@ -101,20 +101,20 @@
     return `<button type="button" class="${cls}" style="left:${l}px;top:${t}px;width:${w}px;height:${h}px" data-k="${x.k}" aria-label="${x.k} ${WORD[x.st]} ${x.head}, 상세 보기">${head}${body}</button>`;
   }
   /* ---------- 지도 ---------- */
-  const L = () => APRISM_MINI.routeL('정기 순회 점검', 'B4', 20);
+  const L = () => APRISM_MINI.routeL((window.APRISM_MISSION ? APRISM_MISSION('m1') : '정기 순회 점검'), 'B4', 20);
   function wpPos(n){ const R = L(); const s = R.sAt[n - 1]; let i = 1; while(i < R.pts.length - 1 && R.cum[i] < s) i++;
     const a = R.pts[i-1], b = R.pts[i], f = (s - R.cum[i-1]) / ((R.cum[i] - R.cum[i-1]) || 1), xx = a[0] + (b[0] - a[0]) * f, yy = a[1] + (b[1] - a[1]) * f; return {u:(yy - 90) / 1150 * 100, v:(530 - xx) / 520 * 100}; }
   const marksAll = () => { const m = {}; D.forEach(x => x.sp.forEach(s => { const over = x.g === 'count' ? s[1] > 0 : x.range ? (s[1] > x.range[1]) : s[1] >= x.w; if(over){ const n = +s[0].slice(3) - 1; if(m[n] !== 'crit') m[n] = x.st; } })); return m; };
-  const plan = (w, marks, robot) => fix(APRISM_MINI.svg({floor:'B4', n:20, done:7, robot: robot !== false, marks, land:true, mission:'정기 순회 점검', w})).replace('viewBox="-24 -864 1418 888"', 'viewBox="90 -530 1150 520"');
+  const plan = (w, marks, robot) => fix(APRISM_MINI.svg({floor:'B4', n:20, done:7, robot: robot !== false, marks, land:true, mission:(window.APRISM_MISSION ? APRISM_MISSION('m1') : '정기 순회 점검'), w})).replace('viewBox="-24 -864 1418 888"', 'viewBox="90 -530 1150 520"');
   function mapRef(box){ // 구조 A — 레퍼런스 꼴 지도
     const [l, t, w, h] = box, k = w / 1804, pins = {'WP-03':[1237,430,'warn'],'WP-04':[1312,430,'crit'],'WP-05':[1147,430,'warn'],'WP-06':[991,393,'warn'],'WP-07':[916,298,'crit']};
     return `<div class="abs" style="left:${l}px;top:${t}px;width:${w}px;height:${h}px;border-radius:4px;overflow:hidden;background:#26282c">${REFMAP.replace('<svg ', '<svg style="position:absolute;left:0;top:0;width:100%;height:auto" ')}
       ${pinsHtml(pins, k)}
-      <span class="abs" style="left:${916 * k - 32}px;top:${147 * k - 32}px;width:64px;height:64px;border-radius:50%;border:2px solid #fff;display:grid;place-items:center"><img src="${IMG['robot-top-spot.png']}" alt="Robot 01" width="44" height="44"></span>
+      <span class="abs" style="left:${916 * k - 32}px;top:${147 * k - 32}px;width:64px;height:64px;border-radius:50%;border:2px solid #fff;display:grid;place-items:center"><img src="${IMG['robot-top-spot.png']}" alt=(window.APRISM_ROBOT ? APRISM_ROBOT("r01") : "Robot 01") width="44" height="44"></span>
       <span class="abs ds-mapbar" style="left:24px;top:24px"><span class="ds-badge is-plain is-crit">위험 2건</span><span class="ds-badge is-plain is-warn">주의 2건</span><span class="ds-badge is-plain is-neutral ds-i-none">남은 지점 12곳</span></span>
       <span class="abs ds-maptools sv8-zoom" style="right:24px;bottom:24px"><button type="button" class="icon-button" aria-label="지도 확대">${ico('zoom-in', 'i-20')}</button><button type="button" class="icon-button" aria-label="지도 축소">${ico('zoom-out', 'i-20')}</button></span></div>`;
   }
-  const dogSvg = w => DOG.replace('<svg ', `<svg style="width:${w}px;height:auto;display:block" aria-label="Robot 01" role="img" `).replace(/fill="#373F4E"/g, 'fill="#9EA8BB"');
+  const dogSvg = w => DOG.replace('<svg ', `<svg style="width:${w}px;height:auto;display:block" aria-label=(window.APRISM_ROBOT ? APRISM_ROBOT("r01") : "Robot 01") role="img" `).replace(/fill="#373F4E"/g, 'fill="#9EA8BB"');
 
   /* ---------- 상세 조각 ---------- */
   function track(x){ return `<div class="ds-sec"><div class="ds-sec-head">기준 비교<span>기준 ${x.lim}</span>${S.s === 'B' ? `<span style="color:${TXT[x.st]};font-weight:600">${x.gap}</span>` : ''}</div>${track0(x)}</div>`; }
@@ -279,14 +279,14 @@
   const isOver = (x, s) => x.g === 'count' ? s[1] > 0 : x.range ? s[1] > x.range[1] : s[1] >= x.w;
   // 미션 여덟(상단 탭 M1~M8). M1 은 safety-v7 값, 나머지 판정과 진행은 시안용 예시
   const MISS = [
-    {id:'M1', n:'정기 순회 점검', r:'Robot 01', fl:'B4', tot:20, done:7, mn:20, md:7, c:['crit','crit','warn','warn','ok','ok']},
-    {id:'M2', n:'공조 설비 순회', r:'Robot 02', fl:'B3', tot:20, done:11, mn:20, md:11, c:['ok','ok','ok','warn','ok','ok'], marks:{5:'warn'}, v:{'온도감지':'43.2 ℃'}},
-    {id:'M3', n:'발전기실 설비 점검', r:'Robot 03', fl:'B4', tot:20, done:15, mn:8, md:3, c:['ok','ok','ok','ok','ok','crit'], marks:{1:'crit'}, v:{'부분방전':'9.82'}},
-    {id:'M4', n:'유틸리티 순회', r:'Robot 04', fl:'B4', tot:20, done:4, mn:20, md:4, c:['ok','ok','ok','ok','ok','ok']},
-    {id:'M5', n:'전기실 열화상 점검', r:'Robot 05', fl:'B3', tot:20, done:17, mn:20, md:17, c:['ok','ok','ok','ok','ok','ok']},
-    {id:'M6', n:'주간 순회 점검', r:'Robot 02', at:'14:00', fl:'B3', tot:20, done:0, mn:20, md:0},
-    {id:'M7', n:'소방 설비 점검', r:'Robot 04', at:'16:00', fl:'B4', tot:20, done:0, mn:20, md:0},
-    {id:'M8', n:'야간 순회 점검', r:'Robot 01', at:'22:00', fl:'B4', tot:20, done:0, mn:20, md:0}
+    {id:'M1', n:(window.APRISM_MISSION ? APRISM_MISSION('m1') : '정기 순회 점검'), r:(window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01'), fl:'B4', tot:20, done:7, mn:20, md:7, c:['crit','crit','warn','warn','ok','ok']},
+    {id:'M2', n:(window.APRISM_MISSION ? APRISM_MISSION('m7') : '공조 설비 순회'), r:(window.APRISM_ROBOT ? APRISM_ROBOT('r02') : 'Robot 02'), fl:'B3', tot:20, done:11, mn:20, md:11, c:['ok','ok','ok','warn','ok','ok'], marks:{5:'warn'}, v:{'온도감지':'43.2 ℃'}},
+    {id:'M3', n:(window.APRISM_MISSION ? APRISM_MISSION('m2') : '발전기실 설비 점검'), r:(window.APRISM_ROBOT ? APRISM_ROBOT('r03') : 'Robot 03'), fl:'B4', tot:20, done:15, mn:8, md:3, c:['ok','ok','ok','ok','ok','crit'], marks:{1:'crit'}, v:{'부분방전':'9.82'}},
+    {id:'M4', n:(window.APRISM_MISSION ? APRISM_MISSION('m8') : '유틸리티 순회'), r:(window.APRISM_ROBOT ? APRISM_ROBOT('r04') : 'Robot 04'), fl:'B4', tot:20, done:4, mn:20, md:4, c:['ok','ok','ok','ok','ok','ok']},
+    {id:'M5', n:(window.APRISM_MISSION ? APRISM_MISSION('m3') : '전기실 열화상 점검'), r:(window.APRISM_ROBOT ? APRISM_ROBOT('r05') : 'Robot 05'), fl:'B3', tot:20, done:17, mn:20, md:17, c:['ok','ok','ok','ok','ok','ok']},
+    {id:'M6', n:'주간 순회 점검', r:(window.APRISM_ROBOT ? APRISM_ROBOT('r02') : 'Robot 02'), at:'14:00', fl:'B3', tot:20, done:0, mn:20, md:0},
+    {id:'M7', n:(window.APRISM_MISSION ? APRISM_MISSION('m4') : '소방 설비 점검'), r:(window.APRISM_ROBOT ? APRISM_ROBOT('r04') : 'Robot 04'), at:'16:00', fl:'B4', tot:20, done:0, mn:20, md:0},
+    {id:'M8', n:(window.APRISM_MISSION ? APRISM_MISSION('m6') : '야간 순회 점검'), r:(window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01'), at:'22:00', fl:'B4', tot:20, done:0, mn:20, md:0}
   ];
   let mc = 8, dlOpen = false, dlMode = 'drawer';
   const dlOk = () => S.s === 'A' && scr === 'd' && KD[view] && KD[view].st === 'ok', dlClosed = () => S.s === 'A' && scr === 'd' && !!KD[view] && (dlMode === 'float' || (KD[view].st === 'ok' && !dlOpen));
@@ -341,7 +341,7 @@
       <span class="ds-robot-card-row"><span>배터리</span>${ds.battery(82)}</span>
       <span class="ds-robot-card-row"><span>측정</span><span class="ds-robot-card-prog"><span class="progress-track ds-progress" style="--progress:35%"><span class="progress-fill ds-progress-fill"></span><span class="progress-knob ds-progress-cursor"><span class="i i-16 ds-progress-icon" style="--i:var(--ic-way)" aria-hidden="true"></span></span></span><span class="num">7/20곳</span></span></span></div>`;
   const robotCard = box => `<div class="abs ds-robot-card" style="left:${box[0]}px;top:${box[1]}px;width:${box[2]}px;height:${box[3]}px"><b class="ds-robot-card-name">Robot 01</b>${robotFig()}${robotRows()}</div>`;
-  const liveBox = (box, big) => `<div class="abs live" style="left:${box[0]}px;top:${box[1]}px;width:${box[2]}px;height:${box[3]}px"><img src="${IMG['leak_ok.jpg']}" alt="Robot 01 전방 카메라 라이브"><span class="ds-badge is-onmap is-strong ds-i-dot is-live" style="left:16px;top:16px">라이브 전방 카메라 Robot 01</span></div>`;
+  const liveBox = (box, big) => `<div class="abs live" style="left:${box[0]}px;top:${box[1]}px;width:${box[2]}px;height:${box[3]}px"><img src="${IMG['leak_ok.jpg']}" alt=((window.APRISM_ROBOT ? APRISM_ROBOT("r01") : "Robot 01") + " 전방 카메라 라이브")><span class="ds-badge is-onmap is-strong ds-i-dot is-live" style="left:16px;top:16px">라이브 전방 카메라 Robot 01</span></div>`;
   /* ---------- 시안 B: 왼쪽 목록, 오른쪽 본문 ---------- */
   function allB(){
     const LOC = {'장비착용':['작업 구역 출입구','고소 작업 발판','설비 통로'], '계기인식':['N₂ 배관 압력계','공기 압축기 C-1','HEPA Filter 차압계'], '누출감지':['냉각수 배관 밸브','배관 이음부','펌프 하부'],
@@ -620,7 +620,7 @@
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(() => { try { inset2(); } catch(e) {} });   // 글꼴이 늦게 실리면 알약 폭이 달라진다
   function inset2(){
     // 가로 B안 왼쪽 머리의 미션 이름도 뺀다(상단 탭과 반복). 미션별은 머리 줄이 통째로 없어지고, 상세는 돌아가기만 남는다
-    if(S.s === 'B' && scr !== 'all'){ const hb = st.querySelector('main.body > .abs'), t = hb && [...hb.querySelectorAll('b')].find(b => b.textContent === '정기 순회 점검'); if(t){ t.parentElement.remove(); if(scr === 'm') hb.remove(); } }
+    if(S.s === 'B' && scr !== 'all'){ const hb = st.querySelector('main.body > .abs'), t = hb && [...hb.querySelectorAll('b')].find(b => b.textContent === (window.APRISM_MISSION ? APRISM_MISSION('m1') : '정기 순회 점검')); if(t){ t.parentElement.remove(); if(scr === 'm') hb.remove(); } }
     const P = 12, {W, H} = BOX(), m1 = MH(false), m2 = MH(true), kids = [...st.querySelectorAll('main.body > *')], B = (l, t, w, h) => ({l, t, w, h});
     const mw = W - 424, lw = mw - 408 - 12;
     const L = {
@@ -641,7 +641,7 @@
       'B-d': () => [B(0, 0, 400, 36), B(0, 48, 400, H - 48), B(424, 0, lw, H), B(W - 408, 0, 408, 236), B(W - 408, 248, 408, null)]
     }[S.s + '-' + scr]();
     // 가로 B안 왼쪽 머리의 'Robot 01, 7/20곳 측정' 줄은 뺀다(로봇 칸이 같은 말을 한다)
-    const sub = [...st.querySelectorAll('main.body span')].find(s => s.textContent === 'Robot 01, 7/20곳 측정'); if(sub) sub.remove();
+    const sub = [...st.querySelectorAll('main.body span')].find(s => s.textContent === ((window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01') + ', 7/20곳 측정')); if(sub) sub.remove();
     if(L.length !== kids.length) return inset();
     st.querySelectorAll('.v7c .gr svg').forEach(svg => { try { const b = svg.getBBox(); if(b.width && b.height){ svg.setAttribute('viewBox', `${b.x} ${b.y} ${b.width} ${b.height}`); svg.setAttribute('preserveAspectRatio', 'xMidYMid meet'); svg.removeAttribute('width'); svg.removeAttribute('height'); } } catch(e) {} });
     const innA = S.s === 'A' && scr === 'd' && st.querySelector('.amap-in'); if(innA) innA.style.transform = mapT(true);
@@ -705,7 +705,7 @@
     ['장비착용','누출감지','이상음향','온도감지','계기인식','부분방전'].forEach((k, i) => { h += det(KD[k], [24 + (i % 3) * 409, 520 + Math.floor(i / 3) * 241, 399, 231], 'A'); });
     h += `<div class="abs ds-robot-card" style="left:1252px;top:520px;width:560px;height:472px"><b class="ds-robot-card-name">Robot 01</b>
       <div class="ds-robot-card-top">${robotRows()}${robotFig()}</div>
-      <div class="live ds-robot-card-live"><img src="${IMG['leak_ok.jpg']}" alt="Robot 01 전방 카메라 라이브"><span class="ds-badge is-onmap is-strong ds-i-dot is-live" style="left:12px;top:12px">라이브 전방 카메라</span></div></div>`;
+      <div class="live ds-robot-card-live"><img src="${IMG['leak_ok.jpg']}" alt=((window.APRISM_ROBOT ? APRISM_ROBOT("r01") : "Robot 01") + " 전방 카메라 라이브")><span class="ds-badge is-onmap is-strong ds-i-dot is-live" style="left:12px;top:12px">라이브 전방 카메라</span></div></div>`;
     return h;
   }
   function detailOrigA(){ const x = KD[view];
@@ -838,7 +838,7 @@
     const vc = e.target.closest('.v7c[data-k]');
     if(vc && !vc.dataset.go && !matchMedia('(prefers-reduced-motion: reduce)').matches){ const wrap = st.querySelector('.v7a'); vc.classList.add('pick'); wrap.classList.add('go'); vc.dataset.go = '1'; setTimeout(() => vc.click(), 200); return; }
     const k = e.target.closest('[data-k]'); if(k){ dlOpen = false; view = k.dataset.k; wpSel = null; return show('d'); }
-    const m = e.target.closest('[data-m]'); if(m){ if(m.dataset.m === 'M1') return show('m'); return toast('이 시안은 M1 정기 순회 점검만 열림'); }
+    const m = e.target.closest('[data-m]'); if(m){ if(m.dataset.m === 'M1') return show('m'); return toast(('이 시안은 M1 ' + (window.APRISM_MISSION ? APRISM_MISSION('m1') : '정기 순회 점검') + '만 열림')); }
     const g = e.target.closest('[data-go]'); if(g) show(g.dataset.go);
   }
   st.addEventListener('click', act);

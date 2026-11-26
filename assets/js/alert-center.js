@@ -477,7 +477,7 @@
       : '<span class="ac-c-sev" role="columnheader"><span class="ac-sr">단계</span></span>' +
         '<span class="ac-c-time" role="columnheader">발생</span>' +
         '<span class="ac-c-title" role="columnheader">알림</span>' +
-        '<span class="ac-c-place" role="columnheader">웨이포인트 · 위치</span>' +
+        '<span class="ac-c-place" role="columnheader">' + (V7 ? '웨이포인트, 위치' : '웨이포인트 · 위치') + '</span>' +
         '<span class="ac-c-mission" role="columnheader">미션</span>' +
         '<span class="ac-c-act" role="columnheader"><span class="ac-sr">동작</span></span>';
     if (sortBox) {
@@ -1433,7 +1433,7 @@
       var src = ALERTS.filter(function (a) { return a.sev === "critical" && !isDone(a); })[0]; if (!src) { return; }
       var t = nowDate(), hms = [t.getHours(), t.getMinutes(), t.getSeconds()].map(function (n) { return (n < 10 ? "0" : "") + n; }).join(":");
       var a = JSON.parse(JSON.stringify(src));
-      a.id = "A-NEW"; a.time = hms; a.stamp = a.stamp.slice(0, 11) + hms; a.mission = "발전기실 설비 점검"; a.floor = "B3"; a.wp = "WP-11"; a.place = "배관 랙 통로"; a.robot = "Robot 05";
+      a.id = "A-NEW"; a.time = hms; a.stamp = a.stamp.slice(0, 11) + hms; a.mission = (window.APRISM_MISSION ? APRISM_MISSION("m2") : "발전기실 설비 점검"); a.floor = "B3"; a.wp = "WP-11"; a.place = "배관 랙 통로"; a.robot = (window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05");
       ALERTS.push(a); NEWRISK.push(a.id); refresh();
     }, 3000);
   }

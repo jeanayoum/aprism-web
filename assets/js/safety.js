@@ -44,7 +44,7 @@
     2:[['온도감지', '누출감지', '같은 급수 계통. WP-B09 펌프 모터 과열이 분기부 압력 변동으로 이어질 수 있다', '보통']]};
   const BASE = [
     // [10/30] 관제 v5 와 같은 데이터 — Robot 01 · 지하 4층 · WP-01~20 중 7곳 측정(WP-08 로 가는 중). 감지 6종 = 관제 최신 알림 6건(monitor.js R01_MORE)
-    {mis:'정기 순회 점검', fl:'지하 4층', ab:'B4', robot:'Robot 01', done:7, total:20, r:{
+    {mis:(window.APRISM_MISSION ? APRISM_MISSION('m1') : '정기 순회 점검'), fl:'지하 4층', ab:'B4', robot:(window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01'), done:7, total:20, r:{
       '안전감지':['crit','안전벨트 미착용 1명','WP-07 고소 작업 발판','10:16'],
       '누출감지':['warn','누출 의심 1곳','WP-03 냉각수 배관 밸브','10:11'],
       '온도감지':['warn','최고 48.6 ℃','WP-05 냉각 펌프 P-2','10:14'],
@@ -53,13 +53,13 @@
       '부분방전':['warn','CH1 이상 점수 9.05','WP-06 수배전반 MCC-1','10:15']}},
     // [10/30] 미션 이름 · 로봇 · 층 · 진행을 관제(screen.js · building.js)의 수행중 미션에 맞췄다 — 예전 '설비 순회 · 1층 · Robot 02', '배관 순회 · Robot 03'.
     //   전기실 열화상 점검 = Robot 11 · 지하 3층 · 3/20(WP-03 → WP-04 가는 중). 지점 번호도 진행에 맞춰 WP-102 · 103(새 결과 104)으로 당겼다.
-    {mis:'전기실 열화상 점검', fl:'지하 3층', ab:'B3', robot:'Robot 11', done:3, total:20, r:{
+    {mis:(window.APRISM_MISSION ? APRISM_MISSION('m3') : '전기실 열화상 점검'), fl:'지하 3층', ab:'B3', robot:(window.APRISM_ROBOT ? APRISM_ROBOT('r11') : 'Robot 11'), done:3, total:20, r:{
       '안전감지':['ok','정상 범위','측정 3곳'], '누출감지':['ok','정상 범위','측정 2곳'], '온도감지':['ok','정상 범위','측정 3곳'],
       '계기인식':['warn','압력 0.84 MPa','WP-102 압력계 PG-A3','10:01'],
       '이상음향':['ok','정상 범위','측정 2곳'],
       '부분방전':['warn','CH1 이상 점수 9.05','WP-103 수배전반','09:58']}},
     //   발전기실 설비 점검 = Robot 05 · 지하 3층(WP-01~12) → 계단 → 지하 4층(WP-13~20) · 13/20, 지금 지하 4층(관제 지도 층 건너기 예시).
-    {mis:'발전기실 설비 점검', fl:'지하 3층, 지하 4층', ab:'B3', fls:[['B3','지하 3층',12],['B4','지하 4층',20]], robot:'Robot 05', done:13, total:20, na:{'안전감지':'scope','부분방전':'sensor'}, r:{
+    {mis:(window.APRISM_MISSION ? APRISM_MISSION('m2') : '발전기실 설비 점검'), fl:'지하 3층, 지하 4층', ab:'B3', fls:[['B3','지하 3층',12],['B4','지하 4층',20]], robot:(window.APRISM_ROBOT ? APRISM_ROBOT('r05') : 'Robot 05'), done:13, total:20, na:{'안전감지':'scope','부분방전':'sensor'}, r:{
       '안전감지':null, '누출감지':['crit','누출 의심도 81%','WP-B04 급수 배관 분기부','09:21'],
       '온도감지':['warn','최고 41.8 ℃','WP-B09 급수 펌프 모터','10:09'], '계기인식':['ok','정상 범위','측정 3곳'], '이상음향':['ok','정상 범위','측정 4곳'], '부분방전':null}}
   ];
@@ -81,9 +81,9 @@
     MV['2|이상음향|warn'] = 'm2_sound_warn.jpg';
     LINKS[2] = [['부분방전', '온도감지', '같은 발전기 계통. WP-06 수배전반 방전과 WP-02 베어링 과열이 함께 나타날 수 있다', '보통']];
     BASE.push(
-      {mis:'야간 순회 점검', fl:'지하 4층', ab:'B4', robot:'Robot 04', done:20, total:20, r:{'안전감지':ok(4),'누출감지':ok(5),'온도감지':ok(6),'계기인식':ok(4),'이상음향':ok(5),'부분방전':ok(3)}},
-      {mis:'공조 설비 순회', fl:'지하 3층', ab:'B3', robot:'Robot 07', done:20, total:20, r:{'안전감지':ok(3),'누출감지':ok(4),'온도감지':ok(6),'계기인식':ok(5),'이상음향':ok(6),'부분방전':ok(2)}},
-      {mis:'유틸리티 순회', fl:'지하 4층', ab:'B4', robot:'Robot 09', done:20, total:20, r:{'안전감지':ok(3),'누출감지':ok(6),'온도감지':ok(5),'계기인식':ok(6),'이상음향':ok(4),'부분방전':ok(3)}});
+      {mis:(window.APRISM_MISSION ? APRISM_MISSION('m6') : '야간 순회 점검'), fl:'지하 4층', ab:'B4', robot:(window.APRISM_ROBOT ? APRISM_ROBOT('r04') : 'Robot 04'), done:20, total:20, r:{'안전감지':ok(4),'누출감지':ok(5),'온도감지':ok(6),'계기인식':ok(4),'이상음향':ok(5),'부분방전':ok(3)}},
+      {mis:(window.APRISM_MISSION ? APRISM_MISSION('m7') : '공조 설비 순회'), fl:'지하 3층', ab:'B3', robot:(window.APRISM_ROBOT ? APRISM_ROBOT('r07') : 'Robot 07'), done:20, total:20, r:{'안전감지':ok(3),'누출감지':ok(4),'온도감지':ok(6),'계기인식':ok(5),'이상음향':ok(6),'부분방전':ok(2)}},
+      {mis:(window.APRISM_MISSION ? APRISM_MISSION('m8') : '유틸리티 순회'), fl:'지하 4층', ab:'B4', robot:(window.APRISM_ROBOT ? APRISM_ROBOT('r09') : 'Robot 09'), done:20, total:20, r:{'안전감지':ok(3),'누출감지':ok(6),'온도감지':ok(5),'계기인식':ok(6),'이상음향':ok(4),'부분방전':ok(3)}});
   }
   /*
    * [11/10 v7] 위험 · 주의 칸은 알림 데이터 한 곳(alert-data-v7.js)에서 — 관제 · 알림 센터 · 전체 미션과 같은 12건, 문장도 관제 메인과 같다
@@ -410,7 +410,7 @@
     return list;
   }
   // 미션 하나의 표 = 위 확정 E 표와 같은 모양(행 감지, 열 순회 순서의 지점, 지금 지점 강조, DELTA 메모)
-  const E_SP0 = [['WP-01','09:31','Robot 01'],['WP-02','09:52','Robot 01'],['WP-03','10:11','Robot 01'],['WP-04','10:12','Robot 01'],['WP-05','10:14','Robot 01'],['WP-06','10:15','Robot 01'],['WP-07','10:16','Robot 01'],['WP-08','10:20','Robot 01',1],['WP-09','10:24','Robot 01',1]], E_NOW0 = 'WP-07', E_ROWS0 = [
+  const E_SP0 = [['WP-01','09:31',(window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01')],['WP-02','09:52',(window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01')],['WP-03','10:11',(window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01')],['WP-04','10:12',(window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01')],['WP-05','10:14',(window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01')],['WP-06','10:15',(window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01')],['WP-07','10:16',(window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01')],['WP-08','10:20',(window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01'),1],['WP-09','10:24',(window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01'),1]], E_NOW0 = 'WP-07', E_ROWS0 = [
     {n:'안전감지', src:'영상', s:'crit', rep:'1명', wp:'WP-07', std:'미착용 0명', memo:'WP-07 고소 작업 발판 안전벨트 미착용', c:{'WP-01':['ok','0명'],'WP-04':['ok','0명'],'WP-07':['crit','1명']}},
     {n:'누출감지', src:'영상 + 열화상', s:'warn', rep:'62%', wp:'WP-03', std:'55% 미만', memo:'같은 냉각수 계통 WP-05 온도, 음향도 기준 초과', c:{'WP-03':['warn','62%'],'WP-04':['ok','9%'],'WP-05':['ok','12%'],'WP-09':['plan']}},
     {n:'온도감지', src:'열화상', s:'warn', rep:'48.6 ℃', wp:'WP-05', std:'40 ℃ 미만', memo:'평소 36.2 ℃ 대비 +12.4 ℃', c:{'WP-01':['ok','29.8'],'WP-02':['ok','31.4'],'WP-03':['ok','30.2'],'WP-04':['ok','32.1'],'WP-05':['warn','48.6'],'WP-06':['ok','33.0'],'WP-08':['plan']}},
@@ -803,7 +803,7 @@
   function view(){
     if(dt) return detail();
     if(scope==='all'){ const done = M.reduce((a, m) => a + m.done, 0), total = M.reduce((a, m) => a + m.total, 0), n = M.reduce((a, m, i) => a + hits(i), 0);
-      return head('통합 순회 현황', done, total, n) + (lay==='table' ? tableAll() : secsAll()); }
+      return head(((window.APRISM_MISSION ? APRISM_MISSION('m9') : '통합 순회') + ' 현황'), done, total, n) + (lay==='table' ? tableAll() : secsAll()); }
     const m = M[scope];
     // [10/30 Figma 1468:8819] 미션 하나 — 칸마다 위에 감지 이름 · 기준, 아래 카드
     return head(m.mis, m.done, m.total, hits(scope)) + (lay==='table' ? tableOne(scope) : `<div class="g6 cx vC mmg">${K.map(k => `<div class="mcell"><div class="mch"><b>${k}</b>${V7 ? '' : `<small>${STD[k]}</small>`}</div>${cardX(cardM(M.indexOf(m), k), k, false)}</div>`).join('')}</div>`);

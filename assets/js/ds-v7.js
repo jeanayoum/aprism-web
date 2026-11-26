@@ -31,7 +31,7 @@ window.APRISM_DELTA_HOLO = {
   }
 };
 window.APRISM_ROBOT_LABEL = function (x) {
-  function n2(k) { return "Robot " + (k < 10 ? "0" : "") + k; }
+  function n2(k) { return window.APRISM_ROBOT_AT ? APRISM_ROBOT_AT(k) : "Robot " + (k < 10 ? "0" : "") + k; }   // [11/26] 이름은 기준 목록
   if (typeof x === "number") { return n2(x + 1); }
   var m = /robot\s*0*(\d+)/i.exec(String(x || ""));
   return m ? n2(parseInt(m[1], 10)) : String(x || "");

@@ -23,9 +23,9 @@
       el1: { name: "이도윤", team: "전기팀" },
       sa1: { name: "최서연", team: "안전관리팀" }
     },
-    // 로봇: 번호 → 이름 (2단계에서 화면 연결)
+    // 로봇: 번호 → 이름
     robots: { r00: "Robot 00", r01: "Robot 01", r02: "Robot 02", r03: "Robot 03", r04: "Robot 04", r05: "Robot 05", r06: "Robot 06", r07: "Robot 07", r08: "Robot 08", r09: "Robot 09", r10: "Robot 10", r11: "Robot 11", r12: "Robot 12" },
-    // 미션: 번호 → 이름 (2단계에서 화면 연결)
+    // 미션: 번호 → 이름
     missions: { m1: "정기 순회 점검", m2: "발전기실 설비 점검", m3: "전기실 열화상 점검", m4: "소방 설비 점검", m5: "주간 설비 점검", m6: "야간 순회 점검", m7: "공조 설비 순회", m8: "유틸리티 순회", m9: "통합 순회" }
   };
   B.name = function (id, fallback) { var p = B.people[id]; return p ? p.name : (fallback || ""); };
@@ -34,16 +34,21 @@
   B.mission = function (id, fallback) { return B.missions[id] || fallback || ""; };
   // 화면 글 규칙: 가운뎃점(·) 구분자 대신 쉼표
   B.copy = function (s) { return s == null ? s : String(s).replace(/\s*·\s*/g, ", "); };
-  // data-base 붙은 요소 글 채우기: "me" = 로그인 관제사, "person.op2" = 사람 이름
+  // 로봇 번호(1부터)로 이름: robotAt(5) → "Robot 05". 화면 JS 가 번호에서 이름을 만들 때 씀
+  B.robotAt = function (n) { var id = "r" + (n < 10 ? "0" : "") + n; return B.robots[id] || ("Robot " + (n < 10 ? "0" : "") + n); };
+  // data-base 붙은 요소 글 채우기: "me" = 로그인 관제사, "person.op2" = 사람, "robot.r05" = 로봇, "mission.m2" = 미션
   B.fill = function (root) {
     Array.prototype.forEach.call((root || document).querySelectorAll("[data-base]"), function (el) {
-      var k = el.getAttribute("data-base"), v = k === "me" ? B.name(B.me) : k.indexOf("person.") === 0 ? B.name(k.slice(7)) : "";
+      var k = el.getAttribute("data-base"), v = k === "me" ? B.name(B.me) : k.indexOf("person.") === 0 ? B.name(k.slice(7)) : k.indexOf("robot.") === 0 ? B.robot(k.slice(6)) : k.indexOf("mission.") === 0 ? B.mission(k.slice(8)) : "";
       if (v && el.textContent !== v) { el.textContent = v; }
     });
   };
   window.APRISM_BASE = B;
   // 공유 JS(v6 도 쓰는 파일)에서 짧게 부르는 도우미: (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동")
   window.APRISM_NAME = function (id) { return B.name(id); };
+  window.APRISM_ROBOT = function (id) { return B.robot(id); };
+  window.APRISM_ROBOT_AT = B.robotAt;
+  window.APRISM_MISSION = function (id) { return B.mission(id); };
   window.APRISM_COPY = B.copy;
   if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", function () { B.fill(); }); } else { B.fill(); }
 })();

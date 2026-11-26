@@ -31,11 +31,11 @@
 
   // [11/05] 미션 번호 — 탭 이름 앞에 M1, M2 … 를 붙인다(디자이너). 탭을 끌어 순서를 바꿔도 번호는 미션을 따라간다.
   //   번호는 처음 펼친 탭 차례(수행중 → 대기 → 완료) 그대로 고정한다.
-  var MNO = ["정기 순회 점검", "발전기실 설비 점검", "전기실 열화상 점검", "소방 설비 점검", "주간 설비 점검", "야간 순회 점검", "공조 설비 순회", "유틸리티 순회"];
+  var MNO = [(window.APRISM_MISSION ? APRISM_MISSION("m1") : "정기 순회 점검"), (window.APRISM_MISSION ? APRISM_MISSION("m2") : "발전기실 설비 점검"), (window.APRISM_MISSION ? APRISM_MISSION("m3") : "전기실 열화상 점검"), (window.APRISM_MISSION ? APRISM_MISSION("m4") : "소방 설비 점검"), (window.APRISM_MISSION ? APRISM_MISSION("m5") : "주간 설비 점검"), (window.APRISM_MISSION ? APRISM_MISSION("m6") : "야간 순회 점검"), (window.APRISM_MISSION ? APRISM_MISSION("m7") : "공조 설비 순회"), (window.APRISM_MISSION ? APRISM_MISSION("m8") : "유틸리티 순회")];
   //   영문판은 번역기가 이름을 먼저 영어로 바꿔 두므로 사전(APRISM_EN)으로 영어 이름도 같은 번호에 잇는다
   var EN = window.APRISM_EN || {};
   var MNO_EN = MNO.map(function (k) { return EN[k]; });
-  var IDLE = ["소방 설비 점검", "주간 설비 점검"];   // 데모 대기 미션(screen.js ver-6 블록과 같다)
+  var IDLE = [(window.APRISM_MISSION ? APRISM_MISSION("m4") : "소방 설비 점검"), (window.APRISM_MISSION ? APRISM_MISSION("m5") : "주간 설비 점검")];   // 데모 대기 미션(screen.js ver-6 블록과 같다)
   // [11/20 정의서 공통-01 Q1] v7 한글 — 미션 탭이 탭 줄 폭을 넘으면 넘친 미션을 줄 끝 [+N] 더보기 메뉴로. 보이는 개수는 화면 폭에 따름
   //   시연: 주소 ?missions=30 (관제 탭을 옮겨도 유지) — 창 폭을 줄이면 [+N] 숫자가 는다
   var V7KO = document.body.classList.contains("ver-7") && document.documentElement.lang !== "en";
@@ -61,10 +61,10 @@
     if (nq) {
       var seen = ""; try { seen = sessionStorage.getItem("aprism.newrisk.q") || ""; } catch (e) { seen = ""; }
       if (seen !== nq[0]) {   // 같은 주소로 다시 와도 끈 점을 되살리지 않는다 — 주소가 바뀔 때만 새로 켠다
-        setNewRisks(nq[1] === "1" ? ["전기실 열화상 점검"] : []);
+        setNewRisks(nq[1] === "1" ? [(window.APRISM_MISSION ? APRISM_MISSION("m3") : "전기실 열화상 점검")] : []);
         // 다시 켜면 그 위험의 조치 요청 기록도 지운다 — 시연을 처음부터 되풀이할 수 있게
         var A7 = window.APRISM_ALERTS7;
-        if (nq[1] === "1" && A7) { A7.list.forEach(function (a) { if (a.mission === "전기실 열화상 점검" && a.sev === "critical") { A7.req.clear(a.id); } }); }
+        if (nq[1] === "1" && A7) { A7.list.forEach(function (a) { if (a.mission === (window.APRISM_MISSION ? APRISM_MISSION("m3") : "전기실 열화상 점검") && a.sev === "critical") { A7.req.clear(a.id); } }); }
         try { sessionStorage.setItem("aprism.newrisk.q", nq[0]); } catch (e) { /* 막힘 */ }
       }
     }

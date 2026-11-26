@@ -607,7 +607,7 @@ window.APRISM_TEXT = (function () {
       // State=Running · 78% · Strong
       // 진행 막대 제목 — 임시 문구다(Figma 는 자리표시자 "현재 수행명"). 지금 도는 칸(WP-04)의 일이다.
       // 전체 미션명(패널 머리)과 지금 하는 일(current) 은 다른 말이다.
-      mission: "지하 4층 정기 순회 점검",
+      mission: ("지하 4층 " + (window.APRISM_MISSION ? APRISM_MISSION("m1") : "정기 순회 점검")),
       current: "N₂ 배관 압력 점검",
       steps: [
         {
@@ -669,7 +669,7 @@ window.APRISM_TEXT = (function () {
     },
     {
       // 4 · 완료 · 92% · Strong — 끝까지 돌고 돌아왔다
-      mission: "지하 4층 야간 순회 점검",
+      mission: ("지하 4층 " + (window.APRISM_MISSION ? APRISM_MISSION("m6") : "야간 순회 점검")),
       current: "순회 완료",
       steps: [
         { title: "waypoint name", state: "done", time: "07:20 – 07:38", duration: "18분" },
@@ -683,7 +683,7 @@ window.APRISM_TEXT = (function () {
     {
       // 5 · 수행중 · 64% · Good — B3(WP-01~12)를 돌고 계단으로 내려와 B4 를 도는 중(14/20, 10/20 디자이너).
       //   B3 · B4 를 둘 다 지나는 경로 예시 — 예전 정기 순회 점검 Robot 02 의 길(map.js crossLane)을 넘겨받았다.
-      mission: "지하 3층 발전기실 설비 점검",
+      mission: ("지하 3층 " + (window.APRISM_MISSION ? APRISM_MISSION("m2") : "발전기실 설비 점검")),
       current: "발전기 베어링 진동 측정",
       steps: [
         { title: "waypoint name", state: "done", time: "07:28 – 07:41", duration: "13분" },
@@ -725,7 +725,7 @@ window.APRISM_TEXT = (function () {
     },
     {
       // 7 · 완료 · 96% 충전 · Strong — 도킹에서 다음 미션을 기다린다
-      mission: "지하 3층 공조 설비 순회",
+      mission: ("지하 3층 " + (window.APRISM_MISSION ? APRISM_MISSION("m7") : "공조 설비 순회")),
       current: "순회 완료",
       steps: [
         { title: "waypoint name", state: "done", time: "06:05 – 06:24", duration: "19분" },
@@ -748,7 +748,7 @@ window.APRISM_TEXT = (function () {
     },
     {
       // 9 · 완료 · 88% · Strong
-      mission: "지하 4층 유틸리티 순회",
+      mission: ("지하 4층 " + (window.APRISM_MISSION ? APRISM_MISSION("m8") : "유틸리티 순회")),
       current: "순회 완료",
       steps: [
         { title: "waypoint name", state: "done", time: "05:10 – 05:29", duration: "19분" },
@@ -774,7 +774,7 @@ window.APRISM_TEXT = (function () {
     {
       // 11 · 수행중 · 71% · Strong — 막바지에 가까워졌다
       // 10/20 디자이너 — 걸어가는 로봇 예시. WP-03 을 마치고 WP-04 로 이동 중이라 붙든 칸이 없다(로봇 3D 는 걷기).
-      mission: "지하 3층 전기실 열화상 점검",
+      mission: ("지하 3층 " + (window.APRISM_MISSION ? APRISM_MISSION("m3") : "전기실 열화상 점검")),
       // v4 — 지도 경로 표현(10/22 전달서) 더미: 09:12 출발, 14:15 도킹 스테이션 복귀. 1~7 완료, 8 진행중, 9~20 진행전.
       current: V4_RR ? "WP-08 케미컬 공급 캐비닛 CDS-02 판독" : "WP-04 로 이동 중",
       steps: V4_RR ? [
@@ -834,12 +834,12 @@ window.APRISM_TEXT = (function () {
   if (document.body.classList.contains("v2-2")) {
     ROBOTS.forEach(function (r) { if (r.mission) { r.mission = r.mission.replace(/^지하\s*\d+층\s+/, ""); } });
     window.APRISM_MISSION_FLOORS = {
-      "정기 순회 점검": ["B4"],
-      "야간 순회 점검": ["B4"],
-      "발전기실 설비 점검": ["B3", "B4"],
-      "공조 설비 순회": ["B3"],
-      "유틸리티 순회": ["B4"],
-      "전기실 열화상 점검": ["B3"]
+      [(window.APRISM_MISSION ? APRISM_MISSION("m1") : "정기 순회 점검")]: ["B4"],
+      [(window.APRISM_MISSION ? APRISM_MISSION("m6") : "야간 순회 점검")]: ["B4"],
+      [(window.APRISM_MISSION ? APRISM_MISSION("m2") : "발전기실 설비 점검")]: ["B3", "B4"],
+      [(window.APRISM_MISSION ? APRISM_MISSION("m7") : "공조 설비 순회")]: ["B3"],
+      [(window.APRISM_MISSION ? APRISM_MISSION("m8") : "유틸리티 순회")]: ["B4"],
+      [(window.APRISM_MISSION ? APRISM_MISSION("m3") : "전기실 열화상 점검")]: ["B3"]
     };
     // Robot 05 는 B3(WP-01~12)를 돌고 계단으로 내려와 B4(WP-13~20)를 도는 중이다(map.js crossLane, 10/20).
     window.APRISM_ROBOT_FLOORS = ["B4", "B4", "B4", "B4", "B4", "B4", "B3", "B3", "B4", "B3", "B3", "B3"];
@@ -851,11 +851,11 @@ window.APRISM_TEXT = (function () {
    *   Robot 03(대기 · 35%) → 소방 설비 점검 · Robot 08(대기 · 47%, "불러온 미션이 있고 시작 전") → 주간 설비 점검
    */
   if (document.body.classList.contains("ver-6")) {
-    ROBOTS[2].mission = "소방 설비 점검";
-    ROBOTS[7].mission = "주간 설비 점검";
+    ROBOTS[2].mission = (window.APRISM_MISSION ? APRISM_MISSION("m4") : "소방 설비 점검");
+    ROBOTS[7].mission = (window.APRISM_MISSION ? APRISM_MISSION("m5") : "주간 설비 점검");
     if (window.APRISM_MISSION_FLOORS) {
-      window.APRISM_MISSION_FLOORS["소방 설비 점검"] = ["B4"];
-      window.APRISM_MISSION_FLOORS["주간 설비 점검"] = ["B3"];
+      window.APRISM_MISSION_FLOORS[(window.APRISM_MISSION ? APRISM_MISSION("m4") : "소방 설비 점검")] = ["B4"];
+      window.APRISM_MISSION_FLOORS[(window.APRISM_MISSION ? APRISM_MISSION("m5") : "주간 설비 점검")] = ["B3"];
     }
   }
 

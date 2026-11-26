@@ -18,7 +18,7 @@
 
   /* ---------- 데이터(시안 그대로) ---------- */
   var V7R = document.body.classList.contains("ver-7") && document.documentElement.lang !== "en";
-  var NAME = V7R ? "정기 순회 점검" : "{미션이름}";   // [11/23] v7 은 관제 미션 이름과 맞춘 임시 값
+  var NAME = V7R ? (window.APRISM_MISSION ? APRISM_MISSION("m1") : "정기 순회 점검") : "{미션이름}";   // [11/23] v7 은 관제 미션 이름과 맞춘 임시 값
   // [11/23 디자이너 · 정의서 관제화면-04 Q1] 관제 화면이 이 화면을 투명 틀로 얹어 모달만 보인다(?embed=modal, report-modal-v7.js)
   var EMBED = V7R && /[?&]embed=modal/.test(location.search);
   if (EMBED) { document.documentElement.classList.add("rp-embed"); }
@@ -396,7 +396,7 @@
   if (V6) { vm = 11; MAXM = 11; TODAY = 2; }
   // [11/23 v7 · 정의서 보고서-01] 미션 줄 이름 = 관제 미션 탭과 같은 이름(위 11/02 주석의 차례). 처음 여는 달 = 처음 연 문서(10월 13일 미션 보고서)의 달 — 목록에서 그 줄이 골라진 채 보이게
   if (V7R) {
-    var NAMES7 = { "11-2": ["유틸리티 순회", "공조 설비 순회", "야간 순회 점검"], "11-1": ["야간 순회 점검", "공조 설비 순회", "유틸리티 순회", "정기 순회 점검", "발전기실 설비 점검"], "10-31": ["전기실 열화상 점검", "유틸리티 순회"] };
+    var NAMES7 = { "11-2": [(window.APRISM_MISSION ? APRISM_MISSION("m8") : "유틸리티 순회"), (window.APRISM_MISSION ? APRISM_MISSION("m7") : "공조 설비 순회"), (window.APRISM_MISSION ? APRISM_MISSION("m6") : "야간 순회 점검")], "11-1": [(window.APRISM_MISSION ? APRISM_MISSION("m6") : "야간 순회 점검"), (window.APRISM_MISSION ? APRISM_MISSION("m7") : "공조 설비 순회"), (window.APRISM_MISSION ? APRISM_MISSION("m8") : "유틸리티 순회"), (window.APRISM_MISSION ? APRISM_MISSION("m1") : "정기 순회 점검"), (window.APRISM_MISSION ? APRISM_MISSION("m2") : "발전기실 설비 점검")], "10-31": [(window.APRISM_MISSION ? APRISM_MISSION("m3") : "전기실 열화상 점검"), (window.APRISM_MISSION ? APRISM_MISSION("m8") : "유틸리티 순회")] };
     DAYS.forEach(function (d) { var k = (d.m || 10) + "-" + d.day; (NAMES7[k] || []).forEach(function (nm, i) { if (d.missions[i]) { d.missions[i].n = nm; } }); });
     vm = monthOf(DAYS.filter(function (d) { return d.missions.some(function (m) { return m.id === cur; }); })[0] || { m: vm });
   }   // [11/02 v6] 오늘 11/02 — 목록은 이번 달(11월)부터

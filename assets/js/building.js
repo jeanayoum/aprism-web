@@ -42,12 +42,12 @@
   // 미션은 메인 v2.2 의 로봇 데이터(screen.js)와 같다. 층은 미션 이름에서 나온다.
   // 10/19 — 미션은 층에 속하지 않는다. 미션마다 지나는 층을 차례대로 든다(메인 v2.2 screen.js 와 같다).
   var MISSION_FLOORS = {
-    "정기 순회 점검": ["B3", "B4"],
-    "야간 순회 점검": ["B4"],
-    "발전기실 설비 점검": ["B3"],
-    "공조 설비 순회": ["B3"],
-    "유틸리티 순회": ["B4"],
-    "전기실 열화상 점검": ["B3"]
+    [(window.APRISM_MISSION ? APRISM_MISSION("m1") : "정기 순회 점검")]: ["B3", "B4"],
+    [(window.APRISM_MISSION ? APRISM_MISSION("m6") : "야간 순회 점검")]: ["B4"],
+    [(window.APRISM_MISSION ? APRISM_MISSION("m2") : "발전기실 설비 점검")]: ["B3"],
+    [(window.APRISM_MISSION ? APRISM_MISSION("m7") : "공조 설비 순회")]: ["B3"],
+    [(window.APRISM_MISSION ? APRISM_MISSION("m8") : "유틸리티 순회")]: ["B4"],
+    [(window.APRISM_MISSION ? APRISM_MISSION("m3") : "전기실 열화상 점검")]: ["B3"]
   };
   // v3(10/21) — 화면 사이 임시 값을 메인(screen.js · 미션 하나에 로봇 한 대, 10/20)과 맞춘다.
   // 정기 순회 점검은 B4 만 돌고, 층을 건너는 예시는 발전기실 설비 점검(Robot 05, B3 → B4)이다.
@@ -55,8 +55,8 @@
   var V6 = body.classList.contains("ver-6");
   var V7B = body.classList.contains("ver-7") && document.documentElement.lang !== "en";   // [11/23 정의서 관제화면-03 Q2 · Q3]
   if (V3) {
-    MISSION_FLOORS["정기 순회 점검"] = ["B4"];
-    MISSION_FLOORS["발전기실 설비 점검"] = ["B3", "B4"];
+    MISSION_FLOORS[(window.APRISM_MISSION ? APRISM_MISSION("m1") : "정기 순회 점검")] = ["B4"];
+    MISSION_FLOORS[(window.APRISM_MISSION ? APRISM_MISSION("m2") : "발전기실 설비 점검")] = ["B3", "B4"];
   }
   // v3 — 통합 순회 현황 안에서 펼쳐 본 층. null 이면 쌓인 건물 전체(10/21 디자이너).
   var floorView = null;
@@ -72,26 +72,26 @@
    *   uv    층 바닥 위 자리(0~1). building.js 가 열린 바닥으로 옮겨 앉힌다.
    */
   var ROBOTS = [
-    { n: 1,  floor: "B4", st: "run",  mission: "정기 순회 점검",     now: "N₂ 배관 압력 점검",     done: 3,  total: 20, bat: 78, sig: 4, uv: [0.42, 0.40] },
+    { n: 1,  floor: "B4", st: "run",  mission: (window.APRISM_MISSION ? APRISM_MISSION("m1") : "정기 순회 점검"),     now: "N₂ 배관 압력 점검",     done: 3,  total: 20, bat: 78, sig: 4, uv: [0.42, 0.40] },
     { n: 2,  floor: "B4", st: "idle", mission: null,                          now: "복귀 중",               bat: 18, chg: false, sig: 2, uv: [0.70, 0.66], moving: true },   // 10/20 — 미션 하나에 로봇 한 대, 배정 없음
     { n: 3,  floor: "B4", st: "idle", mission: null,                          now: "대기 중",               bat: 35, chg: true, sig: 3, uv: [0.90, 0.92], dock: true },
-    { n: 4,  floor: "B4", st: "done", mission: "야간 순회 점검",     now: "순회 완료",             done: 20, total: 20, bat: 92, sig: 4, uv: [0.76, 0.92], dock: true },
-    { n: 5,  floor: "B4", st: "run",  mission: "발전기실 설비 점검", now: "발전기 베어링 진동 측정", done: 13, total: 20, bat: 64, sig: 3, uv: [0.58, 0.30] },   // B3(WP-01~12) → 계단 → B4(10/20)
+    { n: 4,  floor: "B4", st: "done", mission: (window.APRISM_MISSION ? APRISM_MISSION("m6") : "야간 순회 점검"),     now: "순회 완료",             done: 20, total: 20, bat: 92, sig: 4, uv: [0.76, 0.92], dock: true },
+    { n: 5,  floor: "B4", st: "run",  mission: (window.APRISM_MISSION ? APRISM_MISSION("m2") : "발전기실 설비 점검"), now: "발전기 베어링 진동 측정", done: 13, total: 20, bat: 64, sig: 3, uv: [0.58, 0.30] },   // B3(WP-01~12) → 계단 → B4(10/20)
     { n: 6,  floor: "B4", st: "idle", mission: null,                          now: "충전 중",               bat: 8,  chg: true, sig: 2, uv: [0.90, 0.80], dock: true },
-    { n: 7,  floor: "B3", st: "done", mission: "공조 설비 순회",     now: "순회 완료",             done: 20, total: 20, bat: 96, chg: true, sig: 4, uv: [0.10, 0.92], dock: true },
+    { n: 7,  floor: "B3", st: "done", mission: (window.APRISM_MISSION ? APRISM_MISSION("m7") : "공조 설비 순회"),     now: "순회 완료",             done: 20, total: 20, bat: 96, chg: true, sig: 4, uv: [0.10, 0.92], dock: true },
     { n: 8,  floor: "B3", st: "idle", mission: null,                          now: "대기 중",               bat: 47, sig: 3, uv: [0.24, 0.92], dock: true },
-    { n: 9,  floor: "B4", st: "done", mission: "유틸리티 순회",      now: "순회 완료",             done: 20, total: 20, bat: 88, sig: 4, uv: [0.76, 0.80], dock: true },
+    { n: 9,  floor: "B4", st: "done", mission: (window.APRISM_MISSION ? APRISM_MISSION("m8") : "유틸리티 순회"),      now: "순회 완료",             done: 20, total: 20, bat: 88, sig: 4, uv: [0.76, 0.80], dock: true },
     { n: 10, floor: "B3", st: "off",  mission: null,                          now: "통신 끊김",             bat: 29, sig: 0, uv: [0.30, 0.62] },
-    { n: 11, floor: "B3", st: "run",  mission: "전기실 열화상 점검", now: "배전반실 열화상 점검",  done: 3,  total: 20, bat: 71, sig: 4, uv: [0.66, 0.58] },
+    { n: 11, floor: "B3", st: "run",  mission: (window.APRISM_MISSION ? APRISM_MISSION("m3") : "전기실 열화상 점검"), now: "배전반실 열화상 점검",  done: 3,  total: 20, bat: 71, sig: 4, uv: [0.66, 0.58] },
     { n: 12, floor: "B3", st: "idle", mission: null,                          now: "충전 중",               bat: 55, chg: true, sig: 3, uv: [0.10, 0.80], dock: true }
   ];  // v5(10/30) — Robot 01 진행을 미션 관제 · 안전진단(7/20)과 맞춘다. 멈춘 판(v3 · v4)은 그대로 3/20.
   if (body.classList.contains("ver-5")) { ROBOTS[0].done = 7; }
   // [11/05 v6] 데모 대기 미션 둘 — 관제(screen.js 11/03)와 같게. 두 화면의 상단 탭 줄이 같아야 탭을 오가도 탭 줄이 그대로다
   if (V6) {
-    ROBOTS[2].mission = "소방 설비 점검";
-    ROBOTS[7].mission = "주간 설비 점검";
-    MISSION_FLOORS["소방 설비 점검"] = ["B4"];
-    MISSION_FLOORS["주간 설비 점검"] = ["B3"];
+    ROBOTS[2].mission = (window.APRISM_MISSION ? APRISM_MISSION("m4") : "소방 설비 점검");
+    ROBOTS[7].mission = (window.APRISM_MISSION ? APRISM_MISSION("m5") : "주간 설비 점검");
+    MISSION_FLOORS[(window.APRISM_MISSION ? APRISM_MISSION("m4") : "소방 설비 점검")] = ["B4"];
+    MISSION_FLOORS[(window.APRISM_MISSION ? APRISM_MISSION("m5") : "주간 설비 점검")] = ["B3"];
     MISSION_LIST = Object.keys(MISSION_FLOORS);
   }
 
@@ -103,7 +103,7 @@
     idle: { cls: "badge-idle",   text: "대기" },
     off:  { cls: "badge-danger", text: "끊김" }
   };
-  function rname(r) { return "Robot " + (r.n < 10 ? "0" : "") + r.n; }
+  function rname(r) { return window.APRISM_ROBOT_AT ? APRISM_ROBOT_AT(r.n) : "Robot " + (r.n < 10 ? "0" : "") + r.n; }   // [11/26] 이름은 기준 목록(demo-base-v7.js)
 
   /*
    * 알림 — 메인 v2.2(monitor.js)의 위험 1 · 주의 5 와 같다. robot 은 위 ROBOTS 의 번호다.
@@ -112,16 +112,16 @@
   var ALERTS = [
     { sev: "critical", robot: 1, floor: "B4", where: "터빈 2 / Unit 03 · WP-04 N₂ 배관 압력계", time: "10:12:40", title: "지하발전소 터빈 2 NG 1건 발견", uv: [0.38, 0.34] },
     { sev: "warning",  robot: 1, floor: "B4", where: "APRO 4F · WP-03 냉각수 배관 밸브",       time: "10:11:19", title: "누출감지 · 냉각수 배관 밸브", uv: [0.30, 0.52] },
-    { sev: "warning",  robot: 5, floor: "B3", where: "Robot 05 · WP-06 수배전반",              time: "10:09:42", title: "부분방전 · 이상 점수 9.41", uv: [0.62, 0.22] },
-    { sev: "warning",  robot: 5, floor: "B3", where: "Robot 05 · WP-12 냉각 펌프 P-2",         time: "10:06:05", title: "진동 상승 · 냉각 펌프 P-2", uv: [0.64, 0.46] },
-    { sev: "warning",  robot: 5, floor: "B3", where: "Robot 05 · WP-02 발전기 베어링",         time: "10:03:27", title: "과열 · 발전기 베어링 68.4℃", uv: [0.56, 0.24] },
-    { sev: "warning",  robot: 5, floor: "B4", where: "Robot 05 · WP-13 공기 압축기 C-1",       time: "10:01:12", title: "압력 편차 · 공기 압축기 C-1", uv: [0.50, 0.74] }
+    { sev: "warning",  robot: 5, floor: "B3", where: ((window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + " · WP-06 수배전반"),              time: "10:09:42", title: "부분방전 · 이상 점수 9.41", uv: [0.62, 0.22] },
+    { sev: "warning",  robot: 5, floor: "B3", where: ((window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + " · WP-12 냉각 펌프 P-2"),         time: "10:06:05", title: "진동 상승 · 냉각 펌프 P-2", uv: [0.64, 0.46] },
+    { sev: "warning",  robot: 5, floor: "B3", where: ((window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + " · WP-02 발전기 베어링"),         time: "10:03:27", title: "과열 · 발전기 베어링 68.4℃", uv: [0.56, 0.24] },
+    { sev: "warning",  robot: 5, floor: "B4", where: ((window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + " · WP-13 공기 압축기 C-1"),       time: "10:01:12", title: "압력 편차 · 공기 압축기 C-1", uv: [0.50, 0.74] }
   ];
   // v4(10/28) — 미션 관제의 지도 경로 표현 더미와 같게: 전기실 열화상 점검(Robot 11 · B3) 위험 · 주의 한 건씩(monitor.js ROUTE_ALERTS 와 같다)
   if (V3) {
     ALERTS.push(
-      { sev: "critical", robot: 11, floor: "B3", where: "Robot 11 · WP-02 HEPA Filter 차압계", time: "09:44:18", title: "차압 NG · HEPA Filter 차압계", uv: [0.60, 0.50] },
-      { sev: "warning",  robot: 11, floor: "B3", where: "Robot 11 · WP-04 N₂ 배관 압력계",     time: "10:15:52", title: "압력 편차 · N₂ 배관 압력계", uv: [0.70, 0.64] }
+      { sev: "critical", robot: 11, floor: "B3", where: ((window.APRISM_ROBOT ? APRISM_ROBOT("r11") : "Robot 11") + " · WP-02 HEPA Filter 차압계"), time: "09:44:18", title: "차압 NG · HEPA Filter 차압계", uv: [0.60, 0.50] },
+      { sev: "warning",  robot: 11, floor: "B3", where: ((window.APRISM_ROBOT ? APRISM_ROBOT("r11") : "Robot 11") + " · WP-04 N₂ 배관 압력계"),     time: "10:15:52", title: "압력 편차 · N₂ 배관 압력계", uv: [0.70, 0.64] }
     );
   }
   // v5(10/30) — 정기 순회 점검(Robot 01)의 알림 6건 = 관제(monitor.js R01_MORE) = 안전진단 감지 6종. Robot 01 은 7곳을 마치고 WP-08 로 가는 중(관제와 같다)
@@ -159,10 +159,8 @@
   // [11/23 디자이너] v7 — 조치 요청된 알림을 미션 관제(monitor.js V7Q)와 같은 꼴로: 기본 기록도 같은 두 건, 줄 아래 진행 단계 + 받는 사람
   var DONE_ST = { wait: "현장 응답 대기", work: "현장 조치 중", done: "조치 완료" };
   if (V7B) {
-    DONE = [
-      { time: "10:08:30", title: "이상음향 점수 19.6", wp: "WP-02", how: "현장 점검 요청", st: "work", to: ("설비팀 " + (window.APRISM_NAME ? APRISM_NAME("fe2") : "박지훈")), mission: "정기 순회 점검" },
-      { time: "10:05:12", title: "최고 온도 44.2 ℃", wp: "WP-01", how: "다음 순회 재측정", st: "done", to: ("설비팀 " + (window.APRISM_NAME ? APRISM_NAME("fe2") : "박지훈")), mission: "정기 순회 점검", res: "정상" }
-    ];
+    // [11/26] 기본 기록 두 건은 알림 데이터 한 곳(alert-data-v7.js doneBase). 전체 미션은 요청한 사람 칸을 쓰지 않음
+    DONE = window.APRISM_ALERTS7 ? window.APRISM_ALERTS7.doneBase().map(function (d) { delete d.who; return d; }) : [];
   }
   /*
    * [11/10 v7] 조치 요청 기록 한 곳(alert-data-v7.js req) — 관제 · 안전진단 · 알림 센터에서 요청한 알림은 관제처럼 목록 · 지도에서 빼고
@@ -201,9 +199,9 @@
   ];
 
   var SCHED = [
-    { time: "10:25", text: "Robot 02 · 도크 도착 후 충전", floor: "B4" },
-    { time: "11:30", text: "Robot 07 · 공조 설비 순회 2회차 시작", floor: "B3" },
-    { time: "12:10", text: "Robot 11 · 전기실 열화상 점검 끝", floor: "B3" }
+    { time: "10:25", text: ((window.APRISM_ROBOT ? APRISM_ROBOT("r02") : "Robot 02") + " · 도크 도착 후 충전"), floor: "B4" },
+    { time: "11:30", text: ((window.APRISM_ROBOT ? APRISM_ROBOT("r07") : "Robot 07") + " · " + (window.APRISM_MISSION ? APRISM_MISSION("m7") : "공조 설비 순회") + " 2회차 시작"), floor: "B3" },
+    { time: "12:10", text: ((window.APRISM_ROBOT ? APRISM_ROBOT("r11") : "Robot 11") + " · " + (window.APRISM_MISSION ? APRISM_MISSION("m3") : "전기실 열화상 점검") + " 끝"), floor: "B3" }
   ];
 
   /*
@@ -650,8 +648,8 @@
       steps.appendChild(rcStep(wp[1][0], wp[1][1], false, "target", "is-no"));
     } else {
       var where = r.st === "done" ? (r.mission || "") + " 끝"
-        : r.st === "off" ? FNAME[r.floor] + " · 마지막 위치"
-        : FNAME[r.floor] + (r.dock ? " · 도크" : "");
+        : r.st === "off" ? FNAME[r.floor] + (V7B ? ", 마지막 위치" : " · 마지막 위치")
+        : FNAME[r.floor] + (r.dock ? (V7B ? ", 도크" : " · 도크") : "");
       // 완료 · 대기(10/21 디자이너) — 한 단 물러난다. 표식은 상태 아이콘(완료 check-circle · 충전 bolt · 대기 clock ·
       // 복귀 중 way)을 면 없이 fg/tertiary 로 — 수행중의 bg/inverse 원과 갈린다. 끊김은 위험 색 그대로.
       var restIc = r.st === "done" ? "check-circle" : /충전/.test(r.now) ? "bolt" : r.moving ? "way" : "clock";   // 충전 여부(chg)가 아니라 지금 하는 일 글을 따른다 — 대기하며 충전 중인 로봇도 "대기 중"
@@ -802,7 +800,7 @@
     if (wp) { nt.appendChild(el("span", "bld-rc2-wp t-caption", V6 ? wp[0][0] : wp[0][1] + " " + wp[0][0])); }   // [11/06 v6] 번호(WP-nn)는 뺐다 — 지점 이름만
     else {
       nt.appendChild(el("span", "bld-rc2-wp t-caption", r.st === "done" ? (r.mission || "") + " 끝"
-        : r.st === "off" ? FNAME[r.floor] + " · 마지막 위치" : FNAME[r.floor] + (r.dock ? " · 도크" : "")));
+        : r.st === "off" ? FNAME[r.floor] + (V7B ? ", 마지막 위치" : " · 마지막 위치") : FNAME[r.floor] + (r.dock ? (V7B ? ", 도크" : " · 도크") : "")));
     }
     }
     nowRow.appendChild(nt);
@@ -2105,7 +2103,7 @@
     mode = floorView ? "one" : "all";
     cur = floorView;
     body.classList.remove("is-entering");
-    if (trigger) { trigger.querySelector(".t-title-2").textContent = scopeMission || (V3 ? "미션 선택" : "통합 순회 현황"); }
+    if (trigger) { trigger.querySelector(".t-title-2").textContent = scopeMission || (V3 ? "미션 선택" : ((window.APRISM_MISSION ? APRISM_MISSION("m9") : "통합 순회") + " 현황")); }
     markFloorBtns(floorView || "all");
     layout(true);
   });
