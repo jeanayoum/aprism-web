@@ -1023,6 +1023,11 @@
   /* 조치 완료 — 머리는 미확인과 같은 위계(원 등급 배지 · 감지 이름 / 측정 항목 + 값), 아래 줄이 조치 시각 · 담당 · 소요다. */
   function recordHtml6(a) {
     var d = a.done;
+    var memoSec = '<section class="ac-record-section">' +
+        '<h3 class="t-caption">메모</h3>' +
+        '<p class="ac-memo-box t-body-4' + (d.memo ? "" : " ac-memo-empty") + '">' +
+          (d.memo ? esc(d.memo) : (V7 ? "남긴 메모가 없어요" : "남긴 메모가 없습니다.")) + '</p>' +
+      '</section>';
     return '<div class="ac-record">' +
       head6(a, V7 ? "" : "원 등급 ",   // [11/26 디자이너] v7 배지는 "주의"만(원 등급 뺌)
         '<p class="ac-record-age">' +
@@ -1060,6 +1065,7 @@
             : infoRow("DELTA", '<span class="ac-info-delta t-body-4">' + esc(deltaLine(d.delta)) + '</span>')) +
         '</dl>' +
       '</section>' +
+      (V7 ? memoSec : "") +
     '</div>';
   }
 
