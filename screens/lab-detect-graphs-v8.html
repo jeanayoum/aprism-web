@@ -92,7 +92,7 @@
     <div class="ver"><p class="ver-t">A · v8 디자이너 디자인 — 최근 측정 지점 1건</p><div class="grid6" id="galA">
       <div class="card" id="gA-eq"></div><div class="card" id="gA-leak"></div><div class="card" id="gA-sound"></div>
       <div class="card" id="gA-temp"></div><div class="card" id="gA-gauge"></div><div class="card" id="gA-pd"></div></div></div>
-    <div class="ver"><p class="ver-t">B · 같은 디자인 — 이번 순회 지점별(위젯형: 세그먼트 · 알약 · 슬라이더 · 동그라미)</p><div class="grid6" id="galB">
+    <div class="ver"><p class="ver-t">B · 같은 디자인 — 이번 순회 지점별(위젯형: 감지마다 다른 표시 — 칸 · 번호 줄 · 상태 색은 같음)</p><div class="grid6" id="galB">
       <div class="card" id="gB-eq"></div><div class="card" id="gB-leak"></div><div class="card" id="gB-sound"></div>
       <div class="card" id="gB-temp"></div><div class="card" id="gB-gauge"></div><div class="card" id="gB-pd"></div></div></div>
   </section>
@@ -259,28 +259,70 @@
         wpLab(svg, x, w);
       });
     }
-    // 지점마다 기준이 다른 값(온도) — 물방울 알약: 자기 기준으로 맞춘 눈금(0 ~ 주의 = 아래 60%, 주의 ~ 위험 = 위 40%)이라 주의 · 위험 선이 모든 알약에서 같은 높이
-    function pillB(id, o) {
-      var svg = shell(id, o), top = 4, bot = 64, H = bot - top, X = slots(), bw = 26;
-      var R = function (w) { var x = w.v; return x <= w.warn ? .6 * x / w.warn : Math.min(1, .6 + .4 * (x - w.warn) / (w.crit - w.warn)); };
-      var yW = bot - .6 * H;
-      txt(svg, 0, yW + 4, '주의', { fill: v('--status-warning-text'), 'font-size': 11 });
-      txt(svg, 0, top + 8, '위험', { fill: v('--status-critical-text'), 'font-size': 11 });
-      var gf = glow(svg, id + 'gl');
+    // 0 ~ 주의 = 0 ~ .6, 주의 ~ 위험 = .6 ~ .9, 위험 넘음 = 1 (지점마다 기준이 달라도 같은 자리)
+    function ratio(x, wv, cv) { return x <= wv ? .6 * x / wv : x < cv ? .6 + .3 * (x - wv) / (cv - wv) : 1; }
+    function judge(x, wv, cv) { return x >= cv ? 'crit' : x >= wv ? 'warn' : 'ok'; }
+    function fillGrad(svg, gid, st) {   // 세로: 위 밝게 → 아래 짙게
+      var col = st === 'crit' ? C.crit : st === 'warn' ? C.warn : null, g = grad(svg, gid, [col || BLUE[4], 1], [col || BLUE[1], 1]);
+      var n = svg.querySelector('#' + gid); n.setAttribute('x2', '0'); n.setAttribute('y2', '1'); return g;
+    }
+    // 누출 — 물방울이 아래부터 차오름. 문제 지점은 바닥에 물결
+    function dropB(id, o) {
+      var svg = shell(id, o), X = slots(), gf = glow(svg, id + 'gl'), top = 8, bot = 62, H = bot - top;
+      var dp = function (x) { return 'M' + x + ' ' + top + ' C' + (x + 3) + ' ' + (top + 11) + ' ' + (x + 15) + ' ' + (top + 23) + ' ' + (x + 15) + ' ' + (bot - 15) +
+        ' A15 15 0 0 1 ' + (x - 15) + ' ' + (bot - 15) + ' C' + (x - 15) + ' ' + (top + 23) + ' ' + (x - 3) + ' ' + (top + 11) + ' ' + x + ' ' + top + 'Z'; };
+      txt(svg, 0, bot - .6 * H + 4.5, o.warn, { fill: v('--status-warning-text'), 'font-size': 13 });
+      txt(svg, 0, bot - .9 * H + 4.5, o.crit, { fill: v('--status-critical-text'), 'font-size': 13 });
       o.wps.forEach(function (w, i) {
         var x = X(i), cid = id + 'c' + i;
-        var cp = el(svg.querySelector('defs'), 'clipPath', { id: cid }); el(cp, 'rect', { x: x - bw / 2, y: top, width: bw, height: H, rx: bw / 2 });
-        el(svg, 'rect', { x: x - bw / 2, y: top, width: bw, height: H, rx: bw / 2, fill: DARK, opacity: w.plan ? .45 : .9 });
-        if (!w.plan) {
-          var r = R(w), st = w.v >= w.crit ? 'crit' : w.v >= w.warn ? 'warn' : 'ok', y = bot - r * H;
-          var col = st === 'crit' ? C.crit : st === 'warn' ? C.warn : null;
-          var gg = grad(svg, id + 'f' + i, [col || BLUE[4], 1], [col || BLUE[1], 1]); svg.querySelector('#' + id + 'f' + i).setAttribute('x2', '0'); svg.querySelector('#' + id + 'f' + i).setAttribute('y2', '1');
-          if (w.cur && st !== 'ok') { el(svg, 'rect', { x: x - bw / 2, y: y, width: bw, height: bot - y, rx: bw / 2, fill: col, opacity: .7, filter: gf }); }
-          var gr = el(svg, 'g', { 'clip-path': 'url(#' + cid + ')' });
-          el(gr, 'rect', { x: x - bw / 2, y: y, width: bw, height: bot - y + 2, fill: gg, opacity: w.cur || st !== 'ok' ? 1 : .75 });
-          el(gr, 'rect', { x: x - bw / 2 + 4, y: y + 3, width: 3, height: Math.max(0, bot - y - 10), rx: 1.5, fill: '#FFFFFF', opacity: .28 });   // 알약 윤기
+        if (w.plan) { el(svg, 'path', { d: dp(x), fill: DARK, opacity: .45 }); wpLab(svg, x, w); return; }
+        var st = judge(w.v, o.warn, o.crit), y = bot - ratio(w.v, o.warn, o.crit) * H, col = stCol(st);
+        if (w.cur && st !== 'ok') {   // 바닥 물결
+          [[16, .55], [24, .3], [32, .14]].forEach(function (rr) { el(svg, 'ellipse', { cx: x, cy: bot + 1, rx: rr[0], ry: rr[0] / 5, fill: 'none', stroke: col, 'stroke-width': 1.5, opacity: rr[1] }); });
+          el(svg, 'path', { d: dp(x), fill: col, opacity: .6, filter: gf });
         }
-        el(svg, 'line', { x1: x - bw / 2, x2: x + bw / 2, y1: yW, y2: yW, stroke: '#0E141B', 'stroke-width': 1.5, opacity: .55 });   // 주의 눈금(알약 안 홈)
+        el(svg, 'path', { d: dp(x), fill: DARK, opacity: .9 });
+        var cp = el(svg.querySelector('defs'), 'clipPath', { id: cid }); el(cp, 'path', { d: dp(x) });
+        var g = el(svg, 'g', { 'clip-path': 'url(#' + cid + ')' });
+        el(g, 'rect', { x: x - 16, y: y, width: 32, height: bot - y + 1, fill: fillGrad(svg, id + 'f' + i, st), opacity: w.cur || st !== 'ok' ? 1 : .75 });
+        el(g, 'path', { d: 'M' + (x - 16) + ' ' + y + ' Q' + (x - 8) + ' ' + (y - 2.5) + ' ' + x + ' ' + y + ' T' + (x + 16) + ' ' + y, fill: 'none', stroke: '#FFFFFF', 'stroke-width': 1.2, opacity: .45 });   // 물 표면
+        el(g, 'ellipse', { cx: x - 6, cy: bot - 16, rx: 2.2, ry: 6, fill: '#FFFFFF', opacity: .22 });   // 윤기
+        wpLab(svg, x, w);
+      });
+    }
+    // 온도 — 지점마다 열 덩어리: 기준에 가까울수록 크고 진함, 점선 고리 = 주의 크기(지점마다 자기 기준)
+    function heatB(id, o) {
+      var svg = shell(id, o), X = slots(), cy = 34, rMin = 5, rMax = 22, rW = rMin + (rMax - rMin) * .6;
+      el(svg, 'circle', { cx: 9, cy: 14, r: 6, fill: 'none', stroke: v('--status-warning-text'), 'stroke-width': 1.2, 'stroke-dasharray': '2 2' });
+      txt(svg, 0, 34, '주의', { fill: v('--status-warning-text'), 'font-size': 11 });
+      o.wps.forEach(function (w, i) {
+        var x = X(i);
+        el(svg, 'circle', { cx: x, cy: cy, r: rW, fill: 'none', stroke: GRID, 'stroke-width': 1, 'stroke-dasharray': '2 3', opacity: w.plan ? .5 : .9 });
+        if (w.plan) { el(svg, 'circle', { cx: x, cy: cy, r: 4, fill: DARK }); wpLab(svg, x, w); return; }
+        var st = judge(w.v, w.warn, w.crit), r = rMin + (rMax - rMin) * ratio(w.v, w.warn, w.crit), col = st === 'ok' ? BLUE[4] : stCol(st);
+        var rg = grad(svg, id + 'h' + i, [col, st === 'ok' ? .9 : 1], [col, 0], true);
+        el(svg, 'circle', { cx: x, cy: cy, r: r * (st === 'ok' ? 1 : 1.35), fill: rg, opacity: w.cur || st !== 'ok' ? 1 : .75 });
+        el(svg, 'circle', { cx: x, cy: cy, r: st === 'ok' ? 3 : 4.5, fill: st === 'ok' ? BLUE[4] : '#FFFFFF', opacity: st === 'ok' ? 1 : .85 });
+        wpLab(svg, x, w);
+      });
+    }
+    // 부분방전 — 지점마다 방전 점이 흩어짐: 클수록 위로 높이 · 촘촘하게(PRPD 를 줄인 꼴), 점 색 = 그 높이 구간
+    function dotB(id, o) {
+      var svg = shell(id, o), X = slots(), top = 4, bot = 64, R0 = rnd(7);
+      var Y = function (x) { return bot - (bot - top) * ratio(x, o.warn, o.crit); };
+      [[o.warn, v('--status-warning-text')], [o.crit, v('--status-critical-text')]].forEach(function (t) {
+        el(svg, 'line', { x1: 24, x2: 381, y1: Y(t[0]), y2: Y(t[0]), stroke: GRID, 'stroke-width': 1, 'stroke-dasharray': '2 4', opacity: .8 });
+        txt(svg, 0, Y(t[0]) + 4.5, t[0], { fill: t[1], 'font-size': 13 }); });
+      o.wps.forEach(function (w, i) {
+        var x = X(i);
+        if (w.plan) { for (var k = 0; k < 6; k++) { el(svg, 'circle', { cx: x - 10 + (k % 3) * 10, cy: bot - 3 - Math.floor(k / 3) * 7, r: 1.6, fill: DARK }); } wpLab(svg, x, w); return; }
+        var yv = Y(w.v), n = Math.round(22 + 60 * ratio(w.v, o.warn, o.crit));
+        for (var k2 = 0; k2 < n; k2++) {
+          var yy = bot - (bot - yv) * Math.pow(R0(), 1.7), xx = x + (R0() - .5) * 30, h = (bot - yy) / (bot - top);
+          var col = h >= .9 ? C.crit : h >= .6 ? C.warn : BLUE[Math.min(4, 1 + Math.floor(h / .6 * 4))];
+          el(svg, 'circle', { cx: xx.toFixed(1), cy: yy.toFixed(1), r: 2, fill: col, opacity: w.cur ? 1 : .75 });
+        }
+        el(svg, 'line', { x1: x - 14, x2: x + 14, y1: yv, y2: yv, stroke: C.t2, 'stroke-width': 1.5, 'stroke-linecap': 'round', opacity: .8 });   // 최대 크기
         wpLab(svg, x, w);
       });
     }
@@ -333,27 +375,28 @@
       el(svg, 'circle', { cx: pv[0], cy: pv[1], r: 4.5, fill: '#FFFFFF', stroke: o.st === 'crit' ? C.crit : o.st === 'warn' ? C.warn : C.b3, 'stroke-width': 2 });
       txt(svg, 8, 76, o.lo + ' ' + o.ax, { 'font-size': 11 }); txt(svg, 373, 76, o.hi + ' ' + o.ax, { 'font-size': 11, 'text-anchor': 'end' });
     }
-    // 계기인식 B — 지점마다 세로 슬라이더 알약: 정상 범위 = 밝은 파랑 띠, 위험 구간 = 위쪽 빨강, 값 = 흰 손잡이(테두리 판정 색)
+    // 계기인식 B — 지점마다 작은 반원 계기판: 정상 구간 호(파랑) · 위험 구간 호(빨강) · 바늘(판정 색)
     function gaugeB(id, o) {
-      var svg = shell(id, o), top = 4, bot = 64, X = slots(), bw = 18, gf = glow(svg, id + 'gl');
-      var Y = function (val) { return bot - (bot - top) * (val - o.lo) / (o.hi - o.lo); };
-      txt(svg, 0, Y(o.ok[1]) + 4, o.ok[1], { fill: C.b3, 'font-size': 12 }); txt(svg, 0, Y(o.ok[0]) + 4, o.ok[0], { fill: C.b3, 'font-size': 12 });
+      var svg = shell(id, o), X = slots(), cy = 44, r = 19, gf = glow(svg, id + 'gl');
+      var T = function (val) { return Math.PI * Math.max(0, Math.min(1, (val - o.lo) / (o.hi - o.lo))); };
+      var P = function (x, t, rr) { return [x - rr * Math.cos(t), cy - rr * Math.sin(t)]; };
+      function arc(x, v1, v2, col, sw, op) { var a = P(x, T(v1), r), b = P(x, T(v2), r);
+        el(svg, 'path', { d: 'M' + a[0].toFixed(1) + ' ' + a[1].toFixed(1) + ' A' + r + ' ' + r + ' 0 0 1 ' + b[0].toFixed(1) + ' ' + b[1].toFixed(1), fill: 'none', stroke: col, 'stroke-width': sw, 'stroke-linecap': 'butt', opacity: op }); }
       o.wps.forEach(function (w, i) {
-        var x = X(i), cid = id + 'c' + i;
-        var cp = el(svg.querySelector('defs'), 'clipPath', { id: cid }); el(cp, 'rect', { x: x - bw / 2, y: top, width: bw, height: bot - top, rx: bw / 2 });
-        el(svg, 'rect', { x: x - bw / 2, y: top, width: bw, height: bot - top, rx: bw / 2, fill: DARK, opacity: w.plan ? .45 : .9 });
+        var x = X(i);
+        arc(x, o.lo, o.hi, DARK, 7, w.plan ? .45 : .9);
         if (w.plan) { wpLab(svg, x, w); return; }
-        var g = el(svg, 'g', { 'clip-path': 'url(#' + cid + ')' });
-        el(g, 'rect', { x: x - bw / 2, y: Y(o.ok[1]), width: bw, height: Y(o.ok[0]) - Y(o.ok[1]), fill: BLUE[3], opacity: .6 });
-        el(g, 'rect', { x: x - bw / 2, y: top, width: bw, height: Y(o.crit) - top, fill: C.crit, opacity: .35 });
-        var s2 = w.v >= o.crit ? 'crit' : (w.v < o.ok[0] || w.v > o.ok[1]) ? 'warn' : 'ok', col = s2 === 'ok' ? BLUE[4] : stCol(s2);
-        if (w.cur && s2 !== 'ok') { el(svg, 'circle', { cx: x, cy: Y(w.v), r: 9, fill: col, opacity: .8, filter: gf }); }
-        el(svg, 'circle', { cx: x, cy: Y(w.v), r: 6, fill: '#FFFFFF', stroke: col, 'stroke-width': 3 });
+        arc(x, o.ok[0], o.ok[1], BLUE[3], 7, .85); arc(x, o.crit, o.hi, C.crit, 7, .6);
+        var s2 = w.v >= o.crit ? 'crit' : (w.v < o.ok[0] || w.v > o.ok[1]) ? 'warn' : 'ok', col = s2 === 'ok' ? C.t2 : stCol(s2), q = P(x, T(w.v), r + 3);
+        if (w.cur && s2 !== 'ok') { el(svg, 'line', { x1: x, y1: cy, x2: q[0], y2: q[1], stroke: col, 'stroke-width': 5, opacity: .7, filter: gf }); }
+        el(svg, 'line', { x1: x, y1: cy, x2: q[0], y2: q[1], stroke: col, 'stroke-width': 2, 'stroke-linecap': 'round' });
+        el(svg, 'circle', { cx: x, cy: cy, r: 3, fill: col });
+        txt(svg, x, cy + 17, w.v.toFixed(2), { 'text-anchor': 'middle', 'font-size': 11, fill: s2 === 'ok' ? C.t3 : col });
         wpLab(svg, x, w);
       });
     }
 
-    cardB = fitB(cardB); pillB = fitB(pillB); equipB = fitB(equipB); gaugeB = fitB(gaugeB);
+    cardB = fitB(cardB); dropB = fitB(dropB); heatB = fitB(heatB); dotB = fitB(dotB); equipB = fitB(equipB); gaugeB = fitB(gaugeB);
 
     // ---------- 버전별 모음 자료(v8 코드 safety-v8.js 의 이번 미션 값) ----------
     var GZ = { lo: 0.4, hi: 1.0, ax: 'MPa', zones: [[0.4, 0.6, C.warn], [0.6, 0.8, C.b4], [0.8, 0.85, C.warn], [0.85, 1.0, C.crit]], marks: [0.6, 0.8, 0.85] };
@@ -366,15 +409,15 @@
 
     equipB('gB-eq', { k: '장비착용', icon: 'var(--ic-cone)', std: '미착용 0명', big: '1', unit: '명', gap: '안전벨트', st: 'crit', wp: 7, eq: '고소 작업 발판', n: '3/6',
       wps: [{ wp: 'WP-01', bad: 0, total: 2 }, { wp: 'WP-03', bad: 0, total: 1 }, { wp: 'WP-07', bad: 1, total: 2, cur: 1 }, { wp: 'WP-12', plan: 1 }, { wp: 'WP-15', plan: 1 }, { wp: 'WP-18', plan: 1 }] });
-    cardB('gB-leak', { k: '누출감지', icon: ICON.drop, std: '55% 미만', big: '62', unit: '%', gap: '+7%p', st: 'warn', wp: 3, eq: '냉각수 배관 밸브', n: '3/10',
+    dropB('gB-leak', { k: '누출감지', icon: ICON.drop, std: '55% 미만', big: '62', unit: '%', gap: '+7%p', st: 'warn', wp: 3, eq: '냉각수 배관 밸브', n: '3/10',
       warn: 55, crit: 70, max: 80, wps: [{ wp: 'WP-01', v: 8 }, { wp: 'WP-03', v: 62, cur: 1 }, { wp: 'WP-05', v: 21 }, { wp: 'WP-07', plan: 1 }, { wp: 'WP-10', plan: 1 }, { wp: 'WP-12', plan: 1 }, { wp: 'WP-14', plan: 1 }, { wp: 'WP-16', plan: 1 }, { wp: 'WP-17', plan: 1 }, { wp: 'WP-19', plan: 1 }] });
     cardB('gB-sound', { k: '이상음향', icon: ICON.sound, std: '19.0 미만', big: '14.2', gap: '-4.8', st: 'ok', wp: 5, eq: '냉각 펌프 P-2', n: '2/6',
       warn: 19, crit: 22.8, max: 26, wps: [{ wp: 'WP-02', v: 9.8 }, { wp: 'WP-05', v: 14.2, cur: 1 }, { wp: 'WP-08', plan: 1 }, { wp: 'WP-12', plan: 1 }, { wp: 'WP-16', plan: 1 }, { wp: 'WP-19', plan: 1 }] });
-    pillB('gB-temp', { k: '온도감지', icon: ICON.temp, std: '지점마다 기준', big: '48.6', unit: '℃', gap: '+8.6', st: 'warn', wp: 5, eq: '냉각 펌프 P-2', n: '3/7',
+    heatB('gB-temp', { k: '온도감지', icon: ICON.temp, std: '지점마다 기준', big: '48.6', unit: '℃', gap: '+8.6', st: 'warn', wp: 5, eq: '냉각 펌프 P-2', n: '3/7',
       max: 75, wps: [{ wp: 'WP-02', v: 27.4, warn: 40, crit: 70 }, { wp: 'WP-05', v: 48.6, warn: 40, crit: 70, cur: 1 }, { wp: 'WP-06', v: 35.1, warn: 45, crit: 60 }, { wp: 'WP-08', plan: 1 }, { wp: 'WP-13', plan: 1 }, { wp: 'WP-16', plan: 1 }, { wp: 'WP-20', plan: 1 }] });
     gaugeB('gB-gauge', { k: '계기인식', icon: 'var(--ic-gauge)', std: '0.60 ~ 0.80 MPa', big: '0.86', unit: 'MPa', gap: '+0.06', st: 'crit', wp: 4, eq: 'N₂ 배관 압력계', n: '2/5',
       lo: 0.4, hi: 1.0, ok: [0.6, 0.8], crit: 0.85, wps: [{ wp: 'WP-02', v: 0.71 }, { wp: 'WP-04', v: 0.86, cur: 1 }, { wp: 'WP-11', plan: 1 }, { wp: 'WP-15', plan: 1 }, { wp: 'WP-19', plan: 1 }] });
-    cardB('gB-pd', { k: '부분방전', icon: ICON.bolt, std: '300 pC 미만', big: '142', unit: 'pC', gap: '-158', st: 'ok', wp: 6, eq: '수배전반 MCC-1', n: '1/4',
+    dotB('gB-pd', { k: '부분방전', icon: ICON.bolt, std: '300 pC 미만', big: '142', unit: 'pC', gap: '-158', st: 'ok', wp: 6, eq: '수배전반 MCC-1', n: '1/4',
       warn: 300, crit: 600, max: 700, wps: [{ wp: 'WP-06', v: 142, cur: 1 }, { wp: 'WP-11', plan: 1 }, { wp: 'WP-15', plan: 1 }, { wp: 'WP-18', plan: 1 }] });
 
     // ---------- 누출: 젖은 면적 · 의심도 (두 축) ----------
