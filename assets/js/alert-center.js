@@ -456,7 +456,16 @@
     // [11/23 v7] 정렬 단추는 열 머리 오른쪽 끝 칸에 산다 — 머리를 다시 그리기 전에 떼었다가 다시 붙인다(누름 처리는 그대로)
     var sortBox = null;   // [11/23 7차] v7 정렬은 거르기 줄로 옮겼다 — 열 머리 칸에 넣지 않음(아래 코드는 꺼 둠)
     if (sortBox && sortBox.parentNode) { sortBox.parentNode.removeChild(sortBox); }
-    colHead.innerHTML = state.tab === "done"
+    colHead.innerHTML = state.tab === "done" && V7
+      // [11/26 디자이너] v7 조치 요청된 알림 열: 원 등급 | 알림 | 조치 내용 | 진행상황 | 발생 | 조치 | 담당. 체크 칸 뺌, 조치 시각은 발생 옆 같은 글자
+      ? '<span class="ac-dc-sev" role="columnheader">원 등급</span>' +
+        '<span class="ac-dc-body" role="columnheader">알림</span>' +
+        '<span class="ac-dc-acts" role="columnheader">조치 내용</span>' +
+        '<span class="ac-dc-stage" role="columnheader">진행상황</span>' +
+        '<span class="ac-dc-occ" role="columnheader">발생</span>' +
+        '<span class="ac-dc-time" role="columnheader">조치</span>' +
+        '<span class="ac-dc-who" role="columnheader">담당</span>'
+      : state.tab === "done"
       ? '<span class="ac-dc-check" role="columnheader"><span class="ac-sr">상태</span></span>' +
         '<span class="ac-dc-time" role="columnheader">조치</span>' +
         '<span class="ac-dc-body" role="columnheader">' + (V7 ? "알림" : "알림 · 조치 내용") + '</span>' +
@@ -522,6 +531,18 @@
 
   function doneRow(a, sel) {
     var d = a.done;
+    if (V7 && window.ds) {   // [11/26 디자이너] 열 머리와 같은 순서: 원 등급 | 알림 | 조치 내용 | 진행상황 | 발생 | 조치 | 담당
+      return '<div class="ac-done-row is-v7cols" role="row" data-id="' + a.id + '" data-sev="' + a.sev + '"' +
+          ' tabindex="' + (sel ? "0" : "-1") + '" aria-selected="' + (sel ? "true" : "false") + '">' +
+          '<span class="ac-dc-sev t-caption" role="gridcell">' + window.ds.badge(a.sev === "critical" ? "crit" : "warn", SEV_LABEL[a.sev], { plain: true }) + '</span>' +
+          '<span class="ac-dc-body" role="gridcell"><span class="ac-dc-title t-label-2">' + esc(titleOf(a)) + '</span></span>' +
+          '<span class="ac-dc-acts t-caption" role="gridcell">' + cells(d.picked) + '</span>' +
+          '<span class="ac-dc-stage t-caption" role="gridcell">' + stageHtml(a, false) + '</span>' +
+          '<span class="ac-dc-occ t-caption" role="gridcell">' + esc(shortTime(a.time)) + '</span>' +
+          '<span class="ac-dc-time t-caption" role="gridcell">' + esc(d.at) + '</span>' +
+          '<span class="ac-dc-who t-caption" role="gridcell">' + esc(d.by) + '</span>' +
+        '</div>';
+    }
     return '<div class="ac-done-row" role="row" data-id="' + a.id + '" data-sev="' + a.sev + '"' +
         ' tabindex="' + (sel ? "0" : "-1") + '" aria-selected="' + (sel ? "true" : "false") + '">' +
         '<span class="ac-dc-check" role="gridcell">' + icon("--ic-check", 16) +
@@ -1003,7 +1024,7 @@
   function recordHtml6(a) {
     var d = a.done;
     return '<div class="ac-record">' +
-      head6(a, "원 등급 ",
+      head6(a, V7 ? "" : "원 등급 ",   // [11/26 디자이너] v7 배지는 "주의"만(원 등급 뺌)
         '<p class="ac-record-age">' +
           '<span class="ac-record-at t-label-1">' + esc(DAYS[d.day].label) + ' ' + esc(d.at) + '</span>' +
           '<span class="ac-record-by t-caption">' + (V7 ? cells(['조치 ' + d.by, d.took]) : '조치 · ' + esc(d.by) + ' · ' + esc(d.took)) + '</span>' +
@@ -1012,16 +1033,15 @@
         metaRow("발생", '<span class="ac-mono">' + esc(a.stamp) + '</span>') +
         meta6(a, false)) +
 
-      '<section class="ac-record-section">' +
+      // [11/26 디자이너] v7 은 조치 내용 칸을 뺌 — 아래 처리 정보 "조치" 줄과 겹침
+      (V7 ? "" : '<section class="ac-record-section">' +
         '<h3 class="t-caption">조치 내용</h3>' +
-        (V7   // [11/20 v7] 조치 내용은 누르는 칩이 아니라 한 일 목록 — 체크 아이콘 16 + 글자 14, 줄 사이 4
-          ? '<div class="ds-acts" role="list">' + d.picked.map(function (t) { return window.ds.act(esc(t), { result: true }); }).join("") + '</div>'   // [11/20] 공통 조치 목록, 결과 상태
-          : '<div class="ac-chips">' +
+        '<div class="ac-chips">' +
           d.picked.map(function (t) {
             return '<span class="ac-chip-done t-label-2">' + esc(t) + '</span>';
           }).join("") +
-        '</div>') +
-      '</section>' +
+        '</div>' +
+      '</section>') +
 
       '<section class="ac-record-section">' +
         '<h3 class="t-caption">메모</h3>' +
@@ -1207,7 +1227,8 @@
         // [11/02 v6] Delta 표식은 DELTA 조치 제안 판과 같은 Delta 로고(예전 판은 cpu)
         '<span class="ac-handover-mark">' + icon(V6 ? "--ic-delta" : "--ic-cpu", 16) +
           '<span class="t-label-2">DELTA 인수인계 요약</span></span>' +
-        '<span class="ac-handover-when t-caption">' + ndHtml(HANDOVER.when) + '</span>' +
+        // [11/26 디자이너] v7 은 "조치 n건 기준" 뺌, 시간 범위만
+        '<span class="ac-handover-when t-caption">' + ndHtml(V7 ? String(HANDOVER.when).replace(/\s*·\s*조치\s*\d+건\s*기준/, "") : HANDOVER.when) + '</span>' +
         '<span class="ac-head-spacer"></span>' +
         '<button type="button" class="btn btn-ghost is-xs" data-ac-handover-close>닫기</button>' +
       '</div>' +

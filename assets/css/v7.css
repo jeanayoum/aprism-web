@@ -1595,6 +1595,16 @@ body.ver-7 .ac-record-at { color: var(--text-primary); }
 /* [11/23 디자이너 Q2] 조치 요청된 알림 진행 단계 칸(관제 .done-stage 와 같은 점 · 말) */
 body.ver-7 .ac-dc-stage { flex: none; width: 112px; white-space: nowrap; }
 body.ver-7 .ac-dc-stage .done-stage { display: inline-flex; }
+/* [11/26 디자이너] 조치 요청된 알림 열 다시(alert-center.js doneRow .is-v7cols): 원 등급 56 | 알림 | 조치 내용 | 진행상황 112 | 발생 72 | 조치 72 | 담당 48
+ * 열 머리와 줄의 좌우 여백을 같게(왼쪽 20, 오른쪽 20 — 열 머리 값). 알림과 조치 내용은 남는 폭을 반씩. 조치 시각은 발생과 같은 글자(12/18 회색, 고정폭 아님) */
+body.ver-7 .ac-done-row.is-v7cols { padding: 0 var(--space-20); }
+body.ver-7 :is(.ac-done-row.is-v7cols, .ac-col-head) .ac-dc-body { flex: 1 1 0; }
+body.ver-7 .ac-done-row.is-v7cols .ac-dc-body > .ac-dc-title { max-width: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body.ver-7 .ac-dc-acts { flex: 1 1 0; min-width: 0; color: var(--text-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body.ver-7 .ac-dc-acts .ac-cells { display: inline; } body.ver-7 .ac-dc-acts .ac-cells > span + span { margin-left: var(--space-12); }
+body.ver-7 .ac-dc-time { width: 72px; color: var(--text-tertiary); white-space: nowrap; }
+body.ver-7 .ac-col-head :is(.ac-dc-acts, .ac-dc-time) { color: inherit; }
+body.ver-7 .ac-done-row.is-v7cols .ac-dc-sev .ds-badge { margin-left: calc(var(--space-4) * -1); }   /* 면 없는 배지 안 여백 4 만큼 당겨 삼각형이 열 머리 "원 등급" 글자 시작에 맞게 */
 body.ver-7 .ac-info .done-stage { display: inline-flex; gap: var(--space-8); }
 body.ver-7 .ac-info .done-stage .ac-stage-to { color: var(--text-secondary); }
 /* [11/23 디자이너 Q3] 필터 밖 새 위험 안내 띠 — 필터 줄 위, 위험 색 */
