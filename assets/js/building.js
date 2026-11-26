@@ -582,6 +582,7 @@
    *   아래  상태 · 배터리 · 신호 세 칸(bg/map-chip) — 메인 로봇 카드의 Mission · Battery · Signal 과 같은 값이다.
    */
   var SIG = { 4: "Strong", 3: "Good", 2: "Weak", 1: "Weak", 0: "끊김" };
+  if (V7B) { SIG = { 4: "강함", 3: "보통", 2: "약함", 1: "약함", 0: "끊김" }; }   // [11/24] v7 은 한글 라벨(영문판은 i18n 사전이 다시 옮김)
 
   function chip(cls) { return el("span", "bld-chip" + (cls ? " " + cls : "")); }
 
@@ -683,7 +684,7 @@
     var st = el("span", "bld-rc-badge is-" + ST_TONE[r.st] + (document.body.classList.contains("ver-7") && window.ds ? " " + window.ds.statusCls(r.st) : ""));   // [11/19 v7] 공통 CSS 태그
     st.appendChild(el("i"));
     st.appendChild(el("span", null, b.text));
-    line("Mission", st);
+    line(V7B ? "미션" : "Mission", st);
 
     var bat = el("span", window.ds ? window.ds.batteryCls(r.bat, r.chg) : "battery" + (r.bat <= 20 ? " is-critical" : r.bat <= 40 ? " is-warning" : "") + (r.chg ? " is-charging" : ""));   // [11/20 v7] 단계는 ds-v7.js 한 곳
     var bb = el("span", "battery-body");
@@ -699,7 +700,7 @@
     bat.appendChild(bb);
     bat.appendChild(el("span", "battery-tip"));
     bat.appendChild(el("span", "t-caption num", r.bat + "%"));
-    line("Battery", bat);
+    line(V7B ? "배터리" : "Battery", bat);
 
     var sig = el("span", "battery" + (r.sig === 1 ? " is-critical" : r.sig === 2 ? " is-warning" : ""));
     var bars = el("span", "signal-bars");
@@ -707,7 +708,7 @@
     for (var i = 0; i < 4; i += 1) { bars.appendChild(el("i")); }
     sig.appendChild(bars);
     sig.appendChild(el("span", "t-caption", SIG[r.sig]));
-    line("Signal", sig);
+    line(V7B ? "신호" : "Signal", sig);
     main.appendChild(side);
     node.appendChild(main);
 
@@ -1245,12 +1246,33 @@
       endHandover();
     }, true);
   }
+  /*
+   * [11/24] 전체 미션 Delta 펼침을 미션 탭과 같은 렌더러로(delta-answer-v6.js · delta-chat.js) — 그 둘이 읽는 값을 여기서 낸다.
+   *   알림 = 지금 범위(건물 전체 · 펼친 층)의 알림, 관제 알림 꼴(alert-data-v7 forDelta). 보는 미션이 없어 mine 은 비움 — 모든 알림에 [M번호 미션]이 붙는다.
+   *   처리 순서 = 위험 먼저, 같은 칸은 오래된 것부터(monitor.js handleOrder 와 같은 규칙).
+   *   알림 열기 = 그 미션 탭 + 알림 팝오버(enter, 11/24 디자이너 확인). 층을 펼친 상태면 그 층 알림만(지금과 같게).
+   */
+  var D7 = null;   // 처음 그릴 때(이 줄보다 먼저 불릴 수 있다) 채운다
+  function publishDelta(list) {
+    if (!V7B || !window.APRISM_ALERTS7 || !window.APRISM_ALERTS7.forDelta) { return; }
+    if (!D7) { D7 = window.APRISM_ALERTS7.forDelta(); }
+    var byId = {};
+    list.forEach(function (a) { byId[a.id] = a; });
+    var all = D7.filter(function (o) { return byId[o.id]; });
+    all.forEach(function (o) { o.bld = byId[o.id]; });
+    var t = function (a, b) { return a.time < b.time ? -1 : a.time > b.time ? 1 : 0; };
+    var crit = all.filter(function (a) { return a.sev === "critical"; }).sort(t), warn = all.filter(function (a) { return a.sev !== "critical"; }).sort(t);
+    window.APRISM_DELTA_ALERTS = { all: all, mine: [], mission: null, missionOf: function (a) { return a.mission || null; }, order: crit.concat(warn) };
+    window.APRISM_DELTA_COUNT = { crit: crit.length, warn: warn.length, total: all.length };
+    window.APRISM_OPEN_ALERT = function (o) { var b = o && o.bld; if (b) { enter(b.floor, b.mission, b); } };
+  }
   function deltaSay(top, list) {
     var d = { level: top, glow: top };
     if (!V3) { return d; }
     var l1 = $(".ai-line-1"), l2 = $(".ai-line-2");
     if (deltaFirst === null && l2) { deltaFirst = { line1: l1 ? l1.textContent : "", line2: l2.textContent }; }
     window.APRISM_DELTA_SCOPE = floorView;
+    publishDelta(list);
     window.APRISM_DELTA_SAY = null;   // 두 줄 문형(v3-panel.js)은 쌓인 건물(전체 미션)에서만 — 층 · 미션을 펼치면 예전 한 문장
     if (scopeMission && !floorView) {
       var fl = MISSION_FLOORS[scopeMission];
@@ -1748,6 +1770,12 @@
     // 왼쪽 위는 Delta 가, 오른쪽은 도구 레일이 쓴다 — 여백을 둔다.
     var room = { w: pr.width - 200, h: pr.height - 120 };
     unit = Math.max((maxX - minX) / room.w, (maxY - minY) / room.h);
+    // [11/24 v7] 층 꼬리표 비킴 — placeLabels 가 꼬리표가 도구 레일에 닿은 만큼 tagShift 를 늘린다. 창 크기가 바뀌면 처음부터 다시 잼
+    if (body.classList.contains("ver-7")) {
+      if (vw !== tagShiftW) { tagShift = 0; tagShiftW = vw; }
+      cx -= tagShift;
+      tagChecked = false;
+    }
     camera.left = -cx * unit;
     camera.right = (vw - cx) * unit;
     camera.top = cy * unit;
@@ -1845,6 +1873,36 @@
     node.classList.toggle("is-gone", op <= 0.5);   // 비켜 사라진 층의 표식 — 안의 누를 것(말풍선)도 같이 끈다
   }
 
+  /*
+   * [11/24 v7] 폭 1440~1600 에서 층 꼬리표(B3 지하 3층, 로봇 · 위험 · 주의)가 오른쪽 층 고르기, 도구 레일에 닿았다.
+   *   그림 크기는 그대로 두고, 실제로 그려진 꼬리표 글자가 레일과 가로 · 세로 모두 겹칠 때만 그 만큼(+16) 그림 가운데를 왼쪽으로 옮긴다.
+   *   1920 처럼 닿지 않으면 옮기지 않는다. 글 줄마다 글자 폭(Range)으로 잼 — 줄 상자는 꼬리표 폭만큼 넓어 짧은 첫 줄 옆 빈 칸까지 셈
+   */
+  var tagShift = 0, tagShiftW = -1, tagChecked = true;
+  function fitTags() {
+    tagChecked = true;
+    var rails = [];
+    Array.prototype.forEach.call(panel.querySelectorAll(".map-tools, .bld-floors"), function (r) {
+      var rr = r.getBoundingClientRect();
+      if (rr.width) { rails.push(rr); }
+    });
+    var need = 0;
+    FLOORS.forEach(function (f) {
+      var t = L["tag" + f];
+      if (!t) { return; }
+      if (t.classList.contains("is-gone")) { tagChecked = false; return; }   // 층이 펼쳐지는 중 — 다 나타난 뒤 다시 잰다
+      Array.prototype.forEach.call(t.querySelectorAll(".bld-ftag-name, .bld-ftag-sub"), function (line) {
+        var rg = document.createRange();
+        rg.selectNodeContents(line);
+        var lr = rg.getBoundingClientRect();
+        rails.forEach(function (r) {
+          if (lr.bottom > r.top && lr.top < r.bottom) { need = Math.max(need, lr.right + 16 - r.left); }
+        });
+      });
+    });
+    if (need > 0.5) { tagShift += Math.ceil(need); resize(); }
+  }
+
   function placeLabels() {
     if (!ready) { return; }
     // 표식 층은 지도 칸 안에 있다 — 창(.map-view) 기준 좌표에서 칸의 자리만큼 뺀다.
@@ -1857,6 +1915,7 @@
       put(L["tag" + f], corner, mode === "all" ? s.op : 0);
       L["tag" + f].classList.toggle("is-hot", hot === f);
     });
+    if (!tagChecked && mode === "all" && body.classList.contains("ver-7")) { fitTags(); }
     ALERTS.forEach(function (a) {
       put(a.node, surf(a.floor, a.uv, F[a.floor].size.y + 1), F[a.floor].op);
     });
@@ -2065,6 +2124,8 @@
   }
 
   if (typeof ResizeObserver !== "undefined") { new ResizeObserver(function () { resize(); }).observe(view); }
+  // [11/24 v7] 층 꼬리표 폭은 글꼴을 다 불러온 뒤에야 맞다 — 그때 한 번 더 잰다(resize 의 꼬리표 비킴)
+  if (body.classList.contains("ver-7") && document.fonts && document.fonts.ready) { document.fonts.ready.then(function () { resize(); }); }
   window.addEventListener("resize", resize);
 
   if (!window.APRISM_MAP_GLB || !canvas) {

@@ -301,6 +301,14 @@
     stops: [[0.30, 0.92], [0.30, 0.62], [0.10, 0.62]],
     done: 0x9ea8bb, left: 0x9ea8bb, dot: 0xffffff
   };
+  // [11/24] 주간 설비 점검(M5) — 대기 미션(불러온 미션이 있고 시작 전). 예전엔 길이 없어 지도에 지점이 하나도 안 깔리고 우측 목록 호버에도 반응이 없었다.
+  //   같은 대기 미션 M4(ROBOT 03)처럼 길을 깔되, 아직 떠나기 전이라 도크에(at 0). 자리는 B3 에서 쓰는 길목(ROBOT 07 도크 · ROBOT 11 정지점)을 빌림
+  ROBOTS[7] = {
+    name: "ROBOT 08", at: 0, floor: "B3",
+    dock: [0.10, 0.92],
+    stops: [[0.15, 0.20], [0.45, 0.20], [0.45, 0.55], [0.12, 0.55]],
+    done: 0x89b9ed, left: 0x4990e0, dot: 0xc7ddf8
+  };
   ROBOTS[8] = {
     name: "ROBOT 09", at: 1, floor: "B4", ended: true,   // 유틸리티 순회
     dock: [0.76, 0.80],
@@ -313,6 +321,9 @@
     stops: [[0.12, 0.55], [0.45, 0.55], [0.45, 0.20], [0.15, 0.20]],
     done: 0x89b9ed, left: 0x4990e0, dot: 0xc7ddf8
   };
+
+  // [11/24 디자이너] 로봇 이름 표기는 공통 "Robot 01"(alert-data-v7.js APRISM_ROBOT_LABEL) — 지도 안 이름(팝오버 · 이름표 · 계단 이동 표시)을 여기서 한 번에 맞춘다
+  if (window.APRISM_ROBOT_LABEL) { ROBOTS.forEach(function (b) { if (b && b.name) { b.name = window.APRISM_ROBOT_LABEL(b.name); } }); }
 
   // 모델을 이 크기(가장 긴 변)로 키워서 다룬다. 이유는 build() 에 적어 두었다.
   var SPAN_UNITS = 120;
@@ -4268,11 +4279,12 @@
     wpTog.textContent = "지점 " + rail.querySelectorAll(".timeline-item[data-waypoint]").length + "곳";
     // [11/10 v7 디자이너] 진행 막대 아래의 지나온 수(7/20)를 이 머리로 옮겨 하나로 — "지점 7/20"
     if (document.body.classList.contains("ver-7")) {
+      wpTog.classList.add("ds-title-row");   // 공통 제목 줄(11/24)
       var cnt = document.querySelector("[data-progress-count]"), ct = cnt ? cnt.textContent.trim() : "";
       if (/^\d+\/\d+$/.test(ct)) {
         wpTog.textContent = "";
-        var t1 = document.createElement("span"); t1.className = "rr-wp-t"; t1.textContent = document.documentElement.lang === "en" ? "Waypoints" : "웨이포인트";
-        var t2 = document.createElement("span"); t2.className = "rr-wp-n num"; t2.textContent = ct;
+        var t1 = document.createElement("span"); t1.className = "rr-wp-t ds-title-name"; t1.textContent = document.documentElement.lang === "en" ? "Waypoints" : "웨이포인트";
+        var t2 = document.createElement("span"); t2.className = "rr-wp-n ds-title-count num"; t2.textContent = ct;
         wpTog.appendChild(t1); wpTog.appendChild(t2);
       }
     }
@@ -4490,6 +4502,12 @@
   }
   /* 웨이포인트 번호 핀 — 시안처럼 바닥 지점에서 가는 막대를 세우고 끝에 번호 머리.
    * 지나온 정상 = 길색, 주의 · 위험 = 노랑 · 빨강, 다음 = 길색 채움, 예정 = 빈 회색. 가려진 지점은 막대를 높여 설비 위로 올린다 */
+  /*
+   * [11/24] 지금 길이 화면에 깔려 있나 — 지도 위 표식(핀 · 번호 · 경보 고리) 셋이 같이 쓴다. 층별로는 각자 w.floor 로 다시 가린다.
+   *   층을 건너는 미션(M2 발전기실 B3 → B4)은 보는 층에 첫 구간이 없다. 예전엔 첫 구간(parts[0])만 봐서 다른 층을 보는 동안 표식이 통째로 꺼지고
+   *   우측 레일 · 알림 줄 호버에도 지도가 반응하지 않았다 → 보이는 구간이 하나라도 있으면 켠다. (3D 길 자체는 travelSync 가 층마다 켜고 끔)
+   */
+  function laneShown() { return !!(onLane && onLane.parts && onLane.parts.some(function (p) { return p && p.visible; })); }
   function rrPins() {
     if (!hit) { return; }
     if (!rrPinBox) {
@@ -4497,7 +4515,7 @@
       rrPinBox.addEventListener("dragstart", function (e) { e.preventDefault(); });
       hit.appendChild(rrPinBox);
     }
-    var on = !!(onLane && onLane.parts && onLane.parts[0] && onLane.parts[0].visible) && !floorBusy;
+    var on = laneShown() && !floorBusy;
     rrPinBox.hidden = !on;
     // 투명해진 설비가 바뀌면 가려진 지점을 다시 센다
     var fsig = meshes.map(function (it) { return it.faded ? 1 : 0; }).join("");
@@ -4702,7 +4720,7 @@
   function rrWpNums() {
     if (!hit) { return; }
     if (!rrNumBox) { rrNumBox = document.createElement("div"); rrNumBox.className = "rr-wpnums"; rrNumBox.setAttribute("aria-hidden", "true"); rrNumBox.addEventListener("selectstart", function (e) { e.preventDefault(); }); rrNumBox.addEventListener("dragstart", function (e) { e.preventDefault(); }); hit.appendChild(rrNumBox); }
-    var on = !!(onLane && onLane.parts && onLane.parts[0] && onLane.parts[0].visible) && !floorBusy;
+    var on = laneShown() && !floorBusy;
     var key = wpSpots.map(function (w) { return w.id + w.info.tone + (w.occ ? "o" : "") + (w.off ? "x" : ""); }).join(",") + RRS.mode;
     if (key !== rrNumKey) {
       rrNumKey = key;
@@ -4735,7 +4753,7 @@
       hit.appendChild(rrPulse);
     }
     var w = rrAlertId && wpSpots.filter(function (x) { return x.id === rrAlertId; })[0];
-    var show = !!w && RRS.mode === "alert" && (!w.floor || w.floor === floorNow) && !!(onLane && onLane.parts[0] && onLane.parts[0].visible);
+    var show = !!w && RRS.mode === "alert" && (!w.floor || w.floor === floorNow) && laneShown();
     rrPulse.hidden = true;   // [11/05] 화면을 보는 세모 맥동 대신 바닥 빨간 고리(alertRing)
     alertRing(show ? w.spot : null);
   }

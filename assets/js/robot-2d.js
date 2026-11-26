@@ -19,9 +19,10 @@
   "use strict";
 
   var thumbs = Array.prototype.slice.call(document.querySelectorAll(".robot-strip.is-carousel .robot-card .robot-thumb"));
-  if (!thumbs.length) { return; }
+  // [11/24] 관제 카드가 없는 화면(안전진단 v8 로봇 카드)도 같은 그림을 쓰도록 그림 함수는 늘 연다. 관제 카드 처리는 카드가 있을 때만(예전과 같음)
+  var hasCards = thumbs.length > 0;
   // [11/23 디자이너] v7 — [전체 로봇 보기] 로봇 선택 모달 카드도 같은 2D 그림(예전 그림이 남아 있었다). 종류는 같은 번호의 패널 카드를 따른다
-  if (document.body.classList.contains("ver-7") && document.documentElement.lang !== "en") {
+  if (hasCards && document.body.classList.contains("ver-7") && document.documentElement.lang !== "en") {
     Array.prototype.forEach.call(document.querySelectorAll('[data-modal="robots"] .robot-card[data-robot-pick] .robot-thumb'), function (t) {
       var pick = t.closest(".robot-card"), twin = document.querySelector('.robot-strip .robot-card[data-robot="' + pick.getAttribute("data-robot-pick") + '"]');
       if (twin && twin.getAttribute("data-type")) { pick.setAttribute("data-type", twin.getAttribute("data-type")); }
@@ -135,7 +136,12 @@
     wheel("l", 40) + wheel("r", 124) +
     '</svg>';
 
-  document.body.insertAdjacentHTML("afterbegin", DEFS);
+  // 숨은 <defs> 는 문서에 한 번만. window.APRISM_ROBOT2D.svg("dog" | "mobed") = 카드에 넣을 그림 문자열(자세는 넣는 곳의 data-r2="walk|sit")
+  var defsOn = false;
+  function ensureDefs() { if (!defsOn) { document.body.insertAdjacentHTML("afterbegin", DEFS); defsOn = true; } }
+  window.APRISM_ROBOT2D = { svg: function (type) { ensureDefs(); return type === "mobed" ? MOBED : DOG; } };
+  if (!hasCards) { return; }
+  ensureDefs();
 
   Array.prototype.forEach.call(thumbs, function (thumb) {
     thumb.classList.remove("is-walking");

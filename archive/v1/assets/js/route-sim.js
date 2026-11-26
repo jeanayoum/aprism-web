@@ -1,0 +1,697 @@
+/*
+ * 움직임 시뮬레이션 — 상태 8개 · 재생 · 진행 슬라이더(route-rules 시안과 같은 조작).
+ * map.js 의 window.APRISM_RR 로 로봇 자리와 상태를 바꾼다. 재생하면 지점마다 서서 측정하고,
+ * 끝에 닿으면 미션 완료로 넘어간다.
+ *
+ * 화면 곳곳이 같은 박자로 따라온다(decorate).
+ *   지도 로봇 둘레   측정 눈금 6칸 — 0.5초에 한 칸(측정 중)
+ *   우측 지금 카드   측정 중 원형 진행도 · 이동 중 도착 예상 · 일시정지 경과 · 긴급정지 띠 · 통신 끊김
+ *   우측 진행 막대   지나온 칸 수 · % · 지금 지점 이름
+ */
+(function () {
+  "use strict";
+  var MODES = [["run", "이동 중"], ["inspect", "지점 측정 중"], ["alert", "위험 감지"], ["pause", "일시정지"],
+    ["estop", "긴급정지"], ["return", "자동복귀"], ["lost", "통신 끊김"], ["done", "미션 완료"]];
+  var box = document.createElement("section");
+  box.className = "rsim";
+  box.setAttribute("aria-label", "움직임 시뮬레이션");
+  box.innerHTML = '<div class="rsim-chips" role="group" aria-label="상태">' +
+    MODES.map(function (m) { return '<button type="button" data-m="' + m[0] + '" aria-pressed="' + (m[0] === "run") + '">' + m[1] + "</button>"; }).join("") +
+    '</div><div class="rsim-bar"><button type="button" class="rsim-play">재생</button>' +
+    '<input type="range" min="0" max="1000" value="0" aria-label="미션 진행도"><span class="rsim-pct">0%</span><span class="rsim-lanes" hidden></span></div>' +
+    '<p class="rsim-wait">지도 모델을 불러오는 중</p>';
+  document.body.appendChild(box);
+
+  (function () {   // [10/30] 접기 — 접으면 오른쪽 아래 구석에 작은 화살표만 남는다. 접힘 여부는 기억한다
+    var fold = document.createElement("button");
+    fold.type = "button";
+    fold.className = "rsim-fold";
+    fold.innerHTML = '<svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M3 4.5 6 7.5 9 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    box.appendChild(fold);
+    function setFold(on) {
+      box.classList.toggle("is-folded", on);
+      fold.setAttribute("aria-expanded", String(!on));
+      fold.setAttribute("aria-label", on ? "움직임 시뮬레이션 펼치기" : "움직임 시뮬레이션 접기");
+      try { localStorage.setItem("rsim-folded", on ? "1" : "0"); } catch (e) { }
+    }
+    var saved = false; try { saved = localStorage.getItem("rsim-folded") === "1"; } catch (e) { }
+    setFold(saved);
+    fold.addEventListener("click", function () { setFold(!box.classList.contains("is-folded")); });
+  })();
+
+  (function () {   // [11/05] 델타 시뮬레이션 — 접기 화살표 옆. 주의 또는 기본 판에서 시작해 2초 뒤 위험 알림 1건이 새로 들어온다(monitor.js 가 받는다)
+    if (!document.body.classList.contains("v2")) { return; }
+    var g = document.createElement("span");
+    g.className = "rsim-dsim";
+    g.setAttribute("role", "group");
+    g.setAttribute("aria-label", "델타 시뮬레이션");
+    g.innerHTML = '<span>델타</span><button type="button" data-dsim="warning">주의 → 위험 1건</button><button type="button" data-dsim="normal">기본 → 위험 1건</button>';
+    box.querySelector(".rsim-chips").appendChild(g);
+    g.addEventListener("click", function (e) {
+      var b = e.target.closest("[data-dsim]"); if (!b) { return; }
+      Array.prototype.forEach.call(g.querySelectorAll("[data-dsim]"), function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      document.dispatchEvent(new CustomEvent("aprism:delta-sim", { detail: { from: b.getAttribute("data-dsim"), after: 2000 } }));
+    });
+  })();
+
+  (function () {   // [11/20 정의서 공통-00 Q3] 통신 시뮬레이션 — v7 만. 정상 · 느림 · 서버 끊김(v7.js APRISM_NET)
+    if (!window.APRISM_NET) { return; }
+    var g = document.createElement("span");
+    g.className = "rsim-dsim rsim-net";
+    g.setAttribute("role", "group");
+    g.setAttribute("aria-label", "통신 시뮬레이션");
+    g.innerHTML = '<span>통신</span><button type="button" data-net="ok" aria-pressed="true">정상</button><button type="button" data-net="slow" aria-pressed="false">느림</button><button type="button" data-net="down" aria-pressed="false">서버 끊김</button>';
+    box.querySelector(".rsim-chips").appendChild(g);
+    g.addEventListener("click", function (e) {
+      var b = e.target.closest("[data-net]"); if (!b) { return; }
+      Array.prototype.forEach.call(g.querySelectorAll("[data-net]"), function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      window.APRISM_NET(b.getAttribute("data-net"));
+    });
+  })();
+
+  (function () {   // [11/11 디자이너] 요청 기록 지우기 — 시연을 처음부터. v7 공용 기록(alert-data-v7.js S7.req) + v6 탭 기록(sessionStorage 'aprism-handled')을 비우고 다시 불러온다
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "rsim-reset";
+    b.textContent = "요청 기록 지우기";
+    b.title = "조치 요청 · 처리 기록을 모두 지우고 처음 상태로";
+    box.querySelector(".rsim-bar").appendChild(b);
+    b.addEventListener("click", function () {
+      try { if (window.APRISM_ALERTS7) { window.APRISM_ALERTS7.req.reset(); } } catch (e) { }
+      try { localStorage.removeItem("aprism-v7-requested"); sessionStorage.removeItem("aprism-handled"); } catch (e) { }
+      location.reload();
+    });
+  })();
+
+  var api = null, range = box.querySelector("input"), pct = box.querySelector(".rsim-pct"), play = box.querySelector(".rsim-play");
+  var mode = "run", playing = false, dwell = null, last = 0, modeAt = performance.now(), touched = false;
+  var SPEED_SEC = 70;   // 한 바퀴 시간
+
+  function press(m) {
+    if (m !== mode) { modeAt = performance.now(); }
+    mode = m;
+    touched = true;
+    Array.prototype.forEach.call(box.querySelectorAll("[data-m]"), function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-m") === m)); });
+  }
+  function show() {
+    if (!api) { return; }
+    var t = api.total() || 1, f = Math.max(0, Math.min(1, api.get() / t));
+    range.value = Math.round(f * 1000);
+    pct.textContent = Math.round(f * 100) + "%";
+  }
+  function stop() { playing = false; dwell = null; play.textContent = "재생"; }
+  function setMode(m) {
+    press(m);
+    api.mode(m);
+    if (m === "done") { api.set(api.total()); }
+    if (m === "inspect") {   // 가장 가까운 앞 지점에 세운다
+      var s = api.get(), next = api.stops().filter(function (x) { return x >= s - 1e-6; })[0];
+      if (next !== undefined) { api.set(next); }
+    }
+    show();
+  }
+  function resume() { stop(); setMode("run"); api.set(api.get() + api.total() * 0.0005); show(); }
+
+  // [11/05] 지점 수(20개, 60개) 고르기 뺌 — 예전에 60개를 골라 둔 브라우저도 다음에 열 때 20개로 돌아온다
+  try { localStorage.removeItem("rr-wp-total"); } catch (e) { }
+  box.addEventListener("click", function (e) {   // [10/22 실험] 앞길 선, 번호 표현
+    var b = e.target.closest("[data-ahead], [data-pv], [data-past], [data-flow], [data-thin]"); if (!b || !api) { return; }
+    var k = b.hasAttribute("data-ahead") ? "data-ahead" : b.hasAttribute("data-pv") ? "data-pv" : b.hasAttribute("data-flow") ? "data-flow" : b.hasAttribute("data-thin") ? "data-thin" : "data-past";
+    if (k === "data-thin" && api.thin) { api.thin(b.getAttribute(k)); }
+    if (k === "data-flow" && api.flow) { api.flow(b.getAttribute(k)); }
+    if (k === "data-past" && api.pastNo) { api.pastNo(b.getAttribute(k)); }
+    if (k === "data-ahead" && api.ahead) { api.ahead(b.getAttribute(k)); }
+    if (k === "data-pv" && api.pins) { api.pins(b.getAttribute(k)); }
+    Array.prototype.forEach.call(box.querySelectorAll("[" + k + "]"), function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+  });
+  box.querySelector(".rsim-lanes").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-lanes]"); if (!b || !api || !api.lanes) { return; }
+    api.lanes(b.getAttribute("data-lanes"));
+    Array.prototype.forEach.call(box.querySelectorAll("[data-lanes]"), function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+  });
+  box.querySelector(".rsim-chips").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-m]");
+    if (!b || !api) { return; }
+    stop();
+    setMode(b.getAttribute("data-m"));
+  });
+  range.addEventListener("input", function () {
+    if (!api) { return; }
+    stop();
+    if (mode === "done" || mode === "inspect") { press("run"); api.mode("run"); }
+    touched = true;
+    api.set(range.value / 1000 * api.total());
+    show();
+  });
+  play.addEventListener("click", function () {
+    if (!api) { return; }
+    if (playing) { stop(); return; }
+    if (mode === "done" || api.get() >= api.total() - 1e-6) { press("run"); api.mode("run"); api.set(0); }
+    else if (mode !== "run" && mode !== "return") { press("run"); api.mode("run"); }
+    playing = true; last = 0; play.textContent = "멈춤";
+  });
+  // [11/05] 지금 상태 그대로 재생 — 델타 시뮬레이션(map-v6.js)이 위험 감지인 채로 로봇을 걷게 한다. 다음 지점에 닿으면 평소대로 측정 → 이동
+  document.addEventListener("aprism:rsim-play", function () {
+    if (!api || playing) { return; }
+    playing = true; last = 0; dwell = null; play.textContent = "멈춤";
+  });
+
+  /* ---------- 지도 — 측정 눈금 6칸(로봇 둘레) ---------- */
+  var NS = "http://www.w3.org/2000/svg";
+  function ringOf() {
+    var bot = document.querySelector(".map-bot");
+    if (!bot) { return null; }
+    var r = bot.querySelector(".rr-ring");
+    if (r) { return r; }
+    r = document.createElementNS(NS, "svg");
+    r.setAttribute("class", "rr-ring");
+    r.setAttribute("viewBox", "-30 -30 60 60");
+    r.setAttribute("aria-hidden", "true");
+    for (var k = 0; k < 6; k += 1) {
+      var a0 = -Math.PI / 2 + k * Math.PI / 3 + .12, a1 = a0 + Math.PI / 3 - .24, R = 24;
+      var p = document.createElementNS(NS, "path");
+      p.setAttribute("d", "M" + (Math.cos(a0) * R).toFixed(2) + " " + (Math.sin(a0) * R).toFixed(2) + " A" + R + " " + R + " 0 0 1 " + (Math.cos(a1) * R).toFixed(2) + " " + (Math.sin(a1) * R).toFixed(2));
+      r.appendChild(p);
+    }
+    bot.appendChild(r);
+    return r;
+  }
+
+  /* ---------- 지도 — 일시정지 고리 + 재개 버튼(시안 C안) ---------- */
+  var PR = 23, PCIRC = 2 * Math.PI * PR;
+  function pauseOf() {
+    var bot = document.querySelector(".map-bot");
+    if (!bot) { return null; }
+    var g = bot.querySelector(".rr-pause");
+    if (g) { return g; }
+    g = document.createElement("div");
+    g.className = "rr-pause";
+    g.innerHTML = '<svg viewBox="-30 -30 60 60" aria-hidden="true"><circle r="' + PR + '" class="trk"></circle>' +
+      '<circle r="' + PR + '" class="val" stroke-dasharray="' + PCIRC.toFixed(2) + '" stroke-dashoffset="' + PCIRC.toFixed(2) + '" transform="rotate(-90)"></circle></svg>' +
+      '<button type="button" class="rr-pause-go" aria-label="재개"><svg viewBox="-6 -6 12 12" aria-hidden="true"><path d="M-2.5 -4 L4 0 L-2.5 4 Z"></path></svg></button>';
+    g.querySelector("button").addEventListener("click", function (e) { e.stopPropagation(); resume(); });
+    bot.appendChild(g);
+    return g;
+  }
+
+  /* ---------- 우측 지금 카드 — 상태 줄 ---------- */
+  var CIRC = 69.12;
+  /*
+   * [11/12 v7 디자이너] 지금 지점 카드 상태 = 한 줄 틀로 통일 — [아이콘 16] [상태 이름(상태 색 · 굵게)] ··· [오른쪽 보조 정보] (+ 일시정지만 [재개]).
+   *   파랑 = 이동 중 · 측정 중 · 자동복귀 / 빨강 = 위험 감지 · 긴급정지 / 회색 = 일시정지 · 통신 끊김. 빨간 띠 · 점선 막대 · 두 줄은 걷었다(v7.css .rr-st)
+   */
+  function st7(tone, ic, label, meta, extra) {
+    return '<div class="rr-st is-' + tone + '">' + (ic ? '<span class="rr-st-ic">' + ic + '</span>' : "") + '<span class="rr-st-l">' + label + '</span>' +
+      '<span class="rr-st-m num">' + (meta || "") + '</span>' + (extra || "") + '</div>';
+  }
+  function noteHtml(m) {
+    if (document.body.classList.contains("ver-7")) {
+      // [11/12 디자이너 2차] 아이콘은 뺀다 — 이동 중 점(…)은 위 진행 제목에 이미 있다 · 측정 진행은 번호 원 둘레 고리(v7.css .rr-st.is-measure)
+      //   일시정지의 자동복귀 남은 시간은 위 진행 글 칸 아랫줄로 올렸다(decorate) · 자동복귀는 미션 중단이라 무채색
+      if (m === "inspect") { return st7("blue is-measure", "", "측정 중", '<span data-rr="pct">0%</span>'); }
+      if (m === "run") { return st7("blue", "", "이동 중", '<span data-rr="eta"></span>'); }
+      if (m === "alert") { return st7("red", "", "위험 감지", '<span data-rr="eta"></span>'); }
+      if (m === "pause") { return st7("gray", "", '일시정지 <span data-rr="held">1:24</span>', "", '<button type="button" class="rr-resume">재개</button>'); }
+      if (m === "estop") { return st7("red", "", "긴급정지", "현장 복구 필요"); }
+      if (m === "lost") { return st7("gray", "", "통신 끊김", "마지막 통신 2분 전"); }
+      return "";
+    }
+    if (m === "inspect") {
+      return '<div class="rr-note is-measure"><svg viewBox="0 0 28 28" width="28" height="28" aria-hidden="true"><circle cx="14" cy="14" r="11" class="trk"></circle>' +
+        '<circle cx="14" cy="14" r="11" class="val" stroke-dasharray="' + CIRC + '" stroke-dashoffset="' + CIRC + '" transform="rotate(-90 14 14)"></circle></svg>' +
+        // [11/06 v6] 숫자(%)는 뺀다 — 너무 빨리 올라 눈이 따라가다 지친다(공동작업자). 진행은 원 테두리가 말한다
+        '<span>측정 중</span>' + (document.body.classList.contains("ver-6") ? "" : '<span class="num" data-rr="pct">0%</span>') + '</div>';
+    }
+    // [11/06 v6] 위험 감지는 그 지점에 서 있다 — 다음 지점에 "이동 중"을 띄우지 않는다. 재생을 누르면 이동 중으로 돌아간다
+    if (m === "alert" && document.body.classList.contains("ver-6")) { return ""; }
+    if (m === "run" || m === "alert") { return '<div class="rr-note"><span>이동 중</span><span class="num" data-rr="eta"></span></div>'; }
+    if (m === "pause") {
+      return '<div class="rr-note"><span>일시정지 <b class="num" data-rr="held">1:24</b></span><span>자동복귀까지 <b class="num" data-rr="auto">8:36</b></span></div>' +
+        '<div class="rr-note"><span></span><button type="button" class="rr-resume">▶ 재개</button></div>';
+    }
+    if (m === "estop") { return '<div class="rr-band"><b>긴급정지, 모터 전원 차단</b><span>현장 복구 필요, 이 지점 인근</span></div>'; }
+    if (m === "lost") { return '<div class="rr-note"><span>위치 확인 중</span><span class="num">마지막 통신 2분 전</span></div>'; }
+    return "";
+  }
+  var CIRC7 = (2 * Math.PI * 6.2).toFixed(2);   // [11/12 v7] 측정 고리 16(반지름 6.2)
+  var noteCard = null, noteMode = null;
+  function placeNote(m) {
+    var card = document.querySelector("[data-timeline] .timeline-item.is-running .step-card");
+    if (card !== noteCard || m !== noteMode) {
+      Array.prototype.forEach.call(document.querySelectorAll("[data-timeline] .rr-notes"), function (n) { n.remove(); });
+      noteCard = card; noteMode = m;
+      var html = noteHtml(m);
+      if (card && html) {
+        var wrap = document.createElement("div");
+        wrap.className = "rr-notes";
+        wrap.innerHTML = html;
+        card.appendChild(wrap);
+        var rb = wrap.querySelector(".rr-resume");
+        if (rb) { rb.addEventListener("click", function (e) { e.stopPropagation(); resume(); }); }
+      }
+    }
+    return noteCard;
+  }
+
+  /* ---------- 우측 진행 막대 ---------- */
+  var lastProg = "";
+  function syncProgress() {
+    var rail = document.querySelector("[data-timeline]");
+    if (!rail) { return; }
+    if (mode === "lost" && document.body.classList.contains("ver-6")) { return; }   // [11/05 v6] 통신 끊김 — 진행 막대는 끊기기 직전 그대로(회색은 v6.css)
+    var items = rail.querySelectorAll(".timeline-item[data-waypoint]"), done = rail.querySelectorAll(".timeline-item[data-waypoint].is-done").length;
+    var run = rail.querySelector(".timeline-item[data-waypoint].is-running .step-title");
+    var key = done + "/" + items.length + "|" + (run ? run.textContent : "") + "|" + (mode === "inspect");
+    if (key === lastProg) { return; }
+    lastProg = key;
+    var p = items.length ? done / items.length * 100 : 0;
+    var track = document.querySelector("[data-progress-track]");
+    if (track) { track.style.setProperty("--progress", p + "%"); }
+    var pe = document.querySelector("[data-progress-percent]"); if (pe) { pe.textContent = Math.round(p) + "%"; }
+    var ce = document.querySelector("[data-progress-count]"); if (ce) { ce.textContent = done + "/" + items.length; }
+    var te = document.querySelector("[data-progress-title]");
+    if (te && run) { te.textContent = document.body.classList.contains("ver-6") ? wpAct(run.textContent.trim(), mode !== "inspect") : run.textContent + " 판독"; }
+    // [11/06 v6] 위험 감지 땐 아랫줄이 지금 행동 — 제목이 바뀐 뒤에 따라 적는다(먼저 적으면 지난 행동이 남는다)
+    var lf = document.querySelector("[data-progress-left]");
+    if (te && lf && mode === "alert" && document.body.classList.contains("ver-6")) { lf.textContent = te.textContent; }
+  }
+  /*
+   * [11/06 v6] 진행 막대 제목 = 로봇이 지금 하는 일 하나(디자이너 "이동 중인데 판독 중이라 행동이 둘").
+   *   걷는 중이면 "다음 지점(으)로 이동 중", 지점에 서서 재는 중이면 "지점 + 그 설비에 맞는 측정"(판독은 계기에만).
+   */
+  var ACT6 = [
+    [/압력계|유량계|차압계|온도계|계기|gauge|meter/i, "판독", "reading"],
+    [/열교환기|heat exchanger/i, "출구 온도 측정", "outlet temperature"],
+    [/펌프|모터|발전기|터빈|pump|motor|generator|turbine/i, "진동 · 온도 측정", "vibration & temperature"],
+    [/배전반|MCC|변압기|panel|switchgear|transformer/i, "발열 스캔", "thermal scan"],
+    [/밸브|배관|valve|pipe/i, "누출 점검", "leak check"],
+    [/발판|작업|scaffold|work/i, "안전 장구 확인", "PPE check"]
+  ];
+  function josaRo(s) {
+    var c = s.charAt(s.length - 1), code = c.charCodeAt(0);
+    if (code >= 0xAC00 && code <= 0xD7A3) { var j = (code - 0xAC00) % 28; return j === 0 || j === 8 ? "로" : "으로"; }
+    return "036".indexOf(c) >= 0 ? "으로" : "로";   // 숫자는 읽는 소리로(영 · 삼 · 육 = 받침)
+  }
+  function wpAct(name, moving) {
+    var en = document.documentElement.lang === "en";
+    if (moving) { return en ? "Moving to " + name : name + josaRo(name) + " 이동 중"; }
+    var a = ACT6.filter(function (r) { return r[0].test(name); })[0];
+    return en ? name + ", " + (a ? a[2] : "inspection") : name + " " + (a ? a[1] : "점검");
+  }
+
+  /* ---------- 자동복귀 — 남은 카드를 "건너뜀 n곳" 한 장으로, 끝에 충전 스테이션 복귀 카드 ---------- */
+  var groupKey = null;
+  function el(tag, cls, html) { var n = document.createElement(tag); if (cls) { n.className = cls; } if (html != null) { n.innerHTML = html; } return n; }
+  function group(m) {
+    var rail = document.querySelector("[data-timeline]");
+    if (!rail) { return; }
+    if (m !== "return") {
+      if (groupKey !== null) {
+        Array.prototype.forEach.call(rail.querySelectorAll(".rr-extra"), function (n) { n.remove(); });
+        Array.prototype.forEach.call(rail.querySelectorAll(".rr-hide"), function (n) { n.classList.remove("rr-hide"); });
+        groupKey = null;
+      }
+      return;
+    }
+    var pend = Array.prototype.slice.call(rail.querySelectorAll(".timeline-item[data-waypoint].is-pending"));
+    var key = pend.map(function (n) { return n.getAttribute("data-waypoint"); }).join(",");
+    if (key === groupKey) { return; }
+    groupKey = key;
+    Array.prototype.forEach.call(rail.querySelectorAll(".rr-extra"), function (n) { n.remove(); });
+    Array.prototype.forEach.call(rail.querySelectorAll(".rr-hide"), function (n) { n.classList.remove("rr-hide"); });
+    pend.forEach(function (n) { n.classList.add("rr-hide"); });
+    var done = rail.querySelectorAll(".timeline-item.is-done"), after = done.length ? done[done.length - 1] : null;
+    var nodes = [];
+    if (pend.length) {
+      var skip = el("article", "timeline-item is-pending rr-extra rr-skip",
+        '<span class="rail-capsule"><span class="rail-stub"></span><span class="rail-mark"><span class="rail-dot"></span></span><span class="rail-line"></span></span>' +
+        '<div class="step-wrap"><div class="step-card ds-card is-step"><div class="step-head"><div class="step-title-row"><span class="t-label-1 step-title">건너뜀 ' + pend.length + '곳</span></div></div>' +
+        '<p class="t-caption step-desc num">' + pend[0].getAttribute("data-waypoint") + (pend.length > 1 ? " ~ " + pend[pend.length - 1].getAttribute("data-waypoint") : "") + '</p></div></div>');
+      nodes.push(skip);
+    }
+    var home = el("article", "timeline-item is-running rr-extra rr-home",
+      '<span class="rail-capsule"><span class="rail-stub"></span><span class="rail-mark"><span class="rail-dot"></span></span></span>' +
+      '<div class="step-wrap"><div class="step-card ds-card is-step"><div class="step-head"><div class="step-title-row"><span class="t-label-1 step-title">충전 스테이션으로 복귀</span></div></div>' +
+      '' + (document.body.classList.contains("ver-7")
+        ? '<div class="rr-home-st">' + st7("gray", "", "자동복귀 중", '<span data-rr="home-eta"></span>') + '</div></div></div>'
+        : '<div class="rr-homebar"></div><div class="rr-note"><span>자동복귀 중</span><span class="num" data-rr="home-eta"></span></div></div></div>'));
+    nodes.push(home);
+    nodes.forEach(function (n) {
+      if (after && after.parentNode) { after.parentNode.insertBefore(n, after.nextSibling); after = n; }
+      else { rail.insertBefore(n, rail.firstChild); after = n; }
+    });
+    try { home.scrollIntoView({ block: "nearest", behavior: "smooth" }); } catch (e) { /* 오래된 브라우저 */ }
+  }
+
+  /* ---------- 로봇 카드 상태 · 버튼 · 진행 막대 글 ---------- */
+  var BADGE = { run: ["수행중", "badge-info"], alert: ["수행중", "badge-info"], inspect: ["측정 중", "badge-info"], pause: ["일시정지", "badge-idle"],
+    estop: ["긴급정지", "badge-danger"], "return": ["자동복귀", "badge-info"], lost: ["끊김", "badge-danger"], done: ["완료", "badge-normal"] };
+  // [11/05 v6] 미션 완료 아랫줄 — 첫 지점 시작 시각부터 완료 14:15 까지(시연 값)
+  function spent() {
+    var first = document.querySelector("[data-timeline] .timeline-item[data-wp-time]"), t = first && /(\d{1,2}):(\d{2})/.exec(first.getAttribute("data-wp-time"));
+    var endMin = window.APRISM_ETA_MIN != null ? window.APRISM_ETA_MIN : 14 * 60 + 15;   // [11/23 v7] 진행 중 보이던 "약 HH:MM 종료 예정"에서 끝난 것으로 — 예전 더미 14:15 와 어긋났다
+    var min = t ? Math.max(1, endMin - (Number(t[1]) * 60 + Number(t[2]))) : 0;
+    if (!min) { return "-"; }
+    return min < 60 ? min + "분" : Math.floor(min / 60) + "시간" + (min % 60 ? " " + (min % 60) + "분" : "");
+  }
+  var LEFTTXT = { pause: "일시정지 중, 남은 시간 멈춤", estop: "긴급정지로 멈춤", "return": "미션 중단, 충전 스테이션으로 복귀 중", lost: "통신이 돌아오면 다시 계산", done: "미션 완료" };
+  var badgeMode = null;
+  // [11/06 v6] 완료 미션 탭(M6 ~ M8)은 시뮬레이션과 상관없이 미션 완료로 보인다 — 시뮬레이션의 미션 완료와 같은 표시
+  var doneSent = false;   // [11/23 v7] 완료가 되고 풀릴 때 한 번씩 알린다(mission-scope.js 가 탭 · 메뉴를 완료로)
+  function tellDone(on) { if (on !== doneSent) { doneSent = on; document.dispatchEvent(new CustomEvent("aprism:mission-state", { detail: { done: on } })); } }
+  function doneMode(m) { return api && api.ended && api.ended() ? "done" : m; }
+  function robotCard(m) {
+    m = doneMode(m);
+    var on = document.querySelector(".sb-tab.is-on"), key = m + "|" + (on ? on.getAttribute("data-mission") : "");   // 완료 미션끼리 옮겨도 아랫줄을 새로 쓴다
+    if (key === badgeMode) { return; }
+    badgeMode = key;
+    var badge = document.querySelector('.robot-strip .robot-card[aria-pressed="true"] .robot-lists .badge');
+    if (badge) {
+      if (!badge.hasAttribute("data-rr-orig")) { badge.setAttribute("data-rr-orig", badge.className); badge.setAttribute("data-rr-html", badge.innerHTML); }
+      var b = BADGE[m] || BADGE.run;
+      badge.className = "badge " + b[1] + " t-caption" + (document.body.classList.contains("ver-7") && window.ds ? " " + window.ds.statusCls(BADGE[m] ? m : "run") : "");   // [11/19 v7] 공통 CSS 태그
+      badge.innerHTML = '<span class="badge-dot"></span>' + b[0];
+    }
+    var left = document.querySelector("[data-progress-left]");
+    if (left) {
+      if (!left.hasAttribute("data-rr-orig")) { left.setAttribute("data-rr-orig", left.textContent); }
+      var v6 = document.body.classList.contains("ver-6");
+      var ttl = document.querySelector("[data-progress-title]");
+      var V7T = document.body.classList.contains("ver-7") && document.documentElement.lang !== "en";   // [11/23] v7 은 상단 시계(10:20:00)에 맞춘 시각 — 11:16 은 시계보다 뒤였다
+      var left6 = { alert: ttl && ttl.textContent, estop: "정지 시각 " + (V7T ? "10:19:30" : "11:16:42"), pause: "남은 시간 멈춤", lost: "마지막 통신 " + (V7T ? "10:18:00" : "11:16:42"), done: spent() + " 소요" };   // [11/06] 제목이 상태를 말하니 아랫줄은 그다음 정보
+      left.textContent = (v6 && left6[m] || LEFTTXT[m]) || left.getAttribute("data-rr-orig");   // [11/05 v6] 통신 끊김은 남은 시간 자리에 마지막 통신 시각
+    }
+    var rec = document.querySelector("[data-recall-button]"), es = document.querySelector('.rc-actions [data-modal-open="estop"]');
+    if (rec) { rec.classList.toggle("rr-on", m === "return"); }
+    if (es) { es.classList.toggle("rr-on", m === "estop"); }
+  }
+
+  /* 위험 감지 — 방금 지난 카드에도 요약 줄(카드 테두리는 더하지 않는다, 점은 빨강) */
+  function alertLine(m) {
+    var rail = document.querySelector("[data-timeline]");
+    if (!rail) { return; }
+    var item = m === "alert" ? rail.querySelector("[data-rr-alert]") : null;
+    Array.prototype.forEach.call(rail.querySelectorAll(".rr-alert-line"), function (n) { if (!item || !item.contains(n)) { n.remove(); } });
+    if (item && !item.querySelector(".rr-alert-line")) {
+      var card = item.querySelector(".step-card");
+      if (card) { card.appendChild(el("p", "rr-alert-line", "<span>가스, 열화상 2종 기준 초과</span><span class=\"num\">10:09</span>")); }
+    }
+  }
+
+  /* 마지막 지점을 지나면 이미 충전 스테이션으로 가는 길이다 — 자동복귀가 의미가 없어 버튼을 끈다 */
+  var endKey = "";
+  function endGuard() {
+    var st = api.stops(), last = st.length ? st[st.length - 1] : api.total();
+    var dm = doneMode(mode);
+    var home = (mode === "run" || mode === "alert") && dm !== "done" && api.get() > last + api.total() * 0.003;
+    var off = home || dm === "done" || mode === "return";
+    var key = off + "|" + home + "|" + dm + "|" + mode;
+    if (key === endKey) { return; }
+    endKey = key;
+    var rec = document.querySelector("[data-recall-button]"), chip = box.querySelector('[data-m="return"]');
+    if (rec) {
+      var v7r = document.body.classList.contains("ver-7") && document.documentElement.lang !== "en";   // [11/23] v7 — 복귀 중에도 끈다(모달 안내 "복귀 중에는 자동복귀 버튼이 비활성화"와 같게)
+      // [11/23 디자이너 · 정의서 로봇현황-01 Q4] v7 — 통신 끊김(명령이 닿지 않음) · 긴급정지(해제가 먼저) 중에도 끈다
+      var stop7 = v7r && (mode === "lost" || mode === "estop");
+      rec.disabled = v7r ? off || stop7 : off && mode !== "return";
+      rec.title = home ? "마지막 지점을 지나 충전 스테이션으로 가는 중이에요" : dm === "done" ? "미션이 끝났어요" : v7r && mode === "return" ? "자동복귀 중이에요" : v7r && mode === "lost" ? "통신이 끊겨 명령을 보낼 수 없어요" : v7r && mode === "estop" ? "긴급정지를 먼저 해제해야 해요" : "";
+    }
+    if (chip) { chip.disabled = home || dm === "done"; chip.title = chip.disabled ? "마지막 지점 뒤에서는 자동복귀가 의미 없어요" : ""; }
+    var left = document.querySelector("[data-progress-left]");
+    if (left && home) { left.textContent = "점검 끝, 충전 스테이션으로 이동 중"; }
+    else { badgeMode = null; }   // 다시 앞쪽으로 오면 robotCard 가 원래 글로 되돌린다
+  }
+
+  /* [10/22] 시안의 상태별 패널 — 긴급정지(버튼 글 · 아래 칸 흐리게), 통신 끊김(띠 · 목록 얼림 · Signal 끊김), 미션 완료(요약 띠) */
+  // [11/06 v6] 상태 이름 · 색 — 기호는 v6.css .rr-dot, 색은 기호에만 쓴다(글자까지 물들면 Delta · 지도와 겹쳐 경보가 과하다)
+  var STATE6 = { alert: ["위험 감지", "critical"], estop: ["긴급정지", "critical"], pause: ["일시정지", "pause"], "return": ["자동복귀", "muted"], lost: ["통신 끊김", "muted"], done: ["미션 완료", "safe"] };
+  var bitsMode = null;
+  function stateBits(m) {
+    var rail = document.querySelector("[data-timeline]");
+    if (!rail) { return; }
+    var card = document.querySelector('.robot-strip .robot-card[aria-pressed="true"]') || document.querySelector(".robot-strip .robot-card");
+    // Signal
+    var sig = card && card.querySelectorAll(".robot-row .t-caption");
+    var sigTxt = null; if (sig) { Array.prototype.forEach.call(sig, function (n) { if (/^(Strong|Good|Weak|Fair|끊김|Lost)$/.test(n.textContent.trim())) { sigTxt = n; } }); }
+    if (sigTxt) {
+      if (!sigTxt.hasAttribute("data-rr-orig")) { sigTxt.setAttribute("data-rr-orig", sigTxt.textContent); }
+      sigTxt.textContent = m === "lost" ? "끊김" : sigTxt.getAttribute("data-rr-orig");
+      sigTxt.classList.toggle("rr-sig-lost", m === "lost");
+    }
+    // E-STOP 버튼 글
+    var es = document.querySelector('.rc-actions [data-modal-open="estop"]');
+    /* 버튼이 좁아 글은 그대로 두고, 작동 중 테두리(rr-on)로만 보인다 */
+    rail.classList.toggle("rr-estop", m === "estop");
+    rail.classList.toggle("rr-frozen", m === "lost");
+    // 목록 위 띠
+    m = doneMode(m);
+    tellDone(m === "done");
+    var host = rail.parentNode, ban = host && (host.querySelector(".rr-banner") || document.querySelector(".right-panel .mission-header .rr-banner"));   // [11/11 v7] 진행 막대가 로봇 카드로 올라가 띠도 목록 상자 밖에 있다
+    var v6 = document.body.classList.contains("ver-6");
+    var want = v6 ? !!STATE6[m] : m === "lost" || m === "done";
+    if (!want) { if (ban) { ban.remove(); } bitsMode = m; return; }
+    if (ban && bitsMode === m) { return; }
+    bitsMode = m;
+    if (!ban) { ban = el("div", "rr-banner"); host.insertBefore(ban, rail); }
+    // [11/06 v6] 평소와 다른 상태는 모두 진행 제목 자리에 같은 꼴로 — 컬러 원 기호 + 굵은 이름. 면 · 여백은 다른 상태와 같다
+    if (v6) {
+      var s6 = STATE6[m];
+      ban.className = "rr-banner is-" + m + " rr-tone-" + s6[1];
+      ban.innerHTML = '<span class="rr-state"><span class="rr-dot" aria-hidden="true"></span><b>' + s6[0] + "</b></span>" +
+        (m === "done" ? '<a class="btn is-xs btn-secondary" href="./report-v6.html" data-rr-report>보고서 보러가기</a>' : "");
+      return;
+    }
+    if (m === "lost") {
+      ban.className = "rr-banner is-lost";
+      ban.innerHTML = document.body.classList.contains("ver-6") ? "<b>통신 끊김</b>" : "<b>통신 끊김</b><span>마지막 통신 11:16:42, 2분 전. 아래 목록은 그 시점 기준이다.</span>";   // [11/05 v6] 이름만 — 시각은 진행 막대 아랫줄
+    } else {
+      var all = rail.querySelectorAll(".timeline-item[data-waypoint]").length, bad = rail.querySelectorAll(".timeline-item[data-wp-alert]").length;
+      ban.className = "rr-banner is-done";
+      ban.innerHTML = document.body.classList.contains("ver-6")
+        // [11/05 v6] 이름 + 오른쪽 [보고서 보러가기]. 소요 시간은 진행 막대 아랫줄(spent)
+        ? '<div class="rr-done-head"><div class="rr-done-txt"><b>미션 완료</b></div>' +
+          '<a class="btn is-xs btn-secondary" href="./report-v6.html" data-rr-report>보고서 보러가기</a></div>'
+        : "<b>미션 완료 14:15</b><span>" + all + "곳 중 이상 " + bad + "곳</span>";
+    }
+  }
+
+  /* [10/22] 스팟 머리 큐브 — 정육면체를 진행 방향으로 돌려 위 앞쪽에서 본 그림. 앞면은 오목, 넓은 판 눈 두 개 */
+  var spotKey = "";
+  function spotHead(m, now) {
+    var bot = document.querySelector(".map-bot");
+    if (!bot) { return; }
+    var svg = bot.querySelector(".rr-spot");
+    if (!svg) { svg = document.createElementNS(NS, "svg"); svg.setAttribute("class", "rr-spot"); svg.setAttribute("viewBox", "-30 -30 60 60"); svg.setAttribute("aria-hidden", "true"); bot.appendChild(svg); }
+    var angTxt = bot.style.getPropertyValue("--bot-ang") || getComputedStyle(bot).getPropertyValue("--bot-ang") || "90deg";
+    var hDeg = parseFloat(angTxt) || 90, st = bot.getAttribute("data-rr") || m;
+    var look = st === "inspect" ? Math.sin(now / 650) * 0.9 : 0;
+    var key = Math.round(hDeg) + "|" + st + "|" + look.toFixed(2);
+    if (key === spotKey) { return; }
+    spotKey = key;
+    var P = Math.PI, t = 35 * P / 180, h = hDeg * P / 180, S = 9, ZB = -1;   // [10/22] 다시 정육면체(뒤끝 -1)
+    var yaw = h + 0.25 * Math.cos(h);   // 옆을 볼 때 얼굴이 조금 보이게만 살짝 튼다
+    var f = [Math.cos(yaw), 0, Math.sin(yaw)], l = [Math.sin(yaw), 0, -Math.cos(yaw)];
+    function W(x, y, z) { return [x * l[0] + z * f[0], y, x * l[2] + z * f[2]]; }
+    function prj(p) { return [p[0] * S, 2 + (-p[1] * Math.cos(t) + p[2] * Math.sin(t)) * S]; }
+    var view = [0, Math.sin(t), Math.cos(t)];
+    function dot(a, b) { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; }
+    function fmt(q2) { return q2[0].toFixed(1) + "," + q2[1].toFixed(1); }
+    var FACES = [
+      { n: [0, 0, 1], k: .82, c: [[-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]] },
+      { n: [0, 0, -1], k: .7, c: [[1, -1, ZB], [-1, -1, ZB], [-1, 1, ZB], [1, 1, ZB]] },
+      { n: [1, 0, 0], k: .9, c: [[1, -1, 1], [1, -1, ZB], [1, 1, ZB], [1, 1, 1]] },
+      { n: [-1, 0, 0], k: .9, c: [[-1, -1, ZB], [-1, -1, 1], [-1, 1, 1], [-1, 1, ZB]] },
+      { n: [0, 1, 0], k: 1, c: [[-1, 1, 1], [1, 1, 1], [1, 1, ZB], [-1, 1, ZB]] }
+    ];
+    var lost = st === "lost", shut = st === "pause" || st === "estop" || lost;
+    var fill = "#89B9ED", eye = "#F2FAFF";   // 시안 K 와 같은 색: 몸 길색, 눈 밝은 라이트
+    if (st === "pause") { fill = "#9EA8BB"; }
+    if (st === "estop") { fill = "#FF383C"; }
+    if (st === "return") { fill = "#E4E8EF"; eye = "#070A10"; }
+    if (lost) { eye = "#9EA8BB"; }
+    var ring = "color-mix(in srgb, " + fill + " 55%, #FFFFFF)";
+    function shade(k) { return "color-mix(in srgb, " + fill + " " + Math.round(k * 100) + "%, #0A0F18)"; }
+    var vis = FACES.filter(function (fc) { return dot(W(fc.n[0], fc.n[1], fc.n[2]), view) > 0.001; });
+    var ptsOf = function (fc) { return fc.c.map(function (c) { return fmt(prj(W(c[0], c[1], c[2]))); }).join(" "); };
+    var html = "";
+    // 밝은 테두리 — 면들을 테두리색으로 굵게 한 번 깔고, 그 위에 면을 얇게(모서리가 둥글게)
+    if (!lost) { vis.forEach(function (fc) { html += '<polygon points="' + ptsOf(fc) + '" fill="' + ring + '" stroke="' + ring + '" stroke-width="5" stroke-linejoin="round"/>'; }); }
+    vis.forEach(function (fc) {
+      html += '<polygon points="' + ptsOf(fc) + '" ' + (lost ? 'fill="#0A0F18" fill-opacity=".6" stroke="#9EA8BB" stroke-dasharray="3 2.2" stroke-width="1.6"' : 'fill="' + shade(fc.k) + '" stroke="' + shade(fc.k) + '" stroke-width="2.2"') + ' stroke-linejoin="round"/>';
+    });
+    var facing = dot(f, view);
+    if (facing > 0.06) {
+      var op = Math.min(1, (facing - 0.06) * 6), sx = Math.sin(look) * 0.12;
+      var zc = function () { return 1.01; };   // [10/22] 앞면은 평평하게(오목 되돌림)
+      var quad = function (x0, x1, y0, y1) { return [W(x0, y0, zc(x0)), W(x1, y0, zc(x1)), W(x1, y1, zc(x1)), W(x0, y1, zc(x0))].map(function (p) { return fmt(prj(p)); }).join(" "); };
+      [-1, 1].forEach(function (k) {
+        var cxk = k * 0.52 + sx, hw = 0.2;
+        var pts = shut ? quad(cxk - hw, cxk + hw, -0.82, -0.68) : quad(cxk - hw, cxk + hw, -0.72, 0.06);
+        html += '<polygon points="' + pts + '" fill="' + eye + '" stroke="' + eye + '" stroke-width=".5" stroke-linejoin="round" opacity="' + op.toFixed(2) + '"/>';
+      });
+    }
+    // 테두리 그림자로 지도와 떼어 놓는다
+    svg.innerHTML = html;
+  }
+
+  /* [10/22] 시안 K 스팟 머리 — 머리는 화면을 보고 돌지 않고, 눈이 바라보는 쪽 면으로 옮겨 간다 */
+  var HEXR = (function () {
+    var R = 11, rr = 3.2, v = [], d = "", KW = 1;   // [10/22] 가로로 긴 머리 — 캡슐 비율(약 1.7 : 1)
+    for (var i = 0; i < 6; i += 1) { var a = -Math.PI / 2 + i * Math.PI / 3; v.push([Math.cos(a) * R * KW, Math.sin(a) * R]); }
+    for (var j = 0; j < 6; j += 1) {
+      var p0 = v[(j + 5) % 6], p1 = v[j], p2 = v[(j + 1) % 6];
+      var l1 = Math.hypot(p1[0] - p0[0], p1[1] - p0[1]), l2 = Math.hypot(p2[0] - p1[0], p2[1] - p1[1]);
+      var a1 = [p1[0] + (p0[0] - p1[0]) / l1 * rr, p1[1] + (p0[1] - p1[1]) / l1 * rr], b1 = [p1[0] + (p2[0] - p1[0]) / l2 * rr, p1[1] + (p2[1] - p1[1]) / l2 * rr];
+      d += (j ? " L" : "M") + a1[0].toFixed(2) + " " + a1[1].toFixed(2) + " Q" + p1[0].toFixed(2) + " " + p1[1].toFixed(2) + " " + b1[0].toFixed(2) + " " + b1[1].toFixed(2);
+    }
+    return d + " Z";
+  })();
+  var kKey = "";
+  function kHead(m, now) {
+    var bot = document.querySelector(".map-bot");
+    if (!bot) { return; }
+    var svg = bot.querySelector(".rr-khead");
+    if (!svg) { svg = document.createElementNS(NS, "svg"); svg.setAttribute("class", "rr-khead"); svg.setAttribute("viewBox", "-14 -14 28 28"); svg.setAttribute("aria-hidden", "true"); bot.appendChild(svg); }
+    var st = bot.getAttribute("data-rr") || m;
+    var ang = (parseFloat(bot.style.getPropertyValue("--bot-ang")) || 90) * Math.PI / 180;
+    var off = st === "inspect" ? Math.sin(now / 650) * 0.7 : 0;
+    var key = Math.round(ang * 57.3) + "|" + st + "|" + off.toFixed(2);
+    if (key === kKey) { return; }
+    kKey = key;
+    var lost = st === "lost";
+    var kc = lost ? "#0A0F18" : st === "estop" ? "#FF383C" : st === "pause" ? "#9EA8BB" : st === "return" ? "#E4E8EF" : "var(--bot-route, #89B9ED)";
+    var ring = lost ? "#9EA8BB" : "color-mix(in srgb, " + kc + " 55%, #FFFFFF)";
+    var ecol = st === "return" ? "#070A10" : "#F2FAFF";
+    var html = '<path d="' + HEXR + '" fill="' + kc + '" stroke="' + ring + '" stroke-width="' + (lost ? 2 : 1.5) + '" stroke-dasharray="' + (lost ? "3 2.2" : "none") + '" stroke-linejoin="round"' + (lost ? ' opacity=".7"' : "") + "/>";
+    var a = ang + off, c = Math.cos(a), sn = Math.sin(a);
+    var shut = st === "pause" || st === "estop", back = sn < -0.55;
+    if (!(back && !shut && !lost)) {
+      if (lost || (shut && back)) { c = 0; sn = 1; }
+      var cx = c * 5.4, cy = 1.4 + sn * 1.8, gap = 3.4 - Math.abs(c) * 1.4, tilt = c * 1.1;   // 시안 K 값 그대로
+      if (lost || shut) { gap = Math.max(gap, 2.9); }
+      [-1, 1].forEach(function (k) {
+        var ex = cx + k * gap, ey = cy - k * tilt;
+        if (lost || shut) {
+          var sl = -c * 0.55, hl = 1.25, ly = ey + 2.4;
+          html += '<path d="M' + (ex - hl).toFixed(2) + " " + (ly - sl * hl).toFixed(2) + " L" + (ex + hl).toFixed(2) + " " + (ly + sl * hl).toFixed(2) + '" fill="none" stroke="' + (lost ? "#9EA8BB" : ecol) + '" stroke-width="2.1" stroke-linecap="round"/>';
+        } else {
+          html += '<rect x="' + (ex - 1.05).toFixed(2) + '" y="' + (ey - 3.7).toFixed(2) + '" width="2.1" height="7.4" rx="1.05" fill="' + ecol + '" fill-opacity="' + (sn < -0.2 ? .6 : 1) + '"/>';
+        }
+      });
+    }
+    svg.innerHTML = html;
+  }
+
+  function mmss(sec) { sec = Math.max(0, Math.floor(sec)); return Math.floor(sec / 60) + ":" + String(sec % 60).padStart(2, "0"); }
+  // [11/06 v6] 시뮬레이션 상태는 화면에 하나라, 미션(로봇)을 바꾸면 이동 중으로 되돌린다 — 앞 미션의 상태가 다음 미션에 묻어가지 않게
+  var simRobot;
+  function simReset() {
+    if (!api || !document.body.classList.contains("ver-6")) { return; }
+    var card = document.querySelector('.robot-strip .robot-card[aria-pressed="true"]'), id = card ? card.getAttribute("data-robot") : null;
+    if (id === simRobot) { return; }
+    var first = simRobot === undefined;
+    simRobot = id;
+    if (first) { return; }
+    if (playing) { stop(); }
+    if (touched) { press("run"); if (api.reset) { api.reset(); } else { api.mode("run"); } }
+    // 앞 로봇 카드의 시뮬레이션 배지를 되돌린다 — 일시정지로 남으면 그 미션이 대기로 읽혀 탭이 미션 설정으로 간다
+    Array.prototype.forEach.call(document.querySelectorAll('.robot-strip .robot-card:not([aria-pressed="true"]) .badge[data-rr-orig]'), function (b) {
+      b.className = b.getAttribute("data-rr-orig"); b.innerHTML = b.getAttribute("data-rr-html") || b.innerHTML;
+      b.removeAttribute("data-rr-orig"); b.removeAttribute("data-rr-html");
+    });
+  }
+  function decorate(t) {
+    simReset();
+    if (!api || !touched) { return; }
+    var e = t - modeAt;
+    // 지도 측정 눈금
+    var ring = ringOf();
+    if (ring) {
+      ring.style.display = mode === "inspect" ? "block" : "none";
+      if (mode === "inspect") {
+        var n = Math.min(6, Math.floor((e % 4500) / 500));
+        Array.prototype.forEach.call(ring.children, function (p, k) { p.setAttribute("class", k < n ? "on" : ""); });
+      }
+    }
+    var pz = pauseOf();
+    if (pz) {
+      pz.style.display = mode === "pause" ? "block" : "none";
+      if (mode === "pause") { pz.querySelector(".val").setAttribute("stroke-dashoffset", (PCIRC * (1 - Math.min(.999, (84 + e / 1000) / 600))).toFixed(2)); }
+    }
+    endGuard();
+    stateBits(mode);
+    kHead(mode, t);   // [10/22] 로봇 = 시안 K 스팟 머리 그대로(모양, 라운딩, 눈 움직임)
+    var railEl = document.querySelector("[data-timeline]");
+    if (railEl) { railEl.classList.toggle("rr-flow", mode === "run" || mode === "alert" || mode === "return"); }   // 측정 · 멈춤에선 레일 흐름도 멈춘다(시안)
+    group(mode);
+    robotCard(mode);
+    alertLine(mode);
+    if (mode === "return") {
+      var he = document.querySelector('[data-rr="home-eta"]');
+      if (he) { var sec = Math.max(1, Math.round(api.get() / (api.total() / SPEED_SEC))); var hs = (sec >= 60 ? Math.floor(sec / 60) + "분 " : "") + (sec % 60) + "초"; he.textContent = document.body.classList.contains("ver-7") ? "약 " + hs + " 남음" : "도착 약 " + hs; }   // [11/12 v7] 이동 중과 같은 말투
+    }
+    // 우측 카드 상태 줄
+    var card = mode === "return" ? null : placeNote(mode);
+    if (mode === "return") { placeNote(""); }
+    if (card) {
+      if (mode === "inspect") {
+        var fr = Math.min(1, (e % 4500) / 3000), v = card.querySelector(".rr-note .val, .rr-st .val"), pe = card.querySelector('[data-rr="pct"]');
+        var circ = document.body.classList.contains("ver-7") ? +CIRC7 : CIRC;
+        if (v) { v.setAttribute("stroke-dashoffset", (circ * (1 - fr)).toFixed(2)); }
+        if (pe) { pe.textContent = Math.round(fr * 100) + "%"; }
+        var it7 = card.closest(".timeline-item"); if (it7) { it7.style.setProperty("--rr-pct", (fr * 100).toFixed(1)); }   // [11/12 v7] 번호 원 둘레 고리
+      } else if (mode === "run" || mode === "alert") {
+        var s = api.get(), next = api.stops().filter(function (x) { return x > s + 1e-6; })[0], eta = card.querySelector('[data-rr="eta"]');
+        var etaSec = next === undefined ? 0 : Math.max(1, Math.round((next - s) / (api.total() / SPEED_SEC)));
+        // [11/06 디자이너 v7] "도착 약 n초" → "약 n초 남음" — 마지막 카드 [도착] 꼬리표와 말이 겹치지 않게, 진행 줄 "약 1시간 57분 남음"과 같은 말투. v6 는 그대로
+        if (eta) { eta.textContent = next === undefined ? "" : document.body.classList.contains("ver-7") ? "약 " + etaSec + "초 남음" : "도착 약 " + etaSec + "초"; }
+      } else if (mode === "pause") {
+        var held = 84 + e / 1000, he = card.querySelector('[data-rr="held"]'), au = card.querySelector('[data-rr="auto"]');
+        if (he) { he.textContent = mmss(held); }
+        if (au) { au.textContent = mmss(600 - held); }
+        // [11/12 v7 디자이너] 자동복귀까지 남은 시간은 위 진행 글 칸 아랫줄("남은 시간 멈춤" 자리) — 일시정지라는 말과 겹치는 글 대신 다음 일
+        if (document.body.classList.contains("ver-7")) { var lf7 = document.querySelector("[data-progress-left]"); if (lf7) { lf7.textContent = "자동복귀까지 " + mmss(600 - held); } }
+      }
+    }
+    syncProgress();
+  }
+
+  function loop(t) {
+    window.requestAnimationFrame(loop);
+    decorate(t);
+    if (!api || !playing) { last = t; return; }
+    var dt = last ? Math.min(0.1, (t - last) / 1000) : 0;
+    last = t;
+    if (dwell) {
+      if (t >= dwell.until) { press("run"); api.mode("run"); api.set(dwell.at + api.total() * 0.0005); dwell = null; }
+      show();
+      return;
+    }
+    var total = api.total(), speed = total / SPEED_SEC, s0 = api.get(), back = mode === "return";
+    var s1 = s0 + (back ? -1 : 1) * speed * dt;
+    if (!back) {
+      var hit = api.stops().filter(function (x) { return x > s0 + 1e-6 && x <= s1; })[0];
+      if (hit !== undefined) { api.set(hit); press("inspect"); api.mode("inspect"); dwell = { at: hit, until: t + 3600 }; show(); return; }
+      if (s1 >= total) { api.set(total); setMode("done"); stop(); return; }
+    } else if (s1 <= 0) { api.set(0); setMode("done"); stop(); return; }
+    api.set(s1);
+    show();
+  }
+
+  var tries = 0;
+  (function wait() {
+    var a = window.APRISM_RR;
+    if (!a || !a.ready()) { setTimeout(wait, 300); return; }
+    // [10/28] 지점이 다 깔리기 전(8개 미만)에 시작하면 시작 자리를 못 잡고 touched 가 꺼진 채 남아
+    // 상태 칩을 누르기 전까지 로봇 머리(K)가 그려지지 않았다 — 지점이 깔릴 때까지 잠깐(최대 6초) 기다린다
+    var n0 = 0; try { n0 = a.stops().length; } catch (e) { n0 = 0; }
+    if (n0 < 8 && tries < 20) { tries += 1; setTimeout(wait, 300); return; }
+    api = a;
+    box.querySelector(".rsim-wait").hidden = true;
+    box.classList.add("is-ready");
+    try { var st0 = api.stops(); if (st0.length > 7) { api.mode("run"); api.set(st0[6] + (st0[7] - st0[6]) * 0.55); } } catch (e) { /* 지점이 적으면 그대로 */ }
+    touched = true;   // 지점이 적어도 로봇 머리는 그린다
+    show();
+    window.requestAnimationFrame(loop);
+  })();
+})();

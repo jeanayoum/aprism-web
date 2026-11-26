@@ -8,7 +8,7 @@ if (!fs.existsSync(path.join(ROOT, 'screens'))) { console.log('screens 폴더가
 const OUT = path.join(__dirname, 'out'); fs.mkdirSync(OUT, { recursive: true });
 
 // v7 화면이 불러오는 CSS 모으기
-const screens = fs.readdirSync(path.join(ROOT, 'screens')).filter(f => /-v7[^/]*\.html$/.test(f));
+const screens = fs.readdirSync(path.join(ROOT, 'screens')).filter(f => /-v([7-9]|[1-9]\d)[^/]*\.html$/.test(f))   // v7 이후 화면(11/24 결정);
 const cssSet = new Set();
 for (const s of screens) {
   const html = fs.readFileSync(path.join(ROOT, 'screens', s), 'utf8');
@@ -58,7 +58,7 @@ for (const f of files) {
 // 요약
 const byKind = {}, byFile = {};
 for (const i of issues) { byKind[i.kind + ': ' + i.why.replace(/\(.*\)/, '').trim()] = (byKind[i.kind + ': ' + i.why.replace(/\(.*\)/, '').trim()] || 0) + 1; byFile[i.f] = (byFile[i.f] || 0) + 1; }
-console.log(`검사한 CSS ${files.length}개 (v7 화면 ${screens.length}개가 불러오는 것), 걸린 곳 ${issues.length}`);
+console.log(`검사한 CSS ${files.length}개 (v7 이후 화면 ${screens.length}개가 불러오는 것), 걸린 곳 ${issues.length}`);
 for (const [k, v] of Object.entries(byKind).sort((a, b) => b[1] - a[1])) console.log(`  ${k}: ${v}`);
 console.log('파일별: ' + Object.entries(byFile).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join(', '));
 const md = [`# CSS 규칙 검사 (${new Date().toISOString().slice(0, 10)})`, '', `기준: ds-rules.json (${RULES.updated}). 검사 폴더: ${ROOT}`, '',

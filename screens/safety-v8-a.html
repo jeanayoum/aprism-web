@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<!-- v8 안전진단 시안 A(11/24) — 위 지도, 아래 감지 6종과 로봇. 아티팩트 시안(U3SPY5oSjy6bn12JUR9zQk)을 v7 공통 CSS(components-v7.css) 위로 옮김.
+     세 화면 한 벌: 전체 미션(#all), 미션별(주소 끝 없음), 상세(#detail). 화면 안 상단 탭, 미션, 감지 카드로도 오감. 시안 B 는 safety-v8-b.html(같은 JS, body data-sv8 만 다름)
+     다크 테마 전용(그래프 색을 다크 토큰에서 읽음)이라 테마 단추를 두지 않음 -->
+<html lang="ko" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <script src="../assets/js/v7.js?v=47c74fc4"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>v8 안전진단 시안 A — APRISM</title>
+  <meta name="description" content="안전진단 시안 A — 위에 미션 지도, 아래에 감지 6종 카드와 로봇. 카드를 누르면 상세에서 근거 사진, 측정 이력, DELTA 조치 제안을 본다." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/static/woff2/SUIT.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" />
+  <link rel="stylesheet" href="../assets/css/tokens.css?v=d79c1b24" />
+  <link rel="stylesheet" href="../assets/css/app-shell.css?v=cb26af6d" />
+  <link rel="stylesheet" href="../assets/css/icons-outline.css?v=a43f9b9f" />
+  <link rel="stylesheet" href="../assets/css/text-parts.css?v=01ead563" />
+  <link rel="stylesheet" href="../assets/css/v3.css?v=842e8b00" />
+  <link rel="stylesheet" href="../assets/css/v5.css?v=9f626280" />
+  <link rel="stylesheet" href="../assets/css/v6.css?v=c384b14c" />
+  <link rel="stylesheet" href="../assets/css/v7.css?v=aea5f0bb" />
+  <link rel="stylesheet" href="../assets/css/components-v7.css?v=bb0b5393" />
+  <link rel="stylesheet" href="../assets/css/safety-v8.css?v=b6f0f753" />
+  <script src="../assets/js/ds-v7.js?v=e2e4bba3"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+    body { background-color: var(--bg-page); color: var(--text-primary); font-family: var(--font-family-sans); -webkit-font-smoothing: antialiased; }
+    h1, h2, h3, p { margin: 0; }
+  </style>
+</head>
+<body class="v2-2 ver-3 ver-5 ver-6 ver-7 ver-8" data-sv8="A">
+
+<div class="app">
+
+  <header class="status-bar">
+    <div class="status-bar-left">
+      <a class="status-bar-logo" href="../index.html" aria-label="APRISM 홈">
+        <span class="i" style="--i:var(--ic-brand-wordmark)" aria-hidden="true"></span>
+      </a>
+      <!-- [전체 미션] [M1 …] … — 미션 탭(mission-tabs-v6.js 와 같은 짜임). safety-v8.js 가 그린다 -->
+      <nav class="sb-tabs" aria-label="보는 범위" data-sv8-tabs></nav>
+    </div>
+
+    <div class="status-bar-right">
+      <div class="status-menu" data-status-menu>
+        <button type="button" class="account-chip" data-menu-trigger aria-haspopup="true" aria-expanded="false">
+          <span class="i i-16" style="--i:var(--ic-user)" aria-hidden="true"></span>
+          <span class="t-label-2">홍길동</span>
+          <span class="t-label-2 account-sep" aria-hidden="true">|</span>
+          <span class="t-label-2">관제운영</span>
+        </button>
+        <div class="dropdown-menu account-menu" role="menu" aria-label="계정" hidden>
+          <a class="menu-item" role="menuitem" href="#"><span class="i i-16" style="--i:var(--ic-user)" aria-hidden="true"></span><span class="t-label-2">내 계정 정보</span></a>
+          <a class="menu-item" role="menuitem" href="#"><span class="i i-16" style="--i:var(--ic-lock)" aria-hidden="true"></span><span class="t-label-2">비밀번호 변경</span></a>
+          <a class="menu-item" role="menuitem" href="#"><span class="i i-16" style="--i:var(--ic-power)" aria-hidden="true"></span><span class="t-label-2">로그아웃</span></a>
+        </div>
+      </div>
+
+      <div class="status-menu" data-status-menu>
+        <button type="button" class="signal-chip" data-menu-trigger aria-haspopup="true" aria-expanded="false" aria-label="통신 상태">
+          <span class="signal-bars"><i></i><i></i><i></i><i></i></span>
+        </button>
+        <div class="dropdown-menu signal-menu" role="menu" aria-label="통신 상태" hidden>
+          <div class="menu-item" role="menuitem"><span class="t-label-2">AI Server</span><span class="badge badge-normal t-caption ds-badge is-plain is-safe ds-i-dot"><span class="badge-dot"></span>Online</span></div>
+          <div class="menu-item" role="menuitem"><span class="t-label-2">DB server</span><span class="badge badge-normal t-caption ds-badge is-plain is-safe ds-i-dot"><span class="badge-dot"></span>Online</span></div>
+          <div class="menu-item" role="menuitem"><span class="t-label-2">Network</span><span class="signal-bars menu-signal"><i></i><i></i><i></i><i></i></span></div>
+        </div>
+      </div>
+
+      <span class="utc-clock">
+        <span class="i i-16" style="--i:var(--ic-clock)" aria-hidden="true"></span>
+        <span class="t-caption num">2026-11-02 10:20:00 KST</span>
+      </span>
+    </div>
+  </header>
+
+  <div class="app-content">
+
+    <nav class="gnb-rail ds-gnb" aria-label="전역 내비게이션">
+      <div class="gnb-items">
+        <a class="gnb-item ds-gnb-item" href="./control-v6.html"><span class="gnb-icon ds-gnb-icon"><span class="i i-20" style="--i:var(--ic-home)"></span></span><span>관제</span></a>
+        <a class="gnb-item ds-gnb-item" href="./safety-v8-a.html" aria-current="page"><span class="gnb-icon ds-gnb-icon"><span class="i i-20" style="--i:var(--ic-shield)"></span></span><span>안전진단</span></a>
+        <a class="gnb-item ds-gnb-item" href="#"><span class="gnb-icon ds-gnb-icon"><span class="i i-20" style="--i:var(--ic-bot)"></span></span><span>로봇</span></a>
+        <a class="gnb-item ds-gnb-item" href="#"><span class="gnb-icon ds-gnb-icon"><span class="i i-20" style="--i:var(--ic-cpu)"></span></span><span>AI</span></a>
+        <a class="gnb-item ds-gnb-item" href="#"><span class="gnb-icon ds-gnb-icon"><span class="i i-20" style="--i:var(--ic-calendar)"></span></span><span>스케줄러</span></a>
+        <a class="gnb-item ds-gnb-item" href="#"><span class="gnb-icon ds-gnb-icon"><span class="i i-20" style="--i:var(--ic-delta)"></span></span><span>Delta</span></a>
+        <a class="gnb-item ds-gnb-item" href="./report-v6.html"><span class="gnb-icon ds-gnb-icon"><span class="i i-20" style="--i:var(--ic-document)"></span></span><span>보고서</span></a>
+        <a class="gnb-item ds-gnb-item" href="#"><span class="gnb-icon ds-gnb-icon"><span class="i i-20" style="--i:var(--ic-users)"></span></span><span>계정관리</span></a>
+      </div>
+      <a class="gnb-item ds-gnb-item" href="#"><span class="gnb-icon ds-gnb-icon"><span class="i i-20" style="--i:var(--ic-settings)"></span></span><span>환경설정</span></a>
+    </nav>
+
+    <!-- 본문 1836 x 1016 — 전체 미션, 미션별, 상세를 safety-v8.js 가 그린다 -->
+    <div class="sv8" id="st" aria-live="polite"></div>
+
+  </div>
+</div>
+
+<script src="../assets/js/mini-routes.js?v=6dc0477d"></script>
+<script src="../assets/js/mini-plan.js?v=12b3a704"></script>
+<script src="../assets/js/robot-2d.js?v=26500be3"></script>
+<script src="../assets/js/safety-v8.js?v=e21be97e"></script>
+</body>
+</html>

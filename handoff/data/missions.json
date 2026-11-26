@@ -1,0 +1,204 @@
+{
+  "_note": "시안 견본 — 정의서 공통-03 꼴. 실제 값은 서버가 보냄",
+  "items": [
+    {
+      "id": "정기 순회 점검",
+      "name": "정기 순회 점검",
+      "floors": [
+        "B4"
+      ],
+      "robotId": "Robot 01",
+      "status": "running",
+      "dock": {
+        "start": "DOCK",
+        "end": "DOCK"
+      },
+      "waypoints": [
+        {
+          "order": 1,
+          "id": "WP-01",
+          "name": "FFU-01 토출구",
+          "dwellSec": 1080
+        },
+        {
+          "order": 2,
+          "id": "WP-02",
+          "name": "HEPA Filter 차압계",
+          "dwellSec": 1200
+        },
+        {
+          "order": 3,
+          "id": "WP-03",
+          "name": "냉각수 배관 밸브",
+          "dwellSec": 900
+        },
+        {
+          "order": 4,
+          "id": "WP-04",
+          "name": "N₂ 배관 압력계",
+          "dwellSec": 900
+        },
+        {
+          "order": 5,
+          "id": "WP-05",
+          "name": "냉각 펌프 P-2",
+          "dwellSec": 120
+        },
+        {
+          "order": 6,
+          "id": "WP-06",
+          "name": "수배전반 MCC-1",
+          "dwellSec": 120
+        },
+        {
+          "order": 7,
+          "id": "WP-07",
+          "name": "고소 작업 발판",
+          "dwellSec": 120
+        },
+        {
+          "order": 8,
+          "id": "WP-08",
+          "name": "냉각수 열교환기 HX-1",
+          "dwellSec": 120
+        },
+        {
+          "order": 9,
+          "id": "WP-09",
+          "name": "설비 18",
+          "dwellSec": 120
+        },
+        {
+          "order": 10,
+          "id": "WP-10",
+          "name": "설비 11",
+          "dwellSec": 120
+        },
+        {
+          "order": 11,
+          "id": "WP-11",
+          "name": "설비 12",
+          "dwellSec": 120
+        },
+        {
+          "order": 12,
+          "id": "WP-12",
+          "name": "설비 10",
+          "dwellSec": 120
+        },
+        {
+          "order": 13,
+          "id": "WP-13",
+          "name": "설비 09",
+          "dwellSec": 120
+        },
+        {
+          "order": 14,
+          "id": "WP-14",
+          "name": "설비 14",
+          "dwellSec": 120
+        },
+        {
+          "order": 15,
+          "id": "WP-15",
+          "name": "설비 02",
+          "dwellSec": 120
+        },
+        {
+          "order": 16,
+          "id": "WP-16",
+          "name": "설비 03",
+          "dwellSec": 120
+        },
+        {
+          "order": 17,
+          "id": "WP-17",
+          "name": "설비 04",
+          "dwellSec": 120
+        },
+        {
+          "order": 18,
+          "id": "WP-18",
+          "name": "설비 19",
+          "dwellSec": 120
+        },
+        {
+          "order": 19,
+          "id": "WP-19",
+          "name": "설비 05",
+          "dwellSec": 120
+        },
+        {
+          "order": 20,
+          "id": "WP-20",
+          "name": "설비 01",
+          "dwellSec": 120
+        }
+      ]
+    },
+    {
+      "id": "야간 순회 점검",
+      "name": "야간 순회 점검",
+      "floors": [
+        "B4"
+      ],
+      "robotId": "Robot 04",
+      "status": "done"
+    },
+    {
+      "id": "발전기실 설비 점검",
+      "name": "발전기실 설비 점검",
+      "floors": [
+        "B3",
+        "B4"
+      ],
+      "robotId": "Robot 05",
+      "status": "running"
+    },
+    {
+      "id": "공조 설비 순회",
+      "name": "공조 설비 순회",
+      "floors": [
+        "B3"
+      ],
+      "robotId": "Robot 07",
+      "status": "done"
+    },
+    {
+      "id": "유틸리티 순회",
+      "name": "유틸리티 순회",
+      "floors": [
+        "B4"
+      ],
+      "robotId": "Robot 09",
+      "status": "done"
+    },
+    {
+      "id": "전기실 열화상 점검",
+      "name": "전기실 열화상 점검",
+      "floors": [
+        "B3"
+      ],
+      "robotId": "Robot 11",
+      "status": "running"
+    },
+    {
+      "id": "소방 설비 점검",
+      "name": "소방 설비 점검",
+      "floors": [
+        "B4"
+      ],
+      "robotId": "Robot 03",
+      "status": "waiting"
+    },
+    {
+      "id": "주간 설비 점검",
+      "name": "주간 설비 점검",
+      "floors": [
+        "B3"
+      ],
+      "robotId": "Robot 08",
+      "status": "waiting"
+    }
+  ]
+}

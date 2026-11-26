@@ -90,7 +90,8 @@ document.addEventListener("DOMContentLoaded", function () {
  * [11/20 디자이너 · 정의서 공통-00]
  *   Q3 통신 상태 — window.APRISM_NET("ok" | "slow" | "down"). 시연은 움직임 시뮬레이션의 [통신] 칩(route-sim.js)
  *      ok 막대 4칸 · slow 막대 2칸 · down 막대 없음 + 칩에 위험 기호 + AI Server Offline + 알림 목록에 위험 알림 1건(monitor.js 가 aprism:net 을 받는다)
- *   Q8 화면 크기 — 폭 1920 미만이면 알림 패널을 저절로 접는다(관제사가 직접 펴거나 접으면 그 뒤로는 손대지 않는다). 1600 미만은 가로 스크롤(v7.css)
+ *   Q8 화면 크기 — [11/25 디자이너] 폭 1280 미만(태블릿)이면 좌측 패널을 저절로 접는다 — 노트북(1280~1919)도 펼친 게 기본(예전 1920 미만에서 접음).
+ *      관제사가 직접 펴거나 접으면 그 상태를 세션 동안 기억해 페이지를 옮겨도 그대로(화면 종류마다 따로 — 관제 세 장은 하나로). 1440 미만은 가로 스크롤(v7.css, 11/24 1600 → 1440)
  */
 (function () {
   "use strict";
@@ -122,13 +123,20 @@ document.addEventListener("DOMContentLoaded", function () {
   document.addEventListener("DOMContentLoaded", function () {
     var panel = document.getElementById("site-panel"), btn = document.querySelector("[data-panel-toggle]");
     if (!panel || !btn) { return; }
-    var auto = false, manual = false, busy = false;
-    btn.addEventListener("click", function () { if (!busy) { manual = true; } });
+    var NARROW = 1280;   // [11/25] 태블릿 폭 — 이보다 좁을 때만 저절로 접음
+    // 기억하는 자리: 화면 종류(파일 이름, 관제 -chat · -wide 는 기본과 하나)마다 세션 동안
+    var KEY = "aprism.panel." + (location.pathname.split("/").pop() || "").replace(/-(chat|wide)(?=[-.])/, "").replace(/\.html$/, "");
+    function saved() { try { return sessionStorage.getItem(KEY); } catch (e) { return null; } }
+    function save(v) { try { sessionStorage.setItem(KEY, v); } catch (e) { /* 막힘 */ } }
+    var auto = false, busy = false;
+    function set(shut) { if (panel.classList.contains("is-collapsed") !== shut) { busy = true; btn.click(); busy = false; } }
+    btn.addEventListener("click", function () { if (!busy) { save(panel.classList.contains("is-collapsed") ? "closed" : "open"); } });
     function fit() {
-      if (manual) { return; }
-      var narrow = window.innerWidth < 1920, shut = panel.classList.contains("is-collapsed");
-      if (narrow && !shut) { busy = true; btn.click(); busy = false; auto = true; }
-      else if (!narrow && shut && auto) { busy = true; btn.click(); busy = false; auto = false; }
+      var mem = saved();
+      if (mem) { set(mem === "closed"); return; }   // 관제사가 고른 상태가 먼저
+      var narrow = window.innerWidth < NARROW, shut = panel.classList.contains("is-collapsed");
+      if (narrow && !shut) { set(true); auto = true; }
+      else if (!narrow && shut && auto) { set(false); auto = false; }
     }
     fit();
     var t = null;

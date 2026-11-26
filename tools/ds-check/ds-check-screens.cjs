@@ -18,6 +18,8 @@ const STATES = [
   ['알림센터', 'alert-center-v7.html'], ['알림센터 처리 완료', 'alert-center-v7.html?tab=done'],
   ['미션설정', 'mission-setup-v7.html'], ['사전 점검', 'mission-precheck-v7.html'],
   ['안전진단', 'safety-v7.html'], ['안전진단 상세', 'safety-v7.html#detail'],
+  ['안전진단 v8-A 전체 미션', 'safety-v8-a.html#all'], ['안전진단 v8-A 미션별', 'safety-v8-a.html'], ['안전진단 v8-A 상세', 'safety-v8-a.html#detail'],
+  ['안전진단 v8-B 전체 미션', 'safety-v8-b.html#all'], ['안전진단 v8-B 미션별', 'safety-v8-b.html'], ['안전진단 v8-B 상세', 'safety-v8-b.html#detail'],
   ['보고서', 'report-v7.html#day'], ['보고서 내보내기', 'report-v7.html#modal'],
 ];
 const T = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.woff2': 'font/woff2', '.glb': 'model/gltf-binary' };

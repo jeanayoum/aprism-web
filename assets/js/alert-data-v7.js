@@ -264,6 +264,8 @@
   var DAY = "2026-11-02 ";   // v6 · v7 상태바 시계의 오늘(alert-center-data-v6.js 와 같다)
   function copy(o) { return JSON.parse(JSON.stringify(o)); }
   function robotName(i) { return "Robot " + (i < 9 ? "0" : "") + (i + 1); }
+  // [11/24] 로봇 이름 표기는 공통 함수(ds-v7.js APRISM_ROBOT_LABEL) — 없으면(옛 화면) 위 robotName
+  function robotLabel(x) { return window.APRISM_ROBOT_LABEL ? window.APRISM_ROBOT_LABEL(x) : (typeof x === "number" ? robotName(x) : String(x || "")); }
   // 예전 판 항목 이름 — "이상음향 점수" · "부분방전 점수" 는 v7 에서 붙인 이름이다(alert-text-v6.js lab7). 예전 열쇠 · 알림 센터 제목은 "이상 점수"
   function label6(a) { return a.label === a.detect + " 점수" ? "이상 점수" : a.label; }
   function text(a) { return a.label + " " + a.value; }
@@ -362,6 +364,7 @@
   /*
    * [11/23 디자이너] DELTA 조치 제안 = 안전진단 상세 표 한 곳(감지 6종 · 정기 순회 점검 계기인식만 따로). 알림 센터 · 안전진단이 같이 읽는다
    *   [제안 문장, [[조치, AI 추천(1), 받는 곳], ...]]
+   *   [11/24 디자이너] 받는 곳은 v7 제안 줄에 보이지 않는다(조치 내용이 먼저, 정보가 과함) — 값은 표에 남겨 둠(임시 값). 요청 뒤 받는 팀은 TO 표
    */
   var SUG = {
     "안전감지": ["작업자에게 즉시 착용을 안내하고 고소 작업을 멈추세요.", [["작업자 즉시 착용 안내", 1, "현장 작업자, 무전 2채널"], ["고소 작업 일시 중지", 0, "작업 감독자, 내선 2214"], ["안전관리팀 전달", 0, "안전관리팀, 업무 메신저"]]],
@@ -386,6 +389,7 @@
   function img7(detect) { return IMG7[detect] || null; }   // assets/img/ 아래 경로
 
   window.APRISM_ALERTS7 = {
+    robotLabel: robotLabel,
     list: ALERTS,
     img: img7,
     sug: sugOf,
@@ -395,6 +399,8 @@
     forMonitor: forMonitor,
     forCenter: function () { return ALERTS.map(centerObj); },
     forBuilding: function () { return ALERTS.map(buildingObj); },
+    // [11/24] 전체 미션 Delta 펼침 — 미션 탭과 같은 답 렌더러(delta-answer-v6 · delta-chat)가 읽는 관제 알림 꼴 + id · 미션(building.js 가 범위로 거름)
+    forDelta: function () { return ALERTS.map(function (a) { var o = monitorObj(a); o.id = a.id; o.mission = a.mission; return o; }); },
     forSafety: function () { return ALERTS.map(function (a) { return { mission: a.mission, detect: a.detect, label: a.label, value: a.value, cell: safetyCell(a) }; }); }
   };
 })();

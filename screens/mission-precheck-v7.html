@@ -6,7 +6,7 @@
 <head>
   <meta charset="UTF-8" />
   <!-- v7(11/06~) — v6 화면 복제. 화면 사이 *-v6.html 주소를 v7 로 잇는다(v7.js). 영문판은 이 줄을 빼고 만든다 -->
-  <script src="../assets/js/v7.js?v=045513b7"></script>
+  <script src="../assets/js/v7.js?v=47c74fc4"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>v7 사전 점검 — APRISM</title>
   <meta name="description" content="APRISM 통합 관제 메인 · 사전 점검 — v2.2 플로우의 둘째 단계. 끝나면 v2.2 통합 관제 메인으로 넘어간다" />
@@ -23,9 +23,9 @@
     }
   }
   </script>
-  <link rel="stylesheet" href="../assets/css/tokens.css?v=63f7a4bf" />
-  <link rel="stylesheet" href="../assets/css/app-shell.css?v=62513183" />
-  <link rel="stylesheet" href="../assets/css/map-overlays.css?v=e6c0320c" />
+  <link rel="stylesheet" href="../assets/css/tokens.css?v=d79c1b24" />
+  <link rel="stylesheet" href="../assets/css/app-shell.css?v=cb26af6d" />
+  <link rel="stylesheet" href="../assets/css/map-overlays.css?v=e9449f9f" />
   <link rel="stylesheet" href="../assets/css/icons-outline.css?v=a43f9b9f" />
   <link rel="stylesheet" href="../assets/css/text-parts.css?v=01ead563" />
   <link rel="stylesheet" href="../assets/css/sian.css?v=7f97add0" />
@@ -35,11 +35,11 @@
   <link rel="stylesheet" href="../assets/css/v5.css?v=9f626280" />
   <!-- v6 전용 규칙 — v5 는 10/30 부로 멈췄다. v6 에서 바꾸는 것은 여기(body.ver-6)에. -->
   <link rel="stylesheet" href="../assets/css/v6.css?v=c384b14c" />
-  <link rel="stylesheet" href="../assets/css/v7.css?v=ffd75645" />
-  <link rel="stylesheet" href="../assets/css/components-v7.css?v=48ccbf15" />
-  <script src="../assets/js/ds-v7.js?v=04d0b862"></script>
+  <link rel="stylesheet" href="../assets/css/v7.css?v=aea5f0bb" />
+  <link rel="stylesheet" href="../assets/css/components-v7.css?v=bb0b5393" />
+  <script src="../assets/js/ds-v7.js?v=e2e4bba3"></script>
   <!-- [10/29] v5 지도(map-v6.js)가 그리는 설비 이름표 · 충전 스테이션 · 번호 핀 꼴 — 메인과 같다 -->
-  <link rel="stylesheet" href="../assets/css/route-rules.css?v=75e5f671" />
+  <link rel="stylesheet" href="../assets/css/route-rules.css?v=a698651d" />
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
@@ -713,11 +713,11 @@
                         </span>
                         <span class="robot-lists">
                           <span class="robot-row">
-                            <span class="t-caption">Mission</span>
+                            <span class="t-caption">미션</span>
                             <span class="badge badge-info t-caption ds-badge is-plain is-info ds-i-play"><span class="badge-dot"></span>수행중</span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Battery</span>
+                            <span class="t-caption">배터리</span>
                             <span class="battery ds-battery">
                               <span class="battery-body"><span class="battery-fill" style="width:78%"></span></span>
                               <span class="battery-tip"></span>
@@ -725,10 +725,10 @@
                             </span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Signal</span>
+                            <span class="t-caption">신호</span>
                             <span class="battery ds-battery">
                               <span class="signal-bars" data-level="4"><i></i><i></i><i></i><i></i></span>
-                              <span class="t-caption">Strong</span>
+                              <span class="t-caption">강함</span>
                             </span>
                           </span>
                         </span>
@@ -743,11 +743,11 @@
                         </span>
                         <span class="robot-lists">
                           <span class="robot-row">
-                            <span class="t-caption">Mission</span>
+                            <span class="t-caption">미션</span>
                             <span class="badge badge-idle t-caption ds-badge is-plain is-neutral ds-i-clock"><span class="badge-dot"></span>대기</span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Battery</span>
+                            <span class="t-caption">배터리</span>
                             <span class="battery ds-battery is-critical is-charging">
                               <span class="battery-body">
                                 <span class="battery-fill" style="width:18%"></span>
@@ -758,10 +758,10 @@
                             </span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Signal</span>
+                            <span class="t-caption">신호</span>
                             <span class="battery ds-battery is-warning">
                               <span class="signal-bars" data-level="2"><i></i><i></i><i></i><i></i></span>
-                              <span class="t-caption">Weak</span>
+                              <span class="t-caption">약함</span>
                             </span>
                           </span>
                         </span>
@@ -776,11 +776,11 @@
                         </span>
                         <span class="robot-lists">
                           <span class="robot-row">
-                            <span class="t-caption">Mission</span>
+                            <span class="t-caption">미션</span>
                             <span class="badge badge-idle t-caption ds-badge is-plain is-neutral ds-i-clock"><span class="badge-dot"></span>대기</span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Battery</span>
+                            <span class="t-caption">배터리</span>
                             <span class="battery ds-battery is-warning is-charging">
                               <span class="battery-body">
                                 <span class="battery-fill" style="width:35%"></span>
@@ -791,10 +791,10 @@
                             </span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Signal</span>
+                            <span class="t-caption">신호</span>
                             <span class="battery ds-battery">
                               <span class="signal-bars" data-level="3"><i></i><i></i><i></i><i></i></span>
-                              <span class="t-caption">Good</span>
+                              <span class="t-caption">보통</span>
                             </span>
                           </span>
                         </span>
@@ -809,11 +809,11 @@
                         </span>
                         <span class="robot-lists">
                           <span class="robot-row">
-                            <span class="t-caption">Mission</span>
+                            <span class="t-caption">미션</span>
                             <span class="badge badge-normal t-caption ds-badge is-plain is-neutral ds-i-check"><span class="badge-dot"></span>완료</span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Battery</span>
+                            <span class="t-caption">배터리</span>
                             <span class="battery ds-battery">
                               <span class="battery-body">
                                 <span class="battery-fill" style="width:92%"></span>
@@ -823,10 +823,10 @@
                             </span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Signal</span>
+                            <span class="t-caption">신호</span>
                             <span class="battery ds-battery">
                               <span class="signal-bars" data-level="4"><i></i><i></i><i></i><i></i></span>
-                              <span class="t-caption">Strong</span>
+                              <span class="t-caption">강함</span>
                             </span>
                           </span>
                         </span>
@@ -841,11 +841,11 @@
                         </span>
                         <span class="robot-lists">
                           <span class="robot-row">
-                            <span class="t-caption">Mission</span>
+                            <span class="t-caption">미션</span>
                             <span class="badge badge-info t-caption ds-badge is-plain is-info ds-i-play"><span class="badge-dot"></span>수행중</span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Battery</span>
+                            <span class="t-caption">배터리</span>
                             <span class="battery ds-battery">
                               <span class="battery-body">
                                 <span class="battery-fill" style="width:64%"></span>
@@ -855,10 +855,10 @@
                             </span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Signal</span>
+                            <span class="t-caption">신호</span>
                             <span class="battery ds-battery">
                               <span class="signal-bars" data-level="3"><i></i><i></i><i></i><i></i></span>
-                              <span class="t-caption">Good</span>
+                              <span class="t-caption">보통</span>
                             </span>
                           </span>
                         </span>
@@ -873,11 +873,11 @@
                         </span>
                         <span class="robot-lists">
                           <span class="robot-row">
-                            <span class="t-caption">Mission</span>
+                            <span class="t-caption">미션</span>
                             <span class="badge badge-idle t-caption ds-badge is-plain is-neutral ds-i-clock"><span class="badge-dot"></span>대기</span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Battery</span>
+                            <span class="t-caption">배터리</span>
                             <span class="battery ds-battery is-critical is-charging">
                               <span class="battery-body">
                                 <span class="battery-fill" style="width:8%"></span>
@@ -888,10 +888,10 @@
                             </span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Signal</span>
+                            <span class="t-caption">신호</span>
                             <span class="battery ds-battery is-warning">
                               <span class="signal-bars" data-level="2"><i></i><i></i><i></i><i></i></span>
-                              <span class="t-caption">Weak</span>
+                              <span class="t-caption">약함</span>
                             </span>
                           </span>
                         </span>
@@ -906,11 +906,11 @@
                         </span>
                         <span class="robot-lists">
                           <span class="robot-row">
-                            <span class="t-caption">Mission</span>
+                            <span class="t-caption">미션</span>
                             <span class="badge badge-normal t-caption ds-badge is-plain is-neutral ds-i-check"><span class="badge-dot"></span>완료</span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Battery</span>
+                            <span class="t-caption">배터리</span>
                             <span class="battery ds-battery is-charging">
                               <span class="battery-body">
                                 <span class="battery-fill" style="width:96%"></span>
@@ -921,10 +921,10 @@
                             </span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Signal</span>
+                            <span class="t-caption">신호</span>
                             <span class="battery ds-battery">
                               <span class="signal-bars" data-level="4"><i></i><i></i><i></i><i></i></span>
-                              <span class="t-caption">Strong</span>
+                              <span class="t-caption">강함</span>
                             </span>
                           </span>
                         </span>
@@ -939,11 +939,11 @@
                         </span>
                         <span class="robot-lists">
                           <span class="robot-row">
-                            <span class="t-caption">Mission</span>
+                            <span class="t-caption">미션</span>
                             <span class="badge badge-idle t-caption ds-badge is-plain is-neutral ds-i-clock"><span class="badge-dot"></span>대기</span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Battery</span>
+                            <span class="t-caption">배터리</span>
                             <span class="battery ds-battery">
                               <span class="battery-body">
                                 <span class="battery-fill" style="width:47%"></span>
@@ -953,10 +953,10 @@
                             </span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Signal</span>
+                            <span class="t-caption">신호</span>
                             <span class="battery ds-battery">
                               <span class="signal-bars" data-level="3"><i></i><i></i><i></i><i></i></span>
-                              <span class="t-caption">Good</span>
+                              <span class="t-caption">보통</span>
                             </span>
                           </span>
                         </span>
@@ -971,11 +971,11 @@
                         </span>
                         <span class="robot-lists">
                           <span class="robot-row">
-                            <span class="t-caption">Mission</span>
+                            <span class="t-caption">미션</span>
                             <span class="badge badge-normal t-caption ds-badge is-plain is-neutral ds-i-check"><span class="badge-dot"></span>완료</span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Battery</span>
+                            <span class="t-caption">배터리</span>
                             <span class="battery ds-battery">
                               <span class="battery-body">
                                 <span class="battery-fill" style="width:88%"></span>
@@ -985,10 +985,10 @@
                             </span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Signal</span>
+                            <span class="t-caption">신호</span>
                             <span class="battery ds-battery">
                               <span class="signal-bars" data-level="4"><i></i><i></i><i></i><i></i></span>
-                              <span class="t-caption">Strong</span>
+                              <span class="t-caption">강함</span>
                             </span>
                           </span>
                         </span>
@@ -1003,11 +1003,11 @@
                         </span>
                         <span class="robot-lists">
                           <span class="robot-row">
-                            <span class="t-caption">Mission</span>
+                            <span class="t-caption">미션</span>
                             <span class="badge badge-danger t-caption ds-badge is-plain is-crit ds-i-power"><span class="badge-dot"></span>끊김</span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Battery</span>
+                            <span class="t-caption">배터리</span>
                             <span class="battery ds-battery is-warning">
                               <span class="battery-body">
                                 <span class="battery-fill" style="width:29%"></span>
@@ -1017,7 +1017,7 @@
                             </span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Signal</span>
+                            <span class="t-caption">신호</span>
                             <span class="battery ds-battery is-warning">
                               <span class="signal-bars" data-level="0"><i></i><i></i><i></i><i></i></span>
                               <span class="t-caption">끊김</span>
@@ -1035,11 +1035,11 @@
                         </span>
                         <span class="robot-lists">
                           <span class="robot-row">
-                            <span class="t-caption">Mission</span>
+                            <span class="t-caption">미션</span>
                             <span class="badge badge-info t-caption ds-badge is-plain is-info ds-i-play"><span class="badge-dot"></span>수행중</span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Battery</span>
+                            <span class="t-caption">배터리</span>
                             <span class="battery ds-battery">
                               <span class="battery-body">
                                 <span class="battery-fill" style="width:71%"></span>
@@ -1049,10 +1049,10 @@
                             </span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Signal</span>
+                            <span class="t-caption">신호</span>
                             <span class="battery ds-battery">
                               <span class="signal-bars" data-level="4"><i></i><i></i><i></i><i></i></span>
-                              <span class="t-caption">Strong</span>
+                              <span class="t-caption">강함</span>
                             </span>
                           </span>
                         </span>
@@ -1067,11 +1067,11 @@
                         </span>
                         <span class="robot-lists">
                           <span class="robot-row">
-                            <span class="t-caption">Mission</span>
+                            <span class="t-caption">미션</span>
                             <span class="badge badge-idle t-caption ds-badge is-plain is-neutral ds-i-clock"><span class="badge-dot"></span>대기</span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Battery</span>
+                            <span class="t-caption">배터리</span>
                             <span class="battery ds-battery is-charging">
                               <span class="battery-body">
                                 <span class="battery-fill" style="width:55%"></span>
@@ -1082,10 +1082,10 @@
                             </span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Signal</span>
+                            <span class="t-caption">신호</span>
                             <span class="battery ds-battery">
                               <span class="signal-bars" data-level="3"><i></i><i></i><i></i><i></i></span>
-                              <span class="t-caption">Good</span>
+                              <span class="t-caption">보통</span>
                             </span>
                           </span>
                         </span>
@@ -1306,11 +1306,11 @@
             </span>
             <span class="robot-lists">
               <span class="robot-row">
-                <span class="t-caption">Mission</span>
+                <span class="t-caption">미션</span>
                 <span class="badge badge-info t-caption ds-badge is-plain is-info ds-i-play"><span class="badge-dot"></span>수행중</span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Battery</span>
+                <span class="t-caption">배터리</span>
                 <span class="battery ds-battery">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:78%"></span>
@@ -1320,10 +1320,10 @@
                 </span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Signal</span>
+                <span class="t-caption">신호</span>
                 <span class="battery ds-battery">
                   <span class="signal-bars" data-level="4"><i></i><i></i><i></i><i></i></span>
-                  <span class="t-caption">Strong</span>
+                  <span class="t-caption">강함</span>
                 </span>
               </span>
             </span>
@@ -1338,11 +1338,11 @@
             </span>
             <span class="robot-lists">
               <span class="robot-row">
-                <span class="t-caption">Mission</span>
+                <span class="t-caption">미션</span>
                 <span class="badge badge-idle t-caption ds-badge is-plain is-neutral ds-i-clock"><span class="badge-dot"></span>대기</span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Battery</span>
+                <span class="t-caption">배터리</span>
                 <span class="battery ds-battery is-critical is-charging">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:18%"></span>
@@ -1353,10 +1353,10 @@
                 </span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Signal</span>
+                <span class="t-caption">신호</span>
                 <span class="battery ds-battery is-warning">
                   <span class="signal-bars" data-level="2"><i></i><i></i><i></i><i></i></span>
-                  <span class="t-caption">Weak</span>
+                  <span class="t-caption">약함</span>
                 </span>
               </span>
             </span>
@@ -1371,11 +1371,11 @@
             </span>
             <span class="robot-lists">
               <span class="robot-row">
-                <span class="t-caption">Mission</span>
+                <span class="t-caption">미션</span>
                 <span class="badge badge-idle t-caption ds-badge is-plain is-neutral ds-i-clock"><span class="badge-dot"></span>대기</span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Battery</span>
+                <span class="t-caption">배터리</span>
                 <span class="battery ds-battery is-warning is-charging">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:35%"></span>
@@ -1386,10 +1386,10 @@
                 </span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Signal</span>
+                <span class="t-caption">신호</span>
                 <span class="battery ds-battery">
                   <span class="signal-bars" data-level="3"><i></i><i></i><i></i><i></i></span>
-                  <span class="t-caption">Good</span>
+                  <span class="t-caption">보통</span>
                 </span>
               </span>
             </span>
@@ -1404,11 +1404,11 @@
             </span>
             <span class="robot-lists">
               <span class="robot-row">
-                <span class="t-caption">Mission</span>
+                <span class="t-caption">미션</span>
                 <span class="badge badge-normal t-caption ds-badge is-plain is-neutral ds-i-check"><span class="badge-dot"></span>완료</span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Battery</span>
+                <span class="t-caption">배터리</span>
                 <span class="battery ds-battery">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:92%"></span>
@@ -1418,10 +1418,10 @@
                 </span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Signal</span>
+                <span class="t-caption">신호</span>
                 <span class="battery ds-battery">
                   <span class="signal-bars" data-level="4"><i></i><i></i><i></i><i></i></span>
-                  <span class="t-caption">Strong</span>
+                  <span class="t-caption">강함</span>
                 </span>
               </span>
             </span>
@@ -1436,11 +1436,11 @@
             </span>
             <span class="robot-lists">
               <span class="robot-row">
-                <span class="t-caption">Mission</span>
+                <span class="t-caption">미션</span>
                 <span class="badge badge-info t-caption ds-badge is-plain is-info ds-i-play"><span class="badge-dot"></span>수행중</span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Battery</span>
+                <span class="t-caption">배터리</span>
                 <span class="battery ds-battery">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:64%"></span>
@@ -1450,10 +1450,10 @@
                 </span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Signal</span>
+                <span class="t-caption">신호</span>
                 <span class="battery ds-battery">
                   <span class="signal-bars" data-level="3"><i></i><i></i><i></i><i></i></span>
-                  <span class="t-caption">Good</span>
+                  <span class="t-caption">보통</span>
                 </span>
               </span>
             </span>
@@ -1468,11 +1468,11 @@
             </span>
             <span class="robot-lists">
               <span class="robot-row">
-                <span class="t-caption">Mission</span>
+                <span class="t-caption">미션</span>
                 <span class="badge badge-idle t-caption ds-badge is-plain is-neutral ds-i-clock"><span class="badge-dot"></span>대기</span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Battery</span>
+                <span class="t-caption">배터리</span>
                 <span class="battery ds-battery is-critical is-charging">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:8%"></span>
@@ -1483,10 +1483,10 @@
                 </span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Signal</span>
+                <span class="t-caption">신호</span>
                 <span class="battery ds-battery is-warning">
                   <span class="signal-bars" data-level="2"><i></i><i></i><i></i><i></i></span>
-                  <span class="t-caption">Weak</span>
+                  <span class="t-caption">약함</span>
                 </span>
               </span>
             </span>
@@ -1501,11 +1501,11 @@
             </span>
             <span class="robot-lists">
               <span class="robot-row">
-                <span class="t-caption">Mission</span>
+                <span class="t-caption">미션</span>
                 <span class="badge badge-normal t-caption ds-badge is-plain is-neutral ds-i-check"><span class="badge-dot"></span>완료</span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Battery</span>
+                <span class="t-caption">배터리</span>
                 <span class="battery ds-battery is-charging">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:96%"></span>
@@ -1516,10 +1516,10 @@
                 </span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Signal</span>
+                <span class="t-caption">신호</span>
                 <span class="battery ds-battery">
                   <span class="signal-bars" data-level="4"><i></i><i></i><i></i><i></i></span>
-                  <span class="t-caption">Strong</span>
+                  <span class="t-caption">강함</span>
                 </span>
               </span>
             </span>
@@ -1534,11 +1534,11 @@
             </span>
             <span class="robot-lists">
               <span class="robot-row">
-                <span class="t-caption">Mission</span>
+                <span class="t-caption">미션</span>
                 <span class="badge badge-idle t-caption ds-badge is-plain is-neutral ds-i-clock"><span class="badge-dot"></span>대기</span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Battery</span>
+                <span class="t-caption">배터리</span>
                 <span class="battery ds-battery">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:47%"></span>
@@ -1548,10 +1548,10 @@
                 </span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Signal</span>
+                <span class="t-caption">신호</span>
                 <span class="battery ds-battery">
                   <span class="signal-bars" data-level="3"><i></i><i></i><i></i><i></i></span>
-                  <span class="t-caption">Good</span>
+                  <span class="t-caption">보통</span>
                 </span>
               </span>
             </span>
@@ -1566,11 +1566,11 @@
             </span>
             <span class="robot-lists">
               <span class="robot-row">
-                <span class="t-caption">Mission</span>
+                <span class="t-caption">미션</span>
                 <span class="badge badge-normal t-caption ds-badge is-plain is-neutral ds-i-check"><span class="badge-dot"></span>완료</span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Battery</span>
+                <span class="t-caption">배터리</span>
                 <span class="battery ds-battery">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:88%"></span>
@@ -1580,10 +1580,10 @@
                 </span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Signal</span>
+                <span class="t-caption">신호</span>
                 <span class="battery ds-battery">
                   <span class="signal-bars" data-level="4"><i></i><i></i><i></i><i></i></span>
-                  <span class="t-caption">Strong</span>
+                  <span class="t-caption">강함</span>
                 </span>
               </span>
             </span>
@@ -1598,11 +1598,11 @@
             </span>
             <span class="robot-lists">
               <span class="robot-row">
-                <span class="t-caption">Mission</span>
+                <span class="t-caption">미션</span>
                 <span class="badge badge-danger t-caption ds-badge is-plain is-crit ds-i-power"><span class="badge-dot"></span>끊김</span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Battery</span>
+                <span class="t-caption">배터리</span>
                 <span class="battery ds-battery is-warning">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:29%"></span>
@@ -1612,7 +1612,7 @@
                 </span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Signal</span>
+                <span class="t-caption">신호</span>
                 <span class="battery ds-battery is-warning">
                   <span class="signal-bars" data-level="0"><i></i><i></i><i></i><i></i></span>
                   <span class="t-caption">끊김</span>
@@ -1630,11 +1630,11 @@
             </span>
             <span class="robot-lists">
               <span class="robot-row">
-                <span class="t-caption">Mission</span>
+                <span class="t-caption">미션</span>
                 <span class="badge badge-info t-caption ds-badge is-plain is-info ds-i-play"><span class="badge-dot"></span>수행중</span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Battery</span>
+                <span class="t-caption">배터리</span>
                 <span class="battery ds-battery">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:71%"></span>
@@ -1644,10 +1644,10 @@
                 </span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Signal</span>
+                <span class="t-caption">신호</span>
                 <span class="battery ds-battery">
                   <span class="signal-bars" data-level="4"><i></i><i></i><i></i><i></i></span>
-                  <span class="t-caption">Strong</span>
+                  <span class="t-caption">강함</span>
                 </span>
               </span>
             </span>
@@ -1662,11 +1662,11 @@
             </span>
             <span class="robot-lists">
               <span class="robot-row">
-                <span class="t-caption">Mission</span>
+                <span class="t-caption">미션</span>
                 <span class="badge badge-idle t-caption ds-badge is-plain is-neutral ds-i-clock"><span class="badge-dot"></span>대기</span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Battery</span>
+                <span class="t-caption">배터리</span>
                 <span class="battery ds-battery is-charging">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:55%"></span>
@@ -1677,10 +1677,10 @@
                 </span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Signal</span>
+                <span class="t-caption">신호</span>
                 <span class="battery ds-battery">
                   <span class="signal-bars" data-level="3"><i></i><i></i><i></i><i></i></span>
-                  <span class="t-caption">Good</span>
+                  <span class="t-caption">보통</span>
                 </span>
               </span>
             </span>
@@ -1700,16 +1700,16 @@
 
 <script src="../assets/js/theme.js?v=c86093d9"></script>
 <script src="../assets/js/prism-orb.js?v=f56758de"></script>
-<script src="../assets/js/screen.js?v=4f32903e"></script>
+<script src="../assets/js/screen.js?v=6a5569c7"></script>
 <script src="../assets/js/map-model.js?v=b9ca613f"></script>
 <!-- [10/29] v5 지도(map-v6.js) — 라이트 단계 톤 지도 · 바닥 표식 · 바닥 띠 경로를 메인과 같게. map.js 는 v3 · v4 가 쓴다 -->
 <script src="../assets/js/map-fx-v6.js?v=ce66b735"></script>
-<script src="../assets/js/map-v6.js?v=fa6bc098"></script>
+<script src="../assets/js/map-v6.js?v=f9483dcd"></script>
 <script src="../assets/js/count-up-v7.js?v=5c25113e"></script>
 <script src="../assets/js/robot-spot.js?v=2a3061e4"></script>
 <script src="../assets/js/sian.js?v=7370dc64"></script>
 <!-- 미션 설정 — 점검항목 · 순서 · 로봇이 소요시간과 배터리를 움직인다. screen.js 뒤에 온다. -->
-<script src="../assets/js/mission-setup.js?v=83590f5b"></script>
+<script src="../assets/js/mission-setup.js?v=95defb3a"></script>
 <script src="../assets/js/grid-overlay.js?v=39b45309"></script>
 <script src="../assets/js/setup-tabs-v6.js?v=59353b5b"></script>
 </body>

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>lab · Delta 분광 비교 (v7 관제 다크)</title>
+<style>
+/* [11/24 브랜딩 2단계] Delta 를 오브처럼 더 다채롭게 — 다크 비교 실험판. 화면 파일은 건드리지 않는다.
+ * main-v7.html 을 읽어 srcdoc 으로 띄우고, 고른 안의 <style> 만 head 끝에 넣는다.
+ *   Delta 판: 현재(다크는 붉은 단색 유리) / 분광(라이트 판처럼 보라 → 단계색 그라데이션, 단계색이 주인공)
+ *   엣지(11/24 회전 · 파동 추가): 현재(빨강 맥박) / 회전(테두리를 도는 보라 띠) / 빔 갈라짐(Delta 자리에서 두 줄로 갈라져 테두리를 타고 오른쪽 아래에서 만남, 레퍼런스 Border Beam) / 파동(Delta 자리에서 오른쪽 아래로 퍼지는 분광) / 새 위험 순간에만 갈라짐(빠른 3박 동안 색이 프리즘처럼 흔들렸다가 빨강으로 모임) / Delta 모서리만 분광(빛이 Delta 쪽에서 갈라져 나옴)
+ * [11/24] 엣지는 파동으로 결정. 분광 판은 보라가 튀어서, 지금 판 위에 보라를 살짝 얹는 안(살짝 보라)을 더함.
+ * 경보 빛의 기본 색은 빨강 그대로 — 엣지는 경보라서 1초 안에 "위험"으로 읽혀야 한다(11/24 판단). */
+:root{color-scheme:dark}
+body{margin:0;background:#05070B;color:#E8ECF2;font:14px/1.5 "SUIT","Malgun Gothic",system-ui,sans-serif}
+.bar{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;padding:12px max(16px,env(safe-area-inset-left,0px));border-bottom:1px solid #263042}
+.bar h1{font-size:15px;margin:0;font-weight:700}
+.grp{display:flex;gap:8px;align-items:center}
+.grp>span{color:#677285;font-size:12px}
+.seg{display:inline-flex;gap:2px;padding:2px;background:#151B25;border-radius:4px}
+.seg button,.act{font:500 13px inherit;color:#97A1B3;background:none;border:0;border-radius:2px;padding:4px 12px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:#E8ECF2;color:#05070B}
+.act{border:1px solid #3F4E5C;border-radius:4px}
+.act:hover{color:#E8ECF2}
+.desc{color:#97A1B3;font-size:13px;flex:1 1 100%}
+.stage{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden}
+.stage iframe{position:absolute;left:0;top:0;width:1920px;height:1080px;border:0;transform-origin:0 0}
+</style>
+</head>
+<body>
+<div class="bar">
+  <h1>Delta 분광 비교</h1>
+  <div class="grp"><span>Delta 판</span><div class="seg" id="seg-d" role="group" aria-label="Delta 판">
+    <button type="button" data-v="now" aria-pressed="true">현재</button>
+    <button type="button" data-v="tint">살짝 보라</button>
+    <button type="button" data-v="spec">분광(이전 안)</button>
+  </div></div>
+  <div class="grp"><span>엣지</span><div class="seg" id="seg-e" role="group" aria-label="엣지">
+    <button type="button" data-v="now" aria-pressed="true">현재</button>
+    <button type="button" data-v="onset">새 위험 · 색 흔들림</button>
+    <button type="button" data-v="rotate">새 위험 · 회전</button>
+    <button type="button" data-v="wave">새 위험 · 파동 (결정)</button>
+    <button type="button" data-v="beam">새 위험 · 빔 갈라짐</button>
+    <button type="button" data-v="corner">Delta 모서리 분광</button>
+  </div></div>
+  <button type="button" class="act" id="again">새 위험 다시 울리기</button>
+  <div class="desc" id="desc"></div>
+</div>
+<div class="stage" id="stage"><iframe id="f" title="Delta 분광 비교"></iframe></div>
+<script>
+const CSS = {
+  d: {
+    now: '',
+    tint: `
+:root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open).is-critical .delta3-card { background-image: linear-gradient(in oklab 150deg, rgb(124 84 190 / 39%) 0%, rgb(124 84 190 / 14%) 36%, transparent 62%), radial-gradient(circle 270px at 100% 100%, var(--bg-glass), var(--status-critical-bg)) !important; }
+:root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open).is-warning .delta3-card { background-image: linear-gradient(in oklab 150deg, rgb(124 84 190 / 33%) 0%, rgb(124 84 190 / 10%) 36%, transparent 60%), linear-gradient(to bottom, #4a3d22, rgb(110 84 30 / 50%)) !important; }
+:root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open):not(.is-warning):not(.is-critical) .delta3-card { background-image: linear-gradient(in oklab 150deg, rgb(124 84 190 / 30%) 0%, rgb(124 84 190 / 9%) 36%, transparent 60%), linear-gradient(to bottom, var(--bg-cell), var(--bg-glass)) !important; }
+:root:not([data-theme="light"]) body.ver-7 .delta3.is-open.is-critical { background-image: linear-gradient(in oklab 165deg, rgb(124 84 190 / 30%) 0%, rgb(124 84 190 / 9%) 22%, transparent 40%), linear-gradient(to top, var(--bg-glass), var(--status-critical-bg)) !important; }
+:root:not([data-theme="light"]) body.ver-7 .delta3.is-open.is-warning { background-image: linear-gradient(in oklab 165deg, rgb(124 84 190 / 24%) 0%, transparent 36%), linear-gradient(180deg, rgb(56 49 22 / 94%) 0%, rgb(34 32 24 / 96%) 55%, rgb(26 28 29 / 97%) 100%) !important; }
+:root:not([data-theme="light"]) body.ver-7 .delta3.is-open:not(.is-warning):not(.is-critical) { background-image: linear-gradient(in oklab 165deg, rgb(124 84 190 / 21%) 0%, transparent 36%), linear-gradient(to bottom, var(--bg-cell), var(--bg-glass)) !important; }`,
+    spec: `
+:root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open).is-critical .delta3-card { box-shadow: inset 0 0 8px -3px var(--comp-alert-critical-glow-core), inset 0 0 22px 0 rgb(150 70 160 / 30%), inset 0 2px 3px -1px var(--effect-glass-edge) !important; background-image: linear-gradient(in oklab 160deg, rgb(98 74 170 / 82%) 0%, rgb(150 58 120 / 76%) 32%, rgb(190 50 40 / 74%) 66%, rgb(220 66 36 / 80%) 100%) !important; }
+:root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open).is-warning .delta3-card { box-shadow: inset 0 0 22px 0 rgb(150 110 90 / 28%), inset 0 2px 3px -1px rgb(255 255 255 / 14%) !important; background-image: linear-gradient(in oklab 160deg, rgb(98 74 170 / 76%) 0%, rgb(140 100 80 / 70%) 32%, rgb(176 120 24 / 72%) 66%, rgb(200 138 14 / 78%) 100%) !important; }
+:root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open):not(.is-warning):not(.is-critical) .delta3-card { background-image: linear-gradient(in oklab 160deg, rgb(98 74 170 / 72%) 0%, rgb(80 86 160 / 66%) 32%, rgb(44 100 186 / 68%) 66%, rgb(30 96 200 / 74%) 100%) !important; }
+:root:not([data-theme="light"]) body.ver-7 .delta3.is-open.is-critical { background-image: linear-gradient(in oklab 170deg, rgb(98 74 170 / 40%) 0%, rgb(150 58 120 / 28%) 22%, rgb(190 50 40 / 18%) 42%, transparent 66%) !important; }
+:root:not([data-theme="light"]) body.ver-7 .delta3.is-open.is-warning { background-image: linear-gradient(in oklab 170deg, rgb(98 74 170 / 34%) 0%, rgb(176 120 24 / 18%) 42%, transparent 66%) !important; }`
+  },
+  e: {
+    now: '',
+    onset: `
+@keyframes lab-split { 0% { filter: none; } 12% { filter: hue-rotate(-55deg) saturate(1.5); } 30% { filter: hue-rotate(35deg) saturate(1.3); } 48% { filter: hue-rotate(-30deg) saturate(1.4); } 66% { filter: hue-rotate(18deg); } 100% { filter: none; } }
+body.ver-7.is-surge .two-col.is-critical > .edge-light { animation: lab-split 3.6s ease-out 1; }
+@media (prefers-reduced-motion: reduce) { body.ver-7.is-surge .two-col.is-critical > .edge-light { animation: none; } }`,
+    rotate: `
+@property --lab-a { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+@property --lab-o { syntax: '<number>'; inherits: false; initial-value: 0; }
+body.ver-7.is-surge .two-col.is-critical::before { content: ""; position: absolute; inset: 0; padding: 4px; border-radius: var(--radius-container); pointer-events: none; z-index: 4; -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); filter: drop-shadow(0 0 6px rgb(240 89 55 / .8)) drop-shadow(0 0 14px rgb(150 80 200 / .45)); background: conic-gradient(from var(--lab-a), transparent 0deg, rgb(87 34 98 / calc(.9 * var(--lab-o))) 30deg, rgb(150 80 220 / var(--lab-o)) 70deg, rgb(240 89 55 / var(--lab-o)) 100deg, transparent 140deg, transparent 360deg); animation: lab-rot 3.6s linear 1 both; }
+@keyframes lab-rot { 0% { --lab-a: 0deg; --lab-o: 0; } 8% { --lab-o: 1; } 80% { --lab-o: 1; } 100% { --lab-a: 720deg; --lab-o: 0; } }
+@media (prefers-reduced-motion: reduce) { body.ver-7.is-surge .two-col.is-critical::before { display: none; } }`,
+    wave: `
+@property --lab-r { syntax: '<length>'; inherits: false; initial-value: 0px; }
+@property --lab-o { syntax: '<number>'; inherits: false; initial-value: 0; }
+body.ver-7.is-surge .two-col.is-critical::before { content: ""; position: absolute; inset: 0; padding: 4px; border-radius: var(--radius-container); pointer-events: none; z-index: 4; -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); filter: drop-shadow(0 0 6px rgb(240 89 55 / .8)) drop-shadow(0 0 14px rgb(150 80 200 / .45)); background: radial-gradient(circle var(--lab-r) at 0 0, transparent calc(var(--lab-r) - 420px), rgb(240 89 55 / var(--lab-o)) calc(var(--lab-r) - 300px), rgb(163 18 30 / var(--lab-o)) calc(var(--lab-r) - 220px), rgb(110 40 140 / var(--lab-o)) calc(var(--lab-r) - 120px), rgb(150 100 200 / calc(.8 * var(--lab-o))) calc(var(--lab-r) - 50px), transparent var(--lab-r)); animation: lab-wave 2.6s cubic-bezier(.3, .6, .4, 1) 1 both; }
+body.ver-7.is-surge .two-col.is-critical > .edge-light { background-image: radial-gradient(circle var(--lab-r) at 0 0, transparent calc(var(--lab-r) - 260px), rgb(240 89 55 / calc(.10 * var(--lab-o))) calc(var(--lab-r) - 160px), rgb(110 40 140 / calc(.12 * var(--lab-o))) calc(var(--lab-r) - 60px), transparent var(--lab-r)); animation: lab-wave 2.6s cubic-bezier(.3, .6, .4, 1) 1 both; }
+@keyframes lab-wave { 0% { --lab-r: 0px; --lab-o: 1; } 75% { --lab-o: 1; } 100% { --lab-r: 3000px; --lab-o: 0; } }
+@media (prefers-reduced-motion: reduce) { body.ver-7.is-surge .two-col.is-critical::before { display: none; } body.ver-7.is-surge .two-col.is-critical > .edge-light { animation: none; background-image: none; } }`,
+    beam: `
+@property --lab-a { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+@property --lab-o { syntax: '<number>'; inherits: false; initial-value: 0; }
+body.ver-7.is-surge .two-col.is-critical::before { content: ""; position: absolute; inset: 0; padding: 4px; border-radius: var(--radius-container); pointer-events: none; z-index: 4; -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); filter: drop-shadow(0 0 6px rgb(240 89 55 / .8)) drop-shadow(0 0 14px rgb(150 80 200 / .45)); background: conic-gradient(from 300deg, transparent calc(var(--lab-a) - 46deg), rgb(110 40 140 / calc(.7 * var(--lab-o))) calc(var(--lab-a) - 30deg), rgb(163 18 30 / var(--lab-o)) calc(var(--lab-a) - 14deg), rgb(240 89 55 / var(--lab-o)) calc(var(--lab-a) - 3deg), rgb(255 214 190 / var(--lab-o)) var(--lab-a), transparent calc(var(--lab-a) + 2deg), transparent calc(360deg - var(--lab-a) - 2deg), rgb(255 214 190 / var(--lab-o)) calc(360deg - var(--lab-a)), rgb(240 89 55 / var(--lab-o)) calc(360deg - var(--lab-a) + 3deg), rgb(163 18 30 / var(--lab-o)) calc(360deg - var(--lab-a) + 14deg), rgb(110 40 140 / calc(.7 * var(--lab-o))) calc(360deg - var(--lab-a) + 30deg), transparent calc(360deg - var(--lab-a) + 46deg)); animation: lab-beam 2.4s cubic-bezier(.35, .1, .3, 1) 1 both; }
+@keyframes lab-beam { 0% { --lab-a: 0deg; --lab-o: 1; } 82% { --lab-o: 1; } 100% { --lab-a: 180deg; --lab-o: 0; } }
+@media (prefers-reduced-motion: reduce) { body.ver-7.is-surge .two-col.is-critical::before { display: none; } }`,
+    corner: `
+:root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open).is-critical { background-image: radial-gradient(circle 380px at 0 0, rgb(240 89 55 / 52%) 0%, rgb(163 18 30 / 38%) 18%, rgb(87 34 98 / 42%) 38%, rgb(109 72 124 / 26%) 56%, rgb(163 104 123 / 10%) 70%, transparent 82%) !important; }
+:root:not([data-theme="light"]) body.ver-7 .delta3:not(.is-open).is-warning { background-image: radial-gradient(circle 320px at 0 0, rgb(242 176 32 / 40%) 0%, rgb(165 82 26 / 28%) 22%, rgb(125 79 90 / 26%) 44%, rgb(156 125 107 / 12%) 62%, transparent 80%) !important; }`
+  }
+};
+const DESC = {
+  d: { now: '판: 지금(11/24 메인에 살짝 보라 30% 반영됨).', tint: '판: 지금 다크 판 그대로, Delta 자리(왼쪽 위)에서 보라를 살짝 얹음(보라 약 30%, 판 가운데쯤에서 사라짐). 단계색이 주인공.', spec: '판(이전 안): 라이트 판처럼 보라 → 단계색 그라데이션. 단계색(빨강 · 노랑 · 파랑)이 끝을 맡아 단계는 그대로 읽힘.' },
+  e: { now: '엣지: 지금(11/24 메인에 파동 반영됨, 그 뒤 빨강 맥박).', onset: '엣지: 새 위험이 뜨는 3.6초(빠른 3박) 동안만 색이 프리즘처럼 흔들렸다가 빨강으로 모임. "새 위험 다시 울리기"로 다시 볼 수 있음.',
+    rotate: '엣지: 새 위험 순간 보라 → 주황 빛 띠가 테두리를 두 바퀴 돌고 사라짐(3.6초). 그 뒤 빨강 맥박.',
+    beam: '엣지: 새 위험 순간 Delta 자리(왼쪽 위)에서 빛 빔 두 줄이 위 · 왼쪽 테두리로 갈라져 달려 오른쪽 아래에서 만나고 사라짐(2.4초). 머리는 밝은 주황, 꼬리는 크림슨 → 보라. 레퍼런스(Border Beam)를 한 번만, Delta 에서 시작하게.',
+    wave: '엣지: 새 위험 순간 Delta 자리(왼쪽 위)에서 분광 파동(주황 → 크림슨 → 보라)이 오른쪽 아래로 퍼져 나감(2.6초). 테두리를 타고 가며 지도 위에도 옅게. 그 뒤 빨강 맥박.', corner: '엣지: Delta 뒤 모서리 빛을 분광(주황 → 크림슨 → 보라)으로 넓혀, 빛이 Delta 에서 갈라져 나오게. 테두리 선은 빨강 그대로.' }
+};
+const st = { d: 'now', e: 'now' };   // 11/24 파동 · 살짝 보라 메인 반영 — '현재'가 곧 결정안
+try { Object.assign(st, JSON.parse(localStorage.getItem('lab-dspec3') || '{}')); } catch (e) {}
+const h = location.hash.slice(1).split('-'); if (h[0] && CSS.d[h[0]] !== undefined) st.d = h[0]; if (h[1] && CSS.e[h[1]] !== undefined) st.e = h[1];
+let src = null; const f = document.getElementById('f');
+async function load() {
+  if (!src) src = await (await fetch('main-v7.html', { cache: 'no-cache' })).text();
+  const base = location.href.replace(/[^/]*$/, '');
+  const css = '<style id="lab-dspec">' + CSS.d[st.d] + CSS.e[st.e] + '</style>';
+  f.srcdoc = src.replace(/<head>/i, '<head><base href="' + base + '">').replace(/<\/head>/i, css + '</head>');
+  document.getElementById('desc').textContent = DESC.d[st.d] + '  ' + DESC.e[st.e];
+  for (const k of ['d', 'e']) document.querySelectorAll('#seg-' + k + ' button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === st[k])));
+  try { localStorage.setItem('lab-dspec3', JSON.stringify(st)); } catch (e) {}
+}
+for (const k of ['d', 'e']) document.getElementById('seg-' + k).addEventListener('click', e => { const b = e.target.closest('button'); if (b) { st[k] = b.dataset.v; load(); } });
+document.getElementById('again').addEventListener('click', () => { try { const b = f.contentDocument.body; b.classList.remove('is-surge'); void b.offsetWidth; b.classList.add('is-surge'); } catch (e) {} });   // delta-pulse.js surge() 와 같은 일 — 박자를 처음부터
+function fit() { f.style.transform = 'scale(' + (document.getElementById('stage').clientWidth / 1920) + ')'; }
+addEventListener('resize', fit); fit(); load();
+addEventListener('hashchange', () => { const h = location.hash.slice(1).split('-'); if (h[0] && CSS.d[h[0]] !== undefined) st.d = h[0]; if (h[1] && CSS.e[h[1]] !== undefined) st.e = h[1]; load(); });
+</script>
+</body>
+</html>

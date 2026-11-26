@@ -128,8 +128,9 @@
       return r;
     }
     function open(a) { return c.openA(a); }
-    function detailBtn(a) { return btn(a.sev === "critical" ? "위험 상세 확인" : "상세 확인", "is-pri", open(a)); }
-    function mapBtn(a) { return btn("위치 보기", "", open(a)); }
+    // [11/26] 이름은 위험 단계와 상관없이 "상세 확인" 하나(디자이너)
+    function detailBtn(a) { return btn("상세 확인", "is-pri", open(a)); }
+    // [11/26] [위치 보기]는 뺐다 — [상세 확인]과 같은 동작(알림 열기 = 지도 지점 + 팝오버)이라 하나로 줄임(디자이너)
 
     // 답 틀 — 제목(왼쪽)과 범위나 대상(오른쪽). 시각은 머리에 한 번만 둔다
     function msg(type, a, title, right) {
@@ -238,17 +239,20 @@
       top.appendChild(diag(a));
       top.appendChild(el("span", null, needLine(a)));
       d.appendChild(top);
-      d.appendChild(el("p", "dc6-eq", label(a)));
+      var eq = el("p", "dc6-eq", label(a));
+      // [11/24] 보는 미션 밖 알림이면(전체 미션은 늘) 제목 아래 [M번호 미션] — 다음 확인 줄 꼬리와 같은 모양, 어느 미션 일인지 카드에서 바로 읽히게
+      if (!mine(a) && A().missionOf && A().missionOf(a)) { var cm = el("span", "dc6-row-s dc6-card-m"); cm.appendChild(missionNode(a)); eq.appendChild(cm); }
+      d.appendChild(eq);
       if (a.sum) { d.appendChild(el("p", "dc6-desc", a.sum)); }
       var why = el("div", "dc6-why");
       why.appendChild(el("span", "dc6-why-l", "먼저 보는 이유"));
       why.appendChild(ul(reasons(a, ord)));
       d.appendChild(why);
-      // [11/05] 위치와 시각 줄("B4 4번 지점, 10:12 감지")은 뺐다(디자이너) — 위치는 [위치 보기] 단추가 맡는다
+      // [11/05] 위치와 시각 줄("B4 4번 지점, 10:12 감지")은 뺐다(디자이너) — 위치는 [상세 확인]이 여는 지도 지점이 맡는다
       var note = el("p", "dc6-done");
       note.hidden = true;
       d.appendChild(note);
-      d.appendChild(btnRow(detailBtn(a), mapBtn(a)));
+      d.appendChild(btnRow(detailBtn(a)));
       m.card = { a: a, node: d, note: note };
       return d;
     }
@@ -304,7 +308,7 @@
       text(m, at === 0 ? "이것부터 확인하세요. 열린 " + ord.length + "건 중 첫 번째예요." : "열린 " + ord.length + "건 중 " + (at + 1) + "번째예요.");
       m.node.appendChild(ul(reasons(a, ord), "ul", "dc6-ul"));
       m.node.appendChild(el("p", "dc6-rule", "순서는 운영 규칙(위험, 보는 미션, 오래된 순)으로 정해요. Delta는 순서를 바꾸지 않고 근거만 설명해요."));
-      m.node.appendChild(btnRow(detailBtn(a), mapBtn(a)));
+      m.node.appendChild(btnRow(detailBtn(a)));
       return finish(m);
     }
 
@@ -330,7 +334,7 @@
       if (a.cause) { sec(d, "가능한 원인", "est", ul(a.cause)); }
       if (a.fix) { sec(d, "권장 확인 순서", null, ul(a.fix, "ol")); }
       if (!a.cause) { d.appendChild(el("div", "dc6-gap", "추가 확인 필요: 원인 후보가 아직 정리되지 않았어요. 현장 확인이 필요해요.")); }
-      d.appendChild(btnRow(btn("추천 조치 보기", "is-pri", function () { c.ask("어떻게 조치해?"); }), mapBtn(a)));
+      d.appendChild(btnRow(btn("추천 조치 보기", "is-pri", function () { c.ask("어떻게 조치해?"); }), btn("상세 확인", "", open(a))));
       m.node.appendChild(d);
       return finish(m);
     }
@@ -349,7 +353,7 @@
       var m = msg("actions", a, "추천 조치", a.eq);
       if (!list.length) {
         text(m, "이 알림은 추천 조치가 아직 없어요. 알림을 열어 확인하세요.");
-        m.node.appendChild(btnRow(detailBtn(a), mapBtn(a)));
+        m.node.appendChild(btnRow(detailBtn(a)));
         return finish(m);
       }
       /*
@@ -387,7 +391,7 @@
         dl.appendChild(dd);
       });
       d.appendChild(dl);
-      d.appendChild(btnRow(btn("위치 보기", "is-pri", open(a)), btn("상세 확인", "", open(a))));
+      d.appendChild(btnRow(detailBtn(a)));
       m.node.appendChild(d);
       return finish(m);
     }

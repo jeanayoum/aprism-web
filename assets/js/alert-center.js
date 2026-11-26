@@ -436,8 +436,7 @@
   // 짧은 나열(문장이 아닌 것)은 쉼표 대신 칸으로 나눔 — 칸 사이는 CSS(.ac-cells, 사이 12). 문장 안 나열은 쉼표 그대로(11/20)
   function isSentence(t) { return /[.요다]\s*$|[.!?]\s/.test(String(t).trim()); }
   function cells(parts) { return '<span class="ac-cells">' + parts.map(function (x) { return '<span>' + esc(x) + '</span>'; }).join("") + '</span>'; }
-  function ndHtml(t) { return V7 && !isSentence(t) && /·/.test(t) ? cells(String(t).split(/\s*·\s*/)) : esc(nd(t)); }
-  // [11/20 v7] 처리 정보 DELTA 줄: 고른 조치는 위 조치 내용이 말하므로 괄호 목록을 되풀이하지 않음(쓰지 않은 경우의 추천 목록만 남김)
+  function ndHtml(t) { return V7 && !isSentence(t) && /·/.test(t) ? cells(String(t).split(/\s*·\s*/)) : esc(nd(t)); }  // [11/20 v7] 처리 정보 DELTA 줄: 고른 조치는 위 조치 내용이 말하므로 괄호 목록을 되풀이하지 않음(쓰지 않은 경우의 추천 목록만 남김)
   function deltaLine(t) { return V7 && !/쓰지 않음/.test(t) ? String(t).replace(/\s*\([^)]*\)\s*$/, "") : nd(t); }
 
   function icon(name, size) {
@@ -457,7 +456,18 @@
     // [11/23 v7] 정렬 단추는 열 머리 오른쪽 끝 칸에 산다 — 머리를 다시 그리기 전에 떼었다가 다시 붙인다(누름 처리는 그대로)
     var sortBox = null;   // [11/23 7차] v7 정렬은 거르기 줄로 옮겼다 — 열 머리 칸에 넣지 않음(아래 코드는 꺼 둠)
     if (sortBox && sortBox.parentNode) { sortBox.parentNode.removeChild(sortBox); }
-    colHead.innerHTML = state.tab === "done"
+    colHead.innerHTML = state.tab === "done" && V7
+      // [11/26 디자이너] v7 조치 요청된 알림 열: 원 등급 | 알림 | 조치 내용 | 진행상황 | 발생 | 조치 | 담당. 체크 칸 뺌, 조치 시각은 발생 옆 같은 글자
+      // [11/26 디자이너] 조치 필요 탭과 같은 자리에서 시작: (아이콘 자리 빈칸 16) 발생 | 조치 | 위험도 | 알림 | 조치 내용 | 진행상황 … 담당
+      ? '<span class="ac-dc-check" aria-hidden="true"></span>' +   // 체크는 뺐지만 자리(16)는 빈칸 — 조치 필요 탭 단계 아이콘 자리와 같음
+        '<span class="ac-dc-occ" role="columnheader">발생</span>' +
+        '<span class="ac-dc-time" role="columnheader">조치</span>' +
+        '<span class="ac-dc-sev" role="columnheader">위험도</span>' +   // [11/26 디자이너] 원 등급 → 위험도, 조치와 알림 사이
+        '<span class="ac-dc-body" role="columnheader">알림</span>' +
+        '<span class="ac-dc-acts" role="columnheader">조치 내용</span>' +
+        '<span class="ac-dc-stage" role="columnheader">진행상황</span>' +
+        '<span class="ac-dc-who" role="columnheader">담당</span>'
+      : state.tab === "done"
       ? '<span class="ac-dc-check" role="columnheader"><span class="ac-sr">상태</span></span>' +
         '<span class="ac-dc-time" role="columnheader">조치</span>' +
         '<span class="ac-dc-body" role="columnheader">' + (V7 ? "알림" : "알림 · 조치 내용") + '</span>' +
@@ -520,9 +530,31 @@
    * HH:MM:SS 꼴일 때만 떼고, "어제 23:51" 처럼 이미 짧은 것은 그대로 둔다.
    */
   function shortTime(t) { return t.replace(/^(\d{1,2}:\d{2}):\d{2}$/, "$1"); }
+  // v7 조치 요청된 알림 발생 칸: 날짜 줄과 같은 날이면 시:분:초만(초는 stamp 에서), 다른 날이면 time 그대로("어제 23:51")
+  function occTime(a) {
+    if (!a.done || a.day !== a.done.day) { return a.time; }
+    var s = /(\d{1,2}:\d{2}:\d{2})$/.exec(a.stamp || "");
+    return s ? s[1] : a.time.replace(/^.*\s(?=\d{1,2}:\d{2})/, "");
+  }
 
   function doneRow(a, sel) {
     var d = a.done;
+    if (V7 && window.ds) {   // [11/26 디자이너] 열 머리와 같은 순서: 원 등급 | 알림 | 조치 내용 | 진행상황 | 발생 | 조치 | 담당
+      return '<div class="ac-done-row is-v7cols" role="row" data-id="' + a.id + '" data-sev="' + a.sev + '"' +
+          ' tabindex="' + (sel ? "0" : "-1") + '" aria-selected="' + (sel ? "true" : "false") + '">' +
+          '<span class="ac-dc-check" aria-hidden="true"></span>' +   // 체크 자리 빈칸(열 머리와 같음)
+          // [11/26 디자이너] 발생, 조치 시각 = 조치 필요 탭 발생과 같은 글자(.ac-mono)
+          // [11/26 디자이너] 날짜는 날짜 줄이 맡으니 발생 칸은 시각만. 조치한 날과 발생한 날이 다를 때만 "어제" 같은 날짜를 남긴다
+          '<span class="ac-dc-occ ac-mono" role="gridcell">' + esc(occTime(a)) + '</span>' +
+          '<span class="ac-dc-time ac-mono" role="gridcell">' + esc(d.at) + '</span>' +
+          '<span class="ac-dc-sev t-caption" role="gridcell">' + window.ds.badge(a.sev === "critical" ? "crit" : "warn", SEV_LABEL[a.sev], { plain: true, icon: null }) + '</span>' +   // [11/26 디자이너] 목록 원 등급은 글자만(삼각형 뺌)
+          '<span class="ac-dc-body" role="gridcell"><span class="ac-dc-title t-label-2">' + esc(titleOf(a)) + '</span></span>' +
+          // [11/26 디자이너] 목록은 첫 조치 하나만("외 n건" 없음). 전체는 상세 처리 정보 "조치" 줄
+          '<span class="ac-dc-acts t-caption" role="gridcell">' + esc(d.picked[0] || "") + '</span>' +
+          '<span class="ac-dc-stage t-caption" role="gridcell">' + stageHtml(a, false) + '</span>' +
+          '<span class="ac-dc-who t-caption" role="gridcell">' + esc(d.by) + '</span>' +
+        '</div>';
+    }
     return '<div class="ac-done-row" role="row" data-id="' + a.id + '" data-sev="' + a.sev + '"' +
         ' tabindex="' + (sel ? "0" : "-1") + '" aria-selected="' + (sel ? "true" : "false") + '">' +
         '<span class="ac-dc-check" role="gridcell">' + icon("--ic-check", 16) +
@@ -971,7 +1003,7 @@
     var rows = a.acts.slice().sort(function (x, y) { return (y.delta ? 1 : 0) - (x.delta ? 1 : 0); }).map(function (c) {
       var on = chosen.indexOf(c.t) > -1;
       // [11/20 v7] 조치 목록 한 줄은 ds.act (공통 CSS). 누름 처리는 예전 이름(.ma-check, data-act)을 그대로 봄
-      if (V7 && window.ds) { return window.ds.act(esc(c.t), { on: on, ai: !!c.delta, sub: c.to ? esc(c.to) : '', cls: 'ma-check', boxCls: 'ma-check-box', textCls: 'ma-check-label', attrs: 'data-act="' + esc(c.t) + '"' }); }
+      if (V7 && window.ds) { return window.ds.act(esc(c.t), { on: on, ai: !!c.delta, cls: 'ma-check', boxCls: 'ma-check-box', textCls: 'ma-check-label', attrs: 'data-act="' + esc(c.t) + '"' }); }
       return '<button type="button" class="ma-check" role="checkbox" data-act="' + esc(c.t) + '" aria-checked="' + (on ? "true" : "false") + '">' +
         '<span class="ma-check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>' +
         '<span class="ma-check-label">' + esc(c.t) + '</span>' +
@@ -984,7 +1016,7 @@
         (a.sug7 ? "" : '<span class="ac-dl-fp t-caption">오탐 가능성 <span class="ac-dl-fpv' + (fp >= 40 ? " is-high" : fp >= 20 ? " is-mid" : "") + '">' +
           esc(a.fpLabel || "") + '(' + fp + '%)</span></span>') +
       '</div>' +
-      '<p class="ac-dl-lead">' + esc(a.lead) + '</p>' +
+      '<p class="ac-dl-lead ds-delta-lead">' + esc(a.lead) + '</p>' +
       // 근거 — 팝오버에는 자리가 없어 빠진 줄. 알림 센터는 넉넉해 제안 바로 아래에 둔다(11/02 디자이너)
       (!a.sug7 && a.why && a.why.length ? '<ul class="ac-dl-why">' +
         a.why.map(function (w) { return '<li class="t-body-4">' + esc(w) + '</li>'; }).join("") + '</ul>' : "") +
@@ -1003,8 +1035,13 @@
   /* 조치 완료 — 머리는 미확인과 같은 위계(원 등급 배지 · 감지 이름 / 측정 항목 + 값), 아래 줄이 조치 시각 · 담당 · 소요다. */
   function recordHtml6(a) {
     var d = a.done;
+    var memoSec = '<section class="ac-record-section">' +
+        '<h3 class="t-caption">메모</h3>' +
+        '<p class="ac-memo-box t-body-4' + (d.memo ? "" : " ac-memo-empty") + '">' +
+          (d.memo ? esc(d.memo) : (V7 ? "남긴 메모가 없어요" : "남긴 메모가 없습니다.")) + '</p>' +
+      '</section>';
     return '<div class="ac-record">' +
-      head6(a, "원 등급 ",
+      head6(a, V7 ? "" : "원 등급 ",   // [11/26 디자이너] v7 배지는 "주의"만(원 등급 뺌)
         '<p class="ac-record-age">' +
           '<span class="ac-record-at t-label-1">' + esc(DAYS[d.day].label) + ' ' + esc(d.at) + '</span>' +
           '<span class="ac-record-by t-caption">' + (V7 ? cells(['조치 ' + d.by, d.took]) : '조치 · ' + esc(d.by) + ' · ' + esc(d.took)) + '</span>' +
@@ -1013,22 +1050,17 @@
         metaRow("발생", '<span class="ac-mono">' + esc(a.stamp) + '</span>') +
         meta6(a, false)) +
 
-      '<section class="ac-record-section">' +
+      // [11/26 디자이너] v7 은 조치 내용 칸을 뺌 — 아래 처리 정보 "조치" 줄과 겹침
+      (V7 ? "" : '<section class="ac-record-section">' +
         '<h3 class="t-caption">조치 내용</h3>' +
-        (V7   // [11/20 v7] 조치 내용은 누르는 칩이 아니라 한 일 목록 — 체크 아이콘 16 + 글자 14, 줄 사이 4
-          ? '<div class="ds-acts" role="list">' + d.picked.map(function (t) { return window.ds.act(esc(t), { result: true }); }).join("") + '</div>'   // [11/20] 공통 조치 목록, 결과 상태
-          : '<div class="ac-chips">' +
+        '<div class="ac-chips">' +
           d.picked.map(function (t) {
             return '<span class="ac-chip-done t-label-2">' + esc(t) + '</span>';
           }).join("") +
-        '</div>') +
-      '</section>' +
+        '</div>' +
+      '</section>') +
 
-      '<section class="ac-record-section">' +
-        '<h3 class="t-caption">메모</h3>' +
-        '<p class="ac-memo-box t-body-4' + (d.memo ? "" : " ac-memo-empty") + '">' +
-          (d.memo ? esc(d.memo) : (V7 ? "남긴 메모가 없어요" : "남긴 메모가 없습니다.")) + '</p>' +
-      '</section>' +
+      (V7 ? "" : memoSec) +   // [11/26 디자이너] v7 은 메모를 처리 정보 아래로
 
       '<section class="ac-record-section">' +
         '<h3 class="t-caption">처리 정보</h3>' +
@@ -1036,9 +1068,12 @@
           (V7 ? infoRow("진행", '<span class="t-body-4">' + stageHtml(a, true) + '</span>') : "") +   // [11/23 Q2] 진행 단계 · 받는 사람
           infoRow("담당", '<span class="t-body-4">' + esc(d.by) + '</span>') +
           infoRow("소요", '<span class="t-body-4">' + esc(d.took) + '</span>') +
-          infoRow("DELTA", '<span class="ac-info-delta t-body-4">' + esc(deltaLine(d.delta)) + '</span>') +
+          (V7 && d.picked && d.picked.length
+            ? infoRow("조치", infoActs(a, d))   // [11/24 디자이너] "AI 추천 그대로 사용" 대신 실제 조치 내용, AI 추천에서 온 조치만 Delta 글자
+            : infoRow("DELTA", '<span class="ac-info-delta t-body-4">' + esc(deltaLine(d.delta)) + '</span>')) +
         '</dl>' +
       '</section>' +
+      (V7 ? memoSec : "") +
     '</div>';
   }
 
@@ -1097,6 +1132,21 @@
         refresh();
       });
     }
+  }
+
+  // [11/24 v7] 처리 정보 "조치" 줄 — 고른 조치 이름을 적고, AI 추천에서 온 조치는 Delta 아이콘 + Delta 글자 색(.ac-info-ai)
+  //   추천 목록은 알림의 acts(delta:true). 없으면 기록 문구 괄호 안("AI 추천 ... (가, 나)")에서 읽는다
+  function infoActs(a, d) {
+    var rec = (a.acts || []).filter(function (c) { return c.delta; }).map(function (c) { return c.t; });
+    if (!rec.length && d.delta && !/쓰지 않음/.test(d.delta)) {
+      var m = /\(([^)]*)\)\s*$/.exec(d.delta);
+      if (m) { rec = m[1].split(/\s*[·,]\s*/); }
+    }
+    return '<span class="ac-info-acts t-body-4">' + d.picked.map(function (t) {
+      return rec.indexOf(t) > -1
+        ? '<span class="ac-info-ai"><span class="ac-info-ai-i" aria-hidden="true"></span>' + esc(t) + '<span class="ds-sr"> (AI 추천)</span></span>'
+        : '<span>' + esc(t) + '</span>';
+    }).join("") + '</span>';
   }
 
   // 처리 정보의 "DELTA" 줄 — 고른 조치가 추천과 얼마나 겹치는지로 적는다.
@@ -1159,13 +1209,40 @@
     $("[data-ac-summary]").hidden = state.tab !== "done";
   }
 
+  // [11/25 디자이너 v7] Delta 가 요약을 만드는 동안 — 판 위 끝 빛줄기가 오가고(.is-gen, 본문 자리엔 빈 줄), 다 만든 순간 한 번 지나가고 꺼짐(.is-done).
+  // 길이는 공통 CSS 디자인 값(--ds-delta-gen, --ds-delta-beam-last). 움직임 줄이기면 빛 없이 짧게
+  var genTimers = [];
+  function msVar(name, dflt) { var v = parseFloat(getComputedStyle(document.body).getPropertyValue(name)); return isNaN(v) ? dflt : v; }
+  function genHandover() {
+    var h = $(".ac-handover", slot); if (!h) { return; }
+    genTimers.forEach(clearTimeout); genTimers = [];
+    if (genHandover.stop) { genHandover.stop(); }
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    $(".ac-handover-head", h).insertAdjacentHTML("afterend", '<div class="ac-handover-skel" aria-hidden="true"><i style="width:62%"></i><i style="width:84%"></i><i style="width:71%"></i><i style="width:78%"></i></div>');
+    var when = $(".ac-handover-when", h), old = when ? when.innerHTML : "";
+    if (when) { when.textContent = "오늘 조치 " + HANDOVER_COUNT() + "건을 묶고 있어요"; }
+    h.setAttribute("aria-busy", "true");
+    h.classList.add("is-gen");
+    // [11/25 디자이너] 만드는 동안 요약 버튼의 Delta 육각에 홀로그램(ds-v7.js APRISM_DELTA_HOLO, CSS .ds-holo) — 다 만든 빛줄기가 지나가면 꺼짐
+    var holoStop = window.APRISM_DELTA_HOLO ? window.APRISM_DELTA_HOLO.start($("[data-ac-summary] > .i")) : function () {};
+    genHandover.stop = holoStop;
+    genTimers.push(setTimeout(function () {
+      if (when) { when.innerHTML = old; }
+      h.removeAttribute("aria-busy");
+      h.classList.remove("is-gen"); h.classList.add("is-done", "is-new");
+      genTimers.push(setTimeout(function () { h.classList.remove("is-done"); holoStop(); }, msVar("--ds-delta-beam-last", 1600) + 100));
+    }, reduce ? 600 : msVar("--ds-delta-gen", 3400)));
+  }
+  function HANDOVER_COUNT() { var m = /(\d+)건/.exec(HANDOVER.items && HANDOVER.items[0] ? String(HANDOVER.items[0][1]) : ""); return m ? m[1] : "5"; }
+
   function renderHandover() {
     slot.innerHTML = '<section class="ac-handover">' +
       '<div class="ac-handover-head">' +
         // [11/02 v6] Delta 표식은 DELTA 조치 제안 판과 같은 Delta 로고(예전 판은 cpu)
         '<span class="ac-handover-mark">' + icon(V6 ? "--ic-delta" : "--ic-cpu", 16) +
           '<span class="t-label-2">DELTA 인수인계 요약</span></span>' +
-        '<span class="ac-handover-when t-caption">' + ndHtml(HANDOVER.when) + '</span>' +
+        // [11/26 디자이너] v7 은 시간 범위와 "조치 n건 기준" 둘 다 뺌(판 머리는 DELTA 인수인계 요약만)
+        (V7 ? "" : '<span class="ac-handover-when t-caption">' + ndHtml(HANDOVER.when) + '</span>') +
         '<span class="ac-head-spacer"></span>' +
         '<button type="button" class="btn btn-ghost is-xs" data-ac-handover-close>닫기</button>' +
       '</div>' +
@@ -1176,10 +1253,11 @@
             '<dd class="t-body-4">' + ndHtml(it[1]) + '</dd></div>';
         }).join("") +
       '</dl>' +
-      '<div class="ac-handover-actions">' +
+      // [11/26 디자이너] v7 은 [초안 수정] [보고서에 넣기] 뺌
+      (V7 ? "" : '<div class="ac-handover-actions">' +
         '<button type="button" class="btn btn-secondary is-xs">초안 수정</button>' +
         '<button type="button" class="btn btn-primary is-xs">보고서에 넣기</button>' +
-      '</div>' +
+      '</div>') +
     '</section>';
 
     $("[data-ac-handover-close]", slot).addEventListener("click", function () {
@@ -1247,6 +1325,7 @@
       state.handover = true;
       renderHandover();
       slot.hidden = false;
+      if (V7) { genHandover(); }
     });
 
     selects({
