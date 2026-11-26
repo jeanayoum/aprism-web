@@ -59,12 +59,12 @@
     }
   }, {
     sev: "warning",
-    where: "Robot 02 · 터빈 2 / Unit 03",
+    where: (window.APRISM_ROBOT ? APRISM_ROBOT("r02") : "Robot 02") + " · 터빈 2 / Unit 03",
     time: "10:06:05",
     title: "통신 불안정 · 재접속 3회 실패",
     state: "조치 필요 · 신호 확인 중",
     delta: {
-      line1: "Robot 02 의 통신이 불안정합니다.",
+      line1: (window.APRISM_ROBOT ? APRISM_ROBOT("r02") : "Robot 02") + " 의 통신이 불안정합니다.",
       line2: "재접속을 3회 실패했고 신호가 −78 dBm 까지 떨어졌습니다. 로봇 위치를 확인하고 필요하면 자동복귀시켜 주세요.",
       actions: [ "자동복귀", "신호 추이 보기" ]
     }
@@ -83,8 +83,8 @@
   };
   var DELTA_1 = {
     normal: {
-      line1: "안녕하세요. 홍길동 님",
-      line2: "Robot 01 이 정기 순회를 진행하고 있어요. 지금은 특이사항이 없습니다."
+      line1: "안녕하세요. " + (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동") + " 님",
+      line2: (window.APRISM_ROBOT ? APRISM_ROBOT("r01") : "Robot 01") + " 이 정기 순회를 진행하고 있어요. 지금은 특이사항이 없습니다."
     },
     warning: {
       line1: "현재 지하발전소 B3 터빈2 NG 1건이 발견 되었습니다.",
@@ -166,45 +166,45 @@
     time: "10:29:10",
     title: "온도감지 · WP-03 펌프 하우징",
     how: "추이 관찰 · 다음 순회 재측정",
-    who: "김현대"
+    who: window.APRISM_NAME ? APRISM_NAME("op2") : "김현대"
   }, {
     time: "10:18:52",
-    title: "통신 불안정 · Robot 02",
+    title: "통신 불안정 · " + (window.APRISM_ROBOT ? APRISM_ROBOT("r02") : "Robot 02"),
     how: "재접속 확인 · 조치 불필요",
-    who: "김현대"
+    who: window.APRISM_NAME ? APRISM_NAME("op2") : "김현대"
   }, {
     time: "10:02:31",
     title: "진동감지 · WP-02 터빈1 베어링",
     how: "추이 관찰 · 다음 순회 재측정",
-    who: "홍길동"
+    who: window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동"
   }, {
     time: "09:47:15",
     title: "온도감지 · WP-03 펌프 하우징",
     how: "현장 점검 요청 · 이상 없음",
-    who: "홍길동"
+    who: window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동"
   }, {
     time: "09:30:08",
-    title: "배터리 부족 · Robot 06",
+    title: "배터리 부족 · " + (window.APRISM_ROBOT ? APRISM_ROBOT("r06") : "Robot 06"),
     how: "충전 도크 복귀 확인",
-    who: "김현대"
+    who: window.APRISM_NAME ? APRISM_NAME("op2") : "김현대"
   } ];
   var DELTA_2 = {
     normal: {
       level: null,
       tag: "원인 분석 중",
-      line1: "안녕하세요. 홍길동 님",
-      line2: "Robot 01 이 정기 순회를 진행하고 있어요. 지금은 특이사항이 없습니다."
+      line1: "안녕하세요. " + (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동") + " 님",
+      line2: (window.APRISM_ROBOT ? APRISM_ROBOT("r01") : "Robot 01") + " 이 정기 순회를 진행하고 있어요. 지금은 특이사항이 없습니다."
     },
     warning: {
       level: "warning",
       tag: "원인 분석 완료 · 후보 1건 확인",
-      line1: "안녕하세요. 홍길동 님",
+      line1: "안녕하세요. " + (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동") + " 님",
       line2: "Spiral Casing Pr. 기준값 87이하 측정값 90으로 3정도 높습니다. 4% 미만으로 다음 검사에서 추이를 보겠습니다."
     },
     critical: {
       level: "critical",
       tag: "원인 분석 완료 · 후보 1건 확인",
-      line1: "안녕하세요. 홍길동 님",
+      line1: "안녕하세요. " + (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동") + " 님",
       line2: "Spiral Casing Pr. 기준값 87이하 측정값 90으로 3정도 높습니다. 4% 미만으로 다음 검사에서 추이를 보겠습니다."
     }
   };
@@ -767,7 +767,7 @@
         time: clock(),
         title: a.title,
         how: how,
-        who: "홍길동"
+        who: window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동"
       };
       done.unshift(fresh);
       render();

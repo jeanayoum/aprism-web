@@ -209,7 +209,7 @@
       if (mk && o.dots) {
         g += '<circle transform="' + t + '" class="mp-' + (mk === "crit" ? "c" : "w") + '" r="' + u(3) + '" stroke-width="' + u(0.9) + '"/>';
       } else if (mk) {
-        g += '<path transform="' + t + '" class="mp-' + (mk === "crit" ? "c" : "w") + '" d="M0 ' + u(-4.4) + " " + u(4.2) + " " + u(2.8) + " " + u(-4.2) + " " + u(2.8) + 'Z" stroke-width="' + u(0.9) + '" stroke-linejoin="round"/>';
+        g += '<path data-j="' + j + '" transform="' + t + '" class="mp-' + (mk === "crit" ? "c" : "w") + '" d="M0 ' + u(-4.4) + " " + u(4.2) + " " + u(2.8) + " " + u(-4.2) + " " + u(2.8) + 'Z" stroke-width="' + u(0.9) + '" stroke-linejoin="round"/>';
       } else if (j < done) {
         g += '<circle transform="' + t + '" class="mp-ok" r="' + u(2.2) + '"/>';
       } else {

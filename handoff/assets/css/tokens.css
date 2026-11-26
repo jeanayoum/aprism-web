@@ -806,3 +806,100 @@
 }
 
 .is-light-scope, :root[data-theme="light"] .is-dark-scope { color: var(--text-primary); }
+
+
+
+html:has(> body:is(.ver-7, .ds-auth)) {
+
+  --color-gray-50: #F7F9FA;
+  --color-gray-100: #F0F3F5;
+  --color-gray-200: #E0E5E9;
+  --color-gray-300: #D1D8DE;
+  --color-gray-400: #AFBCC8;
+  --color-gray-450: #9EADBB;
+  --color-gray-500: #667685;
+  --color-gray-600: #4E5C6A;
+  --color-gray-650: #3F4E5C;
+  --color-gray-700: #37434E;
+  --color-gray-750: #2C3843;
+  --color-gray-800: #202C38;
+  --color-gray-850: #151E26;
+  --color-gray-900: #0A1015;
+  --color-gray-950: #070C10;
+
+  --color-alpha-gray-300-40: rgb(from var(--color-gray-300) r g b / 40%);
+  --color-alpha-gray-600-40: rgb(from var(--color-gray-600) r g b / 40%);
+  --color-alpha-gray-900-50: rgb(from var(--color-gray-900) r g b / 50%);
+  --color-alpha-gray-950-60: rgb(from var(--color-gray-950) r g b / 60%);
+  --color-alpha-gray-750-55: rgb(from var(--color-gray-750) r g b / 55%);
+  --color-alpha-gray-950-8: rgb(from var(--color-gray-950) r g b / 8%);
+  --color-alpha-gray-950-18: rgb(from var(--color-gray-950) r g b / 18%);
+  --color-alpha-gray-950-55: rgb(from var(--color-gray-950) r g b / 55%);
+
+  --color-blue-50: #ECF4FF;
+  --color-blue-100: #E0ECFB;
+  --color-blue-200: #C7DDF8;
+  --color-blue-300: #A6CEFF;
+  --color-blue-400: #8DB8EE;
+  --color-blue-500: #5DA6FF;
+  --color-blue-600: #4C8FE0;
+  --color-blue-650: #1F82EC;
+  --color-blue-700: #2E7BD4;
+  --color-blue-750: #226EC3;
+  --color-blue-800: #1865B8;
+  --color-blue-900: #17579E;
+  --color-blue-950: #172F4C;
+  --color-aqua-50: var(--color-blue-50);
+  --color-aqua-200: var(--color-blue-300);
+  --color-aqua-500: var(--color-blue-500);
+  --color-aqua-600: var(--color-blue-650);
+  --color-aqua-700: var(--color-blue-750);
+  --color-aqua-800: var(--color-blue-800);
+
+  --color-map3d-floor: #18232E;
+  --color-map3d-wall: #3A4D5F;
+  --color-map3d-equipment: #41566A;
+  --color-map3d-stairs: #34485A;
+  --color-map3d-other: #36495A;
+  --color-map3d-edge: #7B98B4;
+  --color-map3d-ghost: #6A7E90;
+  --color-map3d-grid: #1F2E3C;
+  --color-map3d-hover-line: #9AA4AE;
+  --color-map3d-l-floor: #BFC6CC;
+  --color-map3d-l-wall: #DFE3E6;
+  --color-map3d-l-equipment: #E1E5E8;
+  --color-map3d-l-stairs: #D8DCDF;
+  --color-map3d-l-edge: #868D93;
+  --color-map3d-l-grid: #C4CBD1;
+  --color-map3d-l-pick-face: #CFE8FF;
+  --color-map3d-l-pick-line: #1D7DD6;
+  --color-map3d-l-hover-line: #5B6977;
+  --color-map3d-run-left: var(--color-blue-500);
+  --color-map3d-idle-done: #889AAA;
+  --color-map3d-idle-left: #5D6975;
+  --color-map3d-idle-dot: #AEBBC8;
+  --color-map3d-l-run-done: #4B5763;
+  --color-map3d-l-run-left: var(--color-blue-650);
+  --color-map3d-l-run-dot: #2B3136;
+}
+html:has(> body.ver-7) body.ver-7 {
+  --comp-gnb-brand: var(--color-aqua-700);
+}
+
+html:has(> body.ds-auth) body.ds-auth {
+  --comp-button-accent-bg-default: var(--color-aqua-700);
+  --comp-button-accent-bg-hover: color-mix(in srgb, var(--color-aqua-700) 82%, #ffffff);
+  --comp-button-accent-bg-pressed: var(--color-aqua-800);
+  --border-focus: var(--color-aqua-700);
+}
+
+html:has(> body.ver-7):is([data-theme], :not([data-theme])) body.ver-7 .ds-gnb-item[aria-current="page"] .ds-gnb-icon { background-color: var(--comp-gnb-brand) !important; }
+html:has(> body.ver-7):is([data-theme], :not([data-theme])) body.ver-7 :is(.ds-act-box, .ds-chip.is-check .check-box, .check-row .check-box) { --ds-check-on: var(--color-aqua-700); }
+
+
+:root {
+  --color-spectrum-info: #1B77EE 0%, #0A49D7 12.5%, #1E2FB0 25%, #493891 37.5%, #74608B 50%, #858DA3 62.5%, #71A7C9 75%, #459EE9 87.5%, #1B77EE 100%;
+  --color-spectrum-safe: #2AD982 0%, #0EBB57 12.5%, #10893B 25%, #2F603E 37.5%, #5A595F 50%, #77778A 62.5%, #75A9A6 75%, #55D2A2 87.5%, #2AD982 100%;
+  --color-spectrum-warning: #F2B020 0%, #D38210 12.5%, #A5521A 25%, #813D39 37.5%, #7D4F5A 50%, #9C7D6B 62.5%, #CBAD61 75%, #EEC242 87.5%, #F2B020 100%;
+  --color-spectrum-critical: #F05937 0%, #D9321D 12.5%, #A3121E 25%, #6D0B3B 37.5%, #572262 50%, #6D487C 62.5%, #A3687B 75%, #D96F5E 87.5%, #F05937 100%;
+}

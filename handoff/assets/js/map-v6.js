@@ -203,6 +203,16 @@
     left: 0x9ea8bb,
     dot: 0xffffff
   };
+  ROBOTS[7] = {
+    name: "ROBOT 08",
+    at: 0,
+    floor: "B3",
+    dock: [ 0.10, 0.92 ],
+    stops: [ [ 0.15, 0.20 ], [ 0.45, 0.20 ], [ 0.45, 0.55 ], [ 0.12, 0.55 ] ],
+    done: 0x89b9ed,
+    left: 0x4990e0,
+    dot: 0xc7ddf8
+  };
   ROBOTS[8] = {
     name: "ROBOT 09",
     at: 1,
@@ -225,6 +235,13 @@
     left: 0x4990e0,
     dot: 0xc7ddf8
   };
+  if (window.APRISM_ROBOT_LABEL) {
+    ROBOTS.forEach(function(b) {
+      if (b && b.name) {
+        b.name = window.APRISM_ROBOT_LABEL(b.name);
+      }
+    });
+  }
   var SPAN_UNITS = 120;
   var EASE = 0.08;
   var SETTLED = 0.002;
@@ -4649,12 +4666,12 @@
   }
   var wpTog = null, wpHead = null, wpNum = null, wpMini = null, wpView = "list";
   var WP_MIS = {
-    0: "정기 순회 점검",
-    3: "야간 순회 점검",
-    4: "발전기실 설비 점검",
-    6: "공조 설비 순회",
-    8: "유틸리티 순회",
-    10: "전기실 열화상 점검"
+    0: window.APRISM_MISSION ? APRISM_MISSION("m1") : "정기 순회 점검",
+    3: window.APRISM_MISSION ? APRISM_MISSION("m6") : "야간 순회 점검",
+    4: window.APRISM_MISSION ? APRISM_MISSION("m2") : "발전기실 설비 점검",
+    6: window.APRISM_MISSION ? APRISM_MISSION("m7") : "공조 설비 순회",
+    8: window.APRISM_MISSION ? APRISM_MISSION("m8") : "유틸리티 순회",
+    10: window.APRISM_MISSION ? APRISM_MISSION("m3") : "전기실 열화상 점검"
   };
   function wpMiniDraw() {
     if (!wpMini || wpView !== "map" || !window.APRISM_MINI) {
@@ -4810,14 +4827,15 @@
     wpPlace();
     wpTog.textContent = "지점 " + rail.querySelectorAll(".timeline-item[data-waypoint]").length + "곳";
     if (document.body.classList.contains("ver-7")) {
+      wpTog.classList.add("ds-title-row");
       var cnt = document.querySelector("[data-progress-count]"), ct = cnt ? cnt.textContent.trim() : "";
       if (/^\d+\/\d+$/.test(ct)) {
         wpTog.textContent = "";
         var t1 = document.createElement("span");
-        t1.className = "rr-wp-t";
+        t1.className = "rr-wp-t ds-title-name";
         t1.textContent = document.documentElement.lang === "en" ? "Waypoints" : "웨이포인트";
         var t2 = document.createElement("span");
-        t2.className = "rr-wp-n num";
+        t2.className = "rr-wp-n ds-title-count num";
         t2.textContent = ct;
         wpTog.appendChild(t1);
         wpTog.appendChild(t2);
@@ -5241,6 +5259,11 @@
     var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="' + fill + '" stroke="' + ring + '" stroke-width="3.4"/>' + '<text x="20" y="' + (two ? 25 : 26) + '" text-anchor="middle" font-family="SUIT, Pretendard, Malgun Gothic, system-ui, sans-serif" font-weight="800" font-size="' + (two ? 15 : 17) + '" fill="' + txt + '">' + n + "</text></svg>";
     return rrBadge[k] = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
   }
+  function laneShown() {
+    return !!(onLane && onLane.parts && onLane.parts.some(function(p) {
+      return p && p.visible;
+    }));
+  }
   function rrPins() {
     if (!hit) {
       return;
@@ -5254,7 +5277,7 @@
       });
       hit.appendChild(rrPinBox);
     }
-    var on = !!(onLane && onLane.parts && onLane.parts[0] && onLane.parts[0].visible) && !floorBusy;
+    var on = laneShown() && !floorBusy;
     rrPinBox.hidden = !on;
     var fsig = meshes.map(function(it) {
       return it.faded ? 1 : 0;
@@ -5604,7 +5627,7 @@
       });
       hit.appendChild(rrNumBox);
     }
-    var on = !!(onLane && onLane.parts && onLane.parts[0] && onLane.parts[0].visible) && !floorBusy;
+    var on = laneShown() && !floorBusy;
     var key = wpSpots.map(function(w) {
       return w.id + w.info.tone + (w.occ ? "o" : "") + (w.off ? "x" : "");
     }).join(",") + RRS.mode;
@@ -5651,7 +5674,7 @@
     var w = rrAlertId && wpSpots.filter(function(x) {
       return x.id === rrAlertId;
     })[0];
-    var show = !!w && RRS.mode === "alert" && (!w.floor || w.floor === floorNow) && !!(onLane && onLane.parts[0] && onLane.parts[0].visible);
+    var show = !!w && RRS.mode === "alert" && (!w.floor || w.floor === floorNow) && laneShown();
     rrPulse.hidden = true;
     alertRing(show ? w.spot : null);
   }

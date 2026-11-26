@@ -4,7 +4,8 @@
 <head>
   <meta charset="UTF-8" />
   
-  <script src="../assets/js/v7.js?v=1bea08bf"></script>
+  <script src="../assets/js/demo-base-v7.js?v=1fa55f95"></script>
+  <script src="../assets/js/v7.js?v=d76e4060"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>v7 사전 점검 — APRISM</title>
   <meta name="description" content="APRISM 통합 관제 메인 · 사전 점검 — v2.2 플로우의 둘째 단계. 끝나면 v2.2 통합 관제 메인으로 넘어간다" />
@@ -21,8 +22,8 @@
     }
   }
   </script>
-  <link rel="stylesheet" href="../assets/css/tokens.css?v=f2166588" />
-  <link rel="stylesheet" href="../assets/css/app-shell.css?v=bd279685" />
+  <link rel="stylesheet" href="../assets/css/tokens.css?v=22bec66d" />
+  <link rel="stylesheet" href="../assets/css/app-shell.css?v=60434960" />
   <link rel="stylesheet" href="../assets/css/map-overlays.css?v=70275a94" />
   <link rel="stylesheet" href="../assets/css/icons-outline.css?v=87bf1d03" />
   <link rel="stylesheet" href="../assets/css/text-parts.css?v=d6fa4e15" />
@@ -33,9 +34,9 @@
   <link rel="stylesheet" href="../assets/css/v5.css?v=4a552ac8" />
   
   <link rel="stylesheet" href="../assets/css/v6.css?v=aa7991ac" />
-  <link rel="stylesheet" href="../assets/css/v7.css?v=ba04d85f" />
-  <link rel="stylesheet" href="../assets/css/components-v7.css?v=c7c0a86d" />
-  <script src="../assets/js/ds-v7.js?v=1e9bec6d"></script>
+  <link rel="stylesheet" href="../assets/css/v7.css?v=c521002a" />
+  <link rel="stylesheet" href="../assets/css/components-v7.css?v=09fa0998" />
+  <script src="../assets/js/ds-v7.js?v=740ed80e"></script>
   
   <link rel="stylesheet" href="../assets/css/route-rules.css?v=21b76f94" />
   <style>
@@ -117,14 +118,14 @@
       
       <nav class="sb-tabs is-fixed" aria-label="보는 범위">
         <button type="button" class="sb-tab"><span class="sb-tab-name t-label-1" data-en="All">전체 미션</span></button>
-        <button type="button" class="sb-tab" data-run="run" data-mission="정기 순회 점검"><span class="sb-tab-no t-label-1">M1</span><span class="sb-tab-name t-label-1">정기 순회 점검</span><span class="i i-16 sb-tab-sev" data-sev="critical" aria-hidden="true" style="--i:var(--ic-error)"></span></button>
-        <button type="button" class="sb-tab" data-run="run" data-mission="발전기실 설비 점검"><span class="sb-tab-no t-label-1">M2</span><span class="sb-tab-name t-label-1">발전기실 설비 점검</span><span class="i i-16 sb-tab-sev" data-sev="warning" aria-hidden="true" style="--i:var(--ic-warning)"></span></button>
-        <button type="button" class="sb-tab" data-run="run" data-mission="전기실 열화상 점검"><span class="sb-tab-no t-label-1">M3</span><span class="sb-tab-name t-label-1">전기실 열화상 점검</span><span class="i i-16 sb-tab-sev" data-sev="critical" aria-hidden="true" style="--i:var(--ic-error)"></span></button>
-        <button type="button" class="sb-tab" data-run="idle" data-mission="소방 설비 점검"><span class="sb-tab-no t-label-1">M4</span><span class="sb-tab-name t-label-1">소방 설비 점검</span></button>
-        <button type="button" class="sb-tab" data-run="idle" data-mission="주간 설비 점검"><span class="sb-tab-no t-label-1">M5</span><span class="sb-tab-name t-label-1">주간 설비 점검</span></button>
-        <button type="button" class="sb-tab" data-run="done" data-mission="야간 순회 점검"><span class="sb-tab-no t-label-1">M6</span><span class="sb-tab-name t-label-1">야간 순회 점검</span></button>
-        <button type="button" class="sb-tab" data-run="done" data-mission="공조 설비 순회"><span class="sb-tab-no t-label-1">M7</span><span class="sb-tab-name t-label-1">공조 설비 순회</span></button>
-        <button type="button" class="sb-tab" data-run="done" data-mission="유틸리티 순회"><span class="sb-tab-no t-label-1">M8</span><span class="sb-tab-name t-label-1">유틸리티 순회</span></button>
+        <button type="button" class="sb-tab" data-run="run" data-mission="정기 순회 점검"><span class="sb-tab-no t-label-1">M1</span><span class="sb-tab-name t-label-1" data-base="mission.m1">정기 순회 점검</span><span class="i i-16 sb-tab-sev" data-sev="critical" aria-hidden="true" style="--i:var(--ic-error)"></span></button>
+        <button type="button" class="sb-tab" data-run="run" data-mission="발전기실 설비 점검"><span class="sb-tab-no t-label-1">M2</span><span class="sb-tab-name t-label-1" data-base="mission.m2">발전기실 설비 점검</span><span class="i i-16 sb-tab-sev" data-sev="warning" aria-hidden="true" style="--i:var(--ic-warning)"></span></button>
+        <button type="button" class="sb-tab" data-run="run" data-mission="전기실 열화상 점검"><span class="sb-tab-no t-label-1">M3</span><span class="sb-tab-name t-label-1" data-base="mission.m3">전기실 열화상 점검</span><span class="i i-16 sb-tab-sev" data-sev="critical" aria-hidden="true" style="--i:var(--ic-error)"></span></button>
+        <button type="button" class="sb-tab" data-run="idle" data-mission="소방 설비 점검"><span class="sb-tab-no t-label-1">M4</span><span class="sb-tab-name t-label-1" data-base="mission.m4">소방 설비 점검</span></button>
+        <button type="button" class="sb-tab" data-run="idle" data-mission="주간 설비 점검"><span class="sb-tab-no t-label-1">M5</span><span class="sb-tab-name t-label-1" data-base="mission.m5">주간 설비 점검</span></button>
+        <button type="button" class="sb-tab" data-run="done" data-mission="야간 순회 점검"><span class="sb-tab-no t-label-1">M6</span><span class="sb-tab-name t-label-1" data-base="mission.m6">야간 순회 점검</span></button>
+        <button type="button" class="sb-tab" data-run="done" data-mission="공조 설비 순회"><span class="sb-tab-no t-label-1">M7</span><span class="sb-tab-name t-label-1" data-base="mission.m7">공조 설비 순회</span></button>
+        <button type="button" class="sb-tab" data-run="done" data-mission="유틸리티 순회"><span class="sb-tab-no t-label-1">M8</span><span class="sb-tab-name t-label-1" data-base="mission.m8">유틸리티 순회</span></button>
       </nav>
       </div>
 
@@ -134,7 +135,7 @@
           <button type="button" class="account-chip" data-menu-trigger
                   aria-haspopup="true" aria-expanded="false">
             <span class="i i-16" style="--i:var(--ic-user)" aria-hidden="true"></span>
-            <span class="t-label-2">홍길동</span>
+            <span class="t-label-2" data-base="me">홍길동</span>
             <span class="t-label-2 account-sep" aria-hidden="true">|</span>
             <span class="t-label-2">관제운영</span>
           </button>
@@ -252,23 +253,23 @@
                                   <span class="field-label" id="mp-lbl-robot">실행 로봇</span>
                                   <div class="field-select" data-select data-mp-robot>
                                     <button type="button" class="field-box is-select" data-select-trigger aria-haspopup="listbox" aria-expanded="false" aria-labelledby="mp-lbl-robot">
-                                      <span data-select-value><span class="field-option-name">Robot 04</span><span class="field-option-meta"><span class="battery ds-battery"><span class="battery-body"><span class="battery-fill" style="width:92%"></span></span><span class="battery-tip"></span><span class="ds-battery-v">92%</span></span></span></span>
+                                      <span data-select-value><span class="field-option-name" data-base="robot.r04">Robot 04</span><span class="field-option-meta"><span class="battery ds-battery"><span class="battery-body"><span class="battery-fill" style="width:92%"></span></span><span class="battery-tip"></span><span class="ds-battery-v">92%</span></span></span></span>
                                       <span class="i i-20" style="--i:var(--ic-chevron-down)" aria-hidden="true"></span>
                                     </button>
                                     <ul class="field-menu" role="listbox" aria-label="실행 로봇" hidden>
                                       
-                                      <li class="field-option" role="option" aria-disabled="true" aria-label="Robot 01 배터리 78% 수행 중" data-floor="B4"><span class="field-option-name">Robot 01</span><span class="field-option-meta"><span class="ds-badge is-plain is-info ds-i-play">수행 중</span><span class="battery ds-battery"><span class="battery-body"><span class="battery-fill" style="width:78%"></span></span><span class="battery-tip"></span><span class="ds-battery-v">78%</span></span></span></li>
-                                      <li class="field-option" role="option" aria-disabled="true" aria-label="Robot 02 배터리 18% 배터리 부족" data-floor="B4"><span class="field-option-name">Robot 02</span><span class="field-option-meta"><span class="battery ds-battery is-critical"><span class="battery-body"><span class="battery-fill" style="width:18%"></span></span><span class="battery-tip"></span><span class="ds-battery-v">18%</span></span></span></li>
-                                      <li class="field-option" role="option" aria-label="Robot 03 배터리 35%" data-floor="B4"><span class="field-option-name">Robot 03</span><span class="field-option-meta"><span class="battery ds-battery is-warning is-charging"><span class="battery-body"><span class="battery-fill" style="width:35%"></span><span class="i battery-bolt" style="--i:var(--ic-bolt)" aria-hidden="true"></span></span><span class="battery-tip"></span><span class="ds-battery-v">35%</span></span></span></li>
-                                      <li class="field-option" role="option" aria-selected="true" aria-label="Robot 04 배터리 92%" data-floor="B4"><span class="field-option-name">Robot 04</span><span class="field-option-meta"><span class="battery ds-battery"><span class="battery-body"><span class="battery-fill" style="width:92%"></span></span><span class="battery-tip"></span><span class="ds-battery-v">92%</span></span></span></li>
-                                      <li class="field-option" role="option" aria-disabled="true" aria-label="Robot 05 배터리 64% 수행 중" data-floor="B4"><span class="field-option-name">Robot 05</span><span class="field-option-meta"><span class="ds-badge is-plain is-info ds-i-play">수행 중</span><span class="battery ds-battery"><span class="battery-body"><span class="battery-fill" style="width:64%"></span></span><span class="battery-tip"></span><span class="ds-battery-v">64%</span></span></span></li>
-                                      <li class="field-option" role="option" aria-disabled="true" aria-label="Robot 06 배터리 8% 배터리 부족" data-floor="B4"><span class="field-option-name">Robot 06</span><span class="field-option-meta"><span class="battery ds-battery is-critical is-charging"><span class="battery-body"><span class="battery-fill" style="width:8%"></span><span class="i battery-bolt" style="--i:var(--ic-bolt)" aria-hidden="true"></span></span><span class="battery-tip"></span><span class="ds-battery-v">8%</span></span></span></li>
-                                      <li class="field-option" role="option" aria-label="Robot 07 배터리 96%" data-floor="B3"><span class="field-option-name">Robot 07</span><span class="field-option-meta"><span class="battery ds-battery is-charging"><span class="battery-body"><span class="battery-fill" style="width:96%"></span><span class="i battery-bolt" style="--i:var(--ic-bolt)" aria-hidden="true"></span></span><span class="battery-tip"></span><span class="ds-battery-v">96%</span></span></span></li>
-                                      <li class="field-option" role="option" aria-label="Robot 08 배터리 47%" data-floor="B3"><span class="field-option-name">Robot 08</span><span class="field-option-meta"><span class="battery ds-battery"><span class="battery-body"><span class="battery-fill" style="width:47%"></span></span><span class="battery-tip"></span><span class="ds-battery-v">47%</span></span></span></li>
-                                      <li class="field-option" role="option" aria-label="Robot 09 배터리 88%" data-floor="B4"><span class="field-option-name">Robot 09</span><span class="field-option-meta"><span class="battery ds-battery"><span class="battery-body"><span class="battery-fill" style="width:88%"></span></span><span class="battery-tip"></span><span class="ds-battery-v">88%</span></span></span></li>
-                                      <li class="field-option" role="option" aria-disabled="true" aria-label="Robot 10 배터리 29% 통신 끊김" data-floor="B3"><span class="field-option-name">Robot 10</span><span class="field-option-meta"><span class="ds-badge is-plain is-crit">끊김</span><span class="battery ds-battery is-warning"><span class="battery-body"><span class="battery-fill" style="width:29%"></span></span><span class="battery-tip"></span><span class="ds-battery-v">29%</span></span></span></li>
-                                      <li class="field-option" role="option" aria-disabled="true" aria-label="Robot 11 배터리 71% 수행 중" data-floor="B3"><span class="field-option-name">Robot 11</span><span class="field-option-meta"><span class="ds-badge is-plain is-info ds-i-play">수행 중</span><span class="battery ds-battery"><span class="battery-body"><span class="battery-fill" style="width:71%"></span></span><span class="battery-tip"></span><span class="ds-battery-v">71%</span></span></span></li>
-                                      <li class="field-option" role="option" aria-label="Robot 12 배터리 55%" data-floor="B3"><span class="field-option-name">Robot 12</span><span class="field-option-meta"><span class="battery ds-battery is-charging"><span class="battery-body"><span class="battery-fill" style="width:55%"></span><span class="i battery-bolt" style="--i:var(--ic-bolt)" aria-hidden="true"></span></span><span class="battery-tip"></span><span class="ds-battery-v">55%</span></span></span></li>
+                                      <li class="field-option" role="option" aria-disabled="true" aria-label="Robot 01 배터리 78% 수행 중" data-floor="B4"><span class="field-option-name" data-base="robot.r01">Robot 01</span><span class="field-option-meta"><span class="ds-badge is-plain is-info ds-i-play">수행 중</span><span class="battery ds-battery"><span class="battery-body"><span class="battery-fill" style="width:78%"></span></span><span class="battery-tip"></span><span class="ds-battery-v">78%</span></span></span></li>
+                                      <li class="field-option" role="option" aria-disabled="true" aria-label="Robot 02 배터리 18% 배터리 부족" data-floor="B4"><span class="field-option-name" data-base="robot.r02">Robot 02</span><span class="field-option-meta"><span class="battery ds-battery is-critical"><span class="battery-body"><span class="battery-fill" style="width:18%"></span></span><span class="battery-tip"></span><span class="ds-battery-v">18%</span></span></span></li>
+                                      <li class="field-option" role="option" aria-label="Robot 03 배터리 35%" data-floor="B4"><span class="field-option-name" data-base="robot.r03">Robot 03</span><span class="field-option-meta"><span class="battery ds-battery is-warning is-charging"><span class="battery-body"><span class="battery-fill" style="width:35%"></span><span class="i battery-bolt" style="--i:var(--ic-bolt)" aria-hidden="true"></span></span><span class="battery-tip"></span><span class="ds-battery-v">35%</span></span></span></li>
+                                      <li class="field-option" role="option" aria-selected="true" aria-label="Robot 04 배터리 92%" data-floor="B4"><span class="field-option-name" data-base="robot.r04">Robot 04</span><span class="field-option-meta"><span class="battery ds-battery"><span class="battery-body"><span class="battery-fill" style="width:92%"></span></span><span class="battery-tip"></span><span class="ds-battery-v">92%</span></span></span></li>
+                                      <li class="field-option" role="option" aria-disabled="true" aria-label="Robot 05 배터리 64% 수행 중" data-floor="B4"><span class="field-option-name" data-base="robot.r05">Robot 05</span><span class="field-option-meta"><span class="ds-badge is-plain is-info ds-i-play">수행 중</span><span class="battery ds-battery"><span class="battery-body"><span class="battery-fill" style="width:64%"></span></span><span class="battery-tip"></span><span class="ds-battery-v">64%</span></span></span></li>
+                                      <li class="field-option" role="option" aria-disabled="true" aria-label="Robot 06 배터리 8% 배터리 부족" data-floor="B4"><span class="field-option-name" data-base="robot.r06">Robot 06</span><span class="field-option-meta"><span class="battery ds-battery is-critical is-charging"><span class="battery-body"><span class="battery-fill" style="width:8%"></span><span class="i battery-bolt" style="--i:var(--ic-bolt)" aria-hidden="true"></span></span><span class="battery-tip"></span><span class="ds-battery-v">8%</span></span></span></li>
+                                      <li class="field-option" role="option" aria-label="Robot 07 배터리 96%" data-floor="B3"><span class="field-option-name" data-base="robot.r07">Robot 07</span><span class="field-option-meta"><span class="battery ds-battery is-charging"><span class="battery-body"><span class="battery-fill" style="width:96%"></span><span class="i battery-bolt" style="--i:var(--ic-bolt)" aria-hidden="true"></span></span><span class="battery-tip"></span><span class="ds-battery-v">96%</span></span></span></li>
+                                      <li class="field-option" role="option" aria-label="Robot 08 배터리 47%" data-floor="B3"><span class="field-option-name" data-base="robot.r08">Robot 08</span><span class="field-option-meta"><span class="battery ds-battery"><span class="battery-body"><span class="battery-fill" style="width:47%"></span></span><span class="battery-tip"></span><span class="ds-battery-v">47%</span></span></span></li>
+                                      <li class="field-option" role="option" aria-label="Robot 09 배터리 88%" data-floor="B4"><span class="field-option-name" data-base="robot.r09">Robot 09</span><span class="field-option-meta"><span class="battery ds-battery"><span class="battery-body"><span class="battery-fill" style="width:88%"></span></span><span class="battery-tip"></span><span class="ds-battery-v">88%</span></span></span></li>
+                                      <li class="field-option" role="option" aria-disabled="true" aria-label="Robot 10 배터리 29% 통신 끊김" data-floor="B3"><span class="field-option-name" data-base="robot.r10">Robot 10</span><span class="field-option-meta"><span class="ds-badge is-plain is-crit">끊김</span><span class="battery ds-battery is-warning"><span class="battery-body"><span class="battery-fill" style="width:29%"></span></span><span class="battery-tip"></span><span class="ds-battery-v">29%</span></span></span></li>
+                                      <li class="field-option" role="option" aria-disabled="true" aria-label="Robot 11 배터리 71% 수행 중" data-floor="B3"><span class="field-option-name" data-base="robot.r11">Robot 11</span><span class="field-option-meta"><span class="ds-badge is-plain is-info ds-i-play">수행 중</span><span class="battery ds-battery"><span class="battery-body"><span class="battery-fill" style="width:71%"></span></span><span class="battery-tip"></span><span class="ds-battery-v">71%</span></span></span></li>
+                                      <li class="field-option" role="option" aria-label="Robot 12 배터리 55%" data-floor="B3"><span class="field-option-name" data-base="robot.r12">Robot 12</span><span class="field-option-meta"><span class="battery ds-battery is-charging"><span class="battery-body"><span class="battery-fill" style="width:55%"></span><span class="i battery-bolt" style="--i:var(--ic-bolt)" aria-hidden="true"></span></span><span class="battery-tip"></span><span class="ds-battery-v">55%</span></span></span></li>
                                     </ul>
                                   </div>
                                 </div>
@@ -567,7 +568,7 @@
                             <div class="map-bot-tip ds-mappop" data-map-bot-tip hidden>
                               <div class="map-card-head ds-mappop-head">
                                 <span class="map-card-tag" data-map-bot-tag>로봇</span>
-                                <span class="map-card-name" data-map-bot-title>Robot 04</span>
+                                <span class="map-card-name" data-map-bot-title data-base="robot.r04">Robot 04</span>
                                 <button type="button" class="map-card-close" data-map-bot-close aria-label="닫기">
                                   <span class="i i-16" style="--i:var(--ic-close)" aria-hidden="true"></span>
                                 </button>
@@ -578,7 +579,7 @@
                               <span class="map-bot-halo" aria-hidden="true"></span>
                               <span class="map-bot-dot" aria-hidden="true"></span>
                             </button>
-                            <span class="map-bot-name" data-map-bot-name>Robot 04</span>
+                            <span class="map-bot-name" data-map-bot-name data-base="robot.r04">Robot 04</span>
                           </div>
                           
                           <div class="map-card ds-mappop" data-map-card hidden>
@@ -592,7 +593,7 @@
                             <dl class="map-card-rows">
                               <div><dt>상태</dt><dd data-map-card-state>정상</dd></div>
                               <div><dt>최근 점검</dt><dd data-map-card-seen>09:52</dd></div>
-                              <div><dt>담당 로봇</dt><dd data-map-card-robot>Robot 04</dd></div>
+                              <div><dt>담당 로봇</dt><dd data-map-card-robot data-base="robot.r04">Robot 04</dd></div>
                             </dl>
                           </div>
                         </div>
@@ -625,7 +626,7 @@
 
                       <button type="button" class="robot-card" data-robot="0" aria-pressed="true">
                         <span class="label">
-                          <span class="t-label-1 robot-id">Robot 01</span>
+                          <span class="t-label-1 robot-id" data-base="robot.r01">Robot 01</span>
                         </span>
                         <span class="robot-thumb is-walking" aria-hidden="true">
                           <svg class="robot-dog" viewBox="0 -3 85 85">
@@ -678,11 +679,11 @@
                         </span>
                         <span class="robot-lists">
                           <span class="robot-row">
-                            <span class="t-caption">Mission</span>
+                            <span class="t-caption">미션</span>
                             <span class="badge badge-info t-caption ds-badge is-plain is-info ds-i-play"><span class="badge-dot"></span>수행중</span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Battery</span>
+                            <span class="t-caption">배터리</span>
                             <span class="battery ds-battery">
                               <span class="battery-body"><span class="battery-fill" style="width:78%"></span></span>
                               <span class="battery-tip"></span>
@@ -690,10 +691,10 @@
                             </span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Signal</span>
+                            <span class="t-caption">신호</span>
                             <span class="battery ds-battery">
                               <span class="signal-bars" data-level="4"><i></i><i></i><i></i><i></i></span>
-                              <span class="t-caption">Strong</span>
+                              <span class="t-caption">강함</span>
                             </span>
                           </span>
                         </span>
@@ -701,18 +702,18 @@
 
                       <button type="button" class="robot-card" data-robot="1" aria-pressed="false">
                         <span class="label">
-                          <span class="t-label-1 robot-id">Robot 02</span>
+                          <span class="t-label-1 robot-id" data-base="robot.r02">Robot 02</span>
                         </span>
                         <span class="robot-thumb" aria-hidden="true">
                           <svg class="robot-dog is-idle" viewBox="0 0 95 58" aria-hidden="true"><use href="#rig-robot-idle"></use></svg>
                         </span>
                         <span class="robot-lists">
                           <span class="robot-row">
-                            <span class="t-caption">Mission</span>
+                            <span class="t-caption">미션</span>
                             <span class="badge badge-idle t-caption ds-badge is-plain is-neutral ds-i-clock"><span class="badge-dot"></span>대기</span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Battery</span>
+                            <span class="t-caption">배터리</span>
                             <span class="battery ds-battery is-critical is-charging">
                               <span class="battery-body">
                                 <span class="battery-fill" style="width:18%"></span>
@@ -723,10 +724,10 @@
                             </span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Signal</span>
+                            <span class="t-caption">신호</span>
                             <span class="battery ds-battery is-warning">
                               <span class="signal-bars" data-level="2"><i></i><i></i><i></i><i></i></span>
-                              <span class="t-caption">Weak</span>
+                              <span class="t-caption">약함</span>
                             </span>
                           </span>
                         </span>
@@ -734,18 +735,18 @@
 
                       <button type="button" class="robot-card" data-robot="2" aria-pressed="false">
                         <span class="label">
-                          <span class="t-label-1 robot-id">Robot 03</span>
+                          <span class="t-label-1 robot-id" data-base="robot.r03">Robot 03</span>
                         </span>
                         <span class="robot-thumb" aria-hidden="true">
                           <svg class="robot-dog is-idle" viewBox="0 0 95 58" aria-hidden="true"><use href="#rig-robot-idle"></use></svg>
                         </span>
                         <span class="robot-lists">
                           <span class="robot-row">
-                            <span class="t-caption">Mission</span>
+                            <span class="t-caption">미션</span>
                             <span class="badge badge-idle t-caption ds-badge is-plain is-neutral ds-i-clock"><span class="badge-dot"></span>대기</span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Battery</span>
+                            <span class="t-caption">배터리</span>
                             <span class="battery ds-battery is-warning is-charging">
                               <span class="battery-body">
                                 <span class="battery-fill" style="width:35%"></span>
@@ -756,10 +757,10 @@
                             </span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Signal</span>
+                            <span class="t-caption">신호</span>
                             <span class="battery ds-battery">
                               <span class="signal-bars" data-level="3"><i></i><i></i><i></i><i></i></span>
-                              <span class="t-caption">Good</span>
+                              <span class="t-caption">보통</span>
                             </span>
                           </span>
                         </span>
@@ -767,18 +768,18 @@
 
                       <button type="button" class="robot-card" data-robot="3" aria-pressed="false">
                         <span class="label">
-                          <span class="t-label-1 robot-id">Robot 04</span>
+                          <span class="t-label-1 robot-id" data-base="robot.r04">Robot 04</span>
                         </span>
                         <span class="robot-thumb" aria-hidden="true">
                           <svg class="robot-dog is-idle" viewBox="0 0 95 58" aria-hidden="true"><use href="#rig-robot-idle"></use></svg>
                         </span>
                         <span class="robot-lists">
                           <span class="robot-row">
-                            <span class="t-caption">Mission</span>
+                            <span class="t-caption">미션</span>
                             <span class="badge badge-normal t-caption ds-badge is-plain is-neutral ds-i-check"><span class="badge-dot"></span>완료</span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Battery</span>
+                            <span class="t-caption">배터리</span>
                             <span class="battery ds-battery">
                               <span class="battery-body">
                                 <span class="battery-fill" style="width:92%"></span>
@@ -788,10 +789,10 @@
                             </span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Signal</span>
+                            <span class="t-caption">신호</span>
                             <span class="battery ds-battery">
                               <span class="signal-bars" data-level="4"><i></i><i></i><i></i><i></i></span>
-                              <span class="t-caption">Strong</span>
+                              <span class="t-caption">강함</span>
                             </span>
                           </span>
                         </span>
@@ -799,18 +800,18 @@
 
                       <button type="button" class="robot-card" data-robot="4" aria-pressed="false">
                         <span class="label">
-                          <span class="t-label-1 robot-id">Robot 05</span>
+                          <span class="t-label-1 robot-id" data-base="robot.r05">Robot 05</span>
                         </span>
                         <span class="robot-thumb" aria-hidden="true">
                           <svg class="robot-dog is-idle" viewBox="0 0 95 58" aria-hidden="true"><use href="#rig-robot-idle"></use></svg>
                         </span>
                         <span class="robot-lists">
                           <span class="robot-row">
-                            <span class="t-caption">Mission</span>
+                            <span class="t-caption">미션</span>
                             <span class="badge badge-info t-caption ds-badge is-plain is-info ds-i-play"><span class="badge-dot"></span>수행중</span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Battery</span>
+                            <span class="t-caption">배터리</span>
                             <span class="battery ds-battery">
                               <span class="battery-body">
                                 <span class="battery-fill" style="width:64%"></span>
@@ -820,10 +821,10 @@
                             </span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Signal</span>
+                            <span class="t-caption">신호</span>
                             <span class="battery ds-battery">
                               <span class="signal-bars" data-level="3"><i></i><i></i><i></i><i></i></span>
-                              <span class="t-caption">Good</span>
+                              <span class="t-caption">보통</span>
                             </span>
                           </span>
                         </span>
@@ -831,18 +832,18 @@
 
                       <button type="button" class="robot-card" data-robot="5" aria-pressed="false">
                         <span class="label">
-                          <span class="t-label-1 robot-id">Robot 06</span>
+                          <span class="t-label-1 robot-id" data-base="robot.r06">Robot 06</span>
                         </span>
                         <span class="robot-thumb" aria-hidden="true">
                           <svg class="robot-dog is-idle" viewBox="0 0 95 58" aria-hidden="true"><use href="#rig-robot-idle"></use></svg>
                         </span>
                         <span class="robot-lists">
                           <span class="robot-row">
-                            <span class="t-caption">Mission</span>
+                            <span class="t-caption">미션</span>
                             <span class="badge badge-idle t-caption ds-badge is-plain is-neutral ds-i-clock"><span class="badge-dot"></span>대기</span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Battery</span>
+                            <span class="t-caption">배터리</span>
                             <span class="battery ds-battery is-critical is-charging">
                               <span class="battery-body">
                                 <span class="battery-fill" style="width:8%"></span>
@@ -853,10 +854,10 @@
                             </span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Signal</span>
+                            <span class="t-caption">신호</span>
                             <span class="battery ds-battery is-warning">
                               <span class="signal-bars" data-level="2"><i></i><i></i><i></i><i></i></span>
-                              <span class="t-caption">Weak</span>
+                              <span class="t-caption">약함</span>
                             </span>
                           </span>
                         </span>
@@ -864,18 +865,18 @@
 
                       <button type="button" class="robot-card" data-robot="6" aria-pressed="false">
                         <span class="label">
-                          <span class="t-label-1 robot-id">Robot 07</span>
+                          <span class="t-label-1 robot-id" data-base="robot.r07">Robot 07</span>
                         </span>
                         <span class="robot-thumb" aria-hidden="true">
                           <svg class="robot-dog is-idle" viewBox="0 0 95 58" aria-hidden="true"><use href="#rig-robot-idle"></use></svg>
                         </span>
                         <span class="robot-lists">
                           <span class="robot-row">
-                            <span class="t-caption">Mission</span>
+                            <span class="t-caption">미션</span>
                             <span class="badge badge-normal t-caption ds-badge is-plain is-neutral ds-i-check"><span class="badge-dot"></span>완료</span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Battery</span>
+                            <span class="t-caption">배터리</span>
                             <span class="battery ds-battery is-charging">
                               <span class="battery-body">
                                 <span class="battery-fill" style="width:96%"></span>
@@ -886,10 +887,10 @@
                             </span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Signal</span>
+                            <span class="t-caption">신호</span>
                             <span class="battery ds-battery">
                               <span class="signal-bars" data-level="4"><i></i><i></i><i></i><i></i></span>
-                              <span class="t-caption">Strong</span>
+                              <span class="t-caption">강함</span>
                             </span>
                           </span>
                         </span>
@@ -897,18 +898,18 @@
 
                       <button type="button" class="robot-card" data-robot="7" aria-pressed="false">
                         <span class="label">
-                          <span class="t-label-1 robot-id">Robot 08</span>
+                          <span class="t-label-1 robot-id" data-base="robot.r08">Robot 08</span>
                         </span>
                         <span class="robot-thumb" aria-hidden="true">
                           <svg class="robot-dog is-idle" viewBox="0 0 95 58" aria-hidden="true"><use href="#rig-robot-idle"></use></svg>
                         </span>
                         <span class="robot-lists">
                           <span class="robot-row">
-                            <span class="t-caption">Mission</span>
+                            <span class="t-caption">미션</span>
                             <span class="badge badge-idle t-caption ds-badge is-plain is-neutral ds-i-clock"><span class="badge-dot"></span>대기</span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Battery</span>
+                            <span class="t-caption">배터리</span>
                             <span class="battery ds-battery">
                               <span class="battery-body">
                                 <span class="battery-fill" style="width:47%"></span>
@@ -918,10 +919,10 @@
                             </span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Signal</span>
+                            <span class="t-caption">신호</span>
                             <span class="battery ds-battery">
                               <span class="signal-bars" data-level="3"><i></i><i></i><i></i><i></i></span>
-                              <span class="t-caption">Good</span>
+                              <span class="t-caption">보통</span>
                             </span>
                           </span>
                         </span>
@@ -929,18 +930,18 @@
 
                       <button type="button" class="robot-card" data-robot="8" aria-pressed="false">
                         <span class="label">
-                          <span class="t-label-1 robot-id">Robot 09</span>
+                          <span class="t-label-1 robot-id" data-base="robot.r09">Robot 09</span>
                         </span>
                         <span class="robot-thumb" aria-hidden="true">
                           <svg class="robot-dog is-idle" viewBox="0 0 95 58" aria-hidden="true"><use href="#rig-robot-idle"></use></svg>
                         </span>
                         <span class="robot-lists">
                           <span class="robot-row">
-                            <span class="t-caption">Mission</span>
+                            <span class="t-caption">미션</span>
                             <span class="badge badge-normal t-caption ds-badge is-plain is-neutral ds-i-check"><span class="badge-dot"></span>완료</span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Battery</span>
+                            <span class="t-caption">배터리</span>
                             <span class="battery ds-battery">
                               <span class="battery-body">
                                 <span class="battery-fill" style="width:88%"></span>
@@ -950,10 +951,10 @@
                             </span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Signal</span>
+                            <span class="t-caption">신호</span>
                             <span class="battery ds-battery">
                               <span class="signal-bars" data-level="4"><i></i><i></i><i></i><i></i></span>
-                              <span class="t-caption">Strong</span>
+                              <span class="t-caption">강함</span>
                             </span>
                           </span>
                         </span>
@@ -961,18 +962,18 @@
 
                       <button type="button" class="robot-card is-offline" data-robot="9" aria-pressed="false" data-robot-offline aria-disabled="true">
                         <span class="label">
-                          <span class="t-label-1 robot-id">Robot 10</span>
+                          <span class="t-label-1 robot-id" data-base="robot.r10">Robot 10</span>
                         </span>
                         <span class="robot-thumb" aria-hidden="true">
                           <svg class="robot-dog is-idle" viewBox="0 0 95 58" aria-hidden="true"><use href="#rig-robot-idle"></use></svg>
                         </span>
                         <span class="robot-lists">
                           <span class="robot-row">
-                            <span class="t-caption">Mission</span>
+                            <span class="t-caption">미션</span>
                             <span class="badge badge-danger t-caption ds-badge is-plain is-crit ds-i-power"><span class="badge-dot"></span>끊김</span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Battery</span>
+                            <span class="t-caption">배터리</span>
                             <span class="battery ds-battery is-warning">
                               <span class="battery-body">
                                 <span class="battery-fill" style="width:29%"></span>
@@ -982,7 +983,7 @@
                             </span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Signal</span>
+                            <span class="t-caption">신호</span>
                             <span class="battery ds-battery is-warning">
                               <span class="signal-bars" data-level="0"><i></i><i></i><i></i><i></i></span>
                               <span class="t-caption">끊김</span>
@@ -993,18 +994,18 @@
 
                       <button type="button" class="robot-card" data-robot="10" aria-pressed="false">
                         <span class="label">
-                          <span class="t-label-1 robot-id">Robot 11</span>
+                          <span class="t-label-1 robot-id" data-base="robot.r11">Robot 11</span>
                         </span>
                         <span class="robot-thumb" aria-hidden="true">
                           <svg class="robot-dog is-idle" viewBox="0 0 95 58" aria-hidden="true"><use href="#rig-robot-idle"></use></svg>
                         </span>
                         <span class="robot-lists">
                           <span class="robot-row">
-                            <span class="t-caption">Mission</span>
+                            <span class="t-caption">미션</span>
                             <span class="badge badge-info t-caption ds-badge is-plain is-info ds-i-play"><span class="badge-dot"></span>수행중</span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Battery</span>
+                            <span class="t-caption">배터리</span>
                             <span class="battery ds-battery">
                               <span class="battery-body">
                                 <span class="battery-fill" style="width:71%"></span>
@@ -1014,10 +1015,10 @@
                             </span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Signal</span>
+                            <span class="t-caption">신호</span>
                             <span class="battery ds-battery">
                               <span class="signal-bars" data-level="4"><i></i><i></i><i></i><i></i></span>
-                              <span class="t-caption">Strong</span>
+                              <span class="t-caption">강함</span>
                             </span>
                           </span>
                         </span>
@@ -1025,18 +1026,18 @@
 
                       <button type="button" class="robot-card" data-robot="11" aria-pressed="false">
                         <span class="label">
-                          <span class="t-label-1 robot-id">Robot 12</span>
+                          <span class="t-label-1 robot-id" data-base="robot.r12">Robot 12</span>
                         </span>
                         <span class="robot-thumb" aria-hidden="true">
                           <svg class="robot-dog is-idle" viewBox="0 0 95 58" aria-hidden="true"><use href="#rig-robot-idle"></use></svg>
                         </span>
                         <span class="robot-lists">
                           <span class="robot-row">
-                            <span class="t-caption">Mission</span>
+                            <span class="t-caption">미션</span>
                             <span class="badge badge-idle t-caption ds-badge is-plain is-neutral ds-i-clock"><span class="badge-dot"></span>대기</span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Battery</span>
+                            <span class="t-caption">배터리</span>
                             <span class="battery ds-battery is-charging">
                               <span class="battery-body">
                                 <span class="battery-fill" style="width:55%"></span>
@@ -1047,10 +1048,10 @@
                             </span>
                           </span>
                           <span class="robot-row">
-                            <span class="t-caption">Signal</span>
+                            <span class="t-caption">신호</span>
                             <span class="battery ds-battery">
                               <span class="signal-bars" data-level="3"><i></i><i></i><i></i><i></i></span>
-                              <span class="t-caption">Good</span>
+                              <span class="t-caption">보통</span>
                             </span>
                           </span>
                         </span>
@@ -1106,7 +1107,7 @@
 
                           <div class="rd-head">
                             <div class="rd-titles">
-                              <p class="t-title-1 rd-name" id="rd-name" data-rd-name>Robot 00</p>
+                              <p class="t-title-1 rd-name" id="rd-name" data-rd-name data-base="robot.r00">Robot 00</p>
                               <p class="t-caption rd-where">
                                 <span class="i i-16" style="--i:var(--ic-map-pin)" aria-hidden="true"></span>
                                 <span data-rd-where></span>
@@ -1166,7 +1167,7 @@
 
     <div class="modal-head">
       <div class="modal-titles">
-        <h2 class="t-heading-3" id="m-estop-title"><span data-modal-robot>Robot 01</span><span data-modal-particle>을</span> 중지하시겠습니까?</h2>
+        <h2 class="t-heading-3" id="m-estop-title"><span data-modal-robot data-base="robot.r01">Robot 01</span><span data-modal-particle>을</span> 중지하시겠습니까?</h2>
       </div>
       <button type="button" class="icon-button modal-close" data-modal-dismiss aria-label="닫기">
         <span class="i i-16" style="--i:var(--ic-close)" aria-hidden="true"></span>
@@ -1234,18 +1235,18 @@
 
           <button type="button" class="robot-card ds-robot-tile" data-robot-pick="0" aria-pressed="true">
             <span class="label">
-              <span class="t-label-1 robot-id">Robot 01</span>
+              <span class="t-label-1 robot-id" data-base="robot.r01">Robot 01</span>
             </span>
             <span class="robot-thumb" aria-hidden="true">
               <svg class="robot-dog is-idle" viewBox="0 0 95 58" aria-hidden="true"><use href="#rig-robot-idle"></use></svg>
             </span>
             <span class="robot-lists">
               <span class="robot-row">
-                <span class="t-caption">Mission</span>
+                <span class="t-caption">미션</span>
                 <span class="badge badge-info t-caption ds-badge is-plain is-info ds-i-play"><span class="badge-dot"></span>수행중</span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Battery</span>
+                <span class="t-caption">배터리</span>
                 <span class="battery ds-battery">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:78%"></span>
@@ -1255,10 +1256,10 @@
                 </span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Signal</span>
+                <span class="t-caption">신호</span>
                 <span class="battery ds-battery">
                   <span class="signal-bars" data-level="4"><i></i><i></i><i></i><i></i></span>
-                  <span class="t-caption">Strong</span>
+                  <span class="t-caption">강함</span>
                 </span>
               </span>
             </span>
@@ -1266,18 +1267,18 @@
 
           <button type="button" class="robot-card ds-robot-tile" data-robot-pick="1" aria-pressed="false">
             <span class="label">
-              <span class="t-label-1 robot-id">Robot 02</span>
+              <span class="t-label-1 robot-id" data-base="robot.r02">Robot 02</span>
             </span>
             <span class="robot-thumb" aria-hidden="true">
               <svg class="robot-dog is-idle" viewBox="0 0 95 58" aria-hidden="true"><use href="#rig-robot-idle"></use></svg>
             </span>
             <span class="robot-lists">
               <span class="robot-row">
-                <span class="t-caption">Mission</span>
+                <span class="t-caption">미션</span>
                 <span class="badge badge-idle t-caption ds-badge is-plain is-neutral ds-i-clock"><span class="badge-dot"></span>대기</span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Battery</span>
+                <span class="t-caption">배터리</span>
                 <span class="battery ds-battery is-critical is-charging">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:18%"></span>
@@ -1288,10 +1289,10 @@
                 </span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Signal</span>
+                <span class="t-caption">신호</span>
                 <span class="battery ds-battery is-warning">
                   <span class="signal-bars" data-level="2"><i></i><i></i><i></i><i></i></span>
-                  <span class="t-caption">Weak</span>
+                  <span class="t-caption">약함</span>
                 </span>
               </span>
             </span>
@@ -1299,18 +1300,18 @@
 
           <button type="button" class="robot-card ds-robot-tile" data-robot-pick="2" aria-pressed="false">
             <span class="label">
-              <span class="t-label-1 robot-id">Robot 03</span>
+              <span class="t-label-1 robot-id" data-base="robot.r03">Robot 03</span>
             </span>
             <span class="robot-thumb" aria-hidden="true">
               <svg class="robot-dog is-idle" viewBox="0 0 95 58" aria-hidden="true"><use href="#rig-robot-idle"></use></svg>
             </span>
             <span class="robot-lists">
               <span class="robot-row">
-                <span class="t-caption">Mission</span>
+                <span class="t-caption">미션</span>
                 <span class="badge badge-idle t-caption ds-badge is-plain is-neutral ds-i-clock"><span class="badge-dot"></span>대기</span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Battery</span>
+                <span class="t-caption">배터리</span>
                 <span class="battery ds-battery is-warning is-charging">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:35%"></span>
@@ -1321,10 +1322,10 @@
                 </span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Signal</span>
+                <span class="t-caption">신호</span>
                 <span class="battery ds-battery">
                   <span class="signal-bars" data-level="3"><i></i><i></i><i></i><i></i></span>
-                  <span class="t-caption">Good</span>
+                  <span class="t-caption">보통</span>
                 </span>
               </span>
             </span>
@@ -1332,18 +1333,18 @@
 
           <button type="button" class="robot-card ds-robot-tile" data-robot-pick="3" aria-pressed="false">
             <span class="label">
-              <span class="t-label-1 robot-id">Robot 04</span>
+              <span class="t-label-1 robot-id" data-base="robot.r04">Robot 04</span>
             </span>
             <span class="robot-thumb" aria-hidden="true">
               <svg class="robot-dog is-idle" viewBox="0 0 95 58" aria-hidden="true"><use href="#rig-robot-idle"></use></svg>
             </span>
             <span class="robot-lists">
               <span class="robot-row">
-                <span class="t-caption">Mission</span>
+                <span class="t-caption">미션</span>
                 <span class="badge badge-normal t-caption ds-badge is-plain is-neutral ds-i-check"><span class="badge-dot"></span>완료</span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Battery</span>
+                <span class="t-caption">배터리</span>
                 <span class="battery ds-battery">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:92%"></span>
@@ -1353,10 +1354,10 @@
                 </span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Signal</span>
+                <span class="t-caption">신호</span>
                 <span class="battery ds-battery">
                   <span class="signal-bars" data-level="4"><i></i><i></i><i></i><i></i></span>
-                  <span class="t-caption">Strong</span>
+                  <span class="t-caption">강함</span>
                 </span>
               </span>
             </span>
@@ -1364,18 +1365,18 @@
 
           <button type="button" class="robot-card ds-robot-tile" data-robot-pick="4" aria-pressed="false">
             <span class="label">
-              <span class="t-label-1 robot-id">Robot 05</span>
+              <span class="t-label-1 robot-id" data-base="robot.r05">Robot 05</span>
             </span>
             <span class="robot-thumb" aria-hidden="true">
               <svg class="robot-dog is-idle" viewBox="0 0 95 58" aria-hidden="true"><use href="#rig-robot-idle"></use></svg>
             </span>
             <span class="robot-lists">
               <span class="robot-row">
-                <span class="t-caption">Mission</span>
+                <span class="t-caption">미션</span>
                 <span class="badge badge-info t-caption ds-badge is-plain is-info ds-i-play"><span class="badge-dot"></span>수행중</span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Battery</span>
+                <span class="t-caption">배터리</span>
                 <span class="battery ds-battery">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:64%"></span>
@@ -1385,10 +1386,10 @@
                 </span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Signal</span>
+                <span class="t-caption">신호</span>
                 <span class="battery ds-battery">
                   <span class="signal-bars" data-level="3"><i></i><i></i><i></i><i></i></span>
-                  <span class="t-caption">Good</span>
+                  <span class="t-caption">보통</span>
                 </span>
               </span>
             </span>
@@ -1396,18 +1397,18 @@
 
           <button type="button" class="robot-card ds-robot-tile" data-robot-pick="5" aria-pressed="false">
             <span class="label">
-              <span class="t-label-1 robot-id">Robot 06</span>
+              <span class="t-label-1 robot-id" data-base="robot.r06">Robot 06</span>
             </span>
             <span class="robot-thumb" aria-hidden="true">
               <svg class="robot-dog is-idle" viewBox="0 0 95 58" aria-hidden="true"><use href="#rig-robot-idle"></use></svg>
             </span>
             <span class="robot-lists">
               <span class="robot-row">
-                <span class="t-caption">Mission</span>
+                <span class="t-caption">미션</span>
                 <span class="badge badge-idle t-caption ds-badge is-plain is-neutral ds-i-clock"><span class="badge-dot"></span>대기</span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Battery</span>
+                <span class="t-caption">배터리</span>
                 <span class="battery ds-battery is-critical is-charging">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:8%"></span>
@@ -1418,10 +1419,10 @@
                 </span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Signal</span>
+                <span class="t-caption">신호</span>
                 <span class="battery ds-battery is-warning">
                   <span class="signal-bars" data-level="2"><i></i><i></i><i></i><i></i></span>
-                  <span class="t-caption">Weak</span>
+                  <span class="t-caption">약함</span>
                 </span>
               </span>
             </span>
@@ -1429,18 +1430,18 @@
 
           <button type="button" class="robot-card ds-robot-tile" data-robot-pick="6" aria-pressed="false">
             <span class="label">
-              <span class="t-label-1 robot-id">Robot 07</span>
+              <span class="t-label-1 robot-id" data-base="robot.r07">Robot 07</span>
             </span>
             <span class="robot-thumb" aria-hidden="true">
               <svg class="robot-dog is-idle" viewBox="0 0 95 58" aria-hidden="true"><use href="#rig-robot-idle"></use></svg>
             </span>
             <span class="robot-lists">
               <span class="robot-row">
-                <span class="t-caption">Mission</span>
+                <span class="t-caption">미션</span>
                 <span class="badge badge-normal t-caption ds-badge is-plain is-neutral ds-i-check"><span class="badge-dot"></span>완료</span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Battery</span>
+                <span class="t-caption">배터리</span>
                 <span class="battery ds-battery is-charging">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:96%"></span>
@@ -1451,10 +1452,10 @@
                 </span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Signal</span>
+                <span class="t-caption">신호</span>
                 <span class="battery ds-battery">
                   <span class="signal-bars" data-level="4"><i></i><i></i><i></i><i></i></span>
-                  <span class="t-caption">Strong</span>
+                  <span class="t-caption">강함</span>
                 </span>
               </span>
             </span>
@@ -1462,18 +1463,18 @@
 
           <button type="button" class="robot-card ds-robot-tile" data-robot-pick="7" aria-pressed="false">
             <span class="label">
-              <span class="t-label-1 robot-id">Robot 08</span>
+              <span class="t-label-1 robot-id" data-base="robot.r08">Robot 08</span>
             </span>
             <span class="robot-thumb" aria-hidden="true">
               <svg class="robot-dog is-idle" viewBox="0 0 95 58" aria-hidden="true"><use href="#rig-robot-idle"></use></svg>
             </span>
             <span class="robot-lists">
               <span class="robot-row">
-                <span class="t-caption">Mission</span>
+                <span class="t-caption">미션</span>
                 <span class="badge badge-idle t-caption ds-badge is-plain is-neutral ds-i-clock"><span class="badge-dot"></span>대기</span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Battery</span>
+                <span class="t-caption">배터리</span>
                 <span class="battery ds-battery">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:47%"></span>
@@ -1483,10 +1484,10 @@
                 </span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Signal</span>
+                <span class="t-caption">신호</span>
                 <span class="battery ds-battery">
                   <span class="signal-bars" data-level="3"><i></i><i></i><i></i><i></i></span>
-                  <span class="t-caption">Good</span>
+                  <span class="t-caption">보통</span>
                 </span>
               </span>
             </span>
@@ -1494,18 +1495,18 @@
 
           <button type="button" class="robot-card ds-robot-tile" data-robot-pick="8" aria-pressed="false">
             <span class="label">
-              <span class="t-label-1 robot-id">Robot 09</span>
+              <span class="t-label-1 robot-id" data-base="robot.r09">Robot 09</span>
             </span>
             <span class="robot-thumb" aria-hidden="true">
               <svg class="robot-dog is-idle" viewBox="0 0 95 58" aria-hidden="true"><use href="#rig-robot-idle"></use></svg>
             </span>
             <span class="robot-lists">
               <span class="robot-row">
-                <span class="t-caption">Mission</span>
+                <span class="t-caption">미션</span>
                 <span class="badge badge-normal t-caption ds-badge is-plain is-neutral ds-i-check"><span class="badge-dot"></span>완료</span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Battery</span>
+                <span class="t-caption">배터리</span>
                 <span class="battery ds-battery">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:88%"></span>
@@ -1515,10 +1516,10 @@
                 </span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Signal</span>
+                <span class="t-caption">신호</span>
                 <span class="battery ds-battery">
                   <span class="signal-bars" data-level="4"><i></i><i></i><i></i><i></i></span>
-                  <span class="t-caption">Strong</span>
+                  <span class="t-caption">강함</span>
                 </span>
               </span>
             </span>
@@ -1526,18 +1527,18 @@
 
           <button type="button" class="robot-card ds-robot-tile is-offline" data-robot-pick="9" aria-pressed="false" data-robot-offline aria-disabled="true">
             <span class="label">
-              <span class="t-label-1 robot-id">Robot 10</span>
+              <span class="t-label-1 robot-id" data-base="robot.r10">Robot 10</span>
             </span>
             <span class="robot-thumb" aria-hidden="true">
               <svg class="robot-dog is-idle" viewBox="0 0 95 58" aria-hidden="true"><use href="#rig-robot-idle"></use></svg>
             </span>
             <span class="robot-lists">
               <span class="robot-row">
-                <span class="t-caption">Mission</span>
+                <span class="t-caption">미션</span>
                 <span class="badge badge-danger t-caption ds-badge is-plain is-crit ds-i-power"><span class="badge-dot"></span>끊김</span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Battery</span>
+                <span class="t-caption">배터리</span>
                 <span class="battery ds-battery is-warning">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:29%"></span>
@@ -1547,7 +1548,7 @@
                 </span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Signal</span>
+                <span class="t-caption">신호</span>
                 <span class="battery ds-battery is-warning">
                   <span class="signal-bars" data-level="0"><i></i><i></i><i></i><i></i></span>
                   <span class="t-caption">끊김</span>
@@ -1558,18 +1559,18 @@
 
           <button type="button" class="robot-card ds-robot-tile" data-robot-pick="10" aria-pressed="false">
             <span class="label">
-              <span class="t-label-1 robot-id">Robot 11</span>
+              <span class="t-label-1 robot-id" data-base="robot.r11">Robot 11</span>
             </span>
             <span class="robot-thumb" aria-hidden="true">
               <svg class="robot-dog is-idle" viewBox="0 0 95 58" aria-hidden="true"><use href="#rig-robot-idle"></use></svg>
             </span>
             <span class="robot-lists">
               <span class="robot-row">
-                <span class="t-caption">Mission</span>
+                <span class="t-caption">미션</span>
                 <span class="badge badge-info t-caption ds-badge is-plain is-info ds-i-play"><span class="badge-dot"></span>수행중</span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Battery</span>
+                <span class="t-caption">배터리</span>
                 <span class="battery ds-battery">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:71%"></span>
@@ -1579,10 +1580,10 @@
                 </span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Signal</span>
+                <span class="t-caption">신호</span>
                 <span class="battery ds-battery">
                   <span class="signal-bars" data-level="4"><i></i><i></i><i></i><i></i></span>
-                  <span class="t-caption">Strong</span>
+                  <span class="t-caption">강함</span>
                 </span>
               </span>
             </span>
@@ -1590,18 +1591,18 @@
 
           <button type="button" class="robot-card ds-robot-tile" data-robot-pick="11" aria-pressed="false">
             <span class="label">
-              <span class="t-label-1 robot-id">Robot 12</span>
+              <span class="t-label-1 robot-id" data-base="robot.r12">Robot 12</span>
             </span>
             <span class="robot-thumb" aria-hidden="true">
               <svg class="robot-dog is-idle" viewBox="0 0 95 58" aria-hidden="true"><use href="#rig-robot-idle"></use></svg>
             </span>
             <span class="robot-lists">
               <span class="robot-row">
-                <span class="t-caption">Mission</span>
+                <span class="t-caption">미션</span>
                 <span class="badge badge-idle t-caption ds-badge is-plain is-neutral ds-i-clock"><span class="badge-dot"></span>대기</span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Battery</span>
+                <span class="t-caption">배터리</span>
                 <span class="battery ds-battery is-charging">
                   <span class="battery-body">
                     <span class="battery-fill" style="width:55%"></span>
@@ -1612,10 +1613,10 @@
                 </span>
               </span>
               <span class="robot-row">
-                <span class="t-caption">Signal</span>
+                <span class="t-caption">신호</span>
                 <span class="battery ds-battery">
                   <span class="signal-bars" data-level="3"><i></i><i></i><i></i><i></i></span>
-                  <span class="t-caption">Good</span>
+                  <span class="t-caption">보통</span>
                 </span>
               </span>
             </span>
@@ -1633,19 +1634,19 @@
   </div>
 </div>
 
-<script src="../assets/js/theme.js?v=52be0b2d"></script>
-<script src="../assets/js/prism-orb.js?v=1f3a1fc8"></script>
-<script src="../assets/js/screen.js?v=b23a3b17"></script>
-<script src="../assets/js/map-model.js?v=34aadd3f"></script>
+<script src="../assets/js/theme.js?v=98dea82f"></script>
+<script src="../assets/js/prism-orb.js?v=e971162a"></script>
+<script src="../assets/js/screen.js?v=9451245e"></script>
+<script src="../assets/js/map-model.js?v=98d68a22"></script>
 
-<script src="../assets/js/map-fx-v6.js?v=a38a3483"></script>
-<script src="../assets/js/map-v6.js?v=c8efb89f"></script>
-<script src="../assets/js/count-up-v7.js?v=f178217c"></script>
-<script src="../assets/js/robot-spot.js?v=5772acc1"></script>
-<script src="../assets/js/sian.js?v=74632ac0"></script>
+<script src="../assets/js/map-fx-v6.js?v=a4967105"></script>
+<script src="../assets/js/map-v6.js?v=f7e948f5"></script>
+<script src="../assets/js/count-up-v7.js?v=e1640692"></script>
+<script src="../assets/js/robot-spot.js?v=ac755b2c"></script>
+<script src="../assets/js/sian.js?v=26a83ca3"></script>
 
-<script src="../assets/js/mission-setup.js?v=5e8516d2"></script>
-<script src="../assets/js/grid-overlay.js?v=11492724"></script>
-<script src="../assets/js/setup-tabs-v6.js?v=b212f59a"></script>
+<script src="../assets/js/mission-setup.js?v=0a7dd2e2"></script>
+<script src="../assets/js/grid-overlay.js?v=e7506005"></script>
+<script src="../assets/js/setup-tabs-v6.js?v=7b200552"></script>
 </body>
 </html>

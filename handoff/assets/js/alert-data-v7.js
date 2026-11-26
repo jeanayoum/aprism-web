@@ -4,7 +4,7 @@
     id: "A-1",
     slot: "CRITICAL.0",
     sev: "critical",
-    mission: "정기 순회 점검",
+    mission: window.APRISM_MISSION ? APRISM_MISSION("m1") : "정기 순회 점검",
     robot: 0,
     floor: "B4",
     wp: "WP-04",
@@ -54,7 +54,7 @@
     id: "A-4",
     slot: "WARNINGS.0",
     sev: "warning",
-    mission: "정기 순회 점검",
+    mission: window.APRISM_MISSION ? APRISM_MISSION("m1") : "정기 순회 점검",
     robot: 0,
     floor: "B4",
     wp: "WP-03",
@@ -94,7 +94,7 @@
     id: "A-9",
     slot: "WARNINGS.1",
     sev: "warning",
-    mission: "발전기실 설비 점검",
+    mission: window.APRISM_MISSION ? APRISM_MISSION("m2") : "발전기실 설비 점검",
     robot: 4,
     floor: "B3",
     wp: "WP-06",
@@ -107,7 +107,7 @@
     uv: [ 0.62, 0.22 ],
     monitor: {
       live: "discharge",
-      where: "Robot 05 · WP-06 수배전반",
+      where: (window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + " · WP-06 수배전반",
       title: "부분방전 · 이상 점수 9.41",
       sum: "이상 점수 9.41 로 임계 9.23 을 넘었어요. PRPD 패턴이 코로나 방전 유형과 일치해요.",
       lead: "재진단을 예약해 PRPD 패턴을 다시 확인하세요.",
@@ -133,7 +133,7 @@
     id: "A-10",
     slot: "WARNINGS.2",
     sev: "warning",
-    mission: "발전기실 설비 점검",
+    mission: window.APRISM_MISSION ? APRISM_MISSION("m2") : "발전기실 설비 점검",
     robot: 4,
     floor: "B3",
     wp: "WP-12",
@@ -146,7 +146,7 @@
     uv: [ 0.64, 0.46 ],
     monitor: {
       live: "discharge",
-      where: "Robot 05 · WP-12 냉각 펌프 P-2",
+      where: (window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + " · WP-12 냉각 펌프 P-2",
       title: "이상음향 · 이상 점수 21.6",
       sum: "이상 점수 21.6 으로 기준 19.0 을 넘었어요. 저주파 대역 에너지가 늘어 베어링 마모 패턴과 비슷해요.",
       lead: "진동 정밀 측정을 요청하세요.",
@@ -172,7 +172,7 @@
     id: "A-8",
     slot: "WARNINGS.3",
     sev: "warning",
-    mission: "발전기실 설비 점검",
+    mission: window.APRISM_MISSION ? APRISM_MISSION("m2") : "발전기실 설비 점검",
     robot: 4,
     floor: "B3",
     wp: "WP-02",
@@ -185,7 +185,7 @@
     uv: [ 0.56, 0.24 ],
     monitor: {
       live: "ppe",
-      where: "Robot 05 · WP-02 발전기 베어링",
+      where: (window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + " · WP-02 발전기 베어링",
       title: "과열 · 발전기 베어링 68.4℃",
       sum: "베어링 표면 온도 68.4℃ 로 주의 기준 65℃ 를 넘었어요. 주변 온도보다 31℃ 높아요.",
       lead: "윤활 상태 점검을 요청하세요.",
@@ -211,7 +211,7 @@
     id: "A-11",
     slot: "WARNINGS.4",
     sev: "warning",
-    mission: "발전기실 설비 점검",
+    mission: window.APRISM_MISSION ? APRISM_MISSION("m2") : "발전기실 설비 점검",
     robot: 4,
     floor: "B4",
     wp: "WP-13",
@@ -224,7 +224,7 @@
     uv: [ 0.5, 0.74 ],
     monitor: {
       live: "discharge",
-      where: "Robot 05 · WP-13 공기 압축기 C-1",
+      where: (window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + " · WP-13 공기 압축기 C-1",
       title: "압력 편차 · 공기 압축기 C-1",
       sum: "토출 압력 7.9 bar 로 정상 범위(8.2~8.8) 아래예요. 흡입 필터가 막혔을 가능성이 있어요.",
       lead: "흡입 필터 점검을 요청하세요.",
@@ -250,7 +250,7 @@
     id: "A-5",
     slot: "R01_MORE.0",
     sev: "warning",
-    mission: "정기 순회 점검",
+    mission: window.APRISM_MISSION ? APRISM_MISSION("m1") : "정기 순회 점검",
     robot: 0,
     floor: "B4",
     wp: "WP-05",
@@ -287,7 +287,7 @@
     id: "A-6",
     slot: "R01_MORE.1",
     sev: "warning",
-    mission: "정기 순회 점검",
+    mission: window.APRISM_MISSION ? APRISM_MISSION("m1") : "정기 순회 점검",
     robot: 0,
     floor: "B4",
     wp: "WP-05",
@@ -327,7 +327,7 @@
     id: "A-7",
     slot: "R01_MORE.2",
     sev: "warning",
-    mission: "정기 순회 점검",
+    mission: window.APRISM_MISSION ? APRISM_MISSION("m1") : "정기 순회 점검",
     robot: 0,
     floor: "B4",
     wp: "WP-06",
@@ -365,7 +365,7 @@
     id: "A-2",
     slot: "R01_MORE.3",
     sev: "critical",
-    mission: "정기 순회 점검",
+    mission: window.APRISM_MISSION ? APRISM_MISSION("m1") : "정기 순회 점검",
     robot: 0,
     floor: "B4",
     wp: "WP-07",
@@ -414,7 +414,7 @@
     id: "A-3",
     slot: "ROUTE_ALERTS.0",
     sev: "critical",
-    mission: "전기실 열화상 점검",
+    mission: window.APRISM_MISSION ? APRISM_MISSION("m3") : "전기실 열화상 점검",
     robot: 10,
     floor: "B3",
     wp: "WP-02",
@@ -427,7 +427,7 @@
     uv: [ 0.6, 0.5 ],
     monitor: {
       live: "ppe",
-      where: "Robot 11 · WP-02 HEPA Filter 차압계",
+      where: (window.APRISM_ROBOT ? APRISM_ROBOT("r11") : "Robot 11") + " · WP-02 HEPA Filter 차압계",
       title: "차압 NG · HEPA Filter 차압계",
       sum: "차압 312 Pa 로 교체 기준 250 Pa 를 넘었어요. 최근 3회 측정이 잇달아 올라 NG 로 판정했어요.",
       lead: "필터 교체와 현장 점검을 요청하세요.",
@@ -464,7 +464,7 @@
     id: "A-12",
     slot: "ROUTE_ALERTS.1",
     sev: "warning",
-    mission: "전기실 열화상 점검",
+    mission: window.APRISM_MISSION ? APRISM_MISSION("m3") : "전기실 열화상 점검",
     robot: 10,
     floor: "B3",
     wp: "WP-04",
@@ -477,7 +477,7 @@
     uv: [ 0.7, 0.64 ],
     monitor: {
       live: "discharge",
-      where: "Robot 11 · WP-04 N₂ 배관 압력계",
+      where: (window.APRISM_ROBOT ? APRISM_ROBOT("r11") : "Robot 11") + " · WP-04 N₂ 배관 압력계",
       title: "압력 편차 · N₂ 배관 압력계",
       sum: "압력 0.62 MPa 로 정상 범위(0.65~0.75) 아래예요. 최근 2회 측정에서 조금씩 내려가고 있어요.",
       lead: "배관 연결부 누설 점검을 요청하세요.",
@@ -505,7 +505,10 @@
     return JSON.parse(JSON.stringify(o));
   }
   function robotName(i) {
-    return "Robot " + (i < 9 ? "0" : "") + (i + 1);
+    return window.APRISM_ROBOT_AT ? APRISM_ROBOT_AT(i + 1) : "Robot " + (i < 9 ? "0" : "") + (i + 1);
+  }
+  function robotLabel(x) {
+    return window.APRISM_ROBOT_LABEL ? window.APRISM_ROBOT_LABEL(x) : typeof x === "number" ? robotName(x) : String(x || "");
   }
   function label6(a) {
     return a.label === a.detect + " 점수" ? "이상 점수" : a.label;
@@ -647,12 +650,12 @@
     }
   });
   var TO = {
-    "계기인식": [ "설비팀", "김현우" ],
-    "누출감지": [ "설비팀", "김현우" ],
-    "온도감지": [ "설비팀", "박지훈" ],
-    "이상음향": [ "설비팀", "박지훈" ],
-    "부분방전": [ "전기팀", "이도윤" ],
-    "안전감지": [ "안전관리팀", "최서연" ]
+    "계기인식": [ "설비팀", window.APRISM_NAME ? APRISM_NAME("fe1") : "김현우" ],
+    "누출감지": [ "설비팀", window.APRISM_NAME ? APRISM_NAME("fe1") : "김현우" ],
+    "온도감지": [ "설비팀", window.APRISM_NAME ? APRISM_NAME("fe2") : "박지훈" ],
+    "이상음향": [ "설비팀", window.APRISM_NAME ? APRISM_NAME("fe2") : "박지훈" ],
+    "부분방전": [ "전기팀", window.APRISM_NAME ? APRISM_NAME("el1") : "이도윤" ],
+    "안전감지": [ "안전관리팀", window.APRISM_NAME ? APRISM_NAME("sa1") : "최서연" ]
   };
   function toOf(o) {
     var t = o && TO[o.detect] || [ "현장팀", "담당자" ];
@@ -720,7 +723,7 @@
     "계기인식": [ "현장 점검을 요청하세요.", [ [ "로봇 정지, 현장 점검 요청", 1, "설비팀, 내선 2310" ], [ "현장 무전 연락, 작업 중지 요청", 0, "현장 작업자, 무전 2채널" ], [ "재측정 후 판단", 0, "순회 근무자, 무전 1채널" ] ] ]
   };
   function sugOf(mission, detect) {
-    return mission === "정기 순회 점검" && SUG0[detect] || SUG[detect] || null;
+    return mission === (window.APRISM_MISSION ? APRISM_MISSION("m1") : "정기 순회 점검") && SUG0[detect] || SUG[detect] || null;
   }
   ALERTS.forEach(function(a) {
     var s = sugOf(a.mission, a.detect);
@@ -748,7 +751,32 @@
   function img7(detect) {
     return IMG7[detect] || null;
   }
+  function doneBase() {
+    var to = "설비팀 " + (window.APRISM_NAME ? APRISM_NAME("fe2") : "박지훈"), me = window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동", m1 = window.APRISM_MISSION ? APRISM_MISSION("m1") : "정기 순회 점검";
+    return [ {
+      time: "10:08:30",
+      title: "이상음향 점수 19.6",
+      wp: "WP-02",
+      how: "현장 점검 요청",
+      who: me,
+      st: "work",
+      to: to,
+      mission: m1
+    }, {
+      time: "10:05:12",
+      title: "최고 온도 44.2 ℃",
+      wp: "WP-01",
+      how: "다음 순회 재측정",
+      who: me,
+      st: "done",
+      to: to,
+      mission: m1,
+      res: "정상"
+    } ];
+  }
   window.APRISM_ALERTS7 = {
+    doneBase: doneBase,
+    robotLabel: robotLabel,
     list: ALERTS,
     img: img7,
     sug: sugOf,
@@ -761,6 +789,14 @@
     },
     forBuilding: function() {
       return ALERTS.map(buildingObj);
+    },
+    forDelta: function() {
+      return ALERTS.map(function(a) {
+        var o = monitorObj(a);
+        o.id = a.id;
+        o.mission = a.mission;
+        return o;
+      });
     },
     forSafety: function() {
       return ALERTS.map(function(a) {

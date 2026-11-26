@@ -49,8 +49,8 @@
       bar.appendChild(e[1]);
     });
   }
-  var mine = tabOf(current) || tabOf("정기 순회 점검");
-  current = mine ? mine.getAttribute("data-mission") : "정기 순회 점검";
+  var mine = tabOf(current) || tabOf(window.APRISM_MISSION ? APRISM_MISSION("m1") : "정기 순회 점검");
+  current = mine ? mine.getAttribute("data-mission") : window.APRISM_MISSION ? APRISM_MISSION("m1") : "정기 순회 점검";
   if (mine) {
     mine.classList.add("is-on");
     mine.setAttribute("aria-current", "page");
@@ -149,7 +149,7 @@
     }
     var mission = tab.getAttribute("data-mission");
     if (!mission) {
-      go("통합 순회 현황", "./building-v6.html");
+      go((window.APRISM_MISSION ? APRISM_MISSION("m9") : "통합 순회") + " 현황", "./building-v6.html");
       return;
     }
     var q = "?mission=" + encodeURIComponent(mission);

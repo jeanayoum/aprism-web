@@ -368,7 +368,7 @@
     done: {
       day: "today",
       at: "09:54",
-      by: "김현대",
+      by: window.APRISM_NAME ? APRISM_NAME("op2") : "김현대",
       took: "발생 후 6분",
       picked: [ "전화 안내", "안전모 착용 확인" ],
       memo: "작업반장 통화 · 즉시 착용 확인",
@@ -390,7 +390,7 @@
     done: {
       day: "today",
       at: "09:41",
-      by: "홍길동",
+      by: window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동",
       took: "발생 후 5분",
       picked: [ "작업 중지 요청", "현장 확인" ],
       memo: "설비 2팀 자재 반입 중 · 통제선 재설치",
@@ -412,7 +412,7 @@
     done: {
       day: "today",
       at: "08:33",
-      by: "김현대",
+      by: window.APRISM_NAME ? APRISM_NAME("op2") : "김현대",
       took: "발생 후 8시간 42분",
       picked: [ "현장 확인", "전화 안내" ],
       memo: "야간 무인 구간 · 교대 인수 뒤 현장 확인. 쪼그려 작업으로 확인됨",
@@ -434,7 +434,7 @@
     done: {
       day: "today",
       at: "09:26",
-      by: "이수진",
+      by: window.APRISM_NAME ? APRISM_NAME("op3") : "이수진",
       took: "발생 후 6분",
       picked: [ "전화 안내", "보호구 착용 확인" ],
       memo: "",
@@ -456,7 +456,7 @@
     done: {
       day: "today",
       at: "09:26",
-      by: "이수진",
+      by: window.APRISM_NAME ? APRISM_NAME("op3") : "이수진",
       took: "발생 후 7분",
       picked: [ "현장 확인", "설비 담당 전달" ],
       memo: "청소 중 이동 · 원위치 완료",
@@ -478,7 +478,7 @@
     done: {
       day: "today",
       at: "09:02",
-      by: "홍길동",
+      by: window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동",
       took: "발생 후 10분",
       picked: [ "오탐 처리" ],
       memo: "누출 아님 · 결로로 확인",
@@ -500,7 +500,7 @@
     done: {
       day: "yesterday",
       at: "16:07",
-      by: "홍길동",
+      by: window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동",
       took: "발생 후 2분",
       picked: [ "작업 중지 요청" ],
       memo: "협력사 인원 · 출입 교육 재안내",
@@ -522,7 +522,7 @@
     done: {
       day: "yesterday",
       at: "18:52",
-      by: "이수진",
+      by: window.APRISM_NAME ? APRISM_NAME("op3") : "이수진",
       took: "발생 후 12분",
       picked: [ "설비 담당 전달" ],
       memo: "",
@@ -544,7 +544,7 @@
     done: {
       day: "yesterday",
       at: "14:40",
-      by: "김현대",
+      by: window.APRISM_NAME ? APRISM_NAME("op2") : "김현대",
       took: "발생 후 13분",
       picked: [ "현장 확인" ],
       memo: "배수구 막힘 · 청소 요청",
@@ -566,7 +566,7 @@
     done: {
       day: "d-1011",
       at: "09:05",
-      by: "홍길동",
+      by: window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동",
       took: "발생 후 3분",
       picked: [ "현장 확인", "작업 중지 요청" ],
       memo: "고정식 감지기 경보와 동시 · 환기 뒤 정상",
@@ -588,7 +588,7 @@
     done: {
       day: "d-1011",
       at: "11:15",
-      by: "이수진",
+      by: window.APRISM_NAME ? APRISM_NAME("op3") : "이수진",
       took: "발생 후 2분",
       picked: [ "전화 안내", "보호구 착용 확인" ],
       memo: "",
@@ -859,7 +859,7 @@
     if (sortBox && sortBox.parentNode) {
       sortBox.parentNode.removeChild(sortBox);
     }
-    colHead.innerHTML = state.tab === "done" ? '<span class="ac-dc-check" role="columnheader"><span class="ac-sr">상태</span></span>' + '<span class="ac-dc-time" role="columnheader">조치</span>' + '<span class="ac-dc-body" role="columnheader">' + (V7 ? "알림" : "알림 · 조치 내용") + '</span>' + (V7 ? '<span class="ac-dc-stage" role="columnheader">진행</span><span class="ac-dc-sev" role="columnheader">원 등급</span><span class="ac-dc-occ" role="columnheader">발생</span>' : '<span class="ac-dc-sev" role="columnheader">원 등급 · 발생</span>') + '<span class="ac-dc-who" role="columnheader">담당</span>' + (sortBox ? '<span class="ac-dc-sort" role="columnheader"></span>' : "") : '<span class="ac-c-sev" role="columnheader"><span class="ac-sr">단계</span></span>' + '<span class="ac-c-time" role="columnheader">발생</span>' + '<span class="ac-c-title" role="columnheader">알림</span>' + '<span class="ac-c-place" role="columnheader">웨이포인트 · 위치</span>' + '<span class="ac-c-mission" role="columnheader">미션</span>' + '<span class="ac-c-act" role="columnheader"><span class="ac-sr">동작</span></span>';
+    colHead.innerHTML = state.tab === "done" && V7 ? '<span class="ac-dc-check" aria-hidden="true"></span>' + '<span class="ac-dc-occ" role="columnheader">발생</span>' + '<span class="ac-dc-time" role="columnheader">조치</span>' + '<span class="ac-dc-sev" role="columnheader">위험도</span>' + '<span class="ac-dc-body" role="columnheader">알림</span>' + '<span class="ac-dc-acts" role="columnheader">조치 내용</span>' + '<span class="ac-dc-stage" role="columnheader">진행상황</span>' + '<span class="ac-dc-who" role="columnheader">담당</span>' : state.tab === "done" ? '<span class="ac-dc-check" role="columnheader"><span class="ac-sr">상태</span></span>' + '<span class="ac-dc-time" role="columnheader">조치</span>' + '<span class="ac-dc-body" role="columnheader">' + (V7 ? "알림" : "알림 · 조치 내용") + '</span>' + (V7 ? '<span class="ac-dc-stage" role="columnheader">진행</span><span class="ac-dc-sev" role="columnheader">원 등급</span><span class="ac-dc-occ" role="columnheader">발생</span>' : '<span class="ac-dc-sev" role="columnheader">원 등급 · 발생</span>') + '<span class="ac-dc-who" role="columnheader">담당</span>' + (sortBox ? '<span class="ac-dc-sort" role="columnheader"></span>' : "") : '<span class="ac-c-sev" role="columnheader"><span class="ac-sr">단계</span></span>' + '<span class="ac-c-time" role="columnheader">발생</span>' + '<span class="ac-c-title" role="columnheader">알림</span>' + '<span class="ac-c-place" role="columnheader">' + (V7 ? '웨이포인트, 위치' : '웨이포인트 · 위치') + '</span>' + '<span class="ac-c-mission" role="columnheader">미션</span>' + '<span class="ac-c-act" role="columnheader"><span class="ac-sr">동작</span></span>';
     if (sortBox) {
       var cell = $(state.tab === "done" ? ".ac-dc-sort" : ".ac-c-act", colHead);
       cell.appendChild(sortBox);
@@ -879,8 +879,66 @@
   function shortTime(t) {
     return t.replace(/^(\d{1,2}:\d{2}):\d{2}$/, "$1");
   }
+  var DET_IC = {
+    "안전감지": "cone",
+    "계기인식": "gauge",
+    "계기판독": "gauge",
+    "압력측정": "gauge",
+    "누출감지": "drop",
+    "가스감지": "drop",
+    "온도감지": "thermometer",
+    "열화상": "thermometer",
+    "이상음향": "sound",
+    "진동측정": "sound",
+    "부분방전": "bolt"
+  };
+  function detIcon(a) {
+    var k = DET_IC[a.detect];
+    return k ? '<span class="i i-16 ac-dc-ic" style="--i:var(--ic-' + k + ')" role="img" aria-label="' + esc(a.detect) + '"></span>' : "";
+  }
+  var MEMO7 = {
+    "부분방전 · 이상 점수 8.92": "전기팀 " + (window.APRISM_NAME ? APRISM_NAME("el1") : "이도윤") + " 님께 전화로 요청함. 점심 뒤에 가 본다고 함",
+    "온도감지 · 최고 온도 41.5 ℃": "설비팀이 가 봤는데 이상 없음. 오후에 햇볕 드는 쪽이라 조금 오르는 듯",
+    "누출감지 · 누출 의심도 58%": "바닥에 기름 자국 있어서 닦아 냄. 다시 쟀더니 정상",
+    "안전감지 · 안전모 미착용 1명": "협력사 야간 작업자였음. 반장님 통해 바로 쓰게 함",
+    "누출감지 · 누출 의심도 57%": "가 보니 결로였음. 누출 아님",
+    "계기인식 · 차압 298 Pa": "필터 갈고 나서 180 Pa까지 내려옴",
+    "온도감지 · 최고 온도 46.2 ℃": "오후 부하 나눠서 돌리기로 함. 다음 순회 때 다시 볼 것",
+    "온도감지 · 최고 온도 71.2 ℃": "냉각팬이 멈춰 있었음. 다시 돌리고 나서 정상으로 돌아옴",
+    "온도감지 · 최고 온도 66.1 ℃": "운전실에 부하 줄여 달라고 말해 둠. 다음 순회 값 꼭 확인",
+    "계기인식 · 압력 0.41 MPa": "계기 유리에 빛이 반사돼서 잘못 읽은 것. 직접 보니 정상"
+  };
+  function doneStamp(a) {
+    var d = a.done || {}, m = /^(\d{4})-(\d{2})-(\d{2})/.exec(a.stamp || "");
+    if (!m) {
+      return DAYS[d.day].label + " " + d.at;
+    }
+    var diff = DAYS[d.day] && DAYS[a.day] ? DAYS[d.day].rank - DAYS[a.day].rank : 0;
+    var dt = new Date(+m[1], +m[2] - 1, +m[3] + Math.max(0, diff));
+    var p = function(n) {
+      return (n < 10 ? "0" : "") + n;
+    };
+    return dt.getFullYear() + "-" + p(dt.getMonth() + 1) + "-" + p(dt.getDate()) + " " + d.at;
+  }
+  function memoOf(a) {
+    var d = a.done || {};
+    return V7 && MEMO7[a.title] !== undefined ? MEMO7[a.title] : d.memo || "";
+  }
+  function occTime(a) {
+    if (!a.done || a.day !== a.done.day) {
+      return a.time;
+    }
+    var s = /(\d{1,2}:\d{2}:\d{2})$/.exec(a.stamp || "");
+    return s ? s[1] : a.time.replace(/^.*\s(?=\d{1,2}:\d{2})/, "");
+  }
   function doneRow(a, sel) {
     var d = a.done;
+    if (V7 && window.ds) {
+      return '<div class="ac-done-row is-v7cols" role="row" data-id="' + a.id + '" data-sev="' + a.sev + '"' + ' tabindex="' + (sel ? "0" : "-1") + '" aria-selected="' + (sel ? "true" : "false") + '">' + '<span class="ac-dc-check" aria-hidden="true"></span>' + '<span class="ac-dc-occ ac-mono" role="gridcell">' + esc(occTime(a)) + '</span>' + '<span class="ac-dc-time ac-mono" role="gridcell">' + esc(d.at) + '</span>' + '<span class="ac-dc-sev t-caption" role="gridcell">' + window.ds.badge(a.sev === "critical" ? "crit" : "warn", SEV_LABEL[a.sev], {
+        plain: true,
+        icon: null
+      }) + '</span>' + '<span class="ac-dc-body" role="gridcell">' + detIcon(a) + '<span class="ac-dc-title t-label-2">' + esc(titleOf(a)) + '</span></span>' + '<span class="ac-dc-acts t-caption" role="gridcell">' + esc(d.picked[0] || "") + '</span>' + '<span class="ac-dc-stage t-caption" role="gridcell">' + stageHtml(a, false) + '</span>' + '<span class="ac-dc-who t-caption" role="gridcell">' + esc(d.by) + '</span>' + '</div>';
+    }
     return '<div class="ac-done-row" role="row" data-id="' + a.id + '" data-sev="' + a.sev + '"' + ' tabindex="' + (sel ? "0" : "-1") + '" aria-selected="' + (sel ? "true" : "false") + '">' + '<span class="ac-dc-check" role="gridcell">' + icon("--ic-check", 16) + '<span class="ac-sr">' + (V6 ? "조치 요청됨" : "조치 완료") + '</span></span>' + '<span class="ac-dc-time ac-mono" role="gridcell">' + esc(d.at) + '</span>' + '<span class="ac-dc-body" role="gridcell">' + '<span class="ac-dc-title t-label-2">' + esc(titleOf(a)) + '</span>' + (V7 ? '<span class="ac-dc-act t-caption">' + cells(d.picked) + '</span>' : '<span class="ac-dc-act t-caption">' + esc(d.picked.join(", ")) + '</span>') + '</span>' + (V7 ? '<span class="ac-dc-stage t-caption" role="gridcell">' + stageHtml(a, false) + '</span>' : "") + '<span class="ac-dc-sev t-caption" role="gridcell">' + (document.body.classList.contains("ver-7") && window.ds ? window.ds.badge(a.sev === "critical" ? "crit" : "warn", SEV_LABEL[a.sev], {
       plain: true
     }) + '</span><span class="ac-dc-occ t-caption" role="gridcell">' + esc(shortTime(a.time)) : '<span class="ac-sev-dot" aria-hidden="true"></span>' + '<span>' + SEV_LABEL[a.sev] + " " + esc(shortTime(a.time)) + '</span>') + '</span>' + '<span class="ac-dc-who t-caption" role="gridcell">' + esc(d.by) + '</span>' + '</div>';
@@ -1064,7 +1122,7 @@
         a.done = {
           day: "today",
           at: r.t.slice(0, 5),
-          by: r.who || "홍길동",
+          by: r.who || (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동"),
           took: took7(a.time, r.t),
           picked: (r.how || []).slice(),
           memo: r.memo || "",
@@ -1176,14 +1234,14 @@
     var d = a.done;
     return '<div class="ac-record">' + '<div class="ac-record-title">' + '<div class="ac-record-title-row">' + sevBadge(a, "원 등급 ") + '<h2 class="t-title-1">' + esc(a.title) + '</h2>' + '</div>' + '<p class="ac-record-age">' + '<span class="ac-record-at t-label-1">' + esc(DAYS[d.day].label) + ' ' + esc(d.at) + '</span>' + '<span class="ac-record-by t-caption">조치 · ' + esc(d.by) + ' · ' + esc(d.took) + '</span>' + '</p>' + '</div>' + snapMeta(a, metaRow("발생", '<span class="ac-mono">' + esc(a.stamp) + '</span>') + metaRow("미션", '<span class="t-body-4">' + esc(a.mission) + '</span>') + metaRow("위치", '<span class="ac-mono-label">' + esc(a.wp) + '</span>' + '<span class="t-body-4">' + esc(a.place) + '</span>') + metaRow("감지", '<span class="ac-d-chip t-caption">' + esc(a.detect) + '</span>') + metaRow("로봇", '<span class="ac-d-robot ac-mono">' + esc(a.robot) + '</span>')) + '<section class="ac-record-section">' + '<h3 class="t-caption">조치 내용</h3>' + '<div class="ac-chips">' + d.picked.map(function(t) {
       return '<span class="ac-chip-done t-label-2">' + esc(t) + '</span>';
-    }).join("") + '</div>' + '</section>' + '<section class="ac-record-section">' + '<h3 class="t-caption">메모</h3>' + '<p class="ac-memo-box t-body-4' + (d.memo ? "" : " ac-memo-empty") + '">' + (d.memo ? esc(d.memo) : V7 ? "남긴 메모가 없어요" : "남긴 메모가 없습니다.") + '</p>' + '</section>' + '<section class="ac-record-section">' + '<h3 class="t-caption">처리 정보</h3>' + '<dl class="ac-info">' + infoRow("담당", '<span class="t-body-4">' + esc(d.by) + '</span>') + infoRow("소요", '<span class="t-body-4">' + esc(d.took) + '</span>') + infoRow("DELTA", '<span class="ac-info-delta t-body-4">' + esc(d.delta) + '</span>') + '</dl>' + '</section>' + '</div>';
+    }).join("") + '</div>' + '</section>' + '<section class="ac-record-section">' + '<h3 class="t-caption">메모</h3>' + '<p class="ac-memo-box t-body-4' + (memoOf(a) ? "" : " ac-memo-empty") + '">' + (memoOf(a) ? esc(memoOf(a)) : V7 ? "남긴 메모가 없어요" : "남긴 메모가 없습니다.") + '</p>' + '</section>' + '<section class="ac-record-section">' + '<h3 class="t-caption">처리 정보</h3>' + '<dl class="ac-info">' + infoRow("담당", '<span class="t-body-4">' + esc(d.by) + '</span>') + infoRow("소요", '<span class="t-body-4">' + esc(d.took) + '</span>') + infoRow("DELTA", '<span class="ac-info-delta t-body-4">' + esc(d.delta) + '</span>') + '</dl>' + '</section>' + '</div>';
   }
   function infoRow(label, value) {
     return '<div class="ac-info-row"><dt class="t-caption">' + label + '</dt><dd>' + value + '</dd></div>';
   }
   function head6(a, prefix, under) {
     var r = resOf(a);
-    return '<div class="ac-d-title-block ac-d6-head' + (a.sev === "critical" ? " is-critical" : "") + '">' + '<div class="ac-d6-top">' + sevBadge(a, prefix) + '<span class="ac-d6-kind t-label-2">' + esc(a.detect) + '</span></div>' + '<h2 class="t-title-1 ac-d6-title">' + esc(r[0]) + (r[1] ? ' <b class="ac-d6-val">' + esc(r[1]) + '</b>' : "") + function() {
+    return '<div class="ac-d-title-block ac-d6-head' + (a.sev === "critical" ? " is-critical" : "") + '">' + '<div class="ac-d6-top">' + (prefix === null ? "" : sevBadge(a, prefix)) + '<span class="ac-d6-kind t-label-2">' + (V7 ? detIcon(a) : "") + esc(a.detect) + '</span></div>' + '<h2 class="t-title-1 ac-d6-title">' + esc(r[0]) + (r[1] ? ' <b class="ac-d6-val">' + esc(r[1]) + '</b>' : "") + function() {
       var vd = r[1] && window.APRISM_VERDICT && window.APRISM_VERDICT(a.detect, r[1]);
       return vd ? ' <span class="ac-d6-vd">' + esc(vd) + "</span>" : "";
     }() + '</h2>' + under + '</div>';
@@ -1211,7 +1269,6 @@
         return window.ds.act(esc(c.t), {
           on: on,
           ai: !!c.delta,
-          sub: c.to ? esc(c.to) : '',
           cls: 'ma-check',
           boxCls: 'ma-check-box',
           textCls: 'ma-check-label',
@@ -1220,7 +1277,7 @@
       }
       return '<button type="button" class="ma-check" role="checkbox" data-act="' + esc(c.t) + '" aria-checked="' + (on ? "true" : "false") + '">' + '<span class="ma-check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>' + '<span class="ma-check-label">' + esc(c.t) + '</span>' + (c.delta ? '<span class="ma-check-tag' + (document.body.classList.contains("ver-7") ? " ds-badge is-neutral ds-i-delta" : "") + '">AI 추천</span>' : "") + '</button>';
     }).join("");
-    return '<section class="ac-dl is-light-scope is-dark-scope' + (V7 ? ' ds-delta-card' : '') + '" aria-labelledby="ac-dl-label">' + '<div class="ac-dl-head' + (V7 ? ' ds-delta-head' : '') + '">' + '<span class="ac-dl-mark' + (V7 ? ' ds-delta-mark' : '') + '">' + icon("--ic-delta", 16) + '<span class="t-caption" id="ac-dl-label">DELTA 조치 제안</span></span>' + (a.sug7 ? "" : '<span class="ac-dl-fp t-caption">오탐 가능성 <span class="ac-dl-fpv' + (fp >= 40 ? " is-high" : fp >= 20 ? " is-mid" : "") + '">' + esc(a.fpLabel || "") + '(' + fp + '%)</span></span>') + '</div>' + '<p class="ac-dl-lead">' + esc(a.lead) + '</p>' + (!a.sug7 && a.why && a.why.length ? '<ul class="ac-dl-why">' + a.why.map(function(w) {
+    return '<section class="ac-dl is-light-scope is-dark-scope' + (V7 ? ' ds-delta-card' : '') + '" aria-labelledby="ac-dl-label">' + '<div class="ac-dl-head' + (V7 ? ' ds-delta-head' : '') + '">' + '<span class="ac-dl-mark' + (V7 ? ' ds-delta-mark' : '') + '">' + icon("--ic-delta", 16) + '<span class="t-caption" id="ac-dl-label">DELTA 조치 제안</span></span>' + (a.sug7 ? "" : '<span class="ac-dl-fp t-caption">오탐 가능성 <span class="ac-dl-fpv' + (fp >= 40 ? " is-high" : fp >= 20 ? " is-mid" : "") + '">' + esc(a.fpLabel || "") + '(' + fp + '%)</span></span>') + '</div>' + '<p class="ac-dl-lead ds-delta-lead">' + esc(a.lead) + '</p>' + (!a.sug7 && a.why && a.why.length ? '<ul class="ac-dl-why">' + a.why.map(function(w) {
       return '<li class="t-body-4">' + esc(w) + '</li>';
     }).join("") + '</ul>' : "") + '<div class="ma-checks' + (V7 ? ' ds-acts' : '') + '" role="group" aria-label="조치 내용">' + rows + '</div>' + '<div class="ac-dl-memo">' + '<label class="t-label-2" for="ac-memo">메모 (선택)</label>' + '<textarea class="ma-memo-field" id="ac-memo" data-ac-memo data-ma-memo-field rows="2" maxlength="500" ' + 'placeholder="' + (a.sug7 ? '현장에 전달할 내용' : '예) 현장 작업자 대피 확인, 안전 요원 배치 후 재가동 준비') + '">' + esc(state.memo[a.id] || "") + '</textarea>' + '</div>' + '</section>';
   }
@@ -1229,13 +1286,10 @@
   }
   function recordHtml6(a) {
     var d = a.done;
-    return '<div class="ac-record">' + head6(a, "원 등급 ", '<p class="ac-record-age">' + '<span class="ac-record-at t-label-1">' + esc(DAYS[d.day].label) + ' ' + esc(d.at) + '</span>' + '<span class="ac-record-by t-caption">' + (V7 ? cells([ '조치 ' + d.by, d.took ]) : '조치 · ' + esc(d.by) + ' · ' + esc(d.took)) + '</span>' + '</p>') + snap6(a, metaRow("발생", '<span class="ac-mono">' + esc(a.stamp) + '</span>') + meta6(a, false)) + '<section class="ac-record-section">' + '<h3 class="t-caption">조치 내용</h3>' + (V7 ? '<div class="ds-acts" role="list">' + d.picked.map(function(t) {
-      return window.ds.act(esc(t), {
-        result: true
-      });
-    }).join("") + '</div>' : '<div class="ac-chips">' + d.picked.map(function(t) {
+    var memoSec = '<section class="ac-record-section">' + '<h3 class="t-caption">메모</h3>' + '<p class="ac-memo-box t-body-4' + (memoOf(a) ? "" : " ac-memo-empty") + '">' + (memoOf(a) ? esc(memoOf(a)) : V7 ? "남긴 메모가 없어요" : "남긴 메모가 없습니다.") + '</p>' + '</section>';
+    return '<div class="ac-record">' + head6(a, V7 ? null : "원 등급 ", V7 ? "" : '<p class="ac-record-age">' + '<span class="ac-record-at t-label-1">' + esc(DAYS[d.day].label) + ' ' + esc(d.at) + '</span>' + '<span class="ac-record-by t-caption">' + '조치 · ' + esc(d.by) + ' · ' + esc(d.took) + '</span>' + '</p>') + snap6(a, metaRow("발생", '<span class="ac-mono">' + esc(a.stamp) + '</span>') + (V7 ? metaRow("조치", '<span class="ac-mono">' + esc(doneStamp(a)) + '</span>' + '<span class="ac-d-took t-caption">' + esc(d.took) + '</span>') : "") + meta6(a, false)) + (V7 ? "" : '<section class="ac-record-section">' + '<h3 class="t-caption">조치 내용</h3>' + '<div class="ac-chips">' + d.picked.map(function(t) {
       return '<span class="ac-chip-done t-label-2">' + esc(t) + '</span>';
-    }).join("") + '</div>') + '</section>' + '<section class="ac-record-section">' + '<h3 class="t-caption">메모</h3>' + '<p class="ac-memo-box t-body-4' + (d.memo ? "" : " ac-memo-empty") + '">' + (d.memo ? esc(d.memo) : V7 ? "남긴 메모가 없어요" : "남긴 메모가 없습니다.") + '</p>' + '</section>' + '<section class="ac-record-section">' + '<h3 class="t-caption">처리 정보</h3>' + '<dl class="ac-info">' + (V7 ? infoRow("진행", '<span class="t-body-4">' + stageHtml(a, true) + '</span>') : "") + infoRow("담당", '<span class="t-body-4">' + esc(d.by) + '</span>') + infoRow("소요", '<span class="t-body-4">' + esc(d.took) + '</span>') + infoRow("DELTA", '<span class="ac-info-delta t-body-4">' + esc(deltaLine(d.delta)) + '</span>') + '</dl>' + '</section>' + '</div>';
+    }).join("") + '</div>' + '</section>') + (V7 ? "" : memoSec) + '<section class="ac-record-section">' + '<h3 class="t-caption">처리 정보</h3>' + '<dl class="ac-info">' + (V7 ? infoRow("관제", '<span class="t-body-4"><span class="done-stage is-req"><span class="done-st">조치 요청</span>' + '<span class="ac-stage-to">' + esc(d.by) + '</span></span></span>') + infoRow("현장", '<span class="t-body-4"><span class="done-stage is-' + stageOf(a).st + '"><span class="done-st">' + stageOf(a).word.replace(/^현장\s*/, "") + '</span>' + '<span class="ac-stage-to">' + esc(stageOf(a).to) + '</span></span></span>') : infoRow("담당", '<span class="t-body-4">' + esc(d.by) + '</span>') + infoRow("소요", '<span class="t-body-4">' + esc(d.took) + '</span>')) + (V7 && d.picked && d.picked.length ? infoRow("조치", infoActs(a, d)) : infoRow("DELTA", '<span class="ac-info-delta t-body-4">' + esc(deltaLine(d.delta)) + '</span>')) + '</dl>' + '</section>' + (V7 ? memoSec : "") + '</div>';
   }
   function syncActions(a) {
     var chosen = chosenOf(a);
@@ -1279,7 +1333,7 @@
         a.done = {
           day: "today",
           at: nowHM(),
-          by: "홍길동",
+          by: window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동",
           took: "방금",
           picked: acts,
           memo: state.memo[a.id] || "",
@@ -1306,6 +1360,22 @@
         refresh();
       });
     }
+  }
+  function infoActs(a, d) {
+    var rec = (a.acts || []).filter(function(c) {
+      return c.delta;
+    }).map(function(c) {
+      return c.t;
+    });
+    if (!rec.length && d.delta && !/쓰지 않음/.test(d.delta)) {
+      var m = /\(([^)]*)\)\s*$/.exec(d.delta);
+      if (m) {
+        rec = m[1].split(/\s*[·,]\s*/);
+      }
+    }
+    return '<span class="ac-info-acts t-body-4">' + d.picked.map(function(t) {
+      return rec.indexOf(t) > -1 ? '<span class="ac-info-ai"><span class="ac-info-ai-i" aria-hidden="true"></span>' + esc(t) + '<span class="ds-sr"> (AI 추천)</span></span>' : '<span>' + esc(t) + '</span>';
+    }).join("") + '</span>';
   }
   function deltaUse(a, acts) {
     var rec = a.acts.filter(function(c) {
@@ -1378,10 +1448,52 @@
     fnum("[data-ac-f-warn]", "주의", tw);
     $("[data-ac-summary]").hidden = state.tab !== "done";
   }
+  var genTimers = [];
+  function msVar(name, dflt) {
+    var v = parseFloat(getComputedStyle(document.body).getPropertyValue(name));
+    return isNaN(v) ? dflt : v;
+  }
+  function genHandover() {
+    var h = $(".ac-handover", slot);
+    if (!h) {
+      return;
+    }
+    genTimers.forEach(clearTimeout);
+    genTimers = [];
+    if (genHandover.stop) {
+      genHandover.stop();
+    }
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    $(".ac-handover-head", h).insertAdjacentHTML("afterend", '<div class="ac-handover-skel" aria-hidden="true"><i style="width:62%"></i><i style="width:84%"></i><i style="width:71%"></i><i style="width:78%"></i></div>');
+    var when = $(".ac-handover-when", h), old = when ? when.innerHTML : "";
+    if (when) {
+      when.textContent = "오늘 조치 " + HANDOVER_COUNT() + "건을 묶고 있어요";
+    }
+    h.setAttribute("aria-busy", "true");
+    h.classList.add("is-gen");
+    var holoStop = window.APRISM_DELTA_HOLO ? window.APRISM_DELTA_HOLO.start($("[data-ac-summary] > .i")) : function() {};
+    genHandover.stop = holoStop;
+    genTimers.push(setTimeout(function() {
+      if (when) {
+        when.innerHTML = old;
+      }
+      h.removeAttribute("aria-busy");
+      h.classList.remove("is-gen");
+      h.classList.add("is-done", "is-new");
+      genTimers.push(setTimeout(function() {
+        h.classList.remove("is-done");
+        holoStop();
+      }, msVar("--ds-delta-beam-last", 1600) + 100));
+    }, reduce ? 600 : msVar("--ds-delta-gen", 3400)));
+  }
+  function HANDOVER_COUNT() {
+    var m = /(\d+)건/.exec(HANDOVER.items && HANDOVER.items[0] ? String(HANDOVER.items[0][1]) : "");
+    return m ? m[1] : "5";
+  }
   function renderHandover() {
-    slot.innerHTML = '<section class="ac-handover">' + '<div class="ac-handover-head">' + '<span class="ac-handover-mark">' + icon(V6 ? "--ic-delta" : "--ic-cpu", 16) + '<span class="t-label-2">DELTA 인수인계 요약</span></span>' + '<span class="ac-handover-when t-caption">' + ndHtml(HANDOVER.when) + '</span>' + '<span class="ac-head-spacer"></span>' + '<button type="button" class="btn btn-ghost is-xs" data-ac-handover-close>닫기</button>' + '</div>' + '<dl class="ac-handover-list">' + HANDOVER.items.map(function(it) {
+    slot.innerHTML = '<section class="ac-handover">' + '<div class="ac-handover-head">' + '<span class="ac-handover-mark">' + icon(V6 ? "--ic-delta" : "--ic-cpu", 16) + '<span class="t-label-2">DELTA 인수인계 요약</span></span>' + (V7 ? "" : '<span class="ac-handover-when t-caption">' + ndHtml(HANDOVER.when) + '</span>') + '<span class="ac-head-spacer"></span>' + '<button type="button" class="btn btn-ghost is-xs" data-ac-handover-close>닫기</button>' + '</div>' + '<dl class="ac-handover-list">' + HANDOVER.items.map(function(it) {
       return '<div class="ac-handover-row">' + '<dt class="t-label-2">' + esc(it[0]) + '</dt>' + '<dd class="t-body-4">' + ndHtml(it[1]) + '</dd></div>';
-    }).join("") + '</dl>' + '<div class="ac-handover-actions">' + '<button type="button" class="btn btn-secondary is-xs">초안 수정</button>' + '<button type="button" class="btn btn-primary is-xs">보고서에 넣기</button>' + '</div>' + '</section>';
+    }).join("") + '</dl>' + (V7 ? "" : '<div class="ac-handover-actions">' + '<button type="button" class="btn btn-secondary is-xs">초안 수정</button>' + '<button type="button" class="btn btn-primary is-xs">보고서에 넣기</button>' + '</div>') + '</section>';
     $("[data-ac-handover-close]", slot).addEventListener("click", function() {
       state.handover = false;
       slot.hidden = true;
@@ -1447,6 +1559,9 @@
       state.handover = true;
       renderHandover();
       slot.hidden = false;
+      if (V7) {
+        genHandover();
+      }
     });
     selects({
       "ac-f-mission": function(v) {
@@ -1591,11 +1706,11 @@
       a.id = "A-NEW";
       a.time = hms;
       a.stamp = a.stamp.slice(0, 11) + hms;
-      a.mission = "발전기실 설비 점검";
+      a.mission = window.APRISM_MISSION ? APRISM_MISSION("m2") : "발전기실 설비 점검";
       a.floor = "B3";
       a.wp = "WP-11";
       a.place = "배관 랙 통로";
-      a.robot = "Robot 05";
+      a.robot = window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05";
       ALERTS.push(a);
       NEWRISK.push(a.id);
       refresh();

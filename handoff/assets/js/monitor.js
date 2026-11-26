@@ -67,7 +67,7 @@
     floor: "B3",
     wp: "WP-06",
     live: "discharge",
-    where: "Robot 05 · WP-06 수배전반",
+    where: (window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + " · WP-06 수배전반",
     time: "10:09:42",
     title: "부분방전 · 이상 점수 9.41",
     detect: "부분방전",
@@ -89,7 +89,7 @@
     floor: "B3",
     wp: "WP-12",
     live: "discharge",
-    where: "Robot 05 · WP-12 냉각 펌프 P-2",
+    where: (window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + " · WP-12 냉각 펌프 P-2",
     time: "10:06:05",
     title: "진동 상승 · 냉각 펌프 P-2",
     detect: "진동감지",
@@ -111,7 +111,7 @@
     floor: "B3",
     wp: "WP-02",
     live: "ppe",
-    where: "Robot 05 · WP-02 발전기 베어링",
+    where: (window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + " · WP-02 발전기 베어링",
     time: "10:03:27",
     title: "과열 · 발전기 베어링 68.4℃",
     detect: "온도감지",
@@ -133,7 +133,7 @@
     floor: "B4",
     wp: "WP-13",
     live: "discharge",
-    where: "Robot 05 · WP-13 공기 압축기 C-1",
+    where: (window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + " · WP-13 공기 압축기 C-1",
     time: "10:01:12",
     title: "압력 편차 · 공기 압축기 C-1",
     detect: "계기인식",
@@ -302,7 +302,7 @@
     floor: "B3",
     wp: "WP-02",
     live: "ppe",
-    where: "Robot 11 · WP-02 HEPA Filter 차압계",
+    where: (window.APRISM_ROBOT ? APRISM_ROBOT("r11") : "Robot 11") + " · WP-02 HEPA Filter 차압계",
     time: "09:44:18",
     title: "차압 NG · HEPA Filter 차압계",
     detect: "계기인식",
@@ -326,7 +326,7 @@
     floor: "B3",
     wp: "WP-04",
     live: "discharge",
-    where: "Robot 11 · WP-04 N₂ 배관 압력계",
+    where: (window.APRISM_ROBOT ? APRISM_ROBOT("r11") : "Robot 11") + " · WP-04 N₂ 배관 압력계",
     time: "10:15:52",
     title: "압력 편차 · N₂ 배관 압력계",
     detect: "계기인식",
@@ -471,15 +471,15 @@
       if (!j.total) {
         return {
           tag: "정기 순회 진행 중",
-          line1: "안녕하세요. 홍길동 님",
-          line2: "Robot 01 이 정기 순회를 진행하고 있어요. 지금은 특이사항이 없습니다."
+          line1: "안녕하세요. " + (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동") + " 님",
+          line2: (window.APRISM_ROBOT ? APRISM_ROBOT("r01") : "Robot 01") + " 이 정기 순회를 진행하고 있어요. 지금은 특이사항이 없습니다."
         };
       }
       var mix = "위험 " + j.crit + " · 주의 " + j.warn;
       if (j.level === "normal") {
         return {
           tag: "알림 " + j.total + "건 관찰 중",
-          line1: "안녕하세요. 홍길동 님",
+          line1: "안녕하세요. " + (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동") + " 님",
           line2: "확인할 알림이 " + j.total + "건 있어요(" + mix + "). 왼쪽 목록에서 하나씩 살펴봐 주세요."
         };
       }
@@ -512,7 +512,7 @@
     chat: function(j) {
       var copy = COPY.keyword(j);
       if (!j.total) {
-        copy.line2 = "홍길동 님, Robot 01 과 정기 순회를 함께 보고 있어요. 지금까지는 특이사항이 없어요. 궁금한 게 있으면 편하게 물어보세요.";
+        copy.line2 = (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동") + (" 님, " + (window.APRISM_ROBOT ? APRISM_ROBOT("r01") : "Robot 01") + " 과 정기 순회를 함께 보고 있어요. 지금까지는 특이사항이 없어요. 궁금한 게 있으면 편하게 물어보세요.");
       } else if (j.level === "normal") {
         copy.line2 = "알림이 " + j.total + "건 들어와 있어요. 아직 묶어서 볼 만큼은 아니라서, 왼쪽 목록에서 하나씩 확인해 보시면 돼요. 어떤 알림인지 같이 볼까요?";
       } else if (j.level === "warning") {
@@ -665,7 +665,7 @@
       }
     } else {
       var card = $(".robot-strip .robot-card[aria-pressed='true']");
-      var rn = card && card.querySelector(".robot-id") ? card.querySelector(".robot-id").textContent.trim() : "Robot 01";
+      var rn = card && card.querySelector(".robot-id") ? card.querySelector(".robot-id").textContent.trim() : window.APRISM_ROBOT ? APRISM_ROBOT("r01") : "Robot 01";
       var done = !!(card && card.querySelector(".badge-normal"));
       say = {
         l: [ operatorName() + "님!", rn + josa(rn) + (done ? " 미션을 완료했어요!" : " 순회 중이에요.") ],
@@ -703,27 +703,27 @@
     time: "10:29:10",
     title: "온도감지 · WP-03 펌프 하우징",
     how: "추이 관찰 · 다음 순회 재측정",
-    who: "김현대"
+    who: window.APRISM_NAME ? APRISM_NAME("op2") : "김현대"
   }, {
     time: "10:18:52",
     title: "소음 이상 · 변압기 TR-1",
     how: "현장 점검 요청 · 이상 없음",
-    who: "김현대"
+    who: window.APRISM_NAME ? APRISM_NAME("op2") : "김현대"
   }, {
     time: "10:02:31",
     title: "진동감지 · WP-02 터빈1 베어링",
     how: "추이 관찰 · 다음 순회 재측정",
-    who: "홍길동"
+    who: window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동"
   }, {
     time: "09:47:15",
     title: "온도감지 · WP-03 펌프 하우징",
     how: "현장 점검 요청 · 이상 없음",
-    who: "홍길동"
+    who: window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동"
   }, {
     time: "09:30:08",
     title: "누유 흔적 · 유압 유닛 HU-2",
     how: "청소 후 재측정 · 정상",
-    who: "김현대"
+    who: window.APRISM_NAME ? APRISM_NAME("op2") : "김현대"
   } ];
   if (body.classList.contains("ver-6")) {
     var DONE6 = [ "온도감지 · 최고 온도 44.2 ℃", "부분방전 · 이상 점수 8.92", "이상음향 · 이상 점수 19.6", "온도감지 · 최고 온도 41.5 ℃", "누출감지 · 누출 의심도 58%" ];
@@ -743,24 +743,10 @@
     done: "조치 완료"
   };
   if (V7Q) {
-    DONE_BASE = [ {
-      time: "10:08:30",
-      title: "이상음향 점수 19.6",
-      wp: "WP-02",
-      how: "현장 점검 요청",
-      who: "홍길동",
-      st: "work",
-      to: "설비팀 박지훈"
-    }, {
-      time: "10:05:12",
-      title: "최고 온도 44.2 ℃",
-      wp: "WP-01",
-      how: "다음 순회 재측정",
-      who: "홍길동",
-      st: "done",
-      to: "설비팀 박지훈",
-      res: "정상"
-    } ];
+    DONE_BASE = window.APRISM_ALERTS7 ? window.APRISM_ALERTS7.doneBase().map(function(d) {
+      delete d.mission;
+      return d;
+    }) : [];
   }
   var DONE = DONE_BASE.slice();
   var RANK = {
@@ -943,7 +929,7 @@
           time: e.t + ":00",
           title: window.APRISM_ALERT6 ? window.APRISM_ALERT6.title(a.title) : a.title,
           how: (e.acts || []).join(" · ") || "현장 조치 요청",
-          who: "홍길동",
+          who: window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동",
           memo: e.memo || ""
         });
       });
@@ -1213,7 +1199,7 @@
             time: r.t,
             title: window.APRISM_ALERT6 ? window.APRISM_ALERT6.title(a.title) : a.title,
             how: (r.how || []).join(" · "),
-            who: r.who || "홍길동",
+            who: r.who || (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동"),
             memo: r.memo || "",
             reqId: id
           });
@@ -1804,9 +1790,6 @@
           boxEl.appendChild(mark);
           row.appendChild(boxEl);
           var lab = el("span", "ma-check-label" + (DS7 ? " ds-act-text" : ""), act.t);
-          if (DS7 && src.to) {
-            lab.appendChild(el("small", null, src.to));
-          }
           row.appendChild(lab);
           if (act.ai) {
             row.appendChild(el("span", "ma-check-tag" + (document.body.classList.contains("ver-7") ? " ds-badge is-neutral ds-i-delta" : ""), "AI 추천"));
@@ -2517,7 +2500,7 @@
         time: clock(),
         title: window.APRISM_ALERT6 ? window.APRISM_ALERT6.title(a.title) : a.title,
         how: picks.join(" · "),
-        who: "홍길동",
+        who: window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동",
         fresh: true,
         memo: memoField ? memoField.value.trim() : ""
       };

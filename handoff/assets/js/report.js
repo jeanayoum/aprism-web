@@ -6,7 +6,7 @@
   }
   var IMG = "../assets/img/report/";
   var V7R = document.body.classList.contains("ver-7") && document.documentElement.lang !== "en";
-  var NAME = V7R ? "정기 순회 점검" : "{미션이름}";
+  var NAME = V7R ? window.APRISM_MISSION ? APRISM_MISSION("m1") : "정기 순회 점검" : "{미션이름}";
   var EMBED = V7R && /[?&]embed=modal/.test(location.search);
   if (EMBED) {
     document.documentElement.classList.add("rp-embed");
@@ -89,7 +89,7 @@
     return null;
   }
   var GD = [ [ "#1 GoV. Sump Tank Level", "digital", "520.3 mm", "355 ~ 765 mm", "정상" ], [ "#1 Inlet Valve Oil Pr. Tank Pr.", "digital", "64.0 kg/cm²", "58 ~ 68 kg/cm²", "정상" ], [ "#1 Gov. Oil Pr. Circuit Pr.", "analog", "0 kg/cm²", "58 ~ 100 kg/cm²", "비정상" ], [ "#1 Gov. Oil Pr. Circuit Temp.", "analog", "29.77 °C", "0 ~ 55 °C", "정상" ], [ "#1 Gov. Sump Tank Oil Level", "bar", "59.01 %", "—", "판독 없음" ], [ "#1 Gov. Oil Pr. Tank Level", "bar", "—", "—", "판독 없음" ], [ "#1 Gov. Oil Pr. Tank Pr.", "digital", "64.1 kg/cm²", "58 ~ 68 kg/cm²", "비정상" ], [ "#1 Gov. Air Tank Pr.", "digital", "7.3 kg/cm²", "74 ~ 76 kg/cm²", "비정상" ], [ "#1 Upper Guide BRG Cooling Water Flow", "digital", "0.0 m³/h", "6 ~ 9999 m³/h", "비정상" ], [ "#1 Inlet Valve Oil Pr. Tank Level", "bar", "—", "—", "판독 없음" ], [ "#1 Spiral Casing Pr.", "digital", "6.093 kg/cm²", "40 ~ 9999 kg/cm²", "비정상" ], [ "#1 U1 THB BRG Cooling Water Flow", "digital", "0.00 m³/h", "—", "판독 없음" ] ];
-  var AL = [ [ "10:18:14", "위험", "온도감지", "WP-02 표면 최고 134.8°C", "냉각 계통 점검 요청", "홍길동 10:21" ], [ "10:18:40", "위험", "온도감지", "WP-02 표면 최고 106.8°C", "재측정 후 판단", "홍길동 10:22" ], [ "10:18:56", "위험", "온도감지", "WP-03 표면 최고 99.2°C", "재측정 후 판단", "홍길동 10:22" ], [ "10:19:20", "위험", "온도감지", "WP-03 표면 최고 75.7°C", "오탐으로 종료 (조명 반사)", "홍길동 10:23" ], [ "10:19:37", "위험", "온도감지", "WP-03 표면 최고 79.7°C", "재측정 후 판단", "홍길동 10:23" ], [ "10:20:17", "위험", "온도감지", "WP-04 표면 최고 80.8°C", "냉각 계통 점검 요청", "홍길동 10:25" ], [ "10:21:06", "위험", "온도감지", "WP-05 표면 최고 98.8°C", "냉각 계통 점검 요청", "홍길동 10:25" ], [ "10:21:32", "위험", "온도감지", "WP-05 표면 최고 82.0°C", "재측정 후 판단", "김현대 10:28" ], [ "10:21:42", "위험", "온도감지", "WP-05 표면 최고 79.2°C", "오탐으로 종료 (중복 감지)", "김현대 10:28" ], [ "10:24:40", "위험", "안전감지", "WP-06 안전모 미착용 1명", "현장 근무자에게 착용 지시", "홍길동 10:26" ], [ "10:36:31", "위험", "온도감지", "WP-10 표면 최고 70.8°C", null, null ] ];
+  var AL = [ [ "10:18:14", "위험", "온도감지", "WP-02 표면 최고 134.8°C", "냉각 계통 점검 요청", (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동") + " 10:21" ], [ "10:18:40", "위험", "온도감지", "WP-02 표면 최고 106.8°C", "재측정 후 판단", (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동") + " 10:22" ], [ "10:18:56", "위험", "온도감지", "WP-03 표면 최고 99.2°C", "재측정 후 판단", (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동") + " 10:22" ], [ "10:19:20", "위험", "온도감지", "WP-03 표면 최고 75.7°C", "오탐으로 종료 (조명 반사)", (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동") + " 10:23" ], [ "10:19:37", "위험", "온도감지", "WP-03 표면 최고 79.7°C", "재측정 후 판단", (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동") + " 10:23" ], [ "10:20:17", "위험", "온도감지", "WP-04 표면 최고 80.8°C", "냉각 계통 점검 요청", (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동") + " 10:25" ], [ "10:21:06", "위험", "온도감지", "WP-05 표면 최고 98.8°C", "냉각 계통 점검 요청", (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동") + " 10:25" ], [ "10:21:32", "위험", "온도감지", "WP-05 표면 최고 82.0°C", "재측정 후 판단", (window.APRISM_NAME ? APRISM_NAME("op2") : "김현대") + " 10:28" ], [ "10:21:42", "위험", "온도감지", "WP-05 표면 최고 79.2°C", "오탐으로 종료 (중복 감지)", (window.APRISM_NAME ? APRISM_NAME("op2") : "김현대") + " 10:28" ], [ "10:24:40", "위험", "안전감지", "WP-06 안전모 미착용 1명", "현장 근무자에게 착용 지시", (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동") + " 10:26" ], [ "10:36:31", "위험", "온도감지", "WP-10 표면 최고 70.8°C", null, null ] ];
   var OPEN = AL.filter(function(a) {
     return !a[4];
   });
@@ -281,7 +281,11 @@
   function ic(name, size) {
     return '<span class="i i-' + (size || 16) + '" style="--i:var(--ic-' + name + ')" aria-hidden="true"></span>';
   }
+  var LOGO7 = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 317.37 89.15" height="16" aria-hidden="true"><path fill="#004B93" d="M56.7 0L113.4 89.15L0 89.15ZM56.7 26.42L25.07 76.15L88.33 76.15Z"/><path fill="#7D848C" d="M116.74 89.15L116.74 60L146.06 60A8.75 8.75 0 0 1 146.06 77.49L122.51 77.49L122.51 89.15ZM122.51 65.32L122.51 72.14L146.06 72.14A2.98 3.41 0 0 0 146.06 65.32ZM157.63 89.15L157.63 60L187.32 60A8.75 8.75 0 0 1 190.78 76.78L196.27 89.15L189.96 89.15L184.79 77.49L163.4 77.49L163.4 89.15ZM163.4 65.32L163.4 72.14L187.32 72.14A2.98 3.41 0 0 0 187.32 65.32ZM198.37 60L232.85 60L232.85 65.32L218.54 65.32L218.54 83.83L232.85 83.83L232.85 89.15L198.37 89.15L198.37 83.83L212.72 83.83L212.72 65.32L198.37 65.32ZM244.06 60L265.91 60A8.6 8.6 0 0 1 274.52 68.6L274.52 68.78L268.79 68.78L268.79 68.63A2.88 3.31 0 0 0 265.91 65.32L244.06 65.32A2.88 3.31 0 0 0 244.06 71.94L265.91 71.94A8.6 8.6 0 0 1 265.91 89.15L244.06 89.15A8.6 8.6 0 0 1 235.45 80.55L235.45 80.37L241.18 80.37L241.18 80.52A2.88 3.31 0 0 0 244.06 83.83L265.91 83.83A2.88 3.31 0 0 0 265.91 77.21L244.06 77.21A8.6 8.6 0 0 1 244.06 60ZM277.35 89.15L277.35 60L285.18 60L297.36 82.67L309.53 60L317.37 60L317.37 89.15L311.65 89.15L311.65 69.9L301.31 89.15L293.41 89.15L283.07 69.9L283.07 89.15Z"/></svg>';
   function head(no) {
+    if (document.body.classList.contains("ver-7")) {
+      return '<div class="p-hd"><span class="lg is-wm">' + LOGO7 + '</span><span class="no">문서 번호 ' + no + "</span></div>";
+    }
     return '<div class="p-hd"><span class="lg"><svg viewBox="0 0 40 40" width="26" height="26" aria-hidden="true"><path d="M20 4 L34 28 L20 21 L6 28 Z" fill="currentColor"/><path d="M20 21 L34 28 L20 35 L6 28Z" fill="currentColor" opacity=".45"/></svg><small>APRISM</small></span><span class="no">문서 번호 ' + no + "</span></div>";
   }
   function secH(k, t) {
@@ -836,9 +840,9 @@
   }
   if (V7R) {
     var NAMES7 = {
-      "11-2": [ "유틸리티 순회", "공조 설비 순회", "야간 순회 점검" ],
-      "11-1": [ "야간 순회 점검", "공조 설비 순회", "유틸리티 순회", "정기 순회 점검", "발전기실 설비 점검" ],
-      "10-31": [ "전기실 열화상 점검", "유틸리티 순회" ]
+      "11-2": [ window.APRISM_MISSION ? APRISM_MISSION("m8") : "유틸리티 순회", window.APRISM_MISSION ? APRISM_MISSION("m7") : "공조 설비 순회", window.APRISM_MISSION ? APRISM_MISSION("m6") : "야간 순회 점검" ],
+      "11-1": [ window.APRISM_MISSION ? APRISM_MISSION("m6") : "야간 순회 점검", window.APRISM_MISSION ? APRISM_MISSION("m7") : "공조 설비 순회", window.APRISM_MISSION ? APRISM_MISSION("m8") : "유틸리티 순회", window.APRISM_MISSION ? APRISM_MISSION("m1") : "정기 순회 점검", window.APRISM_MISSION ? APRISM_MISSION("m2") : "발전기실 설비 점검" ],
+      "10-31": [ window.APRISM_MISSION ? APRISM_MISSION("m3") : "전기실 열화상 점검", window.APRISM_MISSION ? APRISM_MISSION("m8") : "유틸리티 순회" ]
     };
     DAYS.forEach(function(d) {
       var k = (d.m || 10) + "-" + d.day;

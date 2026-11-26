@@ -115,7 +115,7 @@ window.APRISM_TEXT = function() {
     }
     var ack = panel.querySelector("[data-ai-ack]");
     if (ack) {
-      var NORMAL_LINE_1 = "안녕하세요, 홍길동 님.";
+      var NORMAL_LINE_1 = "안녕하세요, " + (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동") + " 님.";
       var NORMAL_LINE_2 = "인계된 알림 3건과 진행 예정인 미션 1건이 있어요. 먼저 살펴볼까요?";
       var NORMAL_TAG = "인계 알림 3건 · 예정 미션 1건";
       ack.addEventListener("click", function() {
@@ -159,7 +159,7 @@ window.APRISM_TEXT = function() {
   }
   function handOver(scrim) {
     var id = scrim.querySelector("[data-shift-id]");
-    var name = id && id.value.trim() || "김현대";
+    var name = id && id.value.trim() || (window.APRISM_NAME ? APRISM_NAME("op2") : "김현대");
     var chip = document.querySelector(".account-chip");
     if (chip) {
       var slots = chip.querySelectorAll(".t-label-2");
@@ -509,7 +509,7 @@ window.APRISM_TEXT = function() {
   })();
   var V4_RR = document.body.hasAttribute("data-route-rules");
   var ROBOTS = [ {
-    mission: "지하 4층 정기 순회 점검",
+    mission: "지하 4층 " + (window.APRISM_MISSION ? APRISM_MISSION("m1") : "정기 순회 점검"),
     current: "N₂ 배관 압력 점검",
     steps: [ {
       title: "FFU-01 토출구",
@@ -606,7 +606,7 @@ window.APRISM_TEXT = function() {
       state: "pending"
     } ]
   }, {
-    mission: "지하 4층 야간 순회 점검",
+    mission: "지하 4층 " + (window.APRISM_MISSION ? APRISM_MISSION("m6") : "야간 순회 점검"),
     current: "순회 완료",
     steps: [ {
       title: "waypoint name",
@@ -640,7 +640,7 @@ window.APRISM_TEXT = function() {
       duration: "19분"
     } ]
   }, {
-    mission: "지하 3층 발전기실 설비 점검",
+    mission: "지하 3층 " + (window.APRISM_MISSION ? APRISM_MISSION("m2") : "발전기실 설비 점검"),
     current: "발전기 베어링 진동 측정",
     steps: [ {
       title: "waypoint name",
@@ -737,7 +737,7 @@ window.APRISM_TEXT = function() {
       state: "pending"
     } ]
   }, {
-    mission: "지하 3층 공조 설비 순회",
+    mission: "지하 3층 " + (window.APRISM_MISSION ? APRISM_MISSION("m7") : "공조 설비 순회"),
     current: "순회 완료",
     steps: [ {
       title: "waypoint name",
@@ -780,7 +780,7 @@ window.APRISM_TEXT = function() {
       state: "pending"
     } ]
   }, {
-    mission: "지하 4층 유틸리티 순회",
+    mission: "지하 4층 " + (window.APRISM_MISSION ? APRISM_MISSION("m8") : "유틸리티 순회"),
     current: "순회 완료",
     steps: [ {
       title: "waypoint name",
@@ -831,7 +831,7 @@ window.APRISM_TEXT = function() {
       state: "pending"
     } ]
   }, {
-    mission: "지하 3층 전기실 열화상 점검",
+    mission: "지하 3층 " + (window.APRISM_MISSION ? APRISM_MISSION("m3") : "전기실 열화상 점검"),
     current: V4_RR ? "WP-08 케미컬 공급 캐비닛 CDS-02 판독" : "WP-04 로 이동 중",
     steps: V4_RR ? [ {
       title: "FFU-01 토출구",
@@ -1001,21 +1001,21 @@ window.APRISM_TEXT = function() {
       }
     });
     window.APRISM_MISSION_FLOORS = {
-      "정기 순회 점검": [ "B4" ],
-      "야간 순회 점검": [ "B4" ],
-      "발전기실 설비 점검": [ "B3", "B4" ],
-      "공조 설비 순회": [ "B3" ],
-      "유틸리티 순회": [ "B4" ],
-      "전기실 열화상 점검": [ "B3" ]
+      [window.APRISM_MISSION ? APRISM_MISSION("m1") : "정기 순회 점검"]: [ "B4" ],
+      [window.APRISM_MISSION ? APRISM_MISSION("m6") : "야간 순회 점검"]: [ "B4" ],
+      [window.APRISM_MISSION ? APRISM_MISSION("m2") : "발전기실 설비 점검"]: [ "B3", "B4" ],
+      [window.APRISM_MISSION ? APRISM_MISSION("m7") : "공조 설비 순회"]: [ "B3" ],
+      [window.APRISM_MISSION ? APRISM_MISSION("m8") : "유틸리티 순회"]: [ "B4" ],
+      [window.APRISM_MISSION ? APRISM_MISSION("m3") : "전기실 열화상 점검"]: [ "B3" ]
     };
     window.APRISM_ROBOT_FLOORS = [ "B4", "B4", "B4", "B4", "B4", "B4", "B3", "B3", "B4", "B3", "B3", "B3" ];
   }
   if (document.body.classList.contains("ver-6")) {
-    ROBOTS[2].mission = "소방 설비 점검";
-    ROBOTS[7].mission = "주간 설비 점검";
+    ROBOTS[2].mission = window.APRISM_MISSION ? APRISM_MISSION("m4") : "소방 설비 점검";
+    ROBOTS[7].mission = window.APRISM_MISSION ? APRISM_MISSION("m5") : "주간 설비 점검";
     if (window.APRISM_MISSION_FLOORS) {
-      window.APRISM_MISSION_FLOORS["소방 설비 점검"] = [ "B4" ];
-      window.APRISM_MISSION_FLOORS["주간 설비 점검"] = [ "B3" ];
+      window.APRISM_MISSION_FLOORS[window.APRISM_MISSION ? APRISM_MISSION("m4") : "소방 설비 점검"] = [ "B4" ];
+      window.APRISM_MISSION_FLOORS[window.APRISM_MISSION ? APRISM_MISSION("m5") : "주간 설비 점검"] = [ "B3" ];
     }
   }
   window.APRISM_ROBOT_MISSIONS = ROBOTS.map(function(r) {

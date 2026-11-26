@@ -1967,8 +1967,7 @@ a.map-floor {
 
   background:
     radial-gradient(circle at 28px 28px, var(--glow-color) 0, var(--glow-color) 60px, transparent 240px),
-    var(--gradient-one), var(--gradient-two), var(--gradient-three), var(--gradient-four),
-    var(--gradient-five), var(--gradient-six), var(--gradient-seven), var(--gradient-base);
+    var(--edge-ring);
   -webkit-mask:
     url("data:image/svg+xml,%3Csvg width='64' height='64' viewBox='0 0 64 64' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M64 1H62.627A15 15 0 0 0 52.020 5.393L5.393 52.020A15 15 0 0 0 1 62.627V64' stroke='%23000' stroke-width='2'/%3E%3C/svg%3E") 0 0 / 64px 64px no-repeat,
     conic-gradient(at 62px 62px, #000 0 75%, transparent 0),

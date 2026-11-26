@@ -580,6 +580,10 @@
 .ac-info-row > dd { min-width: 0; margin: 0; }
 .ac-info-delta { color: var(--fg-link); }
 
+body.ver-7 .ac-info-acts { display: flex; flex-wrap: wrap; gap: var(--space-4) var(--space-12); }
+body.ver-7 .ac-info-ai { display: inline-flex; align-items: center; gap: var(--space-4); color: var(--ds-delta-fg); }
+body.ver-7 .ac-info-ai-i { flex: none; width: 14px; height: 14px; background: var(--ds-ai-face); -webkit-mask: var(--ic-delta) center / contain no-repeat; mask: var(--ic-delta) center / contain no-repeat; }
+
 
 .ac-detail {
   flex: none;

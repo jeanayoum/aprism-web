@@ -20,12 +20,12 @@
   } else {
     left.appendChild(bar);
   }
-  var MNO = [ "정기 순회 점검", "발전기실 설비 점검", "전기실 열화상 점검", "소방 설비 점검", "주간 설비 점검", "야간 순회 점검", "공조 설비 순회", "유틸리티 순회" ];
+  var MNO = [ window.APRISM_MISSION ? APRISM_MISSION("m1") : "정기 순회 점검", window.APRISM_MISSION ? APRISM_MISSION("m2") : "발전기실 설비 점검", window.APRISM_MISSION ? APRISM_MISSION("m3") : "전기실 열화상 점검", window.APRISM_MISSION ? APRISM_MISSION("m4") : "소방 설비 점검", window.APRISM_MISSION ? APRISM_MISSION("m5") : "주간 설비 점검", window.APRISM_MISSION ? APRISM_MISSION("m6") : "야간 순회 점검", window.APRISM_MISSION ? APRISM_MISSION("m7") : "공조 설비 순회", window.APRISM_MISSION ? APRISM_MISSION("m8") : "유틸리티 순회" ];
   var EN = window.APRISM_EN || {};
   var MNO_EN = MNO.map(function(k) {
     return EN[k];
   });
-  var IDLE = [ "소방 설비 점검", "주간 설비 점검" ];
+  var IDLE = [ window.APRISM_MISSION ? APRISM_MISSION("m4") : "소방 설비 점검", window.APRISM_MISSION ? APRISM_MISSION("m5") : "주간 설비 점검" ];
   var V7KO = document.body.classList.contains("ver-7") && document.documentElement.lang !== "en";
   var FIT_GAP = 24;
   var SPARE = 40;
@@ -73,11 +73,11 @@
         seen = "";
       }
       if (seen !== nq[0]) {
-        setNewRisks(nq[1] === "1" ? [ "전기실 열화상 점검" ] : []);
+        setNewRisks(nq[1] === "1" ? [ window.APRISM_MISSION ? APRISM_MISSION("m3") : "전기실 열화상 점검" ] : []);
         var A7 = window.APRISM_ALERTS7;
         if (nq[1] === "1" && A7) {
           A7.list.forEach(function(a) {
-            if (a.mission === "전기실 열화상 점검" && a.sev === "critical") {
+            if (a.mission === (window.APRISM_MISSION ? APRISM_MISSION("m3") : "전기실 열화상 점검") && a.sev === "critical") {
               A7.req.clear(a.id);
             }
           });

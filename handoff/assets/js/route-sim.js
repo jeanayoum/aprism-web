@@ -625,7 +625,7 @@
     var sigTxt = null;
     if (sig) {
       Array.prototype.forEach.call(sig, function(n) {
-        if (/^(Strong|Good|Weak|Fair|끊김|Lost)$/.test(n.textContent.trim())) {
+        if (/^(Strong|Good|Weak|Fair|강함|보통|약함|끊김|Lost)$/.test(n.textContent.trim())) {
           sigTxt = n;
         }
       });
@@ -934,6 +934,14 @@
     if (mode === "return") {
       placeNote("");
     }
+    var no7 = mode === "inspect" && card ? card.closest(".timeline-item") : null;
+    no7 = no7 && no7.querySelector(".step-no.ds-wp");
+    Array.prototype.forEach.call(document.querySelectorAll(".step-no.ds-wp.is-measuring"), function(n) {
+      if (n !== no7) {
+        n.classList.remove("is-measuring");
+        n.style.removeProperty("--ds-wp-progress");
+      }
+    });
     if (card) {
       if (mode === "inspect") {
         var fr = Math.min(1, e % 4500 / 3000), v = card.querySelector(".rr-note .val, .rr-st .val"), pe = card.querySelector('[data-rr="pct"]');
@@ -944,9 +952,9 @@
         if (pe) {
           pe.textContent = Math.round(fr * 100) + "%";
         }
-        var it7 = card.closest(".timeline-item");
-        if (it7) {
-          it7.style.setProperty("--rr-pct", (fr * 100).toFixed(1));
+        if (no7) {
+          no7.classList.add("is-measuring");
+          no7.style.setProperty("--ds-wp-progress", (fr * 100).toFixed(1));
         }
       } else if (mode === "run" || mode === "alert") {
         var s = api.get(), next = api.stops().filter(function(x) {

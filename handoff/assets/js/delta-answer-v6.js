@@ -127,10 +127,7 @@
       return c.openA(a);
     }
     function detailBtn(a) {
-      return btn(a.sev === "critical" ? "위험 상세 확인" : "상세 확인", "is-pri", open(a));
-    }
-    function mapBtn(a) {
-      return btn("위치 보기", "", open(a));
+      return btn("상세 확인", "is-pri", open(a));
     }
     function msg(type, a, title, right) {
       var m = {
@@ -274,7 +271,13 @@
       top.appendChild(diag(a));
       top.appendChild(el("span", null, needLine(a)));
       d.appendChild(top);
-      d.appendChild(el("p", "dc6-eq", label(a)));
+      var eq = el("p", "dc6-eq", label(a));
+      if (!mine(a) && A().missionOf && A().missionOf(a)) {
+        var cm = el("span", "dc6-row-s dc6-card-m");
+        cm.appendChild(missionNode(a));
+        eq.appendChild(cm);
+      }
+      d.appendChild(eq);
       if (a.sum) {
         d.appendChild(el("p", "dc6-desc", a.sum));
       }
@@ -285,7 +288,7 @@
       var note = el("p", "dc6-done");
       note.hidden = true;
       d.appendChild(note);
-      d.appendChild(btnRow(detailBtn(a), mapBtn(a)));
+      d.appendChild(btnRow(detailBtn(a)));
       m.card = {
         a: a,
         node: d,
@@ -356,7 +359,7 @@
       text(m, at === 0 ? "이것부터 확인하세요. 열린 " + ord.length + "건 중 첫 번째예요." : "열린 " + ord.length + "건 중 " + (at + 1) + "번째예요.");
       m.node.appendChild(ul(reasons(a, ord), "ul", "dc6-ul"));
       m.node.appendChild(el("p", "dc6-rule", "순서는 운영 규칙(위험, 보는 미션, 오래된 순)으로 정해요. Delta는 순서를 바꾸지 않고 근거만 설명해요."));
-      m.node.appendChild(btnRow(detailBtn(a), mapBtn(a)));
+      m.node.appendChild(btnRow(detailBtn(a)));
       return finish(m);
     }
     function sec(d, title, tag, bodyNode) {
@@ -397,7 +400,7 @@
       }
       d.appendChild(btnRow(btn("추천 조치 보기", "is-pri", function() {
         c.ask("어떻게 조치해?");
-      }), mapBtn(a)));
+      }), btn("상세 확인", "", open(a))));
       m.node.appendChild(d);
       return finish(m);
     }
@@ -415,7 +418,7 @@
       var m = msg("actions", a, "추천 조치", a.eq);
       if (!list.length) {
         text(m, "이 알림은 추천 조치가 아직 없어요. 알림을 열어 확인하세요.");
-        m.node.appendChild(btnRow(detailBtn(a), mapBtn(a)));
+        m.node.appendChild(btnRow(detailBtn(a)));
         return finish(m);
       }
       var why = [ label(a) ];
@@ -464,7 +467,7 @@
         dl.appendChild(dd);
       });
       d.appendChild(dl);
-      d.appendChild(btnRow(btn("위치 보기", "is-pri", open(a)), btn("상세 확인", "", open(a))));
+      d.appendChild(btnRow(detailBtn(a)));
       m.node.appendChild(d);
       return finish(m);
     }

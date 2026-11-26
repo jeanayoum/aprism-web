@@ -1,3 +1,7 @@
+
+
+
+
 .auth {
   display: flex;
   height: 100vh;
@@ -6,6 +10,7 @@
   background-color: var(--bg-page);
   color: var(--text-primary);
 }
+
 
 .brand-lockup {
   --i: var(--ic-brand-lockup);
@@ -16,12 +21,14 @@
 
 :root[data-theme="light"] .brand-lockup { color: var(--text-primary); }
 
+
 .brand-block {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 18px;
 }
+
 
 .brand-tagline {
   display: flex;
@@ -33,15 +40,20 @@
 
 .brand-tagline p { margin: 0; }
 
+
 .brand-title { color: var(--text-secondary); }
 .brand-sub { color: var(--text-disabled); }
+
+
 
 .auth-splash {
   align-items: center;
   justify-content: center;
 }
 
+
 .auth-splash .brand-sub { text-transform: uppercase; }
+
 
 .auth-splash .brand-lockup,
 .auth-splash .brand-tagline {
@@ -55,6 +67,7 @@
   to   { opacity: 1; transform: none; }
 }
 
+
 .auth-splash.is-leaving { animation: splash-out 260ms ease-in both; }
 
 @keyframes splash-out {
@@ -67,6 +80,9 @@
   .auth-splash.is-leaving { animation: none; }
 }
 
+
+
+
 .auth-brand {
   flex: 0 0 58.333%;
   min-width: 0;
@@ -76,6 +92,7 @@
 
   padding: var(--space-24) var(--space-24) var(--space-64);
 }
+
 
 .auth-panel {
   flex: 1 1 auto;
@@ -88,6 +105,7 @@
 
   overflow-y: auto;
 }
+
 
 .login-card {
   width: 468px;
@@ -102,6 +120,7 @@
   backdrop-filter: blur(10px);
 }
 
+
 .login-head {
   display: flex;
   flex-direction: column;
@@ -111,16 +130,19 @@
 .login-head h1 { margin: 0; color: var(--text-primary); }
 .login-head p { margin: 0; color: var(--text-tertiary); }
 
+
 .login-fields {
   display: flex;
   flex-direction: column;
   gap: var(--space-20);
 }
 
+
 .login-fields .field-box > .lead {
   flex: none;
   color: var(--text-primary);
 }
+
 
 .login-fields input {
   flex: 1 1 auto;
@@ -137,14 +159,17 @@
 .login-fields input:focus { outline: 0; }
 .login-fields input::placeholder { color: var(--text-tertiary); }
 
+
 .login-fields .field:not(.is-error) .field-box:focus-within {
   border-color: var(--border-focus);
   outline: var(--border-width-thin) solid var(--border-focus);
 }
 
+
 .login-fields .field.is-error .field-box:focus-within {
   outline: var(--border-width-thin) solid var(--status-critical-border);
 }
+
 
 .pw-toggle {
   flex: none;
@@ -165,6 +190,7 @@
 .pw-toggle .i { --i: var(--ic-eye-off); }
 .pw-toggle[aria-pressed="true"] .i { --i: var(--ic-eye); }
 
+
 .login-options {
   display: flex;
   align-items: center;
@@ -172,6 +198,7 @@
   min-height: 38px;
   padding: 0 var(--space-8);
 }
+
 
 .checkbox {
   display: inline-flex;
@@ -208,6 +235,7 @@
   background-color: var(--bg-panel);
 }
 
+
 .checkbox .box .i {
   --i: var(--ic-check);
   width: 14px;
@@ -227,6 +255,7 @@
   outline: var(--border-width-thin) solid var(--border-focus);
   outline-offset: 1px;
 }
+
 
 .login-submit {
   display: flex;
@@ -251,6 +280,7 @@
   outline-offset: 2px;
 }
 
+
 .login-submit.is-danger {
   border-color: transparent;
   background-color: var(--comp-button-danger-bg-default);
@@ -260,16 +290,19 @@
 .login-submit.is-danger:hover { background-color: var(--comp-button-danger-bg-hover); }
 .login-submit.is-danger:active { background-color: var(--comp-button-danger-bg-pressed); }
 
+
 .login-submit.is-danger:disabled {
   background-color: var(--comp-button-danger-bg-disabled);
   color: var(--comp-button-danger-text-disabled);
   cursor: not-allowed;
 }
 
+
 .auth-panel.is-centered {
   justify-content: center;
   padding-right: 0;
 }
+
 
 .auth-stack {
   display: flex;
@@ -291,6 +324,7 @@
   outline: var(--border-width-thin) solid var(--border-focus);
   outline-offset: 2px;
 }
+
 
 .pw-rules {
   display: flex;
@@ -319,6 +353,7 @@
   .pw-rule .i { transition: none; }
 }
 
+
 .inline-notice.is-warning {
   border: var(--border-width-thin) solid var(--status-warning-border);
   background-color: var(--status-warning-bg);
@@ -326,6 +361,7 @@
 }
 
 .inline-notice.is-warning .i { color: var(--status-warning-icon); }
+
 
 .login-help {
   display: flex;
@@ -346,12 +382,14 @@
   color: var(--text-tertiary);
 }
 
+
 .login-copyright {
   flex: none;
   margin: 0;
   text-align: center;
   color: var(--text-tertiary);
 }
+
 
 @media (max-width: 1080px) {
   .auth-brand { display: none; }
@@ -362,10 +400,12 @@
   }
 }
 
+
 @media (max-height: 720px) {
   .login-card { padding-top: var(--space-20); }
   .auth-panel { padding-top: var(--space-16); padding-bottom: var(--space-16); }
 }
+
 
 .brand-logo { --w: 400px; display: block; width: var(--w); line-height: 0; }
 .auth-brand .brand-logo { --w: 360px; }
