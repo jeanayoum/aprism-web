@@ -90,7 +90,7 @@
     <div class="ver"><p class="ver-t">A · v8 디자이너 디자인 — 최근 측정 지점 1건</p><div class="grid6" id="galA">
       <div class="card" id="gA-eq"></div><div class="card" id="gA-leak"></div><div class="card" id="gA-sound"></div>
       <div class="card" id="gA-temp"></div><div class="card" id="gA-gauge"></div><div class="card" id="gA-pd"></div></div></div>
-    <div class="ver"><p class="ver-t">B · 같은 디자인 — 이번 순회 지점별</p><div class="grid6" id="galB">
+    <div class="ver"><p class="ver-t">B · 같은 디자인 — 이번 순회 지점별(위젯형: 세그먼트 · 알약 · 슬라이더 · 동그라미)</p><div class="grid6" id="galB">
       <div class="card" id="gB-eq"></div><div class="card" id="gB-leak"></div><div class="card" id="gB-sound"></div>
       <div class="card" id="gB-temp"></div><div class="card" id="gB-gauge"></div><div class="card" id="gB-pd"></div></div></div>
   </section>
@@ -205,28 +205,60 @@
       txt(svg, x1, 84, o.max + (o.ax || ''), { 'text-anchor': 'end', 'font-size': 12, 'font-weight': 500 });
       txt(svg, (x0 + x1) / 2, 84, o.when, { 'text-anchor': 'middle', 'font-size': 12, 'font-weight': 500 });
     }
-    // 카드 B — 이번 순회 지점별 막대(같은 디자인). 안 잰 지점 = 점선 빈 칸, 지금 알림 지점 = 판정 색 + 빛
+    // ---------- 카드 B 공통(위젯형, 11/26): 지점마다 한 칸 · 안 잰 지점 = 어두운 칸 · 빛은 지금 문제 지점 하나에만 ----------
+    var BLUE = ['--color-blue-800', '--color-blue-700', '--color-blue-600', '--color-blue-500', '--color-blue-400'].map(v);   // 정상 칸: 아래 어둡게 → 위 밝게(파랑 명도만)
+    var DARK = '#3A4654';
+    function slots(n) { var slot = 357 / n; return function (i) { return 24 + slot * (i + .5); }; }
+    function glow(svg, id) {   // 문제 지점 칸 뒤 번짐
+      var defs = svg.querySelector('defs') || el(svg, 'defs', {});
+      var f = document.createElementNS(NS, 'filter'); f.setAttribute('id', id); f.setAttribute('x', '-100%'); f.setAttribute('y', '-100%'); f.setAttribute('width', '300%'); f.setAttribute('height', '300%');
+      var b = document.createElementNS(NS, 'feGaussianBlur'); b.setAttribute('stdDeviation', '5'); f.appendChild(b); defs.appendChild(f); return 'url(#' + id + ')';
+    }
+    function wpLab(svg, x, w) { txt(svg, x, 84, w.wp.replace('WP-', ''), { 'text-anchor': 'middle', 'font-size': 12, 'font-weight': w.cur ? 700 : 500, fill: w.plan ? C.t3 : w.cur ? C.t2 : C.t3, opacity: w.plan ? .5 : 1 }); }
+    // 기준이 하나인 값(누출 · 이상음향 · 부분방전) — 지점마다 세그먼트 기둥 8칸: 0 ~ 주의 5칸(파랑 명도), 주의 ~ 위험 2칸(노랑), 위험 1칸(빨강). 값까지 켜고 나머지는 어둡게
     function cardB(id, o) {
-      var svg = shell(id, o), top = 4, bot = 64;
-      // 모든 지점 기준이 같으면 A 와 같은 자리(위험 12 · 주의 32)에 기준선 — 0 ~ 주의, 주의 ~ 위험, 위험 위를 따로 잇는 눈금(카드는 비교용 그림)
-      var Y = o.warn !== undefined ? function (x) { x = Math.max(0, x);
-          if (x <= o.warn) { return bot - (bot - 32) * x / o.warn; }
-          if (x <= o.crit) { return 32 - 20 * (x - o.warn) / (o.crit - o.warn); }
-          return Math.max(top, 12 - 8 * (x - o.crit) / (o.max - o.crit)); }
-        : function (x) { return bot - (bot - top) * Math.max(0, Math.min(1, x / o.max)); };
-      if (o.warn !== undefined) { rules(svg, Y, o); }
-      el(svg, 'line', { x1: 24, x2: 381, y1: bot, y2: bot, stroke: GRID, 'stroke-width': 1, opacity: .6 });
-      var n = o.wps.length, slot = 357 / n, bw = Math.min(18, slot * .42), X = function (i) { return 24 + slot * (i + .5); };
-      var rg = grad(svg, id + 'rg', [stCol(o.st), 0], [stCol(o.st), .45], true);
+      var svg = shell(id, o), SEG = 8, sh = 6.5, gap = 1.5, bot = 64, X = slots(o.wps.length), bw = 30;
+      var segY = function (k) { return bot - (k + 1) * sh - k * gap; };
+      var segCol = function (k) { return k < 5 ? BLUE[k] : k < 7 ? C.warn : C.crit; };
+      var lit = function (x) { return x >= o.crit ? 8 : x >= o.warn ? 5 + Math.min(2, Math.ceil(2 * (x - o.warn) / (o.crit - o.warn)) || 1) : Math.max(1, Math.ceil(5 * x / o.warn)); };
+      // 기준 이름표: 주의 = 5번째 칸 위, 위험 = 8번째 칸 아래 경계
+      txt(svg, 0, segY(4) - gap / 2 + 4.5, o.warn, { fill: v('--status-warning-text'), 'font-size': 13 });
+      txt(svg, 0, segY(6) - gap / 2 + 4.5, o.crit, { fill: v('--status-critical-text'), 'font-size': 13 });
+      var gf = glow(svg, id + 'gl');
       o.wps.forEach(function (w, i) {
-        var x = X(i), lab = w.wp.replace('WP-', '');
-        if (w.plan) { el(svg, 'rect', { x: x - bw / 2, y: top, width: bw, height: bot - top, rx: 3, fill: 'none', stroke: GRID, 'stroke-dasharray': '2 3' });
-          txt(svg, x, 84, lab, { 'text-anchor': 'middle', 'font-size': 12, opacity: .55 }); return; }
-        var wv = w.warn !== undefined ? w.warn : o.warn, cv = w.crit !== undefined ? w.crit : o.crit;
-        var s2 = w.v >= cv ? 'crit' : w.v >= wv ? 'warn' : 'ok';
-        el(svg, 'rect', { x: x - bw / 2, y: Y(w.v), width: bw, height: bot - Y(w.v), rx: 3, fill: s2 !== 'ok' ? stCol(s2) : w.cur ? C.b3 : '#667685' });
-        if (w.warn !== undefined) { [[wv, v('--status-warning-text')], [cv, v('--status-critical-text')]].forEach(function (t) { if (t[0] > o.max) { return; } el(svg, 'line', { x1: x - bw / 2 - 6, x2: x + bw / 2 + 6, y1: Y(t[0]), y2: Y(t[0]), stroke: t[1], 'stroke-width': 2, 'stroke-linecap': 'round' }); }); }
-        txt(svg, x, 84, lab, { 'text-anchor': 'middle', 'font-size': 12, 'font-weight': w.cur ? 700 : 500, fill: w.cur ? C.t2 : C.t3 });
+        var x = X(i), n = w.plan ? 0 : lit(w.v), bad = !w.plan && w.v >= o.warn;
+        if (w.cur && bad) { var g = el(svg, 'g', { filter: gf, opacity: .9 });
+          for (var k = 0; k < n; k++) { el(g, 'rect', { x: x - bw / 2, y: segY(k), width: bw, height: sh, rx: 1.5, fill: segCol(k) }); } }
+        for (var k2 = 0; k2 < SEG; k2++) {
+          var on = k2 < n;
+          el(svg, 'rect', { x: x - bw / 2, y: segY(k2), width: bw, height: sh, rx: 1.5, fill: on ? segCol(k2) : DARK, opacity: on ? (w.cur || bad ? 1 : .7) : w.plan ? .4 : .8 });
+        }
+        wpLab(svg, x, w);
+      });
+    }
+    // 지점마다 기준이 다른 값(온도) — 물방울 알약: 자기 기준으로 맞춘 눈금(0 ~ 주의 = 아래 60%, 주의 ~ 위험 = 위 40%)이라 주의 · 위험 선이 모든 알약에서 같은 높이
+    function pillB(id, o) {
+      var svg = shell(id, o), top = 4, bot = 64, H = bot - top, X = slots(o.wps.length), bw = 26;
+      var R = function (w) { var x = w.v; return x <= w.warn ? .6 * x / w.warn : Math.min(1, .6 + .4 * (x - w.warn) / (w.crit - w.warn)); };
+      var yW = bot - .6 * H;
+      txt(svg, 0, yW + 4, '주의', { fill: v('--status-warning-text'), 'font-size': 11 });
+      txt(svg, 0, top + 8, '위험', { fill: v('--status-critical-text'), 'font-size': 11 });
+      var gf = glow(svg, id + 'gl');
+      o.wps.forEach(function (w, i) {
+        var x = X(i), cid = id + 'c' + i;
+        var cp = el(svg.querySelector('defs'), 'clipPath', { id: cid }); el(cp, 'rect', { x: x - bw / 2, y: top, width: bw, height: H, rx: bw / 2 });
+        el(svg, 'rect', { x: x - bw / 2, y: top, width: bw, height: H, rx: bw / 2, fill: DARK, opacity: w.plan ? .45 : .9 });
+        if (!w.plan) {
+          var r = R(w), st = w.v >= w.crit ? 'crit' : w.v >= w.warn ? 'warn' : 'ok', y = bot - r * H;
+          var col = st === 'crit' ? C.crit : st === 'warn' ? C.warn : null;
+          var gg = grad(svg, id + 'f' + i, [col || BLUE[4], 1], [col || BLUE[1], 1]); svg.querySelector('#' + id + 'f' + i).setAttribute('x2', '0'); svg.querySelector('#' + id + 'f' + i).setAttribute('y2', '1');
+          if (w.cur && st !== 'ok') { el(svg, 'rect', { x: x - bw / 2, y: y, width: bw, height: bot - y, rx: bw / 2, fill: col, opacity: .7, filter: gf }); }
+          var gr = el(svg, 'g', { 'clip-path': 'url(#' + cid + ')' });
+          el(gr, 'rect', { x: x - bw / 2, y: y, width: bw, height: bot - y + 2, fill: gg, opacity: w.cur || st !== 'ok' ? 1 : .75 });
+          el(gr, 'rect', { x: x - bw / 2 + 4, y: y + 3, width: 3, height: Math.max(0, bot - y - 10), rx: 1.5, fill: '#FFFFFF', opacity: .28 });   // 알약 윤기
+        }
+        el(svg, 'line', { x1: x - bw / 2, x2: x + bw / 2, y1: yW, y2: yW, stroke: '#0E141B', 'stroke-width': 1.5, opacity: .55 });   // 주의 눈금(알약 안 홈)
+        wpLab(svg, x, w);
       });
     }
 
@@ -248,19 +280,20 @@
         var on = t[1] > 0; return '<div class="tile' + (on ? ' is-on' : '') + '"><b>' + t[1] + '명</b>' + EQ_ICON[t[2]].replace('fill="currentColor"', on && t[2] === 'helmet' ? 'fill="url(#hg)"' : 'fill="currentColor"') + '<span>' + t[0] + '</span></div>';
       }).join('') + '</div>');
     }
-    // 장비착용 B — 지점마다 사람 수만큼 작은 사람 막대(미착용 빨강, 착용 회색), 안 잰 지점 빈 칸
+    // 장비착용 B — 지점마다 동그라미(안에 지점 번호): 미착용 있으면 빨강으로 채움, 다 착용은 파랑 테두리, 안 잰 지점은 어둡게. 아래 = 인원
     function equipB(id, o) {
-      var svg = shell(id, o), top = 6, bot = 64, n = o.wps.length, slot = 357 / n, X = function (i) { return 24 + slot * (i + .5); };
-      el(svg, 'line', { x1: 24, x2: 381, y1: bot, y2: bot, stroke: GRID, 'stroke-width': 1, opacity: .6 });
+      var svg = shell(id, o), X = slots(o.wps.length), cy = 36, r = 19, gf = glow(svg, id + 'gl');
       o.wps.forEach(function (w, i) {
-        var x = X(i), lab = w.wp.replace('WP-', '');
-        if (w.plan) { el(svg, 'rect', { x: x - 9, y: top, width: 18, height: bot - top, rx: 3, fill: 'none', stroke: GRID, 'stroke-dasharray': '2 3' }); txt(svg, x, 84, lab, { 'text-anchor': 'middle', 'font-size': 12, opacity: .55 }); return; }
-        for (var k = 0; k < w.total; k++) { var bad = k < w.bad, y0 = bot - 2 - k * 22;
-          el(svg, 'circle', { cx: x, cy: y0 - 15, r: 3.5, fill: bad ? C.crit : '#667685' });
-          el(svg, 'rect', { x: x - 5, y: y0 - 10, width: 10, height: 10, rx: 3, fill: bad ? C.crit : '#667685' }); }
-        txt(svg, x, 84, lab, { 'text-anchor': 'middle', 'font-size': 12, 'font-weight': w.cur ? 700 : 500, fill: w.cur ? C.t2 : C.t3 });
+        var x = X(i);
+        if (w.plan) { el(svg, 'circle', { cx: x, cy: cy, r: r, fill: DARK, opacity: .45 });
+          txt(svg, x, cy + 4.5, w.wp.replace('WP-', ''), { 'text-anchor': 'middle', 'font-size': 13, 'font-weight': 600, opacity: .5 }); return; }
+        var bad = w.bad > 0;
+        if (bad && w.cur) { el(svg, 'circle', { cx: x, cy: cy, r: r, fill: C.crit, opacity: .7, filter: gf }); }
+        if (bad) { el(svg, 'circle', { cx: x, cy: cy, r: r, fill: C.crit }); }
+        else { el(svg, 'circle', { cx: x, cy: cy, r: r - 1.5, fill: DARK, stroke: BLUE[3], 'stroke-width': 3 }); }
+        txt(svg, x, cy + 4.5, w.wp.replace('WP-', ''), { 'text-anchor': 'middle', 'font-size': 13, 'font-weight': 700, fill: bad ? '#FFFFFF' : C.t2 });
+        txt(svg, x, 84, bad ? '미착용 ' + w.bad : w.total + '명', { 'text-anchor': 'middle', 'font-size': 12, 'font-weight': bad ? 700 : 500, fill: bad ? v('--status-critical-text') : C.t3 });
       });
-      txt(svg, 0, 14, '미착용', { fill: v('--status-critical-text'), 'font-size': 12 });
     }
     // 계기인식 A — 디자이너 안: 위 넓은 다이얼(구간 색 · 눈금 · 경계 흰 표 · 값 점과 바늘), 아래 큰 값
     function gaugeA(id, o) {
@@ -277,20 +310,23 @@
       el(svg, 'circle', { cx: pv[0], cy: pv[1], r: 4.5, fill: '#FFFFFF', stroke: o.st === 'crit' ? C.crit : o.st === 'warn' ? C.warn : C.b3, 'stroke-width': 2 });
       txt(svg, 8, 76, o.lo + ' ' + o.ax, { 'font-size': 11 }); txt(svg, 373, 76, o.hi + ' ' + o.ax, { 'font-size': 11, 'text-anchor': 'end' });
     }
-    // 계기인식 B — 지점마다 세로 눈금(정상 범위 파랑 띠 · 위험 구간 빨강 띠) 위 값 점
+    // 계기인식 B — 지점마다 세로 슬라이더 알약: 정상 범위 = 밝은 파랑 띠, 위험 구간 = 위쪽 빨강, 값 = 흰 손잡이(테두리 판정 색)
     function gaugeB(id, o) {
-      var svg = shell(id, o), top = 6, bot = 64, n = o.wps.length, slot = 357 / n, X = function (i) { return 24 + slot * (i + .5); };
+      var svg = shell(id, o), top = 4, bot = 64, X = slots(o.wps.length), bw = 18, gf = glow(svg, id + 'gl');
       var Y = function (val) { return bot - (bot - top) * (val - o.lo) / (o.hi - o.lo); };
       txt(svg, 0, Y(o.ok[1]) + 4, o.ok[1], { fill: C.b3, 'font-size': 12 }); txt(svg, 0, Y(o.ok[0]) + 4, o.ok[0], { fill: C.b3, 'font-size': 12 });
       o.wps.forEach(function (w, i) {
-        var x = X(i), lab = w.wp.replace('WP-', '');
-        if (w.plan) { el(svg, 'rect', { x: x - 9, y: top, width: 18, height: bot - top, rx: 3, fill: 'none', stroke: GRID, 'stroke-dasharray': '2 3' }); txt(svg, x, 84, lab, { 'text-anchor': 'middle', 'font-size': 12, opacity: .55 }); return; }
-        el(svg, 'rect', { x: x - 3, y: top, width: 6, height: bot - top, rx: 3, fill: GRID, opacity: .7 });
-        el(svg, 'rect', { x: x - 3, y: Y(o.ok[1]), width: 6, height: Y(o.ok[0]) - Y(o.ok[1]), fill: C.b4, opacity: .5 });
-        el(svg, 'rect', { x: x - 3, y: top, width: 6, height: Y(o.crit) - top, fill: C.crit, opacity: .45 });
-        var s2 = w.v >= o.crit ? 'crit' : (w.v < o.ok[0] || w.v > o.ok[1]) ? 'warn' : 'ok';
-        el(svg, 'circle', { cx: x, cy: Y(w.v), r: w.cur ? 5 : 4, fill: s2 === 'ok' ? (w.cur ? C.b3 : '#9EADBB') : stCol(s2), stroke: '#1B2430', 'stroke-width': 1.5 });
-        txt(svg, x, 84, lab, { 'text-anchor': 'middle', 'font-size': 12, 'font-weight': w.cur ? 700 : 500, fill: w.cur ? C.t2 : C.t3 });
+        var x = X(i), cid = id + 'c' + i;
+        var cp = el(svg.querySelector('defs'), 'clipPath', { id: cid }); el(cp, 'rect', { x: x - bw / 2, y: top, width: bw, height: bot - top, rx: bw / 2 });
+        el(svg, 'rect', { x: x - bw / 2, y: top, width: bw, height: bot - top, rx: bw / 2, fill: DARK, opacity: w.plan ? .45 : .9 });
+        if (w.plan) { wpLab(svg, x, w); return; }
+        var g = el(svg, 'g', { 'clip-path': 'url(#' + cid + ')' });
+        el(g, 'rect', { x: x - bw / 2, y: Y(o.ok[1]), width: bw, height: Y(o.ok[0]) - Y(o.ok[1]), fill: BLUE[3], opacity: .6 });
+        el(g, 'rect', { x: x - bw / 2, y: top, width: bw, height: Y(o.crit) - top, fill: C.crit, opacity: .35 });
+        var s2 = w.v >= o.crit ? 'crit' : (w.v < o.ok[0] || w.v > o.ok[1]) ? 'warn' : 'ok', col = s2 === 'ok' ? BLUE[4] : stCol(s2);
+        if (w.cur && s2 !== 'ok') { el(svg, 'circle', { cx: x, cy: Y(w.v), r: 9, fill: col, opacity: .8, filter: gf }); }
+        el(svg, 'circle', { cx: x, cy: Y(w.v), r: 6, fill: '#FFFFFF', stroke: col, 'stroke-width': 3 });
+        wpLab(svg, x, w);
       });
     }
 
@@ -309,7 +345,7 @@
       warn: 55, crit: 70, max: 80, wps: [{ wp: 'WP-01', v: 8 }, { wp: 'WP-03', v: 62, cur: 1 }, { wp: 'WP-05', v: 21 }, { wp: 'WP-10', plan: 1 }, { wp: 'WP-14', plan: 1 }, { wp: 'WP-17', plan: 1 }] });
     cardB('gB-sound', { k: '이상음향', icon: ICON.sound, std: '19.0 미만', big: '14.2', gap: '-4.8', st: 'ok', wp: 5, eq: '냉각 펌프 P-2', n: '2/6',
       warn: 19, crit: 22.8, max: 26, wps: [{ wp: 'WP-02', v: 9.8 }, { wp: 'WP-05', v: 14.2, cur: 1 }, { wp: 'WP-08', plan: 1 }, { wp: 'WP-12', plan: 1 }, { wp: 'WP-16', plan: 1 }, { wp: 'WP-19', plan: 1 }] });
-    cardB('gB-temp', { k: '온도감지', icon: ICON.temp, std: '지점마다 기준', big: '48.6', unit: '℃', gap: '+8.6', st: 'warn', wp: 5, eq: '냉각 펌프 P-2', n: '3/7',
+    pillB('gB-temp', { k: '온도감지', icon: ICON.temp, std: '지점마다 기준', big: '48.6', unit: '℃', gap: '+8.6', st: 'warn', wp: 5, eq: '냉각 펌프 P-2', n: '3/7',
       max: 75, wps: [{ wp: 'WP-02', v: 27.4, warn: 40, crit: 70 }, { wp: 'WP-05', v: 48.6, warn: 40, crit: 70, cur: 1 }, { wp: 'WP-06', v: 35.1, warn: 45, crit: 60 }, { wp: 'WP-08', plan: 1 }, { wp: 'WP-13', plan: 1 }, { wp: 'WP-16', plan: 1 }, { wp: 'WP-20', plan: 1 }] });
     gaugeB('gB-gauge', { k: '계기인식', icon: 'var(--ic-gauge)', std: '0.60 ~ 0.80 MPa', big: '0.86', unit: 'MPa', gap: '+0.06', st: 'crit', wp: 4, eq: 'N₂ 배관 압력계', n: '2/5',
       lo: 0.4, hi: 1.0, ok: [0.6, 0.8], crit: 0.85, wps: [{ wp: 'WP-02', v: 0.71 }, { wp: 'WP-04', v: 0.86, cur: 1 }, { wp: 'WP-11', plan: 1 }, { wp: 'WP-15', plan: 1 }, { wp: 'WP-19', plan: 1 }] });
