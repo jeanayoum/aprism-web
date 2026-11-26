@@ -1598,7 +1598,10 @@ body.ver-7 .ac-dc-stage .done-stage { display: inline-flex; }
 /* [11/26 디자이너] 조치 요청된 알림 열 다시(alert-center.js doneRow .is-v7cols): 원 등급 56 | 알림 | 조치 내용 | 진행상황 112 | 발생 72 | 조치 72 | 담당 48
  * 열 머리와 줄의 좌우 여백을 같게(왼쪽 20, 오른쪽 20 — 열 머리 값). 알림과 조치 내용은 남는 폭을 반씩. 조치 시각은 발생과 같은 글자(12/18 회색, 고정폭 아님) */
 body.ver-7 .ac-done-row.is-v7cols { padding: 0 var(--space-20); }
-body.ver-7 :is(.ac-done-row.is-v7cols, .ac-col-head) .ac-dc-body { flex: 1 1 0; }
+body.ver-7 :is(.ac-done-row.is-v7cols, .ac-col-head) .ac-dc-body { flex: 0 0 160px; }
+/* [11/26 디자이너] 알림 + 조치 내용 + 진행상황은 왼쪽에 붙여 한 덩어리, 발생 + 조치 + 담당은 오른쪽에 붙여 한 덩어리(가운데 빈 폭은 발생 앞에서 벌어짐) */
+body.ver-7 :is(.ac-done-row.is-v7cols, .ac-col-head) .ac-dc-acts { flex: 0 1 260px; }
+body.ver-7 :is(.ac-done-row.is-v7cols, .ac-col-head) .ac-dc-occ { margin-left: auto; }
 body.ver-7 .ac-done-row.is-v7cols .ac-dc-body > .ac-dc-title { max-width: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 body.ver-7 .ac-dc-acts { flex: 1 1 0; min-width: 0; color: var(--text-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 body.ver-7 .ac-dc-acts .ac-cells { display: inline; } body.ver-7 .ac-dc-acts .ac-cells > span + span { margin-left: var(--space-12); }
