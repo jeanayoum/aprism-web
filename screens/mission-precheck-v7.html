@@ -6,7 +6,7 @@
 <head>
   <meta charset="UTF-8" />
   <!-- v7(11/06~) — v6 화면 복제. 화면 사이 *-v6.html 주소를 v7 로 잇는다(v7.js). 영문판은 이 줄을 빼고 만든다 -->
-  <script src="../assets/js/demo-base-v7.js?v=1fb7037a"></script>
+  <script src="../assets/js/demo-base-v7.js?v=67eefc2d"></script>
   <script src="../assets/js/v7.js?v=546bac0b"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>v7 사전 점검 — APRISM</title>
@@ -251,13 +251,13 @@
                                   <span class="field-label" id="mp-lbl-site">대상 설비</span>
                                   <div class="field-select" data-select>
                                     <button type="button" class="field-box is-select" data-select-trigger aria-haspopup="listbox" aria-expanded="false" aria-labelledby="mp-lbl-site">
-                                      <span data-select-value>터빈 2 / Unit 03</span>
+                                      <span data-select-value data-base="area.a2">터빈 2 / Unit 03</span>
                                       <span class="i i-20" style="--i:var(--ic-chevron-down)" aria-hidden="true"></span>
                                     </button>
                                     <ul class="field-menu" role="listbox" aria-label="대상 설비" hidden>
-                                      <li class="field-option" role="option">터빈 1 / Unit 01</li>
-                                      <li class="field-option" role="option" aria-selected="true">터빈 2 / Unit 03</li>
-                                      <li class="field-option" role="option">터빈 3 / Unit 05</li>
+                                      <li class="field-option" role="option" data-base="area.a1">터빈 1 / Unit 01</li>
+                                      <li class="field-option" role="option" aria-selected="true" data-base="area.a2">터빈 2 / Unit 03</li>
+                                      <li class="field-option" role="option" data-base="area.a3">터빈 3 / Unit 05</li>
                                     </ul>
                                   </div>
                                 </div>
@@ -306,31 +306,31 @@
                                       <span class="check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>
                                     </div>
                                     <div class="check-row ds-list-item is-s is-check" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-02" data-dwell="1200">
-                                      <span>HEPA Filter 차압계</span>
+                                      <span data-base="place.pl06">HEPA Filter 차압계</span>
                                       <span class="check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>
                                     </div>
                                     <div class="check-row ds-list-item is-s is-check" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-03" data-dwell="900">
-                                      <span>냉각수 배관 밸브</span>
+                                      <span data-base="place.pl03">냉각수 배관 밸브</span>
                                       <span class="check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>
                                     </div>
                                     <div class="check-row ds-list-item is-s is-check" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-04" data-dwell="900">
-                                      <span>N₂ 배관 압력계</span>
+                                      <span data-base="place.pl01">N₂ 배관 압력계</span>
                                       <span class="check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>
                                     </div>
                                     <div class="check-row ds-list-item is-s is-check" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-05" data-dwell="120">
-                                      <span>냉각 펌프 P-2</span>
+                                      <span data-base="place.pl02">냉각 펌프 P-2</span>
                                       <span class="check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>
                                     </div>
                                     <div class="check-row ds-list-item is-s is-check" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-06" data-dwell="120">
-                                      <span>수배전반 MCC-1</span>
+                                      <span data-base="place.pl04">수배전반 MCC-1</span>
                                       <span class="check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>
                                     </div>
                                     <div class="check-row ds-list-item is-s is-check" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-07" data-dwell="120">
-                                      <span>고소 작업 발판</span>
+                                      <span data-base="place.pl05">고소 작업 발판</span>
                                       <span class="check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>
                                     </div>
                                     <div class="check-row ds-list-item is-s is-check" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-08" data-dwell="120">
-                                      <span>냉각수 열교환기 HX-1</span>
+                                      <span data-base="place.pl09">냉각수 열교환기 HX-1</span>
                                       <span class="check-box"><span class="i" style="--i:var(--ic-check)" aria-hidden="true"></span></span>
                                     </div>
                                     <div class="check-row ds-list-item is-s is-check" role="checkbox" aria-checked="true" tabindex="0" data-wp="WP-09" data-dwell="120">
@@ -1701,16 +1701,16 @@
 
 <script src="../assets/js/theme.js?v=c86093d9"></script>
 <script src="../assets/js/prism-orb.js?v=f56758de"></script>
-<script src="../assets/js/screen.js?v=9e4ba5a1"></script>
+<script src="../assets/js/screen.js?v=f853305c"></script>
 <script src="../assets/js/map-model.js?v=b9ca613f"></script>
 <!-- [10/29] v5 지도(map-v6.js) — 라이트 단계 톤 지도 · 바닥 표식 · 바닥 띠 경로를 메인과 같게. map.js 는 v3 · v4 가 쓴다 -->
 <script src="../assets/js/map-fx-v6.js?v=ce66b735"></script>
 <script src="../assets/js/map-v6.js?v=3cf86fd6"></script>
 <script src="../assets/js/count-up-v7.js?v=5c25113e"></script>
 <script src="../assets/js/robot-spot.js?v=2a3061e4"></script>
-<script src="../assets/js/sian.js?v=d906f2c5"></script>
+<script src="../assets/js/sian.js?v=a2d197b0"></script>
 <!-- 미션 설정 — 점검항목 · 순서 · 로봇이 소요시간과 배터리를 움직인다. screen.js 뒤에 온다. -->
-<script src="../assets/js/mission-setup.js?v=95defb3a"></script>
+<script src="../assets/js/mission-setup.js?v=ecc47c38"></script>
 <script src="../assets/js/grid-overlay.js?v=39b45309"></script>
 <script src="../assets/js/setup-tabs-v6.js?v=6af5b028"></script>
 </body>

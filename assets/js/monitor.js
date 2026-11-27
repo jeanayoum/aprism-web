@@ -65,34 +65,34 @@
   // floor — 알림이 난 웨이포인트의 층(v2.2, 10/19). 미션 하나가 B3 · B4 를 지나므로 줄마다 층 꼬리표가 붙는다.
   //   Robot 05 는 B3 를 돌고 B4 로 내려온 로봇이다 — WP-02 · 06 · 12 는 B3, WP-13 은 B4(10/20, 예전 Robot 02).
   var WARNINGS = [
-    { sev: "warning", robot: 0, floor: "B4", wp: "WP-03", live: "discharge", where: "APRO 4F · WP-03 냉각수 배관 밸브", time: "10:11:19",
-      title: "누출감지 · 냉각수 배관 밸브", detect: "누출감지",
+    { sev: "warning", robot: 0, floor: "B4", wp: "WP-03", live: "discharge", where: ("APRO 4F · WP-03 " + (window.APRISM_PLACE ? APRISM_PLACE("pl03") : "냉각수 배관 밸브")), time: "10:11:19",
+      title: ("누출감지 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl03") : "냉각수 배관 밸브")), detect: "누출감지",
       sum: "밸브 이음부에서 누출 패턴이 신뢰도 0.87 로 검출됐습니다. 임계 0.70 을 넘었고 연속 2프레임에서 나왔습니다.",
       lead: "밸브 이음부 현장 점검을 요청하세요.", fp: 15, fpLabel: "낮음",
       acts: [{ t: "현장 점검 요청", ai: true }, { t: "다음 순회 재측정" }, { t: "추이 관찰" }] },
-    { sev: "warning", robot: 4, floor: "B3", wp: "WP-06", live: "discharge", where: ((window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + " · WP-06 수배전반"), time: "10:09:42",
+    { sev: "warning", robot: 4, floor: "B3", wp: "WP-06", live: "discharge", where: ((window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + (" · WP-06 " + (window.APRISM_PLACE_S ? APRISM_PLACE_S("pl04") : "수배전반"))), time: "10:09:42",
       title: "부분방전 · 이상 점수 9.41", detect: "부분방전",
       sum: "이상 점수 9.41 로 임계 9.23 을 넘었습니다. PRPD 패턴이 코로나 방전 유형과 일치합니다.",
       lead: "재진단을 예약해 PRPD 패턴을 다시 확인하세요.", fp: 22, fpLabel: "보통",
       acts: [{ t: "재진단 예약", ai: true }, { t: "현장 점검 요청" }, { t: "추이 관찰" }] },
-    { sev: "warning", robot: 4, floor: "B3", wp: "WP-12", live: "discharge", where: ((window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + " · WP-12 냉각 펌프 P-2"), time: "10:06:05",
-      title: "진동 상승 · 냉각 펌프 P-2", detect: "진동감지",
+    { sev: "warning", robot: 4, floor: "B3", wp: "WP-12", live: "discharge", where: ((window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + (" · WP-12 " + (window.APRISM_PLACE ? APRISM_PLACE("pl02") : "냉각 펌프 P-2"))), time: "10:06:05",
+      title: ("진동 상승 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl02") : "냉각 펌프 P-2")), detect: "진동감지",
       sum: "진동 RMS 4.8 mm/s 로 주의 기준 4.5 를 넘었습니다. 최근 3회 측정에서 계속 오르고 있습니다.",
       lead: "베어링 점검을 요청하세요.", fp: 18, fpLabel: "낮음",
       acts: [{ t: "베어링 점검 요청", ai: true }, { t: "다음 순회 재측정" }, { t: "추이 관찰" }] },
-    { sev: "warning", robot: 4, floor: "B3", wp: "WP-02", live: "ppe", where: ((window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + " · WP-02 발전기 베어링"), time: "10:03:27",
-      title: "과열 · 발전기 베어링 68.4℃", detect: "온도감지",
+    { sev: "warning", robot: 4, floor: "B3", wp: "WP-02", live: "ppe", where: ((window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + (" · WP-02 " + (window.APRISM_PLACE ? APRISM_PLACE("pl07") : "발전기 베어링"))), time: "10:03:27",
+      title: ("과열 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl07") : "발전기 베어링") + " 68.4℃"), detect: "온도감지",
       sum: "베어링 표면 온도 68.4℃ 로 주의 기준 65℃ 를 넘었습니다. 주변 온도보다 31℃ 높습니다.",
       lead: "윤활 상태 점검을 요청하세요.", fp: 25, fpLabel: "보통",
       acts: [{ t: "윤활 상태 점검 요청", ai: true }, { t: "열화상 재촬영" }, { t: "추이 관찰" }] },
-    { sev: "warning", robot: 4, floor: "B4", wp: "WP-13", live: "discharge", where: ((window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + " · WP-13 공기 압축기 C-1"), time: "10:01:12",
-      title: "압력 편차 · 공기 압축기 C-1", detect: "계기인식",
+    { sev: "warning", robot: 4, floor: "B4", wp: "WP-13", live: "discharge", where: ((window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + (" · WP-13 " + (window.APRISM_PLACE ? APRISM_PLACE("pl08") : "공기 압축기 C-1"))), time: "10:01:12",
+      title: ("압력 편차 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl08") : "공기 압축기 C-1")), detect: "계기인식",
       sum: "토출 압력 7.9 bar 로 정상 범위(8.2~8.8) 아래입니다. 흡입 필터가 막혔을 가능성이 있습니다.",
       lead: "흡입 필터 점검을 요청하세요.", fp: 30, fpLabel: "보통",
       acts: [{ t: "필터 점검 요청", ai: true }, { t: "재측정 예약" }, { t: "추이 관찰" }] }
   ];
 
-  var CRITICAL = { sev: "critical", robot: 0, floor: "B4", wp: "WP-04", live: "ppe", where: "터빈 2 / Unit 03 · WP-04 N₂ 배관 압력계", time: "10:12:40",
+  var CRITICAL = { sev: "critical", robot: 0, floor: "B4", wp: "WP-04", live: "ppe", where: ((window.APRISM_AREA ? APRISM_AREA("a2") : "터빈 2 / Unit 03") + " · WP-04 " + (window.APRISM_PLACE ? APRISM_PLACE("pl01") : "N₂ 배관 압력계")), time: "10:12:40",
     title: "지하발전소 B3 터빈 2 NG 1건 발견", detect: "계기인식",
     sum: "Spiral Casing Pr. 측정값 90 이 기준값 87 을 넘었습니다. 최근 3회 측정이 잇달아 올라 NG 로 판정했습니다.",
     lead: "현장에 무전으로 작업 중지를 요청하세요.", fp: 8, fpLabel: "낮음", brief: ["WP-04 압력계가 NG예요.", "작업 중지부터 요청하세요."],
@@ -118,24 +118,24 @@
     WARNINGS[0].lead = "구역 출입을 통제하고 설비팀에 밸브 확인을 요청하세요.";
     WARNINGS[0].acts = [{ t: "구역 출입 통제", ai: true }, { t: "설비팀 밸브 확인 요청", ai: true }, { t: "현장 확인" }];
     R01_MORE = [
-      { sev: "warning", robot: 0, floor: "B4", wp: "WP-05", live: "discharge", where: "APRO 4F · WP-05 냉각 펌프 P-2", time: "10:13:52",
-        title: "이상음향 · 냉각 펌프 P-2", detect: "이상음향",
+      { sev: "warning", robot: 0, floor: "B4", wp: "WP-05", live: "discharge", where: ("APRO 4F · WP-05 " + (window.APRISM_PLACE ? APRISM_PLACE("pl02") : "냉각 펌프 P-2")), time: "10:13:52",
+        title: ("이상음향 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl02") : "냉각 펌프 P-2")), detect: "이상음향",
         sum: "이상 점수 20.4 로 기준 19.0 을 넘었습니다. 저주파 대역 에너지가 늘어 베어링 마모 패턴과 비슷합니다.",
         lead: "진동 정밀 측정을 요청하세요.", fp: 20, fpLabel: "낮음",
         acts: [{ t: "진동 정밀 측정 요청", ai: true }, { t: "설비 정지 검토 요청" }] },
-      { sev: "warning", robot: 0, floor: "B4", wp: "WP-05", live: "discharge", where: "APRO 4F · WP-05 냉각 펌프 P-2", time: "10:14:10",
-        title: "온도감지 · 냉각 펌프 P-2 48.6℃", detect: "온도감지",
-        sum: "펌프 하우징 최고 48.6℃ 로 기준 40℃ 를 넘었습니다. 평소 36.2℃ 보다 12.4℃ 높습니다.",
+      { sev: "warning", robot: 0, floor: "B4", wp: "WP-05", live: "discharge", where: ("APRO 4F · WP-05 " + (window.APRISM_PLACE ? APRISM_PLACE("pl02") : "냉각 펌프 P-2")), time: "10:14:10",
+        title: ("온도감지 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl02") : "냉각 펌프 P-2") + " 48.6℃"), detect: "온도감지",
+        sum: ((window.APRISM_PLACE ? APRISM_PLACE("pl13") : "펌프 하우징") + " 최고 48.6℃ 로 기준 40℃ 를 넘었습니다. 평소 36.2℃ 보다 12.4℃ 높습니다."),
         lead: "부하를 줄이고 점검을 요청하세요.", fp: 18, fpLabel: "낮음",
         acts: [{ t: "부하 감소 요청", ai: true }, { t: "설비 점검 요청", ai: true }, { t: "현장 확인" }] },
-      { sev: "warning", robot: 0, floor: "B4", wp: "WP-06", live: "discharge", where: "APRO 4F · WP-06 수배전반 MCC-1", time: "10:15:31",
+      { sev: "warning", robot: 0, floor: "B4", wp: "WP-06", live: "discharge", where: ("APRO 4F · WP-06 " + (window.APRISM_PLACE ? APRISM_PLACE("pl04") : "수배전반 MCC-1")), time: "10:15:31",
         title: "부분방전 · CH1 이상 점수 9.05", detect: "부분방전",
         sum: "CH1 이상 점수 9.05 로 기준 8.60 을 넘었습니다. CH2 · CH3 은 정상 범위입니다.",
         lead: "절연 진단을 요청하세요.", fp: 22, fpLabel: "보통",
         acts: [{ t: "절연 진단 요청", ai: true }, { t: "감시 강화", ai: true }] },
-      { sev: "critical", robot: 0, floor: "B4", wp: "WP-07", live: "ppe", where: "APRO 4F · WP-07 고소 작업 발판", time: "10:16:48",
+      { sev: "critical", robot: 0, floor: "B4", wp: "WP-07", live: "ppe", where: ("APRO 4F · WP-07 " + (window.APRISM_PLACE ? APRISM_PLACE("pl05") : "고소 작업 발판")), time: "10:16:48",
         title: "안전감지 · 안전벨트 미착용 1명", detect: "안전감지",
-        sum: "고소 작업 발판에서 안전벨트를 매지 않은 작업자 1명이 신뢰도 0.91 로 검출됐습니다.",
+        sum: ((window.APRISM_PLACE ? APRISM_PLACE("pl05") : "고소 작업 발판") + "에서 안전벨트를 매지 않은 작업자 1명이 신뢰도 0.91 로 검출됐습니다."),
         lead: "작업자에게 즉시 착용을 안내하세요.", fp: 6, fpLabel: "낮음", brief: ["WP-07 작업자가 안전벨트 미착용이에요.", "즉시 착용부터 안내하세요."],
         acts: [{ t: "작업자 즉시 착용 안내", ai: true }, { t: "고소 작업 일시 중지", ai: true }, { t: "안전관리팀 전달" }] }
     ];
@@ -144,13 +144,13 @@
   // v4 지도 경로 표현(10/28 디자이너) — 전기실 열화상 점검(Robot 11 · B3)에 실제 알림 두 건. 지도 · 우측 목록의 세모(WP-02 위험 · WP-04 주의)와 1:1 이다.
   //   예전에는 세모만 고정으로 그려 최신 알림이 비어 있었다. body[data-route-rules](main-v3.html)에서만 쓴다 — 통합 순회 현황(building.js v3)에도 같은 두 건이 있다.
   var ROUTE_ALERTS = body.hasAttribute("data-route-rules") ? [
-    { sev: "critical", robot: 10, floor: "B3", wp: "WP-02", live: "ppe", where: ((window.APRISM_ROBOT ? APRISM_ROBOT("r11") : "Robot 11") + " · WP-02 HEPA Filter 차압계"), time: "09:44:18",
-      title: "차압 NG · HEPA Filter 차압계", detect: "계기인식",
+    { sev: "critical", robot: 10, floor: "B3", wp: "WP-02", live: "ppe", where: ((window.APRISM_ROBOT ? APRISM_ROBOT("r11") : "Robot 11") + (" · WP-02 " + (window.APRISM_PLACE ? APRISM_PLACE("pl06") : "HEPA Filter 차압계"))), time: "09:44:18",
+      title: ("차압 NG · " + (window.APRISM_PLACE ? APRISM_PLACE("pl06") : "HEPA Filter 차압계")), detect: "계기인식",
       sum: "차압 312 Pa 로 교체 기준 250 Pa 를 넘었습니다. 최근 3회 측정이 잇달아 올라 NG 로 판정했습니다.",
       lead: "필터 교체와 현장 점검을 요청하세요.", fp: 9, fpLabel: "낮음", brief: ["WP-02 차압계가 NG예요.", "필터 교체부터 요청하세요."],
       acts: [{ t: "필터 교체 요청", ai: true }, { t: "현장 점검 요청", ai: true }, { t: "재측정 후 판단" }] },
-    { sev: "warning", robot: 10, floor: "B3", wp: "WP-04", live: "discharge", where: ((window.APRISM_ROBOT ? APRISM_ROBOT("r11") : "Robot 11") + " · WP-04 N₂ 배관 압력계"), time: "10:15:52",
-      title: "압력 편차 · N₂ 배관 압력계", detect: "계기인식",
+    { sev: "warning", robot: 10, floor: "B3", wp: "WP-04", live: "discharge", where: ((window.APRISM_ROBOT ? APRISM_ROBOT("r11") : "Robot 11") + (" · WP-04 " + (window.APRISM_PLACE ? APRISM_PLACE("pl01") : "N₂ 배관 압력계"))), time: "10:15:52",
+      title: ("압력 편차 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl01") : "N₂ 배관 압력계")), detect: "계기인식",
       sum: "압력 0.62 MPa 로 정상 범위(0.65~0.75) 아래입니다. 최근 2회 측정에서 조금씩 내려가고 있습니다.",
       lead: "배관 연결부 누설 점검을 요청하세요.", fp: 20, fpLabel: "낮음",
       acts: [{ t: "누설 점검 요청", ai: true }, { t: "다음 순회 재측정" }, { t: "추이 관찰" }] }
@@ -162,24 +162,24 @@
   //   [10/30 라이팅 시스템 11] 측정 기록(hist), 원인 후보(cause · 현장 확인 전 추정), 점검 순서(fix · fixFirst) — 대화의 왜 · 어떻게 답. 초안 값이라 감지 종류별 목록이 정해지면 바꾼다.
   if (V5) {
     [
-      [CRITICAL, "N₂ 압력계", "기준 초과", { mname: "압력", val: "0.86", std: "0.80", next: "현장 점검부터 요청하세요.", btn: "현장 점검 요청", trend: "최근 3회 측정 계속 오름",
+      [CRITICAL, (window.APRISM_PLACE_S ? APRISM_PLACE_S("pl01") : "N₂ 압력계"), "기준 초과", { mname: "압력", val: "0.86", std: "0.80", next: "현장 점검부터 요청하세요.", btn: "현장 점검 요청", trend: "최근 3회 측정 계속 오름",
         hist: ["0.77", "0.79", "0.86"], cause: ["감압 밸브 설정 이상", "하류 밸브 닫힘", "주변 온도 상승"],
         fixFirst: "감압 밸브 설정부터 보는 게 가장 빨라요.", fix: ["감압 밸브 설정값 확인(기준 0.80)", "하류 밸브 열림 확인", "계속 오르면 공급 밸브 잠금"] }],
       [WARNINGS[0], "냉각수 밸브", "누출", { btn: "구역 출입 통제" }],
-      [WARNINGS[1], "수배전반", "부분방전", { btn: "재진단 예약" }],
-      [WARNINGS[2], "냉각 펌프", "진동 상승", { btn: "베어링 점검 요청" }],
-      [WARNINGS[3], "발전기 베어링", "과열", { btn: "윤활 상태 점검 요청" }],
-      [WARNINGS[4], "공기 압축기", "압력 낮음", { btn: "필터 점검 요청" }],
-      [R01_MORE[0], "냉각 펌프", "이상음", { btn: "진동 정밀 측정 요청" }],
-      [R01_MORE[1], "냉각 펌프", "과열", { btn: "부하 감소 요청" }],
-      [R01_MORE[2], "수배전반", "부분방전", { btn: "절연 진단 요청" }],
-      [R01_MORE[3], "작업 발판", "벨트 미착용", { mname: "미착용", val: "1명", std: "0명", next: "즉시 착용부터 안내하세요.", btn: "작업자 착용 안내", trend: "연속 2프레임에서 검출",
+      [WARNINGS[1], (window.APRISM_PLACE_S ? APRISM_PLACE_S("pl04") : "수배전반"), "부분방전", { btn: "재진단 예약" }],
+      [WARNINGS[2], (window.APRISM_PLACE_S ? APRISM_PLACE_S("pl02") : "냉각 펌프"), "진동 상승", { btn: "베어링 점검 요청" }],
+      [WARNINGS[3], (window.APRISM_PLACE ? APRISM_PLACE("pl07") : "발전기 베어링"), "과열", { btn: "윤활 상태 점검 요청" }],
+      [WARNINGS[4], (window.APRISM_PLACE_S ? APRISM_PLACE_S("pl08") : "공기 압축기"), "압력 낮음", { btn: "필터 점검 요청" }],
+      [R01_MORE[0], (window.APRISM_PLACE_S ? APRISM_PLACE_S("pl02") : "냉각 펌프"), "이상음", { btn: "진동 정밀 측정 요청" }],
+      [R01_MORE[1], (window.APRISM_PLACE_S ? APRISM_PLACE_S("pl02") : "냉각 펌프"), "과열", { btn: "부하 감소 요청" }],
+      [R01_MORE[2], (window.APRISM_PLACE_S ? APRISM_PLACE_S("pl04") : "수배전반"), "부분방전", { btn: "절연 진단 요청" }],
+      [R01_MORE[3], (window.APRISM_PLACE_S ? APRISM_PLACE_S("pl05") : "작업 발판"), "벨트 미착용", { mname: "미착용", val: "1명", std: "0명", next: "즉시 착용부터 안내하세요.", btn: "작업자 착용 안내", trend: "연속 2프레임에서 검출",
         cause: ["고소 작업 중 벨트 미체결", "착용 안내 누락"],
         fixFirst: "작업자 위치부터 확인하는 게 가장 빨라요.", fix: ["작업자 위치 확인", "벨트 착용 안내", "착용 확인 뒤 작업 재개"] }],
       [ROUTE_ALERTS[0], "HEPA 차압계", "기준 초과", { mname: "차압", val: "312 Pa", std: "250 Pa", next: "필터 교체부터 요청하세요.", btn: "필터 교체 요청", trend: "최근 3회 측정 계속 오름",
         hist: ["268 Pa", "291 Pa", "312 Pa"], cause: ["필터 막힘", "흡입구 이물질", "팬 풍량 설정 변경"],
         fixFirst: "필터 오염 상태부터 보는 게 가장 빨라요.", fix: ["필터 오염 상태 확인", "흡입구 이물질 제거", "기준을 넘으면 필터 교체"] }],
-      [ROUTE_ALERTS[1], "N₂ 압력계", "압력 낮음", { btn: "누설 점검 요청" }]
+      [ROUTE_ALERTS[1], (window.APRISM_PLACE_S ? APRISM_PLACE_S("pl01") : "N₂ 압력계"), "압력 낮음", { btn: "누설 점검 요청" }]
     ].forEach(function (r) {
       if (!r[0]) { return; }
       r[0].eq = r[1]; r[0].phen = r[2];
@@ -459,11 +459,11 @@
   }
 
   var DONE_BASE = [
-    { time: "10:29:10", title: "온도감지 · WP-03 펌프 하우징", how: "추이 관찰 · 다음 순회 재측정", who: (window.APRISM_NAME ? APRISM_NAME("op2") : "김현대") },
-    { time: "10:18:52", title: "소음 이상 · 변압기 TR-1", how: "현장 점검 요청 · 이상 없음", who: (window.APRISM_NAME ? APRISM_NAME("op2") : "김현대") },
+    { time: "10:29:10", title: ("온도감지 · WP-03 " + (window.APRISM_PLACE ? APRISM_PLACE("pl13") : "펌프 하우징")), how: "추이 관찰 · 다음 순회 재측정", who: (window.APRISM_NAME ? APRISM_NAME("op2") : "김현대") },
+    { time: "10:18:52", title: ("소음 이상 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl10") : "변압기 TR-1")), how: "현장 점검 요청 · 이상 없음", who: (window.APRISM_NAME ? APRISM_NAME("op2") : "김현대") },
     { time: "10:02:31", title: "진동감지 · WP-02 터빈1 베어링", how: "추이 관찰 · 다음 순회 재측정", who: (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동") },
-    { time: "09:47:15", title: "온도감지 · WP-03 펌프 하우징", how: "현장 점검 요청 · 이상 없음", who: (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동") },
-    { time: "09:30:08", title: "누유 흔적 · 유압 유닛 HU-2", how: "청소 후 재측정 · 정상", who: (window.APRISM_NAME ? APRISM_NAME("op2") : "김현대") }
+    { time: "09:47:15", title: ("온도감지 · WP-03 " + (window.APRISM_PLACE ? APRISM_PLACE("pl13") : "펌프 하우징")), how: "현장 점검 요청 · 이상 없음", who: (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동") },
+    { time: "09:30:08", title: ("누유 흔적 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl14") : "유압 유닛 HU-2")), how: "청소 후 재측정 · 정상", who: (window.APRISM_NAME ? APRISM_NAME("op2") : "김현대") }
   ];
   /*
    * [11/02 v6] 오늘 확인 완료 기본 기록도 감지 6종 · "감지 · 측정 항목 + 값"(alert-text-v6.js 규칙). 위치 줄은 아직 넣지 않는다(디자이너 — 정보가 많다).
@@ -1195,13 +1195,13 @@
      *   알림 문구에 값이 없는 것은 안전진단과 같은 값을 쓴다(RES6).
      */
     var RES6 = {
-      "누출감지 · 냉각수 배관 밸브": ["누출 의심도", "62%"],
-      "이상음향 · 냉각 펌프 P-2": ["이상 점수", "20.4"],
+      [("누출감지 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl03") : "냉각수 배관 밸브"))]: ["누출 의심도", "62%"],
+      [("이상음향 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl02") : "냉각 펌프 P-2"))]: ["이상 점수", "20.4"],
       "지하발전소 B3 터빈 2 NG 1건 발견": ["압력", "0.86 MPa"],
       "지하발전소 터빈 2 NG 1건 발견": ["압력", "0.86 MPa"],
-      "차압 NG · HEPA Filter 차압계": ["차압", "312 Pa"],
-      "압력 편차 · N₂ 배관 압력계": ["압력", "0.62 MPa"],
-      "압력 편차 · 공기 압축기 C-1": ["압력", "7.9 bar"]
+      [("차압 NG · " + (window.APRISM_PLACE ? APRISM_PLACE("pl06") : "HEPA Filter 차압계"))]: ["차압", "312 Pa"],
+      [("압력 편차 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl01") : "N₂ 배관 압력계"))]: ["압력", "0.62 MPa"],
+      [("압력 편차 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl08") : "공기 압축기 C-1"))]: ["압력", "7.9 bar"]
     };
     var LAB6 = { "누출감지": "누출 의심도", "온도감지": "최고 온도", "이상음향": "이상 점수", "부분방전": "이상 점수" };
     function maResult(a) {
@@ -1369,21 +1369,21 @@
      * 안전감지는 안전진단 사진(사람 격자 모자이크)을 그대로 쓴다. 표에 없는 알림은 예전 그림(alert-live-*).
      */
     var SHOT = {
-      "누출감지 · 냉각수 배관 밸브": "alert/wp03-leak.webp",
+      [("누출감지 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl03") : "냉각수 배관 밸브"))]: "alert/wp03-leak.webp",
       "부분방전 · 이상 점수 9.41": "alert/wp06-pd-941.webp",
-      "진동 상승 · 냉각 펌프 P-2": "alert/wp12-vib.webp",
+      [("진동 상승 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl02") : "냉각 펌프 P-2"))]: "alert/wp12-vib.webp",
       "이상음향 · 이상 점수 21.6": "alert/wp12-sound-216.webp",   // v6 — WP-12 진동 상승을 이상음향으로(10/30)
-      "과열 · 발전기 베어링 68.4℃": "alert/wp02-temp-684.webp",
-      "압력 편차 · 공기 압축기 C-1": "alert/wp13-gauge-comp.webp",
+      [("과열 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl07") : "발전기 베어링") + " 68.4℃")]: "alert/wp02-temp-684.webp",
+      [("압력 편차 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl08") : "공기 압축기 C-1"))]: "alert/wp13-gauge-comp.webp",
       "지하발전소 B3 터빈 2 NG 1건 발견": "alert/wp04-gauge-spiral.webp",
       "지하발전소 터빈 2 NG 1건 발견": "alert/wp04-gauge-spiral.webp",   // v2.2 부터 쓰는 제목(CRITICAL.title)
-      "이상음향 · 냉각 펌프 P-2": "alert/wp05-sound.webp",
-      "온도감지 · 냉각 펌프 P-2 48.6℃": "alert/wp05-temp-486.webp",
+      [("이상음향 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl02") : "냉각 펌프 P-2"))]: "alert/wp05-sound.webp",
+      [("온도감지 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl02") : "냉각 펌프 P-2") + " 48.6℃")]: "alert/wp05-temp-486.webp",
       "부분방전 · CH1 이상 점수 9.05": "alert/wp06-pd-905.webp",
       "안전감지 · 안전벨트 미착용 1명": "safety/safety_crit.jpg",
       "안전감지 · 안전모 미착용 1명": "alert/wp07-helmet.webp",   // v7 M1 WP-07(11/13 디자이너 사진)
-      "차압 NG · HEPA Filter 차압계": "alert/wp02-gauge-hepa.webp",
-      "압력 편차 · N₂ 배관 압력계": "alert/wp04-gauge-n2.webp"
+      [("차압 NG · " + (window.APRISM_PLACE ? APRISM_PLACE("pl06") : "HEPA Filter 차압계"))]: "alert/wp02-gauge-hepa.webp",
+      [("압력 편차 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl01") : "N₂ 배관 압력계"))]: "alert/wp04-gauge-n2.webp"
     };
     // [11/06 v6] WP-04 N₂ 압력계 위험은 안전진단 상세와 같은 사진(N₂ 배관 · MPa 계기 · "gauge 0.86 MPa") — 예전 그림은 Spiral Casing psi 계기에 "NG 90, 기준 87" 라벨이라 제목(0.86 MPa)과 어긋났다
     if (body.classList.contains("ver-6")) { SHOT["지하발전소 B3 터빈 2 NG 1건 발견"] = SHOT["지하발전소 터빈 2 NG 1건 발견"] = "safety/gauge_crit.jpg"; }

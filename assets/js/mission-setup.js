@@ -147,6 +147,7 @@
   /* ================================================================
    * 상태 — 원본 순서는 처음 마크업 그대로다. 되돌리기가 돌아갈 자리.
    * ================================================================ */
+  if (window.APRISM_BASE) { window.APRISM_BASE.fill(list); }   // [11/27] 점검 줄 이름을 읽기 전에 기준 목록(demo-base-v7.js) 이름으로 채움
   var WPS = $$(".check-row", list).map(function (row) {
     return {
       id: row.getAttribute("data-wp"),

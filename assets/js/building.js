@@ -76,7 +76,7 @@
     { n: 2,  floor: "B4", st: "idle", mission: null,                          now: "복귀 중",               bat: 18, chg: false, sig: 2, uv: [0.70, 0.66], moving: true },   // 10/20 — 미션 하나에 로봇 한 대, 배정 없음
     { n: 3,  floor: "B4", st: "idle", mission: null,                          now: "대기 중",               bat: 35, chg: true, sig: 3, uv: [0.90, 0.92], dock: true },
     { n: 4,  floor: "B4", st: "done", mission: (window.APRISM_MISSION ? APRISM_MISSION("m6") : "야간 순회 점검"),     now: "순회 완료",             done: 20, total: 20, bat: 92, sig: 4, uv: [0.76, 0.92], dock: true },
-    { n: 5,  floor: "B4", st: "run",  mission: (window.APRISM_MISSION ? APRISM_MISSION("m2") : "발전기실 설비 점검"), now: "발전기 베어링 진동 측정", done: 13, total: 20, bat: 64, sig: 3, uv: [0.58, 0.30] },   // B3(WP-01~12) → 계단 → B4(10/20)
+    { n: 5,  floor: "B4", st: "run",  mission: (window.APRISM_MISSION ? APRISM_MISSION("m2") : "발전기실 설비 점검"), now: ((window.APRISM_PLACE ? APRISM_PLACE("pl07") : "발전기 베어링") + " 진동 측정"), done: 13, total: 20, bat: 64, sig: 3, uv: [0.58, 0.30] },   // B3(WP-01~12) → 계단 → B4(10/20)
     { n: 6,  floor: "B4", st: "idle", mission: null,                          now: "충전 중",               bat: 8,  chg: true, sig: 2, uv: [0.90, 0.80], dock: true },
     { n: 7,  floor: "B3", st: "done", mission: (window.APRISM_MISSION ? APRISM_MISSION("m7") : "공조 설비 순회"),     now: "순회 완료",             done: 20, total: 20, bat: 96, chg: true, sig: 4, uv: [0.10, 0.92], dock: true },
     { n: 8,  floor: "B3", st: "idle", mission: null,                          now: "대기 중",               bat: 47, sig: 3, uv: [0.24, 0.92], dock: true },
@@ -110,28 +110,28 @@
    * 그 로봇의 미션 · 층으로 묶인다. uv 는 층 위 표식 자리(임시).
    */
   var ALERTS = [
-    { sev: "critical", robot: 1, floor: "B4", where: "터빈 2 / Unit 03 · WP-04 N₂ 배관 압력계", time: "10:12:40", title: "지하발전소 터빈 2 NG 1건 발견", uv: [0.38, 0.34] },
-    { sev: "warning",  robot: 1, floor: "B4", where: "APRO 4F · WP-03 냉각수 배관 밸브",       time: "10:11:19", title: "누출감지 · 냉각수 배관 밸브", uv: [0.30, 0.52] },
-    { sev: "warning",  robot: 5, floor: "B3", where: ((window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + " · WP-06 수배전반"),              time: "10:09:42", title: "부분방전 · 이상 점수 9.41", uv: [0.62, 0.22] },
-    { sev: "warning",  robot: 5, floor: "B3", where: ((window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + " · WP-12 냉각 펌프 P-2"),         time: "10:06:05", title: "진동 상승 · 냉각 펌프 P-2", uv: [0.64, 0.46] },
-    { sev: "warning",  robot: 5, floor: "B3", where: ((window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + " · WP-02 발전기 베어링"),         time: "10:03:27", title: "과열 · 발전기 베어링 68.4℃", uv: [0.56, 0.24] },
-    { sev: "warning",  robot: 5, floor: "B4", where: ((window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + " · WP-13 공기 압축기 C-1"),       time: "10:01:12", title: "압력 편차 · 공기 압축기 C-1", uv: [0.50, 0.74] }
+    { sev: "critical", robot: 1, floor: "B4", where: ((window.APRISM_AREA ? APRISM_AREA("a2") : "터빈 2 / Unit 03") + " · WP-04 " + (window.APRISM_PLACE ? APRISM_PLACE("pl01") : "N₂ 배관 압력계")), time: "10:12:40", title: "지하발전소 터빈 2 NG 1건 발견", uv: [0.38, 0.34] },
+    { sev: "warning",  robot: 1, floor: "B4", where: ("APRO 4F · WP-03 " + (window.APRISM_PLACE ? APRISM_PLACE("pl03") : "냉각수 배관 밸브")),       time: "10:11:19", title: ("누출감지 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl03") : "냉각수 배관 밸브")), uv: [0.30, 0.52] },
+    { sev: "warning",  robot: 5, floor: "B3", where: ((window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + (" · WP-06 " + (window.APRISM_PLACE_S ? APRISM_PLACE_S("pl04") : "수배전반"))),              time: "10:09:42", title: "부분방전 · 이상 점수 9.41", uv: [0.62, 0.22] },
+    { sev: "warning",  robot: 5, floor: "B3", where: ((window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + (" · WP-12 " + (window.APRISM_PLACE ? APRISM_PLACE("pl02") : "냉각 펌프 P-2"))),         time: "10:06:05", title: ("진동 상승 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl02") : "냉각 펌프 P-2")), uv: [0.64, 0.46] },
+    { sev: "warning",  robot: 5, floor: "B3", where: ((window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + (" · WP-02 " + (window.APRISM_PLACE ? APRISM_PLACE("pl07") : "발전기 베어링"))),         time: "10:03:27", title: ("과열 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl07") : "발전기 베어링") + " 68.4℃"), uv: [0.56, 0.24] },
+    { sev: "warning",  robot: 5, floor: "B4", where: ((window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + (" · WP-13 " + (window.APRISM_PLACE ? APRISM_PLACE("pl08") : "공기 압축기 C-1"))),       time: "10:01:12", title: ("압력 편차 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl08") : "공기 압축기 C-1")), uv: [0.50, 0.74] }
   ];
   // v4(10/28) — 미션 관제의 지도 경로 표현 더미와 같게: 전기실 열화상 점검(Robot 11 · B3) 위험 · 주의 한 건씩(monitor.js ROUTE_ALERTS 와 같다)
   if (V3) {
     ALERTS.push(
-      { sev: "critical", robot: 11, floor: "B3", where: ((window.APRISM_ROBOT ? APRISM_ROBOT("r11") : "Robot 11") + " · WP-02 HEPA Filter 차압계"), time: "09:44:18", title: "차압 NG · HEPA Filter 차압계", uv: [0.60, 0.50] },
-      { sev: "warning",  robot: 11, floor: "B3", where: ((window.APRISM_ROBOT ? APRISM_ROBOT("r11") : "Robot 11") + " · WP-04 N₂ 배관 압력계"),     time: "10:15:52", title: "압력 편차 · N₂ 배관 압력계", uv: [0.70, 0.64] }
+      { sev: "critical", robot: 11, floor: "B3", where: ((window.APRISM_ROBOT ? APRISM_ROBOT("r11") : "Robot 11") + (" · WP-02 " + (window.APRISM_PLACE ? APRISM_PLACE("pl06") : "HEPA Filter 차압계"))), time: "09:44:18", title: ("차압 NG · " + (window.APRISM_PLACE ? APRISM_PLACE("pl06") : "HEPA Filter 차압계")), uv: [0.60, 0.50] },
+      { sev: "warning",  robot: 11, floor: "B3", where: ((window.APRISM_ROBOT ? APRISM_ROBOT("r11") : "Robot 11") + (" · WP-04 " + (window.APRISM_PLACE ? APRISM_PLACE("pl01") : "N₂ 배관 압력계"))),     time: "10:15:52", title: ("압력 편차 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl01") : "N₂ 배관 압력계")), uv: [0.70, 0.64] }
     );
   }
   // v5(10/30) — 정기 순회 점검(Robot 01)의 알림 6건 = 관제(monitor.js R01_MORE) = 안전진단 감지 6종. Robot 01 은 7곳을 마치고 WP-08 로 가는 중(관제와 같다)
   if (body.classList.contains("ver-5")) {
     ROBOTS.forEach(function (r) { if (r.n === 1) { r.done = 7; r.now = "열교환기로 이동 중"; } });
     ALERTS.push(
-      { sev: "warning",  robot: 1, floor: "B4", where: "APRO 4F · WP-05 냉각 펌프 P-2",   time: "10:13:52", title: "이상음향 · 냉각 펌프 P-2",        uv: [0.22, 0.62] },
-      { sev: "warning",  robot: 1, floor: "B4", where: "APRO 4F · WP-05 냉각 펌프 P-2",   time: "10:14:10", title: "온도감지 · 냉각 펌프 P-2 48.6℃",   uv: [0.24, 0.66] },
-      { sev: "warning",  robot: 1, floor: "B4", where: "APRO 4F · WP-06 수배전반 MCC-1",  time: "10:15:31", title: "부분방전 · CH1 이상 점수 9.05",   uv: [0.30, 0.78] },
-      { sev: "critical", robot: 1, floor: "B4", where: "APRO 4F · WP-07 고소 작업 발판",  time: "10:16:48", title: "안전감지 · 안전벨트 미착용 1명",  uv: [0.40, 0.62] }
+      { sev: "warning",  robot: 1, floor: "B4", where: ("APRO 4F · WP-05 " + (window.APRISM_PLACE ? APRISM_PLACE("pl02") : "냉각 펌프 P-2")),   time: "10:13:52", title: ("이상음향 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl02") : "냉각 펌프 P-2")),        uv: [0.22, 0.62] },
+      { sev: "warning",  robot: 1, floor: "B4", where: ("APRO 4F · WP-05 " + (window.APRISM_PLACE ? APRISM_PLACE("pl02") : "냉각 펌프 P-2")),   time: "10:14:10", title: ("온도감지 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl02") : "냉각 펌프 P-2") + " 48.6℃"),   uv: [0.24, 0.66] },
+      { sev: "warning",  robot: 1, floor: "B4", where: ("APRO 4F · WP-06 " + (window.APRISM_PLACE ? APRISM_PLACE("pl04") : "수배전반 MCC-1")),  time: "10:15:31", title: "부분방전 · CH1 이상 점수 9.05",   uv: [0.30, 0.78] },
+      { sev: "critical", robot: 1, floor: "B4", where: ("APRO 4F · WP-07 " + (window.APRISM_PLACE ? APRISM_PLACE("pl05") : "고소 작업 발판")),  time: "10:16:48", title: "안전감지 · 안전벨트 미착용 1명",  uv: [0.40, 0.62] }
     );
   }
   // [11/10 v7] 알림 데이터 한 곳(alert-data-v7.js) — v7 화면은 위 목록 대신 거기서 읽는다(관제 · 안전진단 · 알림 센터와 같은 12건)
@@ -141,14 +141,14 @@
     a.mission = robotNo(a.robot).mission;
   });
   // [10/30 v6] WP-12 진동 상승 → 이상음향(관제 monitor.js · 안전진단과 같다)
-  if (body.classList.contains("ver-6")) { ALERTS.forEach(function (al) { if (al.title === "진동 상승 · 냉각 펌프 P-2") { al.title = "이상음향 · 이상 점수 21.6"; } var T = { "이상음향 · 이상 점수 21.6": "09:56:05", "부분방전 · 이상 점수 9.41": "09:36:42", "과열 · 발전기 베어링 68.4℃": "09:20:14" }; if (T[al.title]) { al.time = T[al.title]; } }); }   // 시각도 경로 차례로(monitor.js 와 같다)
+  if (body.classList.contains("ver-6")) { ALERTS.forEach(function (al) { if (al.title === ("진동 상승 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl02") : "냉각 펌프 P-2"))) { al.title = "이상음향 · 이상 점수 21.6"; } var T = { "이상음향 · 이상 점수 21.6": "09:56:05", "부분방전 · 이상 점수 9.41": "09:36:42", [("과열 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl07") : "발전기 베어링") + " 68.4℃")]: "09:20:14" }; if (T[al.title]) { al.time = T[al.title]; } }); }   // 시각도 경로 차례로(monitor.js 와 같다)
 
   var DONE = [
-    { time: "10:29:10", title: "온도감지 · WP-03 펌프 하우징", how: "추이 관찰 · 다음 순회 재측정", who: (window.APRISM_NAME ? APRISM_NAME("op2") : "김현대") },
-    { time: "10:18:52", title: "소음 이상 · 변압기 TR-1", how: "현장 점검 요청 · 이상 없음", who: (window.APRISM_NAME ? APRISM_NAME("op2") : "김현대") },
+    { time: "10:29:10", title: ("온도감지 · WP-03 " + (window.APRISM_PLACE ? APRISM_PLACE("pl13") : "펌프 하우징")), how: "추이 관찰 · 다음 순회 재측정", who: (window.APRISM_NAME ? APRISM_NAME("op2") : "김현대") },
+    { time: "10:18:52", title: ("소음 이상 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl10") : "변압기 TR-1")), how: "현장 점검 요청 · 이상 없음", who: (window.APRISM_NAME ? APRISM_NAME("op2") : "김현대") },
     { time: "10:02:31", title: "진동감지 · WP-02 터빈1 베어링", how: "추이 관찰 · 다음 순회 재측정", who: (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동") },
-    { time: "09:47:15", title: "온도감지 · WP-03 펌프 하우징", how: "현장 점검 요청 · 이상 없음", who: (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동") },
-    { time: "09:30:08", title: "누유 흔적 · 유압 유닛 HU-2", how: "청소 후 재측정 · 정상", who: (window.APRISM_NAME ? APRISM_NAME("op2") : "김현대") }
+    { time: "09:47:15", title: ("온도감지 · WP-03 " + (window.APRISM_PLACE ? APRISM_PLACE("pl13") : "펌프 하우징")), how: "현장 점검 요청 · 이상 없음", who: (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동") },
+    { time: "09:30:08", title: ("누유 흔적 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl14") : "유압 유닛 HU-2")), how: "청소 후 재측정 · 정상", who: (window.APRISM_NAME ? APRISM_NAME("op2") : "김현대") }
   ];
   // [11/03 v6] 오늘 확인 완료도 관제 미션(monitor.js DONE6)과 같은 기록 — 감지 6종 · "감지 · 측정 항목 + 값", 처리 줄 끝에 지점 번호, 첫 기록 10:19(시계 10:20 앞)
   if (V6) {
@@ -598,14 +598,14 @@
    * 웨이포인트는 임시 값이다(STEPS).
    */
   var STEPS = {
-    1:  [["N₂ 배관 압력계", "WP-04"], ["waypoint name", "WP-05"]],   // 미션 관제 Robot 01 목록(screen.js) 4 · 5번과 같다
-    5:  [["공기 압축기 C-1", "WP-13"], ["냉각수 펌프 P-3", "WP-14"]],
-    11: [["배전반실 열화상", "WP-04"], ["변압기 TR-2", "WP-05"]]
+    1:  [[(window.APRISM_PLACE ? APRISM_PLACE("pl01") : "N₂ 배관 압력계"), "WP-04"], ["waypoint name", "WP-05"]],   // 미션 관제 Robot 01 목록(screen.js) 4 · 5번과 같다
+    5:  [[(window.APRISM_PLACE ? APRISM_PLACE("pl08") : "공기 압축기 C-1"), "WP-13"], [(window.APRISM_PLACE ? APRISM_PLACE("pl12") : "냉각수 펌프 P-3"), "WP-14"]],
+    11: [["배전반실 열화상", "WP-04"], [(window.APRISM_PLACE ? APRISM_PLACE("pl11") : "변압기 TR-2"), "WP-05"]]
   };
   // v4(10/28) — 미션 관제 Robot 11 목록(screen.js 웨이포인트 20칸 더미) 8 · 9번과 같다
   if (V3) { STEPS[11] = [["케미컬 공급 캐비닛 CDS-02", "WP-08"], ["FFU-02 토출구", "WP-09"]]; }
   // v5(10/30) — Robot 01 은 WP-07 까지 마치고 WP-08 로 가는 중(screen.js v5 · 관제 지도와 같다)
-  if (body.classList.contains("ver-5")) { STEPS[1] = [["냉각수 열교환기 HX-1", "WP-08"], ["waypoint name", "WP-09"]]; }
+  if (body.classList.contains("ver-5")) { STEPS[1] = [[(window.APRISM_PLACE ? APRISM_PLACE("pl09") : "냉각수 열교환기 HX-1"), "WP-08"], ["waypoint name", "WP-09"]]; }
   // [11/23 정의서 관제화면-03] v7 — 다음 지점 이름은 미션 관제 지도가 붙이는 이름(map-v6.js nameWps: WP-09 = 설비 18)과 같게. "waypoint name" 이 그대로 보이던 것
   if (body.classList.contains("ver-7")) { STEPS[1][1][0] = "설비 18"; }
   var ST_TONE = { run: "info", done: "normal", idle: "idle", off: "critical" };

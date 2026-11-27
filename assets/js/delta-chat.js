@@ -112,7 +112,7 @@
     if (/위험|NG|터빈|압력|조치/.test(q)) {
       return {
         // [11/06 v6] 수치를 알림 · 안전진단(0.86 MPa, 정상 0.60 ~ 0.80)과 같게, 권하는 조치도 Delta 결론(현장 점검부터)과 같게
-        text: document.body.classList.contains("ver-6") ? "WP-04 N₂ 배관 압력계의 압력이 0.86 MPa 로 정상 범위(0.60 ~ 0.80)를 0.06 넘었어요. 최근 3회 측정이 잇달아 올랐습니다. 현장 점검부터 요청하는 것을 권해요." : "지하발전소 B3 터빈 2 의 N₂ 배관 압력계(WP-04)에서 Spiral Casing 압력이 90 으로 기준 87 을 넘었어요. 최근 3회 측정이 잇달아 올랐습니다. 현장 무전으로 작업을 멈추고 점검을 요청하는 것을 권해요.",
+        text: document.body.classList.contains("ver-6") ? ("WP-04 " + (window.APRISM_PLACE ? APRISM_PLACE("pl01") : "N₂ 배관 압력계") + "의 압력이 0.86 MPa 로 정상 범위(0.60 ~ 0.80)를 0.06 넘었어요. 최근 3회 측정이 잇달아 올랐습니다. 현장 점검부터 요청하는 것을 권해요.") : ("지하발전소 B3 터빈 2 의 " + (window.APRISM_PLACE ? APRISM_PLACE("pl01") : "N₂ 배관 압력계") + "(WP-04)에서 Spiral Casing 압력이 90 으로 기준 87 을 넘었어요. 최근 3회 측정이 잇달아 올랐습니다. 현장 무전으로 작업을 멈추고 점검을 요청하는 것을 권해요."),
         chips: [
           { label: "WP-04 지도에서 보기", go: true, act: openCritical },
           { label: "현장 무전 연락 요청" },
@@ -122,7 +122,7 @@
     }
     if (/주의|묶|추세/.test(q)) {
       return {
-        text: "주의 " + n.warn + ("건이 쌓여 있어요. 냉각수 밸브 누출 · 수배전반 부분방전 · 냉각 펌프 진동 · 공기 압축기 압력 편차가 " + (window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + " 순회 구간에 몰려 있어, 한 번에 점검 계획을 세우면 이동이 줄어요."),
+        text: "주의 " + n.warn + (("건이 쌓여 있어요. 냉각수 밸브 누출 · " + (window.APRISM_PLACE_S ? APRISM_PLACE_S("pl04") : "수배전반") + " 부분방전 · " + (window.APRISM_PLACE_S ? APRISM_PLACE_S("pl02") : "냉각 펌프") + " 진동 · " + (window.APRISM_PLACE_S ? APRISM_PLACE_S("pl08") : "공기 압축기") + " 압력 편차가 ") + (window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + " 순회 구간에 몰려 있어, 한 번에 점검 계획을 세우면 이동이 줄어요."),
         chips: [
           { label: "주의만 목록에서 보기", go: true, act: function () { filterTo("warning"); } },
           { label: "점검 계획 초안 만들어 줘" }

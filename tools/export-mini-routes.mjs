@@ -27,8 +27,12 @@ if (d.cross) {
   const p3 = thin(c3), p4 = thin(c4);
   out["발전기실 설비 점검"] = { B3: { pts: p3, sAt: even(p3, 12), n0: 1 }, B4: { pts: p4, sAt: even(p4, 8), n0: 13 } };
 }
+// [11/27] 미션 이름 열쇠는 예시 데이터 기준 목록(assets/js/demo-base-v7.js) 번호로 — v7, v8 은 기준 목록 이름, v6 이하는 그대로
+const MID = { "정기 순회 점검": "m1", "발전기실 설비 점검": "m2", "전기실 열화상 점검": "m3", "야간 순회 점검": "m6", "공조 설비 순회": "m7", "유틸리티 순회": "m8" };
+let body = JSON.stringify(out);
+for (const [m, id] of Object.entries(MID)) body = body.split(JSON.stringify(m) + ":").join('[(window.APRISM_MISSION ? APRISM_MISSION("' + id + '") : "' + m + '")]:');
 const js = "// 자동 생성 — tools/export-mini-routes.mjs(관제 지도 map-v6.js 의 미션별 길을 미니맵 평면 px 로). 손으로 고치지 말 것.\n" +
   "// 미션 → 층 → { pts: 길(꺾인 점), sAt: 웨이포인트가 길 위 어디(거리), n0: 이 층 첫 웨이포인트 번호 }\n" +
-  "window.APRISM_MINI_ROUTES = " + JSON.stringify(out) + ";\n";
+  "window.APRISM_MINI_ROUTES = " + body + ";\n";
 writeFileSync("assets/js/mini-routes.js", js);
 console.log(Object.entries(out).map(([m, f]) => m + " " + Object.entries(f).map(([k, v]) => k + ":" + v.pts.length + "pts/" + v.sAt.length + "wp").join(",")).join("\n"));

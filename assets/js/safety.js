@@ -40,27 +40,27 @@
   const LINKS = {0:[
     ['이상음향', '온도감지', '같은 펌프 P-2. 베어링 이상음이 발열로 이어질 수 있다', '높음'],
     ['온도감지', '누출감지', '같은 냉각수 계통. WP-05 펌프 온도가 오르면 WP-03 밸브 이음부 압력이 오른다', '높음'],
-    ['부분방전', '온도감지', '같은 펌프 전원. WP-06 수배전반 방전이 WP-05 펌프 모터 발열로 이어질 수 있다', '보통']],
+    ['부분방전', '온도감지', ('같은 펌프 전원. WP-06 ' + (window.APRISM_PLACE_S ? APRISM_PLACE_S('pl04') : '수배전반') + ' 방전이 WP-05 펌프 모터 발열로 이어질 수 있다'), '보통']],
     2:[['온도감지', '누출감지', '같은 급수 계통. WP-B09 펌프 모터 과열이 분기부 압력 변동으로 이어질 수 있다', '보통']]};
   const BASE = [
     // [10/30] 관제 v5 와 같은 데이터 — Robot 01 · 지하 4층 · WP-01~20 중 7곳 측정(WP-08 로 가는 중). 감지 6종 = 관제 최신 알림 6건(monitor.js R01_MORE)
     {mis:(window.APRISM_MISSION ? APRISM_MISSION('m1') : '정기 순회 점검'), fl:'지하 4층', ab:'B4', robot:(window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01'), done:7, total:20, r:{
-      '안전감지':['crit','안전벨트 미착용 1명','WP-07 고소 작업 발판','10:16'],
-      '누출감지':['warn','누출 의심 1곳','WP-03 냉각수 배관 밸브','10:11'],
-      '온도감지':['warn','최고 48.6 ℃','WP-05 냉각 펌프 P-2','10:14'],
-      '계기인식':['crit','압력 0.86 MPa','WP-04 N₂ 배관 압력계','10:12'],
-      '이상음향':['warn','이상 점수 20.4','WP-05 냉각 펌프 P-2','10:13'],
-      '부분방전':['warn','CH1 이상 점수 9.05','WP-06 수배전반 MCC-1','10:15']}},
+      '안전감지':['crit','안전벨트 미착용 1명',('WP-07 ' + (window.APRISM_PLACE ? APRISM_PLACE('pl05') : '고소 작업 발판')),'10:16'],
+      '누출감지':['warn','누출 의심 1곳',('WP-03 ' + (window.APRISM_PLACE ? APRISM_PLACE('pl03') : '냉각수 배관 밸브')),'10:11'],
+      '온도감지':['warn','최고 48.6 ℃',('WP-05 ' + (window.APRISM_PLACE ? APRISM_PLACE('pl02') : '냉각 펌프 P-2')),'10:14'],
+      '계기인식':['crit','압력 0.86 MPa',('WP-04 ' + (window.APRISM_PLACE ? APRISM_PLACE('pl01') : 'N₂ 배관 압력계')),'10:12'],
+      '이상음향':['warn','이상 점수 20.4',('WP-05 ' + (window.APRISM_PLACE ? APRISM_PLACE('pl02') : '냉각 펌프 P-2')),'10:13'],
+      '부분방전':['warn','CH1 이상 점수 9.05',('WP-06 ' + (window.APRISM_PLACE ? APRISM_PLACE('pl04') : '수배전반 MCC-1')),'10:15']}},
     // [10/30] 미션 이름 · 로봇 · 층 · 진행을 관제(screen.js · building.js)의 수행중 미션에 맞췄다 — 예전 '설비 순회 · 1층 · Robot 02', '배관 순회 · Robot 03'.
     //   전기실 열화상 점검 = Robot 11 · 지하 3층 · 3/20(WP-03 → WP-04 가는 중). 지점 번호도 진행에 맞춰 WP-102 · 103(새 결과 104)으로 당겼다.
     {mis:(window.APRISM_MISSION ? APRISM_MISSION('m3') : '전기실 열화상 점검'), fl:'지하 3층', ab:'B3', robot:(window.APRISM_ROBOT ? APRISM_ROBOT('r11') : 'Robot 11'), done:3, total:20, r:{
       '안전감지':['ok','정상 범위','측정 3곳'], '누출감지':['ok','정상 범위','측정 2곳'], '온도감지':['ok','정상 범위','측정 3곳'],
       '계기인식':['warn','압력 0.84 MPa','WP-102 압력계 PG-A3','10:01'],
       '이상음향':['ok','정상 범위','측정 2곳'],
-      '부분방전':['warn','CH1 이상 점수 9.05','WP-103 수배전반','09:58']}},
+      '부분방전':['warn','CH1 이상 점수 9.05',('WP-103 ' + (window.APRISM_PLACE_S ? APRISM_PLACE_S('pl04') : '수배전반')),'09:58']}},
     //   발전기실 설비 점검 = Robot 05 · 지하 3층(WP-01~12) → 계단 → 지하 4층(WP-13~20) · 13/20, 지금 지하 4층(관제 지도 층 건너기 예시).
     {mis:(window.APRISM_MISSION ? APRISM_MISSION('m2') : '발전기실 설비 점검'), fl:'지하 3층, 지하 4층', ab:'B3', fls:[['B3','지하 3층',12],['B4','지하 4층',20]], robot:(window.APRISM_ROBOT ? APRISM_ROBOT('r05') : 'Robot 05'), done:13, total:20, na:{'안전감지':'scope','부분방전':'sensor'}, r:{
-      '안전감지':null, '누출감지':['crit','누출 의심도 81%','WP-B04 급수 배관 분기부','09:21'],
+      '안전감지':null, '누출감지':['crit','누출 의심도 81%',('WP-B04 ' + (window.APRISM_PLACE ? APRISM_PLACE('pl16') : '급수 배관 분기부')),'09:21'],
       '온도감지':['warn','최고 41.8 ℃','WP-B09 급수 펌프 모터','10:09'], '계기인식':['ok','정상 범위','측정 3곳'], '이상음향':['ok','정상 범위','측정 4곳'], '부분방전':null}}
   ];
   /*
@@ -73,13 +73,13 @@
   const V6 = document.body.classList.contains('ver-6');
   if(V6){
     const ok = n => ['ok','정상 범위','측정 ' + n + '곳'];
-    BASE[1].r = {'안전감지':ok(3), '누출감지':ok(2), '온도감지':ok(3), '계기인식':['crit','차압 312 Pa','WP-02 HEPA Filter 차압계','09:44'], '이상음향':ok(2), '부분방전':ok(2)};
-    BASE[1].rs = {'계기인식':[['crit','차압 312 Pa','WP-02 HEPA Filter 차압계','09:44'], ['warn','압력 0.62 MPa','WP-04 N₂ 배관 압력계','10:15']]};
+    BASE[1].r = {'안전감지':ok(3), '누출감지':ok(2), '온도감지':ok(3), '계기인식':['crit','차압 312 Pa',('WP-02 ' + (window.APRISM_PLACE ? APRISM_PLACE('pl06') : 'HEPA Filter 차압계')),'09:44'], '이상음향':ok(2), '부분방전':ok(2)};
+    BASE[1].rs = {'계기인식':[['crit','차압 312 Pa',('WP-02 ' + (window.APRISM_PLACE ? APRISM_PLACE('pl06') : 'HEPA Filter 차압계')),'09:44'], ['warn','압력 0.62 MPa',('WP-04 ' + (window.APRISM_PLACE ? APRISM_PLACE('pl01') : 'N₂ 배관 압력계')),'10:15']]};
     BASE[2].na = {'안전감지':'scope'};
-    BASE[2].r = {'안전감지':null, '누출감지':ok(4), '온도감지':['warn','최고 68.4 ℃','WP-02 발전기 베어링','09:20'], '계기인식':['warn','압력 7.9 bar','WP-13 공기 압축기 C-1','10:01'],
-      '이상음향':['warn','이상 점수 21.6','WP-12 냉각 펌프 P-2','09:56'], '부분방전':['warn','이상 점수 9.41','WP-06 수배전반','09:36']};   // 이상음향 = 관제 "진동 상승"을 6종으로 옮긴 것(10/30)
+    BASE[2].r = {'안전감지':null, '누출감지':ok(4), '온도감지':['warn','최고 68.4 ℃',('WP-02 ' + (window.APRISM_PLACE ? APRISM_PLACE('pl07') : '발전기 베어링')),'09:20'], '계기인식':['warn','압력 7.9 bar',('WP-13 ' + (window.APRISM_PLACE ? APRISM_PLACE('pl08') : '공기 압축기 C-1')),'10:01'],
+      '이상음향':['warn','이상 점수 21.6',('WP-12 ' + (window.APRISM_PLACE ? APRISM_PLACE('pl02') : '냉각 펌프 P-2')),'09:56'], '부분방전':['warn','이상 점수 9.41',('WP-06 ' + (window.APRISM_PLACE_S ? APRISM_PLACE_S('pl04') : '수배전반')),'09:36']};   // 이상음향 = 관제 "진동 상승"을 6종으로 옮긴 것(10/30)
     MV['2|이상음향|warn'] = 'm2_sound_warn.jpg';
-    LINKS[2] = [['부분방전', '온도감지', '같은 발전기 계통. WP-06 수배전반 방전과 WP-02 베어링 과열이 함께 나타날 수 있다', '보통']];
+    LINKS[2] = [['부분방전', '온도감지', ('같은 발전기 계통. WP-06 ' + (window.APRISM_PLACE_S ? APRISM_PLACE_S('pl04') : '수배전반') + ' 방전과 WP-02 베어링 과열이 함께 나타날 수 있다'), '보통']];
     BASE.push(
       {mis:(window.APRISM_MISSION ? APRISM_MISSION('m6') : '야간 순회 점검'), fl:'지하 4층', ab:'B4', robot:(window.APRISM_ROBOT ? APRISM_ROBOT('r04') : 'Robot 04'), done:20, total:20, r:{'안전감지':ok(4),'누출감지':ok(5),'온도감지':ok(6),'계기인식':ok(4),'이상음향':ok(5),'부분방전':ok(3)}},
       {mis:(window.APRISM_MISSION ? APRISM_MISSION('m7') : '공조 설비 순회'), fl:'지하 3층', ab:'B3', robot:(window.APRISM_ROBOT ? APRISM_ROBOT('r07') : 'Robot 07'), done:20, total:20, r:{'안전감지':ok(3),'누출감지':ok(4),'온도감지':ok(6),'계기인식':ok(5),'이상음향':ok(6),'부분방전':ok(2)}},
@@ -107,7 +107,7 @@
   }
   // [11/10 v7] 말 통일(디자이너 "조치 요청, 요청됨으로 통일") — 관제 · 알림 센터 단추 [조치 요청] · 상태 "요청됨"과 같게. v6 · v5 는 예전 말
   const RQ_BTN = S7 ? '조치 요청' : '현장 조치 요청', RQ_DONE = S7 ? '요청됨' : '현장 조치 요청됨';
-  const NEWR = [1, '온도감지', ['crit','최고 71.2 ℃','WP-104 변압기 TR-1','10:15']];
+  const NEWR = [1, '온도감지', ['crit','최고 71.2 ℃',('WP-104 ' + (window.APRISM_PLACE ? APRISM_PLACE('pl10') : '변압기 TR-1')),'10:15']];
   const RANK = {crit:3, warn:2, done:1, ok:0};
   const V7 = document.body.classList.contains('ver-7');
   const WORD = {crit:'위험', warn:'주의', done:'요청됨', ok:V7 ? '정상' : '정상 범위', plan:'예정'};   // [11/23 v7] 판정 칩은 정상, 주의, 위험 셋(정상 범위 → 정상)
@@ -411,7 +411,7 @@
   }
   // 미션 하나의 표 = 위 확정 E 표와 같은 모양(행 감지, 열 순회 순서의 지점, 지금 지점 강조, DELTA 메모)
   const E_SP0 = [['WP-01','09:31',(window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01')],['WP-02','09:52',(window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01')],['WP-03','10:11',(window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01')],['WP-04','10:12',(window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01')],['WP-05','10:14',(window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01')],['WP-06','10:15',(window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01')],['WP-07','10:16',(window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01')],['WP-08','10:20',(window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01'),1],['WP-09','10:24',(window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01'),1]], E_NOW0 = 'WP-07', E_ROWS0 = [
-    {n:'안전감지', src:'영상', s:'crit', rep:'1명', wp:'WP-07', std:'미착용 0명', memo:'WP-07 고소 작업 발판 안전벨트 미착용', c:{'WP-01':['ok','0명'],'WP-04':['ok','0명'],'WP-07':['crit','1명']}},
+    {n:'안전감지', src:'영상', s:'crit', rep:'1명', wp:'WP-07', std:'미착용 0명', memo:('WP-07 ' + (window.APRISM_PLACE ? APRISM_PLACE('pl05') : '고소 작업 발판') + ' 안전벨트 미착용'), c:{'WP-01':['ok','0명'],'WP-04':['ok','0명'],'WP-07':['crit','1명']}},
     {n:'누출감지', src:'영상 + 열화상', s:'warn', rep:'62%', wp:'WP-03', std:'55% 미만', memo:'같은 냉각수 계통 WP-05 온도, 음향도 기준 초과', c:{'WP-03':['warn','62%'],'WP-04':['ok','9%'],'WP-05':['ok','12%'],'WP-09':['plan']}},
     {n:'온도감지', src:'열화상', s:'warn', rep:'48.6 ℃', wp:'WP-05', std:'40 ℃ 미만', memo:'평소 36.2 ℃ 대비 +12.4 ℃', c:{'WP-01':['ok','29.8'],'WP-02':['ok','31.4'],'WP-03':['ok','30.2'],'WP-04':['ok','32.1'],'WP-05':['warn','48.6'],'WP-06':['ok','33.0'],'WP-08':['plan']}},
     {n:'계기인식', src:'영상', s:'crit', rep:'0.86 MPa', wp:'WP-04', std:'0.60 ~ 0.80', memo:'N₂ 배관 압력 상한 초과, 최근 3회 잇달아 오름', c:{'WP-02':['ok','0.71'],'WP-04':['crit','0.86'],'WP-09':['plan']}},
@@ -694,7 +694,7 @@
   const NAW = {scope:'대상 아님', sensor:'센서 없음'};
   function naOf(i, k){ const m = M[i]; return (m.na && m.na[k]) || 'scope'; }
   // 정상 범위 카드: 측정 곳 수 대신 가장 최근에 잰 지점(시안용 설비 이름)
-  const OKN = {'안전감지':'작업 구역 출입구','누출감지':'배관 이음부','온도감지':'펌프 모터','계기인식':'압력계','이상음향':'펌프 베어링','부분방전':'수배전반'};
+  const OKN = {'안전감지':'작업 구역 출입구','누출감지':'배관 이음부','온도감지':'펌프 모터','계기인식':'압력계','이상음향':'펌프 베어링','부분방전':(window.APRISM_PLACE_S ? APRISM_PLACE_S('pl04') : '수배전반')};
   function okLatest(i, k){ const ed = eData(i), r = ed.rows.find(r2 => r2.n===k); if(!r) return '';
     const hit = ed.sp.filter(p => !p[3] && r.c[p[0]] && r.c[p[0]][0]==='ok').sort((p, q) => p[1] < q[1] ? -1 : 1).pop();
     return hit ? hit[0] + ' ' + OKN[k] + ', ' + hit[1] : ''; }

@@ -111,7 +111,7 @@
              { t: "현장 확인" }, { t: "오탐 처리" }] },
 
     { id: "A-6", sev: "warning", day: "today", time: "10:08:15", stamp: "2026-10-13 10:08:15",
-      title: "누출감지 · 냉각수 배관 밸브", wp: "WP-03", place: "지하발전소 B3 냉각수 배관",
+      title: ("누출감지 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl03") : "냉각수 배관 밸브")), wp: "WP-03", place: "지하발전소 B3 냉각수 배관",
       mission: "터빈 정기점검", detect: "누출감지", robot: "R-07", live: "discharge",
       lead: "현장 점검을 요청하는 것이 좋겠습니다.",
       why: ["누출 패턴 신뢰도 0.87 · 임계 0.70 초과",
@@ -122,18 +122,18 @@
              { t: "다음 순회 재측정" }, { t: "오탐 처리" }] },
 
     { id: "A-7", sev: "warning", day: "today", time: "10:06:41", stamp: "2026-10-13 10:06:41",
-      title: "부분방전 · 이상 점수 9.41", wp: "WP-06", place: "지하발전소 B3 수배전반",
+      title: "부분방전 · 이상 점수 9.41", wp: "WP-06", place: ("지하발전소 B3 " + (window.APRISM_PLACE_S ? APRISM_PLACE_S("pl04") : "수배전반")),
       mission: "전기실 순회", detect: "부분방전", robot: "R-02", live: "discharge",
       lead: "재진단을 예약해 두는 편이 좋습니다.",
       why: ["이상 점수 9.41 · 임계 9.23 초과",
             "PRPD 패턴이 코로나 방전 유형과 일치",
-            "같은 수배전반에서 8월에 같은 유형 1회"],
+            ("같은 " + (window.APRISM_PLACE_S ? APRISM_PLACE_S("pl04") : "수배전반") + "에서 8월에 같은 유형 1회")],
       fp: 21, fpLabel: "보통",
       acts: [{ t: "재진단 예약", delta: true }, { t: "현장 점검 요청", delta: true },
              { t: "추이 관찰" }, { t: "오탐 처리" }] },
 
     { id: "A-8", sev: "warning", day: "today", time: "10:04:02", stamp: "2026-10-13 10:04:02",
-      title: "진동 상승 · 냉각 펌프 P-2", wp: "WP-12", place: "지하발전소 B3 냉각 펌프",
+      title: ("진동 상승 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl02") : "냉각 펌프 P-2")), wp: "WP-12", place: ("지하발전소 B3 " + (window.APRISM_PLACE_S ? APRISM_PLACE_S("pl02") : "냉각 펌프")),
       mission: "터빈 정기점검", detect: "진동측정", robot: "R-07", live: "discharge",
       lead: "베어링 점검을 요청하는 것이 좋겠습니다.",
       why: ["진동 RMS 4.8 mm/s · 주의 기준 4.5 초과",
@@ -144,7 +144,7 @@
              { t: "추이 관찰" }, { t: "오탐 처리" }] },
 
     { id: "A-9", sev: "warning", day: "today", time: "10:01:58", stamp: "2026-10-13 10:01:58",
-      title: "과열 · 발전기 베어링 68.4℃", wp: "WP-02", place: "지하발전소 B3 발전기",
+      title: ("과열 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl07") : "발전기 베어링") + " 68.4℃"), wp: "WP-02", place: "지하발전소 B3 발전기",
       mission: "터빈 정기점검", detect: "열화상", robot: "R-07", live: "discharge",
       lead: "윤활 상태 점검을 요청해 주세요.",
       why: ["표면 온도 68.4℃ · 주의 기준 65℃ 초과",
@@ -155,7 +155,7 @@
              { t: "추이 관찰" }, { t: "오탐 처리" }] },
 
     { id: "A-10", sev: "warning", day: "today", time: "09:58:30", stamp: "2026-10-13 09:58:30",
-      title: "압력 편차 · 공기 압축기 C-1", wp: "WP-20", place: "지하발전소 B3 압축기실",
+      title: ("압력 편차 · " + (window.APRISM_PLACE ? APRISM_PLACE("pl08") : "공기 압축기 C-1")), wp: "WP-20", place: "지하발전소 B3 압축기실",
       mission: "설비 순회", detect: "압력측정", robot: "R-05", live: "discharge",
       lead: "흡입 필터 점검을 요청하는 것이 좋겠습니다.",
       why: ["토출 압력 7.9 bar · 정상 범위 8.2~8.8 아래",
@@ -228,7 +228,7 @@
               delta: "AI 추천 그대로 사용 (작업 중지 요청)" } },
 
     { id: "B-8", sev: "warning", day: "yesterday", time: "어제 18:40", stamp: "2026-10-12 18:40:16",
-      title: "진동 센서 값 상승", wp: "WP-12", place: "지하발전소 B3 냉각 펌프",
+      title: "진동 센서 값 상승", wp: "WP-12", place: ("지하발전소 B3 " + (window.APRISM_PLACE_S ? APRISM_PLACE_S("pl02") : "냉각 펌프")),
       mission: "터빈 정기점검", detect: "진동측정", robot: "R-07 · CAM-08", live: "discharge",
       done: { day: "yesterday", at: "18:52", by: (window.APRISM_NAME ? APRISM_NAME("op3") : "이수진"), took: "발생 후 12분",
               picked: ["설비 담당 전달"], memo: "",

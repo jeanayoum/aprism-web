@@ -615,17 +615,17 @@ window.APRISM_TEXT = (function () {
           result: "safe", read: "온도 61.8℃ · 진동 1.9 mm/s"
         },
         {
-          title: "HEPA Filter 차압계", state: "done", time: "09:31 – 09:52", duration: "21분",
+          title: (window.APRISM_PLACE ? APRISM_PLACE("pl06") : "HEPA Filter 차압계"), state: "done", time: "09:31 – 09:52", duration: "21분",
           result: "caution", read: "온도 74.2℃ · 진동 3.4 mm/s"
         },
         {
-          title: "냉각수 배관 밸브", state: "done", time: "09:52 – 10:08", duration: "16분",
+          title: (window.APRISM_PLACE ? APRISM_PLACE("pl03") : "냉각수 배관 밸브"), state: "done", time: "09:52 – 10:08", duration: "16분",
           result: "safe", read: "온도 63.1℃ · 진동 2.0 mm/s"
         },
         {
-          title: "N₂ 배관 압력계",
+          title: (window.APRISM_PLACE ? APRISM_PLACE("pl01") : "N₂ 배관 압력계"),
           // act — 진행 막대에 뜨는 "지금 하는 일". 칸 이름(설비명)과는 다른 말이다.
-          act: "N₂ 배관 압력계 판독",
+          act: ((window.APRISM_PLACE ? APRISM_PLACE("pl01") : "N₂ 배관 압력계") + " 판독"),
           state: "running",
           time: "10:08 – 10:24",
           duration: "16분",
@@ -684,7 +684,7 @@ window.APRISM_TEXT = (function () {
       // 5 · 수행중 · 64% · Good — B3(WP-01~12)를 돌고 계단으로 내려와 B4 를 도는 중(14/20, 10/20 디자이너).
       //   B3 · B4 를 둘 다 지나는 경로 예시 — 예전 정기 순회 점검 Robot 02 의 길(map.js crossLane)을 넘겨받았다.
       mission: ("지하 3층 " + (window.APRISM_MISSION ? APRISM_MISSION("m2") : "발전기실 설비 점검")),
-      current: "발전기 베어링 진동 측정",
+      current: ((window.APRISM_PLACE ? APRISM_PLACE("pl07") : "발전기 베어링") + " 진동 측정"),
       steps: [
         { title: "waypoint name", state: "done", time: "07:28 – 07:41", duration: "13분" },
         { title: "waypoint name", state: "done", time: "07:41 – 07:55", duration: "14분",
@@ -705,7 +705,7 @@ window.APRISM_TEXT = (function () {
           result: "caution", read: "토출 7.9 bar · 정상 8.2~8.8" },
         {
           title: "Generator Bearing Vibration",
-          act: "발전기 베어링 진동 측정",
+          act: ((window.APRISM_PLACE ? APRISM_PLACE("pl07") : "발전기 베어링") + " 진동 측정"),
           state: "running",
           time: "10:22 – 10:36",
           duration: "14분",
@@ -779,9 +779,9 @@ window.APRISM_TEXT = (function () {
       current: V4_RR ? "WP-08 케미컬 공급 캐비닛 CDS-02 판독" : "WP-04 로 이동 중",
       steps: V4_RR ? [
         { title: "FFU-01 토출구", state: "done", time: "09:12 – 09:31", duration: "19분", desc: "토출 풍속과 필터 표면 오염 여부를 확인한다." },
-        { title: "HEPA Filter 차압계", state: "done", time: "09:31 – 09:52", duration: "21분", desc: "차압계 표시값을 자동으로 판독하고, 교체 기준 대비 차압 상승을 확인한다." },
-        { title: "냉각수 배관 밸브", state: "done", time: "09:52 – 10:08", duration: "16분", desc: "밸브 개폐 상태와 연결부 누수 흔적을 확인한다." },
-        { title: "N₂ 배관 압력계", state: "done", time: "10:08 – 10:24", duration: "16분", desc: "압력계 표시값을 자동으로 판독하고, 정상 운전범위 대비 압력 편차와 변화 추이를 확인한다." },
+        { title: (window.APRISM_PLACE ? APRISM_PLACE("pl06") : "HEPA Filter 차압계"), state: "done", time: "09:31 – 09:52", duration: "21분", desc: "차압계 표시값을 자동으로 판독하고, 교체 기준 대비 차압 상승을 확인한다." },
+        { title: (window.APRISM_PLACE ? APRISM_PLACE("pl03") : "냉각수 배관 밸브"), state: "done", time: "09:52 – 10:08", duration: "16분", desc: "밸브 개폐 상태와 연결부 누수 흔적을 확인한다." },
+        { title: (window.APRISM_PLACE ? APRISM_PLACE("pl01") : "N₂ 배관 압력계"), state: "done", time: "10:08 – 10:24", duration: "16분", desc: "압력계 표시값을 자동으로 판독하고, 정상 운전범위 대비 압력 편차와 변화 추이를 확인한다." },
         { title: "CDA 메인 레귤레이터", state: "done", time: "10:24 – 10:37", duration: "13분", desc: "2차 압력 설정값과 실제 출력값의 차이를 확인한다." },
         { title: "배기 덕트 댐퍼", state: "done", time: "10:37 – 10:55", duration: "18분", desc: "댐퍼 개도 위치와 덕트 연결부 이격 여부를 확인한다." },
         { title: "PCW 공급 유량계", state: "done", time: "10:55 – 11:09", duration: "14분", desc: "유량계 표시값을 판독하고, 설정 유량 대비 편차를 확인한다." },
@@ -917,11 +917,11 @@ window.APRISM_TEXT = (function () {
     var r01 = ROBOTS[0];
     r01.current = "WP-08 로 이동 중";
     r01.steps = r01.steps.slice(0, 3).concat([
-      { title: "N₂ 배관 압력계", state: "done", time: "10:11 – 10:13", duration: "2분", read: "압력 0.86 MPa" },
-      { title: "냉각 펌프 P-2", state: "done", time: "10:13 – 10:15", duration: "2분", read: "이상 점수 20.4 · 최고 48.6℃" },
-      { title: "수배전반 MCC-1", state: "done", time: "10:15 – 10:16", duration: "1분", read: "CH1 이상 점수 9.05" },
-      { title: "고소 작업 발판", state: "done", time: "10:16 – 10:18", duration: "2분", read: "안전벨트 미착용 1명" },
-      { title: "냉각수 열교환기 HX-1", act: "열교환기 출구 온도 측정", state: "running" }
+      { title: (window.APRISM_PLACE ? APRISM_PLACE("pl01") : "N₂ 배관 압력계"), state: "done", time: "10:11 – 10:13", duration: "2분", read: "압력 0.86 MPa" },
+      { title: (window.APRISM_PLACE ? APRISM_PLACE("pl02") : "냉각 펌프 P-2"), state: "done", time: "10:13 – 10:15", duration: "2분", read: "이상 점수 20.4 · 최고 48.6℃" },
+      { title: (window.APRISM_PLACE ? APRISM_PLACE("pl04") : "수배전반 MCC-1"), state: "done", time: "10:15 – 10:16", duration: "1분", read: "CH1 이상 점수 9.05" },
+      { title: (window.APRISM_PLACE ? APRISM_PLACE("pl05") : "고소 작업 발판"), state: "done", time: "10:16 – 10:18", duration: "2분", read: "안전벨트 미착용 1명" },
+      { title: (window.APRISM_PLACE ? APRISM_PLACE("pl09") : "냉각수 열교환기 HX-1"), act: "열교환기 출구 온도 측정", state: "running" }
     ]);
     r01.steps[2].time = "09:52 – 10:11"; r01.steps[2].duration = "19분";
     // 지도 쪽지의 측정 요약 — 안전진단 표(E_ROWS0)의 값과 같게. 판정 색은 알림 목록이 덮는다(monitor.js markWaypoints)
@@ -957,7 +957,7 @@ window.APRISM_TEXT = (function () {
     },
     {
       // Figma 에 그려진 그 로봇이다 — 알림 문구도 컴포넌트 값 그대로 옮겼다.
-      where: "터빈 2 / Unit 03 · SPOT-DD-0209 · 192.168.10.62",
+      where: ((window.APRISM_AREA ? APRISM_AREA("a2") : "터빈 2 / Unit 03") + " · SPOT-DD-0209 · 192.168.10.62"),
       dbm: -78, last: "10:22:41 (2분 전)", odom: "X 12.8 / Y 44.1", dock: "DOCK_Station_02",
       notice: {
         title: "통신 불안정",
@@ -1041,7 +1041,7 @@ window.APRISM_TEXT = (function () {
       ]
     },
     {
-      where: "터빈 1 / Unit 01 · SPOT-DD-0200 · 192.168.10.52",
+      where: ((window.APRISM_AREA ? APRISM_AREA("a1") : "터빈 1 / Unit 01") + " · SPOT-DD-0200 · 192.168.10.52"),
       dbm: -45, last: "10:24:07 (방금)", odom: "X 19.5 / Y 05.8", dock: "DOCK_Station_01",
       events: [
         { text: "Switchgear Room 열화상 촬영 중", time: "10:19" },
