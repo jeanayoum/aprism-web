@@ -1116,10 +1116,30 @@ body.ver-7 .ds-table-row[data-sev="warning"] .ac-c-sev { color: var(--status-war
 body.ver-7 .ds-table-row[data-sev="critical"] { background-color: var(--status-critical-bg) !important; }
 :root[data-theme="light"] body.ver-7 .ds-table-row, :root[data-theme="light"] body.ver-7 .ds-table-row[data-sev="critical"] { background-color: var(--color-gray-0) !important; }
 :root[data-theme] body.ver-7 .ds-table-row:hover { background-color: var(--state-hover) !important; }
-:root[data-theme] body.ver-7 .ds-table-row[aria-selected="true"], :root[data-theme] body.ver-7 .ds-table-row[aria-selected="true"]:hover { background-color: var(--bg-raised) !important; }
-:root[data-theme="light"] body.ver-7 .ds-table-row[aria-selected="true"], :root[data-theme="light"] body.ver-7 .ds-table-row[aria-selected="true"]:hover { background-color: var(--bg-selected) !important; }
 body.ver-7 .ds-table-row .ac-c-act .btn { visibility: hidden; }
 body.ver-7 .ds-table-row:is(:hover, :focus-within, [aria-selected="true"]) .ac-c-act .btn { visibility: visible; }
+
+/* ---------- 표 한 벌 (11/27, 알림센터 두 탭 공통): 머리 .ds-table-head, 묶음 줄 .ds-table-group, 줄 .ds-table-row(위), 상태 칸 .ds-table-mark, 목록 .ds-table-body ----------
+ * 머리와 줄은 같은 높이 40, 좌우 20, 칸 사이 12. 머리 오른쪽은 목록 스크롤바 자리 12 를 더 비움(목록은 scrollbar-gutter stable)
+ * 묶음 줄(날짜): 높이 32, 면과 선 없이 회색 글자, 왼쪽 16, 글자는 아래로 붙임
+ * 상태 칸: 줄 맨 왼쪽 16. 조치 필요는 단계 아이콘, 조치 요청된(.is-done)은 빈칸. 고른 줄은 두 탭 모두 왼쪽 끝 연한 회색 띠 2 (면 색은 바꾸지 않음, 올림만 면 색)
+ * .is-done: 끝난 일 줄. 위험 면과 단계 띠 없음 */
+body.ver-7 { --ds-table-gutter: 12px; }
+body.ver-7 .ds-table-body { scrollbar-gutter: stable; }
+body.ver-7 .ds-table-head { box-sizing: border-box !important; display: flex !important; align-items: center !important; gap: var(--space-12) !important; height: var(--ds-table-row-h) !important; padding: 0 calc(var(--space-20) + var(--ds-table-gutter)) 0 var(--space-20) !important; border-bottom: var(--border-width-thin) solid var(--border-divider) !important; background-color: transparent !important; }
+body.ver-7 .ds-table-group { box-sizing: border-box !important; display: flex !important; align-items: flex-end !important; gap: var(--space-8) !important; height: 32px !important; padding: var(--space-12) var(--space-20) 2px var(--space-16) !important; background-color: transparent !important; border-bottom: 0 !important; }
+body.ver-7 .ds-table-group > * { color: var(--text-tertiary) !important; }
+body.ver-7 .ds-table-row { display: flex !important; align-items: center !important; gap: var(--space-12) !important; }
+body.ver-7 .ds-table-mark { position: relative !important; flex: none !important; display: inline-flex !important; align-items: center; justify-content: center; width: var(--size-icon-16) !important; height: var(--size-icon-16) !important; }
+/* [11/27 디자이너 "> 가 토글 같아 헷갈림"] 고른 줄은 왼쪽 끝 연한 회색 띠 2(text/secondary). 단계 띠(.ac-stripe 4)가 있는 줄은 그 바로 안쪽 */
+body.ver-7 .ds-table-row[aria-selected="true"]::after { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: var(--space-2, 2px); background-color: var(--text-secondary); pointer-events: none; }
+body.ver-7 .ds-table-row[aria-selected="true"]:has(> .ac-stripe)::after { left: var(--ds-table-edge); }
+body.ver-7 .ds-table-row.is-done { background-color: transparent !important; }
+/* 고름은 면 색을 바꾸지 않음: 고른 줄도 제 면(위험 줄은 위험 면), 올림만 올림 면 */
+:root[data-theme] body.ver-7 .ds-table-row[aria-selected="true"] { background-color: transparent !important; }
+:root:not([data-theme="light"]) body.ver-7 .ds-table-row[aria-selected="true"][data-sev="critical"]:not(.is-done) { background-color: var(--status-critical-bg) !important; }
+:root[data-theme="light"] body.ver-7 .ds-table-row[aria-selected="true"] { background-color: var(--color-gray-0) !important; }
+:root[data-theme] body.ver-7 .ds-table-row[aria-selected="true"]:hover:hover:hover { background-color: var(--state-hover) !important; }
 
 /* ---------- 처리 기록 줄 (11/23, .ds-record): 관제와 전체 미션 "조치 요청된 알림" 줄(.done-item 옆) ----------
  * 세로 묶음, 줄 사이 8, 안쪽 위아래 12 오른쪽 12 왼쪽 16, 아래 구분선 1 border/divider(안쪽 그림자), 제목 14/20. 둘째 줄은 단계(.done-stage, 조치 진행 배지 절 목록 꼴) + 받는 사람
@@ -2112,3 +2132,26 @@ body.ver-7.ver-6 .delta3 {
 /* [11/25 브랜딩 화면 검사] 미션 설정 · 사전 점검 Delta 판(sian.css .dl) 보통 단계 바닥색 — 하늘색 #36B2DF · 예전 파랑 #7598E8 · #89B9ED 날 값을 v7 파랑 램프로. 주의 · 위험 단계 색은 그대로 */
 body.ver-7 .dl:not(.is-warning):not(.is-critical) { --dl-a: var(--color-blue-500); --dl-b: var(--color-blue-600); --dl-c: var(--color-blue-400); }
 
+
+/* ---------- 사례: 알림 상세 판 (11/27, .ds-ad): 알림센터 두 탭 공통 짜임, 상태만 다름 ----------
+ * 짜임: 머리 .ds-ad-head [감지 .ds-ad-kind(아이콘 16 + 이름) + 상태 자리] → 값 .ds-ad-title → 기준 초과 .ds-ad-verdict(한 줄 아래)
+ *       → 사진과 정보(발생, 조치, 미션, 위치, 로봇) → 판 하나 .ds-ad-panel(조치 제안 또는 처리 정보, 그 안 아래 메모) → 바닥 버튼 .ds-ad-foot
+ * 상태 자리: 조치 필요 = 위험, 주의 배지 / 조치 요청된 = 비움
+ * 기준 초과 색: 위험 status/critical/text, 주의 status/warning/text, 조치 요청된(.is-done) text/tertiary(값 text/primary 보다 두 단계 낮은 회색)
+ * 판: 조치 필요 = DELTA 조치 제안 카드(.ds-delta-card, 그대로), 조치 요청된 = .ds-ad-panel 면 bg/raised 모서리 8 안쪽 12 (테 없음, 면 색으로만 구분)
+ * 덩이 사이 20 */
+body.ver-7 .ds-ad { display: flex !important; flex-direction: column !important; gap: var(--space-20) !important; }
+body.ver-7 .ds-ad-head { display: flex !important; flex-direction: column !important; gap: var(--space-8) !important; }
+body.ver-7 .ds-ad-top { display: flex !important; align-items: center !important; gap: var(--space-8) !important; }
+body.ver-7 .ds-ad-kind { display: inline-flex !important; align-items: center !important; gap: var(--space-6, 6px) !important; color: var(--text-secondary) !important; }
+body.ver-7 .ds-ad-kind > .i { color: var(--text-tertiary); }   /* [11/27] 감지 아이콘은 이름보다 한 단계 낮은 회색 */
+body.ver-7 .ds-ad-title { margin: 0 !important; }
+body.ver-7 .ds-ad-verdict { display: inline !important; margin: 0 0 0 var(--space-8) !important; font-size: var(--font-size-16) !important; line-height: var(--font-line-height-24) !important; font-weight: 600 !important; font-variant-numeric: tabular-nums; white-space: nowrap; }
+body.ver-7 .ds-ad-verdict.is-critical { color: var(--status-critical-text) !important; }
+body.ver-7 .ds-ad-verdict.is-warning { color: var(--status-warning-text) !important; }
+body.ver-7 .ds-ad-verdict.is-done { color: var(--text-tertiary) !important; }
+body.ver-7 .ds-ad-panel { display: flex !important; flex-direction: column !important; gap: var(--space-12) !important; padding: var(--space-12) !important; border-radius: var(--radius-8, 8px) !important; background-color: var(--bg-raised) !important; }
+body.ver-7 .ds-ad-panel-head { margin: 0 !important; color: var(--text-tertiary) !important; font-weight: var(--font-weight-regular) !important; }
+body.ver-7 .ds-ad-memo { display: flex !important; flex-direction: column !important; gap: var(--space-8) !important; }
+body.ver-7 .ds-ad-memo > .ds-ad-panel-head + * { margin: 0 !important; }
+body.ver-7 .ds-ad-foot { display: flex !important; align-items: center !important; justify-content: flex-end !important; gap: var(--space-8) !important; }

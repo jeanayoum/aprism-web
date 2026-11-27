@@ -477,9 +477,11 @@
       : '<span class="ac-c-sev" role="columnheader"><span class="ac-sr">단계</span></span>' +
         '<span class="ac-c-time" role="columnheader">발생</span>' +
         '<span class="ac-c-title" role="columnheader">알림</span>' +
-        '<span class="ac-c-place" role="columnheader">' + (V7 ? '웨이포인트, 위치' : '웨이포인트 · 위치') + '</span>' +
+        '<span class="ac-c-place" role="columnheader">' + (V7 ? "발생 위치" : "웨이포인트 · 위치") + '</span>' +   // [11/27 디자이너] v7 은 한 낱말로 "발생 위치"
         '<span class="ac-c-mission" role="columnheader">미션</span>' +
         '<span class="ac-c-act" role="columnheader"><span class="ac-sr">동작</span></span>';
+    // [11/27 디자이너 "칸 높이 일정하게"] v7 두 탭 머리는 공통 표 머리(.ds-table-head), 첫 칸은 상태 칸(.ds-table-mark)
+    if (V7) { colHead.classList.add("ds-table-head"); if (colHead.firstElementChild) { colHead.firstElementChild.classList.add("ds-table-mark"); } }
     if (sortBox) {
       var cell = $(state.tab === "done" ? ".ac-dc-sort" : ".ac-c-act", colHead);
       cell.appendChild(sortBox);
@@ -495,7 +497,7 @@
     return '<div class="ac-row' + (document.body.classList.contains("ver-7") ? " ds-table-row" : "") + '" role="row" data-id="' + a.id + '" data-sev="' + a.sev + '"' +
         ' tabindex="' + (sel ? "0" : "-1") + '" aria-selected="' + (sel ? "true" : "false") + '">' +
         '<span class="ac-stripe" aria-hidden="true"></span>' +
-        '<span class="ac-c-sev" role="gridcell">' + icon(SEV_ICON[a.sev], 16) +
+        '<span class="ac-c-sev' + (V7 ? " ds-table-mark" : "") + '" role="gridcell">' + icon(SEV_ICON[a.sev], 16) +
           '<span class="ac-sr">' + SEV_LABEL[a.sev] + '</span></span>' +
         '<span class="ac-c-time ac-mono" role="gridcell">' + esc(a.time) + '</span>' +
         '<span class="ac-c-title t-label-1" role="gridcell">' + esc(titleOf(a)) + '</span>' +
@@ -573,9 +575,9 @@
   function doneRow(a, sel) {
     var d = a.done;
     if (V7 && window.ds) {   // [11/26 디자이너] 열 머리와 같은 순서: 원 등급 | 알림 | 조치 내용 | 진행상황 | 발생 | 조치 | 담당
-      return '<div class="ac-done-row is-v7cols" role="row" data-id="' + a.id + '" data-sev="' + a.sev + '"' +
+      return '<div class="ac-done-row is-v7cols ds-table-row is-done" role="row" data-id="' + a.id + '" data-sev="' + a.sev + '"' +
           ' tabindex="' + (sel ? "0" : "-1") + '" aria-selected="' + (sel ? "true" : "false") + '">' +
-          '<span class="ac-dc-check" aria-hidden="true"></span>' +   // 체크 자리 빈칸(열 머리와 같음)
+          '<span class="ac-dc-check ds-table-mark" aria-hidden="true"></span>' +   // 체크 자리 빈칸(열 머리와 같음). 고른 줄은 공통 상태 칸 > 표시
           // [11/26 디자이너] 발생, 조치 시각 = 조치 필요 탭 발생과 같은 글자(.ac-mono)
           // [11/26 디자이너] 날짜는 날짜 줄이 맡으니 발생 칸은 시각만. 조치한 날과 발생한 날이 다를 때만 "어제" 같은 날짜를 남긴다
           '<span class="ac-dc-occ ac-mono" role="gridcell">' + esc(occTime(a)) + '</span>' +
@@ -611,6 +613,7 @@
 
   function renderList() {
     var rows = visible();
+    if (V7) { list.classList.add("ds-table-body"); }   // [11/27] 공통 표 목록(스크롤바 자리 고정)
     renderColHead();
     slot.hidden = !(state.tab === "done" && state.handover);
 
@@ -627,7 +630,7 @@
       if (state.tab === "done" && dayOf(a) !== day) {
         day = dayOf(a);
         var n = rows.filter(function (x) { return dayOf(x) === day; }).length;
-        html += '<div class="ac-date-row" role="row">' +
+        html += '<div class="ac-date-row' + (V7 ? " ds-table-group" : "") + '" role="row">' +
           '<span class="t-label-2" role="gridcell">' + esc(DAYS[day].label) + '</span>' +
           '<span class="ac-date-count ac-mono" role="gridcell">' + n + '</span>' +
         '</div>';
@@ -984,9 +987,22 @@
   // 머리 — [단계 배지] 감지 이름 / 측정 항목 + 값(값만 단계색) / 아래 한 줄(발생 또는 조치)
   function head6(a, prefix, under) {
     var r = resOf(a);
+    if (V7) {
+      // [11/27 디자이너 "두 탭 구조 통일, 상태만 다르게"] 공통 패턴 .ds-ad-head: [감지] + 상태 자리 / 값 / 기준 초과(한 줄 아래). under 는 v7 에서 쓰지 않음
+      var vd7 = r[1] && window.APRISM_VERDICT && window.APRISM_VERDICT(a.detect, r[1]);
+      return '<div class="ac-d-title-block ac-d6-head ds-ad-head' + (a.sev === "critical" ? " is-critical" : "") + (a.done ? " is-done" : "") + '">' +
+        '<div class="ac-d6-top ds-ad-top"><span class="ac-d6-kind ds-ad-kind t-label-2">' + detIcon(a) + esc(a.detect) + '</span>' +
+          (prefix === null ? "" : sevBadge(a, prefix)) + '</div>' +
+        // [11/27 디자이너] 기준 초과는 값과 같은 줄, 색으로만 구분(조치 필요 = 단계 색, 조치 요청된 = 한 단계 낮은 회색)
+        '<h2 class="t-title-1 ac-d6-title ds-ad-title">' + esc(r[0]) + (r[1] ? ' <b class="ac-d6-val">' + esc(r[1]) + '</b>' : "") +
+          (vd7 ? '<span class="ds-ad-verdict ' + (a.done ? "is-done" : a.sev === "critical" ? "is-critical" : "is-warning") + '">' + esc(vd7) + '</span>' : "") + '</h2>' +
+      '</div>';
+    }
     return '<div class="ac-d-title-block ac-d6-head' + (a.sev === "critical" ? " is-critical" : "") + '">' +
-      '<div class="ac-d6-top">' + (prefix === null ? "" : sevBadge(a, prefix)) +   // prefix null = 배지 없음
-        '<span class="ac-d6-kind t-label-2">' + (V7 ? detIcon(a) : "") + esc(a.detect) + '</span></div>' +   // [11/26 디자이너] v7 감지 이름 앞 감지 아이콘(목록과 같음)
+      // [11/27 디자이너] v7 순서: [감지 아이콘] 감지 이름 → 위험, 주의 배지. v6 은 배지 → 감지 이름 그대로. prefix null = 배지 없음
+      '<div class="ac-d6-top">' + (V7 ? "" : (prefix === null ? "" : sevBadge(a, prefix))) +
+        '<span class="ac-d6-kind t-label-2">' + (V7 ? detIcon(a) : "") + esc(a.detect) + '</span>' +
+        (V7 && prefix !== null ? sevBadge(a, prefix) : "") + '</div>' +
       // [11/06 디자이너] 값 뒤 판정 — 관제 알림 팝오버 · 안전진단 상세와 같은 글(verdict-v6.js)
       '<h2 class="t-title-1 ac-d6-title">' + esc(r[0]) + (r[1] ? ' <b class="ac-d6-val">' + esc(r[1]) + '</b>' : "") +
         (function () { var vd = r[1] && window.APRISM_VERDICT && window.APRISM_VERDICT(a.detect, r[1]); return vd ? ' <span class="ac-d6-vd">' + esc(vd) + "</span>" : ""; })() + '</h2>' +
@@ -1013,12 +1029,13 @@
   }
 
   function openHtml6(a) {
-    return '<div class="ac-detail-contents">' +
+    return '<div class="ac-detail-contents' + (V7 ? " ds-ad" : "") + '">' +
         head6(a, "", '<p class="ac-d-age t-caption">' + esc(a.stamp) + ' 발생</p>') +
-        snap6(a, meta6(a, true)) +
+        // [11/27] v7 은 발생 시각을 머리 아래 줄 대신 정보 첫 줄로(조치 요청된 알림과 같은 자리)
+        snap6(a, (V7 ? metaRow("발생", '<span class="ac-mono">' + esc(a.stamp) + '</span>') : "") + meta6(a, true)) +
         delta6(a, chosenOf(a)) +
       '</div>' +
-      '<div class="ac-actions">' +
+      '<div class="ac-actions' + (V7 ? " ds-ad-foot" : "") + '">' +
         '<span class="ac-head-spacer"></span>' +
         '<p class="ac-draft t-caption" data-ac-draft' + (draft6(a) ? "" : " hidden") + '>임시저장된 상태</p>' +
         // 관제 팝오버와 같은 두 버튼 — [진단 상세](보조 · 무채색)는 고른 조치 · 메모를 안전진단 상세로 넘긴다(morph-v6.js 가 [data-ma-more] 를 본다)
@@ -1074,7 +1091,12 @@
         '<p class="ac-memo-box t-body-4' + (memoOf(a) ? "" : " ac-memo-empty") + '">' +
           (memoOf(a) ? esc(memoOf(a)) : (V7 ? "남긴 메모가 없어요" : "남긴 메모가 없습니다.")) + '</p>' +
       '</section>';
-    return '<div class="ac-record">' +
+    // [11/27 디자이너 "구조 통일"] v7: 처리 정보와 메모를 판 하나(.ds-ad-panel)에 — 조치 필요의 DELTA 조치 제안 카드와 같은 자리, 같은 짜임(위 내용, 아래 메모)
+    if (V7) {
+      memoSec = '<div class="ds-ad-memo"><h4 class="t-caption ds-ad-panel-head">메모</h4>' +
+        '<p class="ac-memo-box t-body-4' + (memoOf(a) ? "" : " ac-memo-empty") + '">' + (memoOf(a) ? esc(memoOf(a)) : "남긴 메모가 없어요") + '</p></div>';
+    }
+    return '<div class="ac-record' + (V7 ? " ds-ad" : "") + '">' +
       head6(a, V7 ? null : "원 등급 ",   // [11/26 디자이너] v7 조치 요청된 알림은 위험, 주의 배지 없음(감지 이름만)
         // [11/26 디자이너 "정보 위계"] v7 은 머리 아래 조치 줄을 뺌: 조치 시각은 발생 아래 같은 위계, 담당은 처리 정보 진행 옆
         V7 ? "" : '<p class="ac-record-age">' +
@@ -1099,12 +1121,12 @@
 
       (V7 ? "" : memoSec) +   // [11/26 디자이너] v7 은 메모를 처리 정보 아래로
 
-      '<section class="ac-record-section">' +
-        '<h3 class="t-caption">처리 정보</h3>' +
+      '<section class="ac-record-section' + (V7 ? " ds-ad-panel" : "") + '">' +
+        '<h3 class="t-caption' + (V7 ? " ds-ad-panel-head" : "") + '">처리 정보</h3>' +
         '<dl class="ac-info">' +
           // [11/26 디자이너] v7: 진행 = 단계 | 조치한 사람, 받는 사람은 한 줄 아래. 담당, 소요 줄은 뺌(소요는 위 조치 시각 옆)
-          // [11/26 디자이너 "현장도 진행처럼 무엇을 했는지 | 누가"] 관제 = 조치 요청 | 요청한 사람, 현장 = 진행 단계 | 받은 사람(같은 꼴)
-          (V7 ? infoRow("관제", '<span class="t-body-4"><span class="done-stage is-req"><span class="done-st">조치 요청</span>' +
+          // [11/26 디자이너 "현장도 진행처럼 무엇을 했는지 | 누가"] 진행 = 조치 요청 | 요청한 사람, 현장 = 진행 단계 | 받은 사람(같은 꼴). 이름표는 진행 그대로
+          (V7 ? infoRow("진행", '<span class="t-body-4"><span class="done-stage is-req"><span class="done-st">조치 요청</span>' +
                   '<span class="ac-stage-to">' + esc(d.by) + '</span></span></span>') +
                 infoRow("현장", '<span class="t-body-4"><span class="done-stage is-' + stageOf(a).st + '"><span class="done-st">' + stageOf(a).word.replace(/^현장\s*/, "") + '</span>' +
                   '<span class="ac-stage-to">' + esc(stageOf(a).to) + '</span></span></span>')
@@ -1114,9 +1136,12 @@
             ? infoRow("조치", infoActs(a, d))   // [11/24 디자이너] "AI 추천 그대로 사용" 대신 실제 조치 내용, AI 추천에서 온 조치만 Delta 글자
             : infoRow("DELTA", '<span class="ac-info-delta t-body-4">' + esc(deltaLine(d.delta)) + '</span>')) +
         '</dl>' +
+        (V7 ? memoSec : "") +
       '</section>' +
-      (V7 ? memoSec : "") +
-    '</div>';
+    '</div>' +
+    // [11/27] v7 바닥 버튼 줄도 조치 필요와 같은 자리: [진단 상세]만(조치는 이미 요청됨)
+    (V7 ? '<div class="ac-actions ds-ad-foot"><span class="ac-head-spacer"></span>' +
+      '<a class="btn btn-secondary is-md" href="' + esc(safetyHref(a)) + '" title="안전진단에서 이 알림의 감지 결과 보기" style="text-decoration:none">진단 상세</a></div>' : "");
   }
 
   /*
