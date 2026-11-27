@@ -32,19 +32,19 @@
     B4: "지하 4층"
   };
   var MISSION_FLOORS = {
-    "정기 순회 점검": [ "B3", "B4" ],
-    "야간 순회 점검": [ "B4" ],
-    "발전기실 설비 점검": [ "B3" ],
-    "공조 설비 순회": [ "B3" ],
-    "유틸리티 순회": [ "B4" ],
-    "전기실 열화상 점검": [ "B3" ]
+    [window.APRISM_MISSION ? APRISM_MISSION("m1") : "정기 순회 점검"]: [ "B3", "B4" ],
+    [window.APRISM_MISSION ? APRISM_MISSION("m6") : "야간 순회 점검"]: [ "B4" ],
+    [window.APRISM_MISSION ? APRISM_MISSION("m2") : "발전기실 설비 점검"]: [ "B3" ],
+    [window.APRISM_MISSION ? APRISM_MISSION("m7") : "공조 설비 순회"]: [ "B3" ],
+    [window.APRISM_MISSION ? APRISM_MISSION("m8") : "유틸리티 순회"]: [ "B4" ],
+    [window.APRISM_MISSION ? APRISM_MISSION("m3") : "전기실 열화상 점검"]: [ "B3" ]
   };
   var V3 = body.classList.contains("ver-3");
   var V6 = body.classList.contains("ver-6");
   var V7B = body.classList.contains("ver-7") && document.documentElement.lang !== "en";
   if (V3) {
-    MISSION_FLOORS["정기 순회 점검"] = [ "B4" ];
-    MISSION_FLOORS["발전기실 설비 점검"] = [ "B3", "B4" ];
+    MISSION_FLOORS[window.APRISM_MISSION ? APRISM_MISSION("m1") : "정기 순회 점검"] = [ "B4" ];
+    MISSION_FLOORS[window.APRISM_MISSION ? APRISM_MISSION("m2") : "발전기실 설비 점검"] = [ "B3", "B4" ];
   }
   var floorView = null;
   var MISSION_LIST = Object.keys(MISSION_FLOORS);
@@ -57,7 +57,7 @@
     n: 1,
     floor: "B4",
     st: "run",
-    mission: "정기 순회 점검",
+    mission: window.APRISM_MISSION ? APRISM_MISSION("m1") : "정기 순회 점검",
     now: "N₂ 배관 압력 점검",
     done: 3,
     total: 20,
@@ -90,7 +90,7 @@
     n: 4,
     floor: "B4",
     st: "done",
-    mission: "야간 순회 점검",
+    mission: window.APRISM_MISSION ? APRISM_MISSION("m6") : "야간 순회 점검",
     now: "순회 완료",
     done: 20,
     total: 20,
@@ -102,7 +102,7 @@
     n: 5,
     floor: "B4",
     st: "run",
-    mission: "발전기실 설비 점검",
+    mission: window.APRISM_MISSION ? APRISM_MISSION("m2") : "발전기실 설비 점검",
     now: "발전기 베어링 진동 측정",
     done: 13,
     total: 20,
@@ -124,7 +124,7 @@
     n: 7,
     floor: "B3",
     st: "done",
-    mission: "공조 설비 순회",
+    mission: window.APRISM_MISSION ? APRISM_MISSION("m7") : "공조 설비 순회",
     now: "순회 완료",
     done: 20,
     total: 20,
@@ -147,7 +147,7 @@
     n: 9,
     floor: "B4",
     st: "done",
-    mission: "유틸리티 순회",
+    mission: window.APRISM_MISSION ? APRISM_MISSION("m8") : "유틸리티 순회",
     now: "순회 완료",
     done: 20,
     total: 20,
@@ -168,7 +168,7 @@
     n: 11,
     floor: "B3",
     st: "run",
-    mission: "전기실 열화상 점검",
+    mission: window.APRISM_MISSION ? APRISM_MISSION("m3") : "전기실 열화상 점검",
     now: "배전반실 열화상 점검",
     done: 3,
     total: 20,
@@ -191,10 +191,10 @@
     ROBOTS[0].done = 7;
   }
   if (V6) {
-    ROBOTS[2].mission = "소방 설비 점검";
-    ROBOTS[7].mission = "주간 설비 점검";
-    MISSION_FLOORS["소방 설비 점검"] = [ "B4" ];
-    MISSION_FLOORS["주간 설비 점검"] = [ "B3" ];
+    ROBOTS[2].mission = window.APRISM_MISSION ? APRISM_MISSION("m4") : "소방 설비 점검";
+    ROBOTS[7].mission = window.APRISM_MISSION ? APRISM_MISSION("m5") : "주간 설비 점검";
+    MISSION_FLOORS[window.APRISM_MISSION ? APRISM_MISSION("m4") : "소방 설비 점검"] = [ "B4" ];
+    MISSION_FLOORS[window.APRISM_MISSION ? APRISM_MISSION("m5") : "주간 설비 점검"] = [ "B3" ];
     MISSION_LIST = Object.keys(MISSION_FLOORS);
   }
   if (V3) {
@@ -224,7 +224,7 @@
     }
   };
   function rname(r) {
-    return "Robot " + (r.n < 10 ? "0" : "") + r.n;
+    return window.APRISM_ROBOT_AT ? APRISM_ROBOT_AT(r.n) : "Robot " + (r.n < 10 ? "0" : "") + r.n;
   }
   var ALERTS = [ {
     sev: "critical",
@@ -246,7 +246,7 @@
     sev: "warning",
     robot: 5,
     floor: "B3",
-    where: "Robot 05 · WP-06 수배전반",
+    where: (window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + " · WP-06 수배전반",
     time: "10:09:42",
     title: "부분방전 · 이상 점수 9.41",
     uv: [ 0.62, 0.22 ]
@@ -254,7 +254,7 @@
     sev: "warning",
     robot: 5,
     floor: "B3",
-    where: "Robot 05 · WP-12 냉각 펌프 P-2",
+    where: (window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + " · WP-12 냉각 펌프 P-2",
     time: "10:06:05",
     title: "진동 상승 · 냉각 펌프 P-2",
     uv: [ 0.64, 0.46 ]
@@ -262,7 +262,7 @@
     sev: "warning",
     robot: 5,
     floor: "B3",
-    where: "Robot 05 · WP-02 발전기 베어링",
+    where: (window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + " · WP-02 발전기 베어링",
     time: "10:03:27",
     title: "과열 · 발전기 베어링 68.4℃",
     uv: [ 0.56, 0.24 ]
@@ -270,7 +270,7 @@
     sev: "warning",
     robot: 5,
     floor: "B4",
-    where: "Robot 05 · WP-13 공기 압축기 C-1",
+    where: (window.APRISM_ROBOT ? APRISM_ROBOT("r05") : "Robot 05") + " · WP-13 공기 압축기 C-1",
     time: "10:01:12",
     title: "압력 편차 · 공기 압축기 C-1",
     uv: [ 0.50, 0.74 ]
@@ -280,7 +280,7 @@
       sev: "critical",
       robot: 11,
       floor: "B3",
-      where: "Robot 11 · WP-02 HEPA Filter 차압계",
+      where: (window.APRISM_ROBOT ? APRISM_ROBOT("r11") : "Robot 11") + " · WP-02 HEPA Filter 차압계",
       time: "09:44:18",
       title: "차압 NG · HEPA Filter 차압계",
       uv: [ 0.60, 0.50 ]
@@ -288,7 +288,7 @@
       sev: "warning",
       robot: 11,
       floor: "B3",
-      where: "Robot 11 · WP-04 N₂ 배관 압력계",
+      where: (window.APRISM_ROBOT ? APRISM_ROBOT("r11") : "Robot 11") + " · WP-04 N₂ 배관 압력계",
       time: "10:15:52",
       title: "압력 편차 · N₂ 배관 압력계",
       uv: [ 0.70, 0.64 ]
@@ -360,27 +360,27 @@
     time: "10:29:10",
     title: "온도감지 · WP-03 펌프 하우징",
     how: "추이 관찰 · 다음 순회 재측정",
-    who: "김현대"
+    who: window.APRISM_NAME ? APRISM_NAME("op2") : "김현대"
   }, {
     time: "10:18:52",
     title: "소음 이상 · 변압기 TR-1",
     how: "현장 점검 요청 · 이상 없음",
-    who: "김현대"
+    who: window.APRISM_NAME ? APRISM_NAME("op2") : "김현대"
   }, {
     time: "10:02:31",
     title: "진동감지 · WP-02 터빈1 베어링",
     how: "추이 관찰 · 다음 순회 재측정",
-    who: "홍길동"
+    who: window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동"
   }, {
     time: "09:47:15",
     title: "온도감지 · WP-03 펌프 하우징",
     how: "현장 점검 요청 · 이상 없음",
-    who: "홍길동"
+    who: window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동"
   }, {
     time: "09:30:08",
     title: "누유 흔적 · 유압 유닛 HU-2",
     how: "청소 후 재측정 · 정상",
-    who: "김현대"
+    who: window.APRISM_NAME ? APRISM_NAME("op2") : "김현대"
   } ];
   if (V6) {
     [ [ "온도감지 · 최고 온도 44.2 ℃", "WP-03" ], [ "부분방전 · 이상 점수 8.92", "WP-11" ], [ "이상음향 · 이상 점수 19.6", "WP-02" ], [ "온도감지 · 최고 온도 41.5 ℃", "WP-03" ], [ "누출감지 · 누출 의심도 58%", "WP-09" ] ].forEach(function(x, i) {
@@ -395,24 +395,10 @@
     done: "조치 완료"
   };
   if (V7B) {
-    DONE = [ {
-      time: "10:08:30",
-      title: "이상음향 점수 19.6",
-      wp: "WP-02",
-      how: "현장 점검 요청",
-      st: "work",
-      to: "설비팀 박지훈",
-      mission: "정기 순회 점검"
-    }, {
-      time: "10:05:12",
-      title: "최고 온도 44.2 ℃",
-      wp: "WP-01",
-      how: "다음 순회 재측정",
-      st: "done",
-      to: "설비팀 박지훈",
-      mission: "정기 순회 점검",
-      res: "정상"
-    } ];
+    DONE = window.APRISM_ALERTS7 ? window.APRISM_ALERTS7.doneBase().map(function(d) {
+      delete d.who;
+      return d;
+    }) : [];
   }
   if (window.APRISM_ALERTS7) {
     var R7 = window.APRISM_ALERTS7.req.all(), ids7 = Object.keys(R7).sort().join(",");
@@ -425,7 +411,7 @@
         time: r.t,
         title: window.APRISM_ALERT6 ? window.APRISM_ALERT6.title(a.title) : a.title,
         how: (r.how || []).join(" · "),
-        who: r.who || "홍길동",
+        who: r.who || (window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동"),
         wp: (/WP-\d+/.exec(a.where) || [ "" ])[0],
         reqId: a.id,
         mission: a.mission
@@ -470,15 +456,15 @@
   } ];
   var SCHED = [ {
     time: "10:25",
-    text: "Robot 02 · 도크 도착 후 충전",
+    text: (window.APRISM_ROBOT ? APRISM_ROBOT("r02") : "Robot 02") + " · 도크 도착 후 충전",
     floor: "B4"
   }, {
     time: "11:30",
-    text: "Robot 07 · 공조 설비 순회 2회차 시작",
+    text: (window.APRISM_ROBOT ? APRISM_ROBOT("r07") : "Robot 07") + " · " + (window.APRISM_MISSION ? APRISM_MISSION("m7") : "공조 설비 순회") + " 2회차 시작",
     floor: "B3"
   }, {
     time: "12:10",
-    text: "Robot 11 · 전기실 열화상 점검 끝",
+    text: (window.APRISM_ROBOT ? APRISM_ROBOT("r11") : "Robot 11") + " · " + (window.APRISM_MISSION ? APRISM_MISSION("m3") : "전기실 열화상 점검") + " 끝",
     floor: "B3"
   } ];
   var scopeMission = null;
@@ -949,6 +935,15 @@
     1: "Weak",
     0: "끊김"
   };
+  if (V7B) {
+    SIG = {
+      4: "강함",
+      3: "보통",
+      2: "약함",
+      1: "약함",
+      0: "끊김"
+    };
+  }
   function chip(cls) {
     return el("span", "bld-chip" + (cls ? " " + cls : ""));
   }
@@ -1008,7 +1003,7 @@
       steps.appendChild(rcStep(r.now, V6 ? wp[0][0] : wp[0][1] + " " + wp[0][0], true, "way"));
       steps.appendChild(rcStep(wp[1][0], wp[1][1], false, "target", "is-no"));
     } else {
-      var where = r.st === "done" ? (r.mission || "") + " 끝" : r.st === "off" ? FNAME[r.floor] + " · 마지막 위치" : FNAME[r.floor] + (r.dock ? " · 도크" : "");
+      var where = r.st === "done" ? (r.mission || "") + " 끝" : r.st === "off" ? FNAME[r.floor] + (V7B ? ", 마지막 위치" : " · 마지막 위치") : FNAME[r.floor] + (r.dock ? V7B ? ", 도크" : " · 도크" : "");
       var restIc = r.st === "done" ? "check-circle" : /충전/.test(r.now) ? "bolt" : r.moving ? "way" : "clock";
       var restStep = rcStep(r.now, where, true, r.st === "off" ? "way" : restIc);
       if (r.st !== "off") {
@@ -1037,7 +1032,7 @@
     var st = el("span", "bld-rc-badge is-" + ST_TONE[r.st] + (document.body.classList.contains("ver-7") && window.ds ? " " + window.ds.statusCls(r.st) : ""));
     st.appendChild(el("i"));
     st.appendChild(el("span", null, b.text));
-    line("Mission", st);
+    line(V7B ? "미션" : "Mission", st);
     var bat = el("span", window.ds ? window.ds.batteryCls(r.bat, r.chg) : "battery" + (r.bat <= 20 ? " is-critical" : r.bat <= 40 ? " is-warning" : "") + (r.chg ? " is-charging" : ""));
     var bb = el("span", "battery-body");
     var bf = el("span", "battery-fill");
@@ -1052,7 +1047,7 @@
     bat.appendChild(bb);
     bat.appendChild(el("span", "battery-tip"));
     bat.appendChild(el("span", "t-caption num", r.bat + "%"));
-    line("Battery", bat);
+    line(V7B ? "배터리" : "Battery", bat);
     var sig = el("span", "battery" + (r.sig === 1 ? " is-critical" : r.sig === 2 ? " is-warning" : ""));
     var bars = el("span", "signal-bars");
     bars.setAttribute("data-level", String(r.sig));
@@ -1061,7 +1056,7 @@
     }
     sig.appendChild(bars);
     sig.appendChild(el("span", "t-caption", SIG[r.sig]));
-    line("Signal", sig);
+    line(V7B ? "신호" : "Signal", sig);
     main.appendChild(side);
     node.appendChild(main);
     node.addEventListener("mouseenter", function() {
@@ -1152,7 +1147,7 @@
       if (wp) {
         nt.appendChild(el("span", "bld-rc2-wp t-caption", V6 ? wp[0][0] : wp[0][1] + " " + wp[0][0]));
       } else {
-        nt.appendChild(el("span", "bld-rc2-wp t-caption", r.st === "done" ? (r.mission || "") + " 끝" : r.st === "off" ? FNAME[r.floor] + " · 마지막 위치" : FNAME[r.floor] + (r.dock ? " · 도크" : "")));
+        nt.appendChild(el("span", "bld-rc2-wp t-caption", r.st === "done" ? (r.mission || "") + " 끝" : r.st === "off" ? FNAME[r.floor] + (V7B ? ", 마지막 위치" : " · 마지막 위치") : FNAME[r.floor] + (r.dock ? V7B ? ", 도크" : " · 도크" : "")));
       }
     }
     nowRow.appendChild(nt);
@@ -1732,6 +1727,53 @@
       endHandover();
     }, true);
   }
+  var D7 = null;
+  function publishDelta(list) {
+    if (!V7B || !window.APRISM_ALERTS7 || !window.APRISM_ALERTS7.forDelta) {
+      return;
+    }
+    if (!D7) {
+      D7 = window.APRISM_ALERTS7.forDelta();
+    }
+    var byId = {};
+    list.forEach(function(a) {
+      byId[a.id] = a;
+    });
+    var all = D7.filter(function(o) {
+      return byId[o.id];
+    });
+    all.forEach(function(o) {
+      o.bld = byId[o.id];
+    });
+    var t = function(a, b) {
+      return a.time < b.time ? -1 : a.time > b.time ? 1 : 0;
+    };
+    var crit = all.filter(function(a) {
+      return a.sev === "critical";
+    }).sort(t), warn = all.filter(function(a) {
+      return a.sev !== "critical";
+    }).sort(t);
+    window.APRISM_DELTA_ALERTS = {
+      all: all,
+      mine: [],
+      mission: null,
+      missionOf: function(a) {
+        return a.mission || null;
+      },
+      order: crit.concat(warn)
+    };
+    window.APRISM_DELTA_COUNT = {
+      crit: crit.length,
+      warn: warn.length,
+      total: all.length
+    };
+    window.APRISM_OPEN_ALERT = function(o) {
+      var b = o && o.bld;
+      if (b) {
+        enter(b.floor, b.mission, b);
+      }
+    };
+  }
   function deltaSay(top, list) {
     var d = {
       level: top,
@@ -1748,6 +1790,7 @@
       };
     }
     window.APRISM_DELTA_SCOPE = floorView;
+    publishDelta(list);
     window.APRISM_DELTA_SAY = null;
     if (scopeMission && !floorView) {
       var fl = MISSION_FLOORS[scopeMission];
@@ -2435,6 +2478,14 @@
       h: pr.height - 120
     };
     unit = Math.max((maxX - minX) / room.w, (maxY - minY) / room.h);
+    if (body.classList.contains("ver-7")) {
+      if (vw !== tagShiftW) {
+        tagShift = 0;
+        tagShiftW = vw;
+      }
+      cx -= tagShift;
+      tagChecked = false;
+    }
     camera.left = -cx * unit;
     camera.right = (vw - cx) * unit;
     camera.top = cy * unit;
@@ -2570,6 +2621,42 @@
     node.style.pointerEvents = op > 0.5 ? "" : "none";
     node.classList.toggle("is-gone", op <= 0.5);
   }
+  var tagShift = 0, tagShiftW = -1, tagChecked = true;
+  function fitTags() {
+    tagChecked = true;
+    var rails = [];
+    Array.prototype.forEach.call(panel.querySelectorAll(".map-tools, .bld-floors"), function(r) {
+      var rr = r.getBoundingClientRect();
+      if (rr.width) {
+        rails.push(rr);
+      }
+    });
+    var need = 0;
+    FLOORS.forEach(function(f) {
+      var t = L["tag" + f];
+      if (!t) {
+        return;
+      }
+      if (t.classList.contains("is-gone")) {
+        tagChecked = false;
+        return;
+      }
+      Array.prototype.forEach.call(t.querySelectorAll(".bld-ftag-name, .bld-ftag-sub"), function(line) {
+        var rg = document.createRange();
+        rg.selectNodeContents(line);
+        var lr = rg.getBoundingClientRect();
+        rails.forEach(function(r) {
+          if (lr.bottom > r.top && lr.top < r.bottom) {
+            need = Math.max(need, lr.right + 16 - r.left);
+          }
+        });
+      });
+    });
+    if (need > 0.5) {
+      tagShift += Math.ceil(need);
+      resize();
+    }
+  }
   function placeLabels() {
     if (!ready) {
       return;
@@ -2583,6 +2670,9 @@
       put(L["tag" + f], corner, mode === "all" ? s.op : 0);
       L["tag" + f].classList.toggle("is-hot", hot === f);
     });
+    if (!tagChecked && mode === "all" && body.classList.contains("ver-7")) {
+      fitTags();
+    }
     ALERTS.forEach(function(a) {
       put(a.node, surf(a.floor, a.uv, F[a.floor].size.y + 1), F[a.floor].op);
     });
@@ -2848,7 +2938,7 @@
     cur = floorView;
     body.classList.remove("is-entering");
     if (trigger) {
-      trigger.querySelector(".t-title-2").textContent = scopeMission || (V3 ? "미션 선택" : "통합 순회 현황");
+      trigger.querySelector(".t-title-2").textContent = scopeMission || (V3 ? "미션 선택" : (window.APRISM_MISSION ? APRISM_MISSION("m9") : "통합 순회") + " 현황");
     }
     markFloorBtns(floorView || "all");
     layout(true);
@@ -2873,6 +2963,11 @@
     new ResizeObserver(function() {
       resize();
     }).observe(view);
+  }
+  if (body.classList.contains("ver-7") && document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function() {
+      resize();
+    });
   }
   window.addEventListener("resize", resize);
   if (!window.APRISM_MAP_GLB || !canvas) {

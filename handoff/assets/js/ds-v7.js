@@ -1,3 +1,36 @@
+window.APRISM_DELTA_HOLO = {
+  start: function(el) {
+    if (!el || window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return function() {};
+    }
+    el.classList.add("ds-holo");
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        el.classList.add("is-holo");
+      });
+    });
+    return function stop() {
+      el.classList.remove("is-holo");
+      setTimeout(function() {
+        if (!el.classList.contains("is-holo")) {
+          el.classList.remove("ds-holo");
+        }
+      }, 450);
+    };
+  }
+};
+
+window.APRISM_ROBOT_LABEL = function(x) {
+  function n2(k) {
+    return window.APRISM_ROBOT_AT ? APRISM_ROBOT_AT(k) : "Robot " + (k < 10 ? "0" : "") + k;
+  }
+  if (typeof x === "number") {
+    return n2(x + 1);
+  }
+  var m = /robot\s*0*(\d+)/i.exec(String(x || ""));
+  return m ? n2(parseInt(m[1], 10)) : String(x || "");
+};
+
 (function() {
   function ic(kind, tone) {
     if (!kind) return '';
@@ -240,4 +273,123 @@
       return tabs('ds-seg', items, o);
     }
   };
+})();
+
+(function() {
+  'use strict';
+  if (!document.timeline) {
+    return;
+  }
+  var NAMES = {
+    'edge-pulse': 1,
+    'kd-beat': 1,
+    'rr-point': 1,
+    'bld-ring': 1
+  };
+  function on() {
+    return document.body && document.body.classList.contains('ver-7');
+  }
+  function beatMs() {
+    var v = getComputedStyle(document.body).getPropertyValue('--ds-alert-beat').trim();
+    var n = parseFloat(v);
+    if (!n) {
+      return 2000;
+    }
+    return /ms$/.test(v) ? n : n * 1000;
+  }
+  function snapAnim(a, P) {
+    if (!a.effect || a.playState === 'idle' || a.startTime == null) {
+      return;
+    }
+    var t = document.timeline.currentTime, d = a.effect.getTiming().delay || 0;
+    var want = d < P ? Math.floor(t / P) * P : Math.ceil(a.startTime / P) * P;
+    if (Math.abs(a.startTime - want) > 1) {
+      a.startTime = want;
+    }
+  }
+  function snapAll() {
+    if (!on() || !document.getAnimations) {
+      return;
+    }
+    var P = beatMs();
+    document.getAnimations().forEach(function(a) {
+      if (NAMES[a.animationName]) {
+        snapAnim(a, P);
+      }
+    });
+  }
+  var queued = false;
+  document.addEventListener('animationstart', function(e) {
+    if (!NAMES[e.animationName] || queued) {
+      return;
+    }
+    queued = true;
+    requestAnimationFrame(function() {
+      queued = false;
+      snapAll();
+    });
+  }, true);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', snapAll);
+  } else {
+    snapAll();
+  }
+  window.addEventListener('load', snapAll);
+})();
+
+(function() {
+  var SEL = ".ah-title > span:not([class]), .ac-c-title[role=\"gridcell\"], .sf .kd .big, .ac-d6-val, .map-alert .ma-reason";
+  var RE = /[+\-−]?\d+(?:[.,]\d+)?\s?(?:MPa|kPa|Pa|bar|℃|°C|%|ppm|dB|mm|kg\/cm²|m³\/h)?\s*$/;
+  function wrap(el) {
+    if (el.querySelector(".ds-meas")) return;
+    var t = el.lastChild;
+    if (!t || t.nodeType !== 3) return;
+    var m = RE.exec(t.nodeValue);
+    if (!m || !m[0].trim()) return;
+    var v = t.splitText(m.index), s = document.createElement("span");
+    s.className = "ds-meas";
+    el.insertBefore(s, v);
+    s.appendChild(v);
+  }
+  var queued = false;
+  function scan() {
+    queued = false;
+    var b = document.body;
+    if (!b || !b.classList.contains("ver-7")) return;
+    b.querySelectorAll(SEL).forEach(wrap);
+    b.querySelectorAll(MARK).forEach(wordmark);
+  }
+  var MARK = ".ds-delta-mark, .ac-handover-mark";
+  function wordmark(el) {
+    if (el.querySelector(".ds-delta-wm")) return;
+    var tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), n;
+    while (n = tw.nextNode()) {
+      if (!/^\s*DELTA\s+\S/.test(n.nodeValue)) continue;
+      n.nodeValue = n.nodeValue.replace(/^\s*DELTA\s+/, "");
+      var host = n.parentElement;
+      if (host && host.id) host.setAttribute("aria-label", "DELTA " + n.nodeValue.trim());
+      var w = document.createElement("span");
+      w.className = "ds-delta-wm";
+      w.setAttribute("role", "img");
+      w.setAttribute("aria-label", "DELTA");
+      var ic = el.querySelector(":scope > .i, :scope > .dlogo, :scope > svg");
+      if (ic) {
+        ic.replaceWith(w);
+      } else {
+        el.insertBefore(w, el.firstChild);
+      }
+      return;
+    }
+  }
+  function queue() {
+    if (!queued) {
+      queued = true;
+      requestAnimationFrame(scan);
+    }
+  }
+  new MutationObserver(queue).observe(document.documentElement, {
+    childList: true,
+    subtree: true
+  });
+  document.addEventListener("DOMContentLoaded", queue);
 })();

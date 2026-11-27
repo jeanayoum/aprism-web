@@ -181,26 +181,45 @@ document.addEventListener("DOMContentLoaded", function() {
     if (!panel || !btn) {
       return;
     }
-    var auto = false, manual = false, busy = false;
+    var NARROW = 1280;
+    var KEY = "aprism.panel." + (location.pathname.split("/").pop() || "").replace(/-(chat|wide)(?=[-.])/, "").replace(/\.html$/, "");
+    function saved() {
+      try {
+        return sessionStorage.getItem(KEY);
+      } catch (e) {
+        return null;
+      }
+    }
+    function save(v) {
+      try {
+        sessionStorage.setItem(KEY, v);
+      } catch (e) {}
+    }
+    var auto = false, busy = false;
+    function set(shut) {
+      if (panel.classList.contains("is-collapsed") !== shut) {
+        busy = true;
+        btn.click();
+        busy = false;
+      }
+    }
     btn.addEventListener("click", function() {
       if (!busy) {
-        manual = true;
+        save(panel.classList.contains("is-collapsed") ? "closed" : "open");
       }
     });
     function fit() {
-      if (manual) {
+      var mem = saved();
+      if (mem) {
+        set(mem === "closed");
         return;
       }
-      var narrow = window.innerWidth < 1920, shut = panel.classList.contains("is-collapsed");
+      var narrow = window.innerWidth < NARROW, shut = panel.classList.contains("is-collapsed");
       if (narrow && !shut) {
-        busy = true;
-        btn.click();
-        busy = false;
+        set(true);
         auto = true;
       } else if (!narrow && shut && auto) {
-        busy = true;
-        btn.click();
-        busy = false;
+        set(false);
         auto = false;
       }
     }
@@ -263,7 +282,7 @@ document.addEventListener("DOMContentLoaded", function() {
     labels[0].textContent = who;
   }
   function me() {
-    return labels[0] ? labels[0].textContent.trim() : "홍길동";
+    return labels[0] ? labels[0].textContent.trim() : window.APRISM_NAME ? APRISM_NAME("op1") : "홍길동";
   }
   function role() {
     return labels[2] ? labels[2].textContent.trim() : "관제운영";

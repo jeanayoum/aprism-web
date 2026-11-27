@@ -1,10 +1,8 @@
 (function() {
   "use strict";
   var thumbs = Array.prototype.slice.call(document.querySelectorAll(".robot-strip.is-carousel .robot-card .robot-thumb"));
-  if (!thumbs.length) {
-    return;
-  }
-  if (document.body.classList.contains("ver-7") && document.documentElement.lang !== "en") {
+  var hasCards = thumbs.length > 0;
+  if (hasCards && document.body.classList.contains("ver-7") && document.documentElement.lang !== "en") {
     Array.prototype.forEach.call(document.querySelectorAll('[data-modal="robots"] .robot-card[data-robot-pick] .robot-thumb'), function(t) {
       var pick = t.closest(".robot-card"), twin = document.querySelector('.robot-strip .robot-card[data-robot="' + pick.getAttribute("data-robot-pick") + '"]');
       if (twin && twin.getAttribute("data-type")) {
@@ -29,7 +27,23 @@
     return '<g transform="translate(' + x + ' 96)"><g class="mb-slide mb-slide-' + side + '"><g class="mb-spin mb-spin-' + side + '">' + '<use href="#mb-wheel"/></g></g></g>';
   }
   var MOBED = '<svg class="robot-2d is-mobed" viewBox="27 14 116 102" aria-hidden="true" xmlns="' + NS + '">' + '<g class="r2-shadow"><ellipse class="r2-body-sh" cx="82" cy="115.5" rx="56" ry="3.5" fill="url(#r2-g-shadow)"/>' + '<g class="mb-slide mb-slide-l"><ellipse cx="40" cy="115.5" rx="16" ry="2.4" fill="url(#r2-g-shadow)"/></g>' + '<g class="mb-slide mb-slide-r"><ellipse cx="124" cy="115.5" rx="16" ry="2.4" fill="url(#r2-g-shadow)"/></g></g>' + '<g class="mb-body"><use href="#mb-body"/></g>' + wheel("l", 40) + wheel("r", 124) + '</svg>';
-  document.body.insertAdjacentHTML("afterbegin", DEFS);
+  var defsOn = false;
+  function ensureDefs() {
+    if (!defsOn) {
+      document.body.insertAdjacentHTML("afterbegin", DEFS);
+      defsOn = true;
+    }
+  }
+  window.APRISM_ROBOT2D = {
+    svg: function(type) {
+      ensureDefs();
+      return type === "mobed" ? MOBED : DOG;
+    }
+  };
+  if (!hasCards) {
+    return;
+  }
+  ensureDefs();
   Array.prototype.forEach.call(thumbs, function(thumb) {
     thumb.classList.remove("is-walking");
     var card = thumb.closest(".robot-card");

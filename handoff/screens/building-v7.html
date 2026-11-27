@@ -4,9 +4,10 @@
 <head>
   <meta charset="UTF-8" />
   
-  <script src="../assets/js/v7.js?v=1bea08bf"></script>
+  <script src="../assets/js/demo-base-v7.js?v=1fa55f95"></script>
+  <script src="../assets/js/v7.js?v=d76e4060"></script>
   
-  <script src="../assets/js/alert-data-v7.js?v=e5f088dd"></script>
+  <script src="../assets/js/alert-data-v7.js?v=2e839d5a"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>v7 전체 층 현황 — APRISM</title>
   <meta name="description" content="v2.2 — 건물 전체를 층으로 쌓아 본다. 층에 올리면 요약, 누르면 그 층 미션 모니터링으로 들어간다" />
@@ -23,14 +24,14 @@
     }
   }
   </script>
-  <link rel="stylesheet" href="../assets/css/tokens.css?v=f2166588" />
-  <link rel="stylesheet" href="../assets/css/app-shell.css?v=bd279685" />
+  <link rel="stylesheet" href="../assets/css/tokens.css?v=22bec66d" />
+  <link rel="stylesheet" href="../assets/css/app-shell.css?v=60434960" />
   <link rel="stylesheet" href="../assets/css/map-overlays.css?v=70275a94" />
   <link rel="stylesheet" href="../assets/css/icons-outline.css?v=87bf1d03" />
   <link rel="stylesheet" href="../assets/css/text-parts.css?v=d6fa4e15" />
-  <link rel="stylesheet" href="../assets/css/monitor.css?v=55699fcc" />
+  <link rel="stylesheet" href="../assets/css/monitor.css?v=777b69a4" />
   <link rel="stylesheet" href="../assets/css/palette-neutral.css?v=5195d725" />
-  <link rel="stylesheet" href="../assets/css/delta-v3.css?v=c09315b1" />
+  <link rel="stylesheet" href="../assets/css/delta-v3.css?v=8039c4fd" />
   <link rel="stylesheet" href="../assets/css/building.css?v=29c1da92" />
   
   <link rel="stylesheet" href="../assets/css/v3.css?v=ce9ec033" />
@@ -38,9 +39,9 @@
   <link rel="stylesheet" href="../assets/css/v5.css?v=4a552ac8" />
   
   <link rel="stylesheet" href="../assets/css/v6.css?v=aa7991ac" />
-  <link rel="stylesheet" href="../assets/css/v7.css?v=ba04d85f" />
-  <link rel="stylesheet" href="../assets/css/components-v7.css?v=c7c0a86d" />
-  <script src="../assets/js/ds-v7.js?v=1e9bec6d"></script>
+  <link rel="stylesheet" href="../assets/css/v7.css?v=c521002a" />
+  <link rel="stylesheet" href="../assets/css/components-v7.css?v=09fa0998" />
+  <script src="../assets/js/ds-v7.js?v=740ed80e"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
@@ -85,7 +86,7 @@
         <button type="button" class="account-chip" data-menu-trigger
                 aria-haspopup="true" aria-expanded="false">
           <span class="i i-16" style="--i:var(--ic-user)" aria-hidden="true"></span>
-          <span class="t-label-2">홍길동</span>
+          <span class="t-label-2" data-base="me">홍길동</span>
           <span class="t-label-2 account-sep" aria-hidden="true">|</span>
           <span class="t-label-2">관제운영</span>
         </button>
@@ -241,11 +242,7 @@
 
               <div class="delta3-suggest">
                 
-                <div class="ai-actions" data-ai-actions>
-                  <button type="button" class="btn is-md btn-primary" data-bld-go-critical>위험 3건부터 조치</button>
-                  <button type="button" class="btn is-md btn-secondary">주의 9건 묶어서 확인</button>
-                  <button type="button" class="btn is-md btn-secondary">현장 점검 한꺼번에 요청</button>
-                </div>
+                <div class="ai-actions" data-ai-actions hidden></div>
                 <button type="button" class="delta3-ask" data-ai-ask-open
                         aria-expanded="false" aria-controls="ai-ask" aria-label="Delta 에게 묻기 열기">
                   <span class="i i-16" aria-hidden="true"></span>
@@ -353,25 +350,27 @@
   </div>
 </div>
 
-<script src="../assets/js/delta-form.js?v=808b7941"></script>
-<script src="../assets/js/theme.js?v=52be0b2d"></script>
-<script src="../assets/js/prism-orb.js?v=1f3a1fc8"></script>
-<script src="../assets/js/screen.js?v=b23a3b17"></script>
-<script src="../assets/js/map-model.js?v=34aadd3f"></script>
+<script src="../assets/js/delta-form.js?v=1efa7f63"></script>
+<script src="../assets/js/theme.js?v=98dea82f"></script>
+<script src="../assets/js/prism-orb.js?v=e971162a"></script>
+<script src="../assets/js/screen.js?v=9451245e"></script>
+<script src="../assets/js/map-model.js?v=98d68a22"></script>
 
-<script src="../assets/js/bld-fx-v6.js?v=313e27a8"></script>
+<script src="../assets/js/bld-fx-v6.js?v=b18054d4"></script>
 
-<script src="../assets/js/mini-routes.js?v=228b4cb3"></script>
-<script src="../assets/js/mini-plan.js?v=efbd2ede"></script>
-<script src="../assets/js/ah-sort.js?v=30e6bdad"></script>
-<script src="../assets/js/alert-text-v6.js?v=b6b392eb"></script>
-<script src="../assets/js/building.js?v=ef5ac783"></script>
+<script src="../assets/js/mini-routes.js?v=5caa2399"></script>
+<script src="../assets/js/mini-plan.js?v=1cc52f3c"></script>
+<script src="../assets/js/ah-sort.js?v=db330198"></script>
+<script src="../assets/js/alert-text-v6.js?v=25cc5086"></script>
+<script src="../assets/js/building.js?v=f950f511"></script>
 
-<script src="../assets/js/mission-tabs-v6.js?v=5a011fc7"></script>
-<script src="../assets/js/delta-pulse.js?v=6dc5b2de"></script>
-<script src="../assets/js/delta-v3.js?v=7a78c578"></script>
-<script src="../assets/js/delta-resize.js?v=d7529b14"></script>
-<script src="../assets/js/grid-overlay.js?v=11492724"></script>
-<script src="../assets/js/v3-panel.js?v=8bcae51e"></script>
+<script src="../assets/js/mission-tabs-v6.js?v=879a2c87"></script>
+<script src="../assets/js/delta-pulse.js?v=ce2c555e"></script>
+<script src="../assets/js/delta-answer-v6.js?v=130c800f"></script>
+<script src="../assets/js/delta-chat.js?v=b9b10904"></script>
+<script src="../assets/js/delta-v3.js?v=d22036ee"></script>
+<script src="../assets/js/delta-resize.js?v=919a8ad0"></script>
+<script src="../assets/js/grid-overlay.js?v=e7506005"></script>
+<script src="../assets/js/v3-panel.js?v=57ae4fa7"></script>
 </body>
 </html>

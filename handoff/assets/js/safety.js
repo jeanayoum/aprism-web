@@ -47,10 +47,10 @@
     2: [ [ '온도감지', '누출감지', '같은 급수 계통. WP-B09 펌프 모터 과열이 분기부 압력 변동으로 이어질 수 있다', '보통' ] ]
   };
   const BASE = [ {
-    mis: '정기 순회 점검',
+    mis: window.APRISM_MISSION ? APRISM_MISSION('m1') : '정기 순회 점검',
     fl: '지하 4층',
     ab: 'B4',
-    robot: 'Robot 01',
+    robot: window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01',
     done: 7,
     total: 20,
     r: {
@@ -62,10 +62,10 @@
       '부분방전': [ 'warn', 'CH1 이상 점수 9.05', 'WP-06 수배전반 MCC-1', '10:15' ]
     }
   }, {
-    mis: '전기실 열화상 점검',
+    mis: window.APRISM_MISSION ? APRISM_MISSION('m3') : '전기실 열화상 점검',
     fl: '지하 3층',
     ab: 'B3',
-    robot: 'Robot 11',
+    robot: window.APRISM_ROBOT ? APRISM_ROBOT('r11') : 'Robot 11',
     done: 3,
     total: 20,
     r: {
@@ -77,11 +77,11 @@
       '부분방전': [ 'warn', 'CH1 이상 점수 9.05', 'WP-103 수배전반', '09:58' ]
     }
   }, {
-    mis: '발전기실 설비 점검',
+    mis: window.APRISM_MISSION ? APRISM_MISSION('m2') : '발전기실 설비 점검',
     fl: '지하 3층, 지하 4층',
     ab: 'B3',
     fls: [ [ 'B3', '지하 3층', 12 ], [ 'B4', '지하 4층', 20 ] ],
-    robot: 'Robot 05',
+    robot: window.APRISM_ROBOT ? APRISM_ROBOT('r05') : 'Robot 05',
     done: 13,
     total: 20,
     na: {
@@ -125,10 +125,10 @@
     MV['2|이상음향|warn'] = 'm2_sound_warn.jpg';
     LINKS[2] = [ [ '부분방전', '온도감지', '같은 발전기 계통. WP-06 수배전반 방전과 WP-02 베어링 과열이 함께 나타날 수 있다', '보통' ] ];
     BASE.push({
-      mis: '야간 순회 점검',
+      mis: window.APRISM_MISSION ? APRISM_MISSION('m6') : '야간 순회 점검',
       fl: '지하 4층',
       ab: 'B4',
-      robot: 'Robot 04',
+      robot: window.APRISM_ROBOT ? APRISM_ROBOT('r04') : 'Robot 04',
       done: 20,
       total: 20,
       r: {
@@ -140,10 +140,10 @@
         '부분방전': ok(3)
       }
     }, {
-      mis: '공조 설비 순회',
+      mis: window.APRISM_MISSION ? APRISM_MISSION('m7') : '공조 설비 순회',
       fl: '지하 3층',
       ab: 'B3',
-      robot: 'Robot 07',
+      robot: window.APRISM_ROBOT ? APRISM_ROBOT('r07') : 'Robot 07',
       done: 20,
       total: 20,
       r: {
@@ -155,10 +155,10 @@
         '부분방전': ok(2)
       }
     }, {
-      mis: '유틸리티 순회',
+      mis: window.APRISM_MISSION ? APRISM_MISSION('m8') : '유틸리티 순회',
       fl: '지하 4층',
       ab: 'B4',
-      robot: 'Robot 09',
+      robot: window.APRISM_ROBOT ? APRISM_ROBOT('r09') : 'Robot 09',
       done: 20,
       total: 20,
       r: {
@@ -249,9 +249,8 @@
       done: cur > 1 ? R.t3 : ''
     };
     const steps = ord.map((s, n) => `<li class="${n < cur ? 'is-past' : n === cur ? 'is-now' : ''}"${n === cur ? ' aria-current="step"' : ''}><i aria-hidden="true"></i><div><b>${RQ_WORD[s]}</b><span>${sub[s]}</span></div><time>${tm[s]}</time></li>`).join('');
-    return `<div class="dl is-light-scope is-dark-scope is-sent${V7 ? ' ds-delta-card' : ''}"><div class="hh${V7 ? ' ds-delta-head' : ''}"><span${V7 ? ' class="ds-delta-mark"' : ''}><span class="dlogo" aria-hidden="true"></span>DELTA 조치 제안</span></div><div class="ti">${sug[0]}</div>\n        ${V7 && window.ds ? `<div class="cks ds-acts" role="list">${sug[1].filter(([l]) => R.acts.includes(l)).map(([l, a2, to]) => window.ds.act(l, {
+    return `<div class="dl is-light-scope is-dark-scope is-sent${V7 ? ' ds-delta-card' : ''}"><div class="hh${V7 ? ' ds-delta-head' : ''}"><span${V7 ? ' class="ds-delta-mark"' : ''}><span class="dlogo" aria-hidden="true"></span>DELTA 조치 제안</span></div><div class="ti ds-delta-lead">${sug[0]}</div>\n        ${V7 && window.ds ? `<div class="cks ds-acts" role="list">${sug[1].filter(([l]) => R.acts.includes(l)).map(([l, a2, to]) => window.ds.act(l, {
       result: true,
-      sub: to,
       ai: a2
     })).join('')}</div>` : `<div class="cks">${sug[1].map(([l, a2, to]) => `<label class="c1x"><input type="checkbox" disabled ${R.acts.includes(l) ? 'checked' : ''}><span><b>${l}</b><small>${to}</small></span>${a2 ? '<em class="ma-check-tag">AI 추천</em>' : ''}</label>`).join('')}</div>`}\n        ${R.memo ? `<span class="mm">메모</span><p class="fd rq-memo">${R.memo.replace(/[<>&]/g, c => ({
       '<': '&lt;',
@@ -329,7 +328,7 @@
         t: R.t,
         how: R.acts,
         memo: R.memo,
-        who: '홍길동',
+        who: window.APRISM_NAME ? APRISM_NAME('op1') : '홍길동',
         to: R.who,
         st: R.st,
         t2: R.t2,
@@ -539,7 +538,7 @@
     const histHtml = !V6 || rep3 ? `${V6 ? '<p class="hsum is-rep"><b>반복</b> 지난 순회에서도 기준을 넘었음</p>' : ''}<div class="hist">${hist.map(hiRow).join('')}</div>` : `<p class="hsum"><b>${isHit ? '처음 넘음' : '계속 정상 범위'}</b></p><div class="hist">${hiRow(hist[3], 3)}</div>\n        <details class="hmore"><summary>지난 3회 모두 정상 범위<span class="i i-14" style="--i:var(--ic-chevron-down)" aria-hidden="true"></span></summary><div class="hist">${hist.slice(0, 3).map(hiRow).join('')}</div></details>`;
     const rel = K.filter(k2 => k2 !== k && m.r[k2] && (m.r[k2][0] === 'crit' || m.r[k2][0] === 'warn'));
     const sug = SG;
-    const side = !isHit ? `<div class="donec"><b>${st === 'plan' ? '아직 측정 전' : '조치 필요 없음'}</b><span>${st === 'plan' ? '로봇이 도착하면 결과가 표시됨' : '정상 범위의 측정값'}</span></div>` : st === 'done' ? `<div class="donec"><b>${x[4] || '10:17'} ${RQ_DONE}</b><span>재측정에서 다시 넘으면 다시 표시</span></div>` : `<div class="dl${V6 ? ' is-light-scope is-dark-scope' : ''}${V7 ? ' ds-delta-card' : ''}"><div class="hh${V7 ? ' ds-delta-head' : ''}"><span${V7 ? ' class="ds-delta-mark"' : ''}><span class="dlogo" aria-hidden="true"></span>DELTA 조치 제안</span>${V7 ? "" : "<span>오탐 가능성 <b>낮음</b></span>"}</div><div class="ti">${sug[0]}</div>\n        <div class="cks${V7 ? ' ds-acts' : ''}">${sug[1].map(([l, a2, to]) => `<label class="c1x${V7 ? ' ds-act' : ''}"><input type="checkbox"${V7 ? ' class="ds-act-box"' : ''} ${a2 ? 'checked' : ''}><span${V7 ? ' class="ds-act-text"' : ''}><b>${l}</b><small>${to}</small></span>${a2 ? V6 ? V7 ? '<em class="ma-check-tag ds-badge is-neutral ds-i-delta">AI 추천</em>' : '<em class="ma-check-tag">AI 추천</em>' : '<em class="badge badge-mode badge-info t-caption">AI 추천</em>' : ''}</label>`).join('')}</div>\n        <label class="mm" for="sfMemo">메모 (선택)</label><textarea class="fd" id="sfMemo" rows="2" placeholder="현장에 전달할 내용"></textarea></div><button type="button" class="btn btn-accent rqx" data-req="1">${RQ_BTN}</button>`;
+    const side = !isHit ? `<div class="donec"><b>${st === 'plan' ? '아직 측정 전' : '조치 필요 없음'}</b><span>${st === 'plan' ? '로봇이 도착하면 결과가 표시됨' : '정상 범위의 측정값'}</span></div>` : st === 'done' ? `<div class="donec"><b>${x[4] || '10:17'} ${RQ_DONE}</b><span>재측정에서 다시 넘으면 다시 표시</span></div>` : `<div class="dl${V6 ? ' is-light-scope is-dark-scope' : ''}${V7 ? ' ds-delta-card' : ''}"><div class="hh${V7 ? ' ds-delta-head' : ''}"><span${V7 ? ' class="ds-delta-mark"' : ''}><span class="dlogo" aria-hidden="true"></span>DELTA 조치 제안</span>${V7 ? "" : "<span>오탐 가능성 <b>낮음</b></span>"}</div><div class="ti ds-delta-lead">${sug[0]}</div>\n        <div class="cks${V7 ? ' ds-acts' : ''}">${sug[1].map(([l, a2, to]) => `<label class="c1x${V7 ? ' ds-act' : ''}"><input type="checkbox"${V7 ? ' class="ds-act-box"' : ''} ${a2 ? 'checked' : ''}><span${V7 ? ' class="ds-act-text"' : ''}><b>${l}</b>${V7 ? '' : `<small>${to}</small>`}</span>${a2 ? V6 ? V7 ? '<em class="ma-check-tag ds-badge is-neutral ds-i-delta">AI 추천</em>' : '<em class="ma-check-tag">AI 추천</em>' : '<em class="badge badge-mode badge-info t-caption">AI 추천</em>' : ''}</label>`).join('')}</div>\n        <label class="mm" for="sfMemo">메모 (선택)</label><textarea class="fd" id="sfMemo" rows="2" placeholder="현장에 전달할 내용"></textarea></div><button type="button" class="btn btn-accent rqx" data-req="1">${RQ_BTN}</button>`;
     const step = q => `<div class="sth"><b>${q}</b></div>`;
     const lks = (LINKS[dt.mi] || []).filter(l => l[0] === k || l[1] === k).map(l => {
       const k2 = l[0] === k ? l[1] : l[0], y = m.r[k2];
@@ -682,7 +681,7 @@
     })));
     return list;
   }
-  const E_SP0 = [ [ 'WP-01', '09:31', 'Robot 01' ], [ 'WP-02', '09:52', 'Robot 01' ], [ 'WP-03', '10:11', 'Robot 01' ], [ 'WP-04', '10:12', 'Robot 01' ], [ 'WP-05', '10:14', 'Robot 01' ], [ 'WP-06', '10:15', 'Robot 01' ], [ 'WP-07', '10:16', 'Robot 01' ], [ 'WP-08', '10:20', 'Robot 01', 1 ], [ 'WP-09', '10:24', 'Robot 01', 1 ] ], E_NOW0 = 'WP-07', E_ROWS0 = [ {
+  const E_SP0 = [ [ 'WP-01', '09:31', window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01' ], [ 'WP-02', '09:52', window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01' ], [ 'WP-03', '10:11', window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01' ], [ 'WP-04', '10:12', window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01' ], [ 'WP-05', '10:14', window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01' ], [ 'WP-06', '10:15', window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01' ], [ 'WP-07', '10:16', window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01' ], [ 'WP-08', '10:20', window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01', 1 ], [ 'WP-09', '10:24', window.APRISM_ROBOT ? APRISM_ROBOT('r01') : 'Robot 01', 1 ] ], E_NOW0 = 'WP-07', E_ROWS0 = [ {
     n: '안전감지',
     src: '영상',
     s: 'crit',
@@ -1143,7 +1142,7 @@
       const cur = dt && dt.wp ? flOf(m, dt.wp) : viewF(i).cur, sel = dt ? dt.wp : undefined, lk = dt ? dt.lk : undefined;
       const fl = m.fls && m.fls.length > 1 || V7 ? floorBar(i) : `<span class="sfx-fl${V7 ? ' ds-floor' : ''}">${m.ab}</span>`;
       const kv3 = (k, v) => `<span class="sfx-kv"><span class="k">${k}</span><span class="v">${v}</span></span>`;
-      return `<div class="sfx"><div class="sfx-h"><b class="sfx-t">${m.mis}</b></div>\n        <div class="sfx-map"><div class="sfx-f">${fl}<a class="sfx-go" href="${mainUrl(i, cur)}" title="관제 3D 지도에서 이 미션과 층을 연다">관제에서 보기<span class="i i-14" style="--i:var(--ic-chevron-right)" aria-hidden="true"></span></a></div>\n        <div class="sfx-plan">${svg2(i, cur, false, 316, sel, lk)}</div>\n        <div class="sfx-info">${kv3('로봇', m.robot)}${kv3('측정', m.done + '/' + m.total + '곳')}${kv3('요청 전', h + '건')}</div></div>${LEG6(m)}</div>`;
+      return `<div class="sfx"><div class="sfx-h"><b class="sfx-t">${m.mis}</b></div>\n        <div class="sfx-map ds-map-panel"><div class="sfx-f">${fl}<a class="sfx-go" href="${mainUrl(i, cur)}" title="관제 3D 지도에서 이 미션과 층을 연다">관제에서 보기<span class="i i-14" style="--i:var(--ic-chevron-right)" aria-hidden="true"></span></a></div>\n        <div class="sfx-plan">${svg2(i, cur, false, 316, sel, lk)}</div>\n        <div class="sfx-info">${kv3('로봇', m.robot)}${kv3('측정', m.done + '/' + m.total + '곳')}${kv3('요청 전', h + '건')}</div></div>${LEG6(m)}</div>`;
     }
     return `${LEG}<div class="sf-mwrap"><div class="sf-mlist"><div class="sf-mwell">${top}${rows}</div></div><span class="sf-mthumb" aria-hidden="true"></span></div>`;
   }
@@ -1310,7 +1309,7 @@
     if (dt) return detail();
     if (scope === 'all') {
       const done = M.reduce((a, m) => a + m.done, 0), total = M.reduce((a, m) => a + m.total, 0), n = M.reduce((a, m, i) => a + hits(i), 0);
-      return head('통합 순회 현황', done, total, n) + (lay === 'table' ? tableAll() : secsAll());
+      return head((window.APRISM_MISSION ? APRISM_MISSION('m9') : '통합 순회') + ' 현황', done, total, n) + (lay === 'table' ? tableAll() : secsAll());
     }
     const m = M[scope];
     return head(m.mis, m.done, m.total, hits(scope)) + (lay === 'table' ? tableOne(scope) : `<div class="g6 cx vC mmg">${K.map(k => `<div class="mcell"><div class="mch"><b>${k}</b>${V7 ? '' : `<small>${STD[k]}</small>`}</div>${cardX(cardM(M.indexOf(m), k), k, false)}</div>`).join('')}</div>`);

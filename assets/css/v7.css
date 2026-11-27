@@ -1606,31 +1606,15 @@ body.ver-7 .ac-dc-acts .ac-cells { display: inline; } body.ver-7 .ac-dc-acts .ac
 body.ver-7 .ac-dc-time { width: 72px; color: var(--text-tertiary); white-space: nowrap; }
 body.ver-7 .ac-col-head :is(.ac-dc-acts, .ac-dc-time) { color: inherit; }
 body.ver-7 .ac-done-row.is-v7cols .ac-dc-sev .ds-badge { margin-left: calc(var(--space-4) * -1); }
-/* [11/26 디자이너 "열 머리와 내용 위치가 다름"] 목록에만 스크롤바(12, alert-center.css)가 생겨 줄이 열 머리보다 12 좁아지고 오른쪽 열이 밀리던 것:
- * 목록은 스크롤바 자리를 늘 비워 두고(scrollbar-gutter), 열 머리 오른쪽 여백에 같은 12 를 더함. 두 탭(조치 필요, 조치 요청된) 모두 */
-body.ver-7 .ac-list { scrollbar-gutter: stable; }
-:root body.ver-7 .ac-col-head { padding-right: calc(var(--space-20) + 12px); }
+/* [11/27] 목록 스크롤바 자리, 머리 높이, 날짜 줄, 고른 줄 >, 상세 머리(감지, 기준 초과)는 공통 CSS 로 옮김: components-v7.css 표 한 벌(.ds-table-*), 알림 상세 판(.ds-ad) */
 /* [11/26 디자이너] 인수인계 요약 줄 사이 8 → 4 */
 :root body.ver-7 .ac-handover-list { gap: var(--space-4); }
-/* [11/26 디자이너 "열 머리와 날짜 줄이 머리 두 개처럼 보임" → B안] 날짜 줄은 면과 아래 선 없이 회색 글자만, 글자 시작은 예전 그대로 왼쪽 16
- * (발생 칸 48 에 맞춘 것은 되돌림). 아래로 붙여 다음 묶음의 머리로 읽히게 위 여백을 더 줌 */
-:root body.ver-7 .ac-list .ac-date-row {
-  height: 32px;
-  align-items: flex-end;
-  padding: var(--space-12) var(--space-20) 2px var(--space-16);
-  background-color: transparent;
-  border-bottom: 0;
-}
-:root body.ver-7 .ac-list .ac-date-row > .t-label-2 { color: var(--text-tertiary); }
 /* [11/26 디자이너] 조치 요청된 알림: 알림 앞 감지 아이콘 16, 회색(목록은 신호색 하나만) */
 body.ver-7 .ac-done-row.is-v7cols .ac-dc-body { display: flex; align-items: center; gap: var(--space-6, 6px); min-width: 0; }
-body.ver-7 .ac-done-row.is-v7cols .ac-dc-ic { flex: none; color: var(--text-tertiary); }
+body.ver-7 .ac-done-row.is-v7cols .ac-dc-ic { flex: none; width: 14px; height: 14px; color: var(--text-disabled); }   /* [11/27 디자이너 "아이콘 색 낮추고 작게"] 16 → 14, 회색 한 단계 아래 */
 /* [11/26 디자이너] 조치 요청된 알림 상세: 조치 시각 옆 걸린 시간(발생 후 n분)은 흐린 글자 */
 body.ver-7 .ac-d-meta .ac-d-took { margin-left: var(--space-8); color: var(--text-tertiary); }
-body.ver-7 .ac-info-row > dt { width: 40px; white-space: nowrap; }   /* 관제, 현장, 조치 *//* [11/26 디자이너 "값과 기준 초과는 다른 문항"] 상세 머리: 감지 이름 앞 아이콘, 조치 요청된 알림은 기준 초과를 값 아래 줄로 내리고 회색 보통 굵기 */
-body.ver-7 .ac-d6-kind { display: inline-flex; align-items: center; gap: var(--space-6, 6px); }
-body.ver-7 .ac-d6-kind > .ac-dc-ic { color: var(--text-secondary); }
-body.ver-7 .ac-record .ac-d6-vd { display: block; margin-top: var(--space-4); font-size: var(--font-size-14); line-height: var(--font-line-height-20); font-weight: 500; color: var(--text-secondary) !important; }
+body.ver-7 .ac-info-row > dt { width: 40px; white-space: nowrap; }   /* 진행, 현장, 조치 */
 /* [11/26 디자이너 "현장 응답 대기와 전기팀 이도윤이 분리되어 보여야"] 진행 단계 | 받는 사람 사이 세로 구분선(가운데점 대신) */
 body.ver-7 .ac-info .done-stage { display: inline-flex; align-items: center; gap: var(--space-12); }
 body.ver-7 .ac-info .done-stage .ac-stage-to { color: var(--text-secondary); padding-left: var(--space-12); border-left: var(--border-width-thin) solid var(--border-divider); line-height: 1; }

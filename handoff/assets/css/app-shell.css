@@ -1588,8 +1588,7 @@ body.v2-2 .context-panel.is-collapsed .panel-head::after { opacity: 0; }
 
 
   --ai-spectrum-ramp:
-    #1B77EE 0%, #0A49D7 12.5%, #1E2FB0 25%, #493891 37.5%, #74608B 50%,
-    #858DA3 62.5%, #71A7C9 75%, #459EE9 87.5%, #1B77EE 100%;
+    var(--color-spectrum-info);
 }
 
 .ai-panel.is-open .ai-box { padding: var(--space-4); }
@@ -1941,14 +1940,7 @@ body.v2-2 .context-panel.is-collapsed .panel-head::after { opacity: 0; }
   --glow-color-20: hsl(41deg 89% 54% / 20%);
 
 
-  --gradient-one: radial-gradient(at 80% 55%, #eec242 0px, transparent 50%);
-  --gradient-two: radial-gradient(at 69% 34%, #cbad61 0px, transparent 50%);
-  --gradient-three: radial-gradient(at 8% 6%, #d38210 0px, transparent 50%);
-  --gradient-four: radial-gradient(at 41% 38%, #f2b020 0px, transparent 50%);
-  --gradient-five: radial-gradient(at 86% 85%, #9c7d6b 0px, transparent 50%);
-  --gradient-six: radial-gradient(at 82% 18%, #a5521a 0px, transparent 50%);
-  --gradient-seven: radial-gradient(at 51% 4%, #7d4f5a 0px, transparent 50%);
-  --gradient-base: linear-gradient(#f2b020 0 100%);
+  --edge-ring: linear-gradient(125deg, #f2b020 0%, #eec242 30%, #d38210 58%, #a5521a 80%, #7d4f5a 100%);
 
 
   box-shadow:
@@ -1970,14 +1962,8 @@ body.v2-2 .context-panel.is-collapsed .panel-head::after { opacity: 0; }
   --glow-color-40: hsl(11deg 86% 58% / 40%);
   --glow-color-20: hsl(11deg 86% 58% / 20%);
 
-  --gradient-one: radial-gradient(at 80% 55%, #d96f5e 0px, transparent 50%);
-  --gradient-two: radial-gradient(at 69% 34%, #a3687b 0px, transparent 50%);
-  --gradient-three: radial-gradient(at 8% 6%, #d9321d 0px, transparent 50%);
-  --gradient-four: radial-gradient(at 41% 38%, #f05937 0px, transparent 50%);
-  --gradient-five: radial-gradient(at 86% 85%, #6d487c 0px, transparent 50%);
-  --gradient-six: radial-gradient(at 82% 18%, #a3121e 0px, transparent 50%);
-  --gradient-seven: radial-gradient(at 51% 4%, #572262 0px, transparent 50%);
-  --gradient-base: linear-gradient(#f05937 0 100%);
+
+  --edge-ring: linear-gradient(115deg, #f05937 0%, #dc3f28 28%, #c33a40 52%, #bd5d62 74%, #95527a 100%);
 
   box-shadow:
     0 0 0 1px rgb(217 111 94 / 60%),
@@ -1993,15 +1979,7 @@ body.v2-2 .context-panel.is-collapsed .panel-head::after { opacity: 0; }
   pointer-events: none;
   border-radius: inherit;
   padding: 1px;
-  background:
-    var(--gradient-one),
-    var(--gradient-two),
-    var(--gradient-three),
-    var(--gradient-four),
-    var(--gradient-five),
-    var(--gradient-six),
-    var(--gradient-seven),
-    var(--gradient-base);
+  background: var(--edge-ring);
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);
@@ -2084,8 +2062,7 @@ body.v2-2 .context-panel.is-collapsed .panel-head::after { opacity: 0; }
   --ai-input-focus-bg: var(--color-yellow-900);
 
   --ai-spectrum-ramp:
-    #F2B020 0%, #D38210 12.5%, #A5521A 25%, #813D39 37.5%, #7D4F5A 50%,
-    #9C7D6B 62.5%, #CBAD61 75%, #EEC242 87.5%, #F2B020 100%;
+    var(--color-spectrum-warning);
 }
 
 
@@ -2108,8 +2085,7 @@ body.v2-2 .context-panel.is-collapsed .panel-head::after { opacity: 0; }
     #f4463f 100%);
 
   --ai-spectrum-ramp:
-    #F05937 0%, #D9321D 12.5%, #A3121E 25%, #6D0B3B 37.5%, #572262 50%,
-    #6D487C 62.5%, #A3687B 75%, #D96F5E 87.5%, #F05937 100%;
+    var(--color-spectrum-critical);
 }
 
 
